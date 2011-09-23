@@ -1,0 +1,3 @@
+server:
+    browser: :firefox
+    url: 'http://protactinium.phx.rsmart.com:8080'

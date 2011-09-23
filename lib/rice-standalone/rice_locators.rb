@@ -3,21 +3,10 @@
 # 
 # == Synopsis
 #
-# Creates a locator object that contains all locator information for selenium testing.
+# Creates a locator object that contains all Rice locator information for testing.
 #
 # Author:: Kyle Campos (mailto:kcampos@rsmart.com)
 #
-
-class Locators
-  
-  attr_accessor :locator
-  
-  def initialize(locator)
-    @locator = locator
-  end
-  
-end
-
 
 class RiceLocators < Locators
   

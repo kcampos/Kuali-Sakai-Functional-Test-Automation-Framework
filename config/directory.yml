@@ -1,0 +1,99 @@
+admin:
+    username: 'admin'
+    password: 'admin'
+    site: ''
+instructor:
+    username: 'instructor1'
+    password: 'password'
+    site: '1 2 3 F11'
+person1:
+    id: 'student01'
+    firstname: 'Sandra'
+    lastname: 'Cheeks'
+    email: 'cswines@rsmart.com'
+    password: 'password'
+    type: 'registered'
+person2:
+    id: 'student02'
+    firstname: 'Bob'
+    lastname: 'Billy'
+    email: 'cswines@rsmart.com'
+    password: 'password'
+    type: 'registered'
+person3:
+    id: 'instructor1'
+    firstname: 'Joe'
+    lastname: 'Instructor'
+    email: 'cswines@rsmart.com'
+    password: 'password'
+    type: 'maintain'
+person4:
+    id: 'instructor2'
+    firstname: 'Joanne'
+    lastname: 'Instructor'
+    email: 'cswines@rsmart.com'
+    password: 'password'
+    type: 'maintain'
+person5:
+    id: 'student03'
+    firstname: 'Achilles'
+    lastname: 'Punks'
+    email: 'cswines@rsmart.com'
+    password: 'password'
+    type: 'registered'
+person6:
+    id: 'student04'
+    firstname: 'Wilma'
+    lastname: 'Legrobach'
+    email: 'cswines@rsmart.com'
+    password: 'password'
+    type: 'registered'
+person7:
+    id: 'student05'
+    firstname: 'Jason'
+    lastname: 'Elbate'
+    email: 'cswines@rsmart.com'
+    password: 'password'
+    type: 'registered'
+person8:
+    id: 'student06'
+    firstname: 'Jain'
+    lastname: 'Linkvence'
+    email: 'cswines@rsmart.com'
+    password: 'password'
+    type: 'registered'
+person9:
+    id: 'student07'
+    firstname: 'Dirk'
+    lastname: 'Dogooder'
+    email: 'cswines@rsmart.com'
+    password: 'password'
+    type: 'registered'
+person10:
+    id: 'student08'
+    firstname: 'Sally'
+    lastname: 'Manilla'
+    email: 'cswines@rsmart.com'
+    password: 'password'
+    type: 'registered'
+person11:
+    id: 'student09'
+    firstname: 'Bo'
+    lastname: 'Gart'
+    email: 'cswines@rsmart.com'
+    password: 'password'
+    type: 'registered'
+person12:
+    id: 'student10'
+    firstname: 'Anand'
+    lastname: 'SuperNinja'
+    email: 'cswines@rsmart.com'
+    password: 'password'
+    type: 'registered'
+person13:
+    id: "o'gallywag"
+    firstname: "Jack"
+    lastname: "O'Gallywag"
+    email: "cswines@rsmart.com"
+    password: "password"
+    type: "registered"

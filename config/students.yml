@@ -1,0 +1,14 @@
+person1:
+    id: student01
+    firstname: Sandra
+    lastname: Cheeks
+    email: cswines@rsmart.com
+    password: password
+    type: registered
+person2:
+    id: student
+    firstname: 
+    lastname: 
+    email: cswines@rsmart.com
+    password: password
+    type: 
