@@ -12,12 +12,18 @@ class SakaiCLE
     @browser = browser
   end
   
-  # Login
+  # Log in
   def login(username, password)
     frame = @browser.frame(:id, "ifrm")
     frame.text_field(:id, "eid").set username
     frame.text_field(:id, "pw").set password
     frame.form(:method, "post").submit
+  end
+  
+  # Log out
+  
+  def logout
+    
   end
   
 end

@@ -92,6 +92,28 @@ module ToolsMenu
   
 end
 
+# Page for adding a new Announcement
+class AddAnnouncements
+  
+  include PageObject
+  include ToolsMenu
+  
+  in_frame(:index=>0) do |frame|
+    
+    # Going to define the WYSIWYG text editor at some later time
+    
+    text_field(:title, :id=>"subject", :frame=>frame)
+    radio_button(:show, :id=>"hidden_false", :frame=>frame)
+    radio_button(:hide, :id=>"hidden_true", :frame=>frame)
+    radio_button(:specify_dates, :id=>"hidden_specify", :frame=>frame)
+    button(:add_attachments, :name=>"attach", :frame=>frame)
+    button(:add_announcement, :name=>"post", :frame=>frame)
+    button(:preview, :name=>"preview", :frame=>frame)
+    button(:clear, :name=>"cancel", :frame=>frame)
+    
+  end
+
+end
 # The Add Multiple Tool Instances page that appears during Site creation
 # after the Course Site Tools page
 class AddMultipleTools
@@ -124,7 +146,142 @@ class AddMultipleTools
   end
   
 end
+# The Add Sections Page in Site Management
+class AddSections
+  
+  include PageObject
+  include ToolsMenu
+  
+  in_frame(:index=>0) do |frame|
+    link(:overview, :id=>"addSectionsForm:_idJsp3", :frame=>frame)
+    link(:student_memberships, :id=>"addSectionsForm:_idJsp12", :frame=>frame)
+    link(:options, :id=>"addSectionsForm:_idJsp17", :frame=>frame)
+    select_list(:num_to_add, :id=>"addSectionsForm:numToAdd", :frame=>frame)
+    select_list(:category, :id=>"addSectionsForm:category", :frame=>frame)
+    button(:add_sections, :id=>"addSectionsForm:_idJsp89", :frame=>frame)
+    button(:cancel, :id=>"addSectionsForm:_idJsp90", :frame=>frame)
+    
+    # Note that the following field definitions are appropriate for
+    # ONLY THE FIRST instance of each of the fields. The Add Sections page
+    # allows for an arbitrary number of these fields to exist.
+    # If you are going to test the addition of multiple sections
+    # and/or meetings, then their elements will have to be
+    # explicitly called or defined in the test scripts themselves.
+    text_field(:name, :id=>"addSectionsForm:sectionTable:0:titleInput", :frame=>frame)
+    radio_button(:unlimited_size, :name=>"addSectionsForm:sectionTable:0:limit", :index=>0, :frame=>frame)
+    radio_button(:limited_size, :name=>"addSectionsForm:sectionTable:0:limit", :index=>1, :frame=>frame)
+    text_field(:max_enrollment, :id=>"addSectionsForm:sectionTable:0:maxEnrollmentInput", :frame=>frame)
+    checkbox(:monday, :id=>"addSectionsForm:sectionTable:0:meetingsTable:0:monday", :frame=>frame)
+    checkbox(:tuesday, :id=>"addSectionsForm:sectionTable:0:meetingsTable:0:tuesday", :frame=>frame)
+    checkbox(:wednesday, :id=>"addSectionsForm:sectionTable:0:meetingsTable:0:wednesday", :frame=>frame)
+    checkbox(:thursday, :id=>"addSectionsForm:sectionTable:0:meetingsTable:0:thursday", :frame=>frame)
+    checkbox(:friday, :id=>"addSectionsForm:sectionTable:0:meetingsTable:0:friday", :frame=>frame)
+    checkbox(:saturday, :id=>"addSectionsForm:sectionTable:0:meetingsTable:0:saturday", :frame=>frame)
+    checkbox(:sunday, :id=>"addSectionsForm:sectionTable:0:meetingsTable:0:sunday", :frame=>frame)
+    text_field(:start_time, :id=>"addSectionsForm:sectionTable:0:meetingsTable:0:startTime", :frame=>frame)
+    radio_button(:start_am, :name=>"addSectionsForm:sectionTable:0:meetingsTable:0:startTimeAm", :index=>0, :frame=>frame)
+    radio_button(:start_pm, :name=>"addSectionsForm:sectionTable:0:meetingsTable:0:startTimeAm", :index=>1, :frame=>frame)
+    text_field(:end_time, :id=>"addSectionsForm:sectionTable:0:meetingsTable:0:endTime", :frame=>frame)
+    radio_button(:end_am, :name=>"addSectionsForm:sectionTable:0:meetingsTable:0:endTimeAm", :index=>0, :frame=>frame)
+    radio_button(:end_pm, :name=>"addSectionsForm:sectionTable:0:meetingsTable:0:endTimeAm", :index=>1, :frame=>frame)
+    text_field(:location, :id=>"addSectionsForm:sectionTable:0:meetingsTable:0:location", :frame=>frame)
+    link(:add_days, :id=>"addSectionsForm:sectionTable:0:addMeeting", :frame=>frame)
+    
+  end
 
+end
+
+# The Aliases page
+class Aliases
+  
+  include PageObject
+  include ToolsMenu
+  
+  in_frame(:index=>0) do |frame|
+    link(:new_alias, :text=>"New Alias", :frame=>frame)
+    text_field(:search_field, :id=>"search", :frame=>frame)
+    link(:search_button, :text=>"Search", :frame=>frame)
+    select_list(:select_page_size, :id=>"selectPageSize", :frame=>frame)
+    button(:next, :name=>"eventSubmit_doList_next", :frame=>frame)
+    button(:last, :name=>"eventSubmit_doList_last", :frame=>frame)
+    button(:previous, :name=>"eventSubmit_doList_prev", :frame=>frame)
+    button(:first, :name=>"eventSubmit_doList_first", :frame=>frame)
+  end
+
+end
+
+# Announcements page
+class Announcements
+  
+  include PageObject
+  include ToolsMenu
+  
+  in_frame(:index=>0) do |frame|
+    link(:add, :text=>"Add", :frame=>frame)
+    link(:merge, :text=>"Merge", :frame=>frame)
+    link(:options, :text=>"Options", :frame=>frame)
+    link(:permissions, :text=>"Permissions", :frame=>frame)
+    select_list(:view, :id=>"view", :frame=>frame)
+    
+  end
+
+end
+
+# Page for merging announcements from other sites
+class AnnouncementsMerge
+  
+  include PageObject
+  include ToolsMenu
+  
+  in_frame(:index=>0) do |frame|
+    # This page can have an arbitrary number of site checkboxes.
+    # Only the first 5 are defined here.
+    # The rest will have to be called explicitly in any
+    # test case that needs to access those elements
+    checkbox(:site1, :id=>"site1", :frame=>frame)
+    checkbox(:site2, :id=>"site2", :frame=>frame)
+    checkbox(:site3, :id=>"site3", :frame=>frame)
+    checkbox(:site4, :id=>"site4", :frame=>frame)
+    checkbox(:site5, :id=>"site5", :frame=>frame)
+    button(:save, :name=>"eventSubmit_doUpdate", :frame=>frame)
+    button(:clear, :name=>"eventSubmit_doCancel", :frame=>frame)
+  end
+
+end
+
+# Page for setting up options for announcements
+class AnnouncementsOptions
+  
+  include PageObject
+  include ToolsMenu
+  
+  in_frame(:index=>0) do |frame|
+    (:, :=>"", :frame=>frame)
+    (:, :=>"", :frame=>frame)
+    (:, :=>"", :frame=>frame)
+    (:, :=>"", :frame=>frame)
+    (:, :=>"", :frame=>frame)
+    
+  end
+
+end
+
+# Page containing permissions options for announcements
+class AnnouncementsPermissions
+  
+  include PageObject
+  include ToolsMenu
+  
+  in_frame(:index=>0) do |frame|
+    (:, :=>"", :frame=>frame)
+    (:, :=>"", :frame=>frame)
+    (:, :=>"", :frame=>frame)
+    (:, :=>"", :frame=>frame)
+    (:, :=>"", :frame=>frame)
+    
+  end
+
+end
 # The Course/Section Information page that appears when creating a new Site
 class CourseSectionInfo
   
@@ -257,6 +414,22 @@ class CourseSiteTools
   
 end
 
+# The Page that appears when you create a New Alias
+class CreateNewAlias
+  
+  include PageObject
+  include ToolsMenu
+  
+  in_frame(:index=>0) do |frame|
+    text_field(:alias_name, :id=>"id", :frame=>frame)
+    text_field(:target, :id=>"target", :frame=>frame)
+    button(:save, :name=>"eventSubmit_doSave", :frame=>frame)
+    button(:cancel, :name=>"eventSubmit_doCancel", :frame=>frame)
+    
+  end
+
+end
+
 # The Create New Group page inside the Site Editor
 class CreateNewGroup
 
@@ -295,6 +468,67 @@ class CreateNewUser
     button(:cancel_changes, :name=>"eventSubmit_doCancel", :frame=>frame)
   end
   
+end
+
+# Exactly like the Add Sections page, but used when editing an existing section
+class EditSections
+  
+  include PageObject
+  include ToolsMenu
+  
+  in_frame(:index=>0) do |frame|
+    link(:overview, :id=>"editSectionsForm:_idJsp3", :frame=>frame)
+    link(:student_memberships, :id=>"editSectionsForm:_idJsp12", :frame=>frame)
+    link(:options, :id=>"editSectionsForm:_idJsp17", :frame=>frame)
+    select_list(:num_to_add, :id=>"editSectionsForm:numToAdd", :frame=>frame)
+    select_list(:category, :id=>"editSectionsForm:category", :frame=>frame)
+    button(:add_sections, :id=>"editSectionsForm:_idJsp89", :frame=>frame)
+    button(:cancel, :id=>"editSectionsForm:_idJsp90", :frame=>frame)
+    
+    # Note that the following field definitions are appropriate for
+    # ONLY THE FIRST instance of each of the fields. The Edit Sections page
+    # allows for an arbitrary number of these fields to exist.
+    # If you are going to test the editing of multiple sections
+    # and/or meetings, then their elements will have to be
+    # explicitly called or defined in the test scripts themselves.
+    text_field(:name, :id=>"editSectionsForm:sectionTable:0:titleInput", :frame=>frame)
+    radio_button(:unlimited_size, :name=>"editSectionsForm:sectionTable:0:limit", :index=>0, :frame=>frame)
+    radio_button(:limited_size, :name=>"editSectionsForm:sectionTable:0:limit", :index=>1, :frame=>frame)
+    text_field(:max_enrollment, :id=>"editSectionsForm:sectionTable:0:maxEnrollmentInput", :frame=>frame)
+    checkbox(:monday, :id=>"editSectionsForm:sectionTable:0:meetingsTable:0:monday", :frame=>frame)
+    checkbox(:tuesday, :id=>"editSectionsForm:sectionTable:0:meetingsTable:0:tuesday", :frame=>frame)
+    checkbox(:wednesday, :id=>"editSectionsForm:sectionTable:0:meetingsTable:0:wednesday", :frame=>frame)
+    checkbox(:thursday, :id=>"editSectionsForm:sectionTable:0:meetingsTable:0:thursday", :frame=>frame)
+    checkbox(:friday, :id=>"editSectionsForm:sectionTable:0:meetingsTable:0:friday", :frame=>frame)
+    checkbox(:saturday, :id=>"editSectionsForm:sectionTable:0:meetingsTable:0:saturday", :frame=>frame)
+    checkbox(:sunday, :id=>"editSectionsForm:sectionTable:0:meetingsTable:0:sunday", :frame=>frame)
+    text_field(:start_time, :id=>"editSectionsForm:sectionTable:0:meetingsTable:0:startTime", :frame=>frame)
+    radio_button(:start_am, :name=>"editSectionsForm:sectionTable:0:meetingsTable:0:startTimeAm", :index=>0, :frame=>frame)
+    radio_button(:start_pm, :name=>"editSectionsForm:sectionTable:0:meetingsTable:0:startTimeAm", :index=>1, :frame=>frame)
+    text_field(:end_time, :id=>"editSectionsForm:sectionTable:0:meetingsTable:0:endTime", :frame=>frame)
+    radio_button(:end_am, :name=>"editSectionsForm:sectionTable:0:meetingsTable:0:endTimeAm", :index=>0, :frame=>frame)
+    radio_button(:end_pm, :name=>"editSectionsForm:sectionTable:0:meetingsTable:0:endTimeAm", :index=>1, :frame=>frame)
+    text_field(:location, :id=>"editSectionsForm:sectionTable:0:meetingsTable:0:location", :frame=>frame)
+    link(:add_days, :id=>"editSectionsForm:sectionTable:0:addMeeting", :frame=>frame)
+    
+  end
+
+end
+
+# Page for editing an existing Alias record
+class EditAlias
+  
+  include PageObject
+  include ToolsMenu
+  
+  in_frame(:index=>0) do |frame|
+    link(:remove_alias, :text=>"Remove Alias", :frame=>frame)
+    text_field(:target, :id=>"target", :frame=>frame)
+    button(:save, :name=>"eventSubmit_doSave", :frame=>frame)
+    button(:cancel, :name=>"eventSubmit_doCancel", :frame=>frame)
+    
+  end
+
 end
 
 # Groups page inside the Site Editor
@@ -350,6 +584,137 @@ class MyWorkspace
   include PageObject
   include ToolsMenu
   
+  in_frame(:index=>0) do |frame|
+    select_list(:select_page_size, :id=>"selectPageSize", :frame=>frame)
+    button(:next, :name=>"eventSubmit_doList_next", :frame=>frame)
+    button(:last, :name=>"eventSubmit_doList_last", :frame=>frame)
+    button(:previous, :name=>"eventSubmit_doList_prev", :frame=>frame)
+    button(:first, :name=>"eventSubmit_doList_first", :frame=>frame)
+  end
+end
+
+# Realms page
+class Realms
+  
+  include PageObject
+  include ToolsMenu
+  
+  in_frame(:index=>0) do |frame|
+    link(:new_realm, :text=>"New Realm", :frame=>frame)
+    link(:search, :text=>"Search", :frame=>frame)
+    select_list(:select_page_size, :name=>"selectPageSize", :frame=>frame)
+    button(:next, :name=>"eventSubmit_doList_next", :frame=>frame)
+    button(:last, :name=>"eventSubmit_doList_last", :frame=>frame)
+    button(:previous, :name=>"eventSubmit_doList_prev", :frame=>frame)
+    button(:first, :name=>"eventSubmit_doList_first", :frame=>frame)
+    
+  end
+
+end
+
+# The Search page
+class Search
+  
+  include PageObject
+  include ToolsMenu
+  
+  in_frame(:index=>0) do |frame|
+    link(:admin, :text=>"Admin", :frame=>frame)
+    text_field(:search_field, :id=>"search", :frame=>frame)
+    button(:search_button, :name=>"sb", :frame=>frame)
+    radio_button(:this_site, :id=>"searchSite", :frame=>frame)
+    radio_button(:all_my_sites, :id=>"searchMine", :frame=>frame)
+    
+  end
+
+end
+
+# The Search Admin page
+class SearchAdmin
+  
+  include PageObject
+  include ToolsMenu
+  
+  in_frame(:index=>0) do |frame|
+    link(:search, :text=>"Search", :frame=>frame)
+    link(:rebuild_site_index, :text=>"Rebuild Site Index", :frame=>frame)
+    link(:refresh_site_index, :text=>"Refresh Site Index", :frame=>frame)
+    link(:rebuild_whole_index, :text=>"Rebuild Whole Index", :frame=>frame)
+    link(:refresh_whole_index, :text=>"Refresh Whole Index", :frame=>frame)
+    link(:remove_lock, :text=>"Remove Lock", :frame=>frame)
+    link(:reload_index, :text=>"Reload Index", :frame=>frame)
+    link(:enable_diagnostics, :text=>"Enable Diagnostics", :frame=>frame)
+    link(:disable_diagnostics, :text=>"Disable Diagnostics", :frame=>frame)
+  end
+
+end
+
+# Sections Options page in the Site Management section
+class SectionsOptions
+  
+  include PageObject
+  include ToolsMenu
+  
+  in_frame(:index=>0) do |frame|
+    checkbox(:students_can_sign_up, :id=>"optionsForm:selfRegister", :frame=>frame)
+    checkbox(:students_can_switch_sections, :id=>"optionsForm:selfSwitch", :frame=>frame)
+    button(:update, :id=>"optionsForm:_idJsp50", :frame=>frame)
+    button(:cancel, :id=>"optionsForm:_idJsp51", :frame=>frame)
+    link(:overview, :id=>"optionsForm:_idJsp3", :frame=>frame)
+    link(:add_sections, :id=>"optionsForm:_idJsp8", :frame=>frame)
+    link(:student_memberships, :id=>"optionsForm:_idJsp12", :frame=>frame)
+    
+  end
+
+end
+
+# The Sections page in Site Management
+class SectionsOverview
+  
+  include PageObject
+  include ToolsMenu
+  
+  in_frame(:index=>0) do |frame|
+    link(:add_sections, :id=>"overviewForm:_idJsp8", :frame=>frame)
+    link(:student_memberships, :id=>"overviewForm:_idJsp12", :frame=>frame)
+    link(:options, :id=>"overviewForm:_idJsp17", :frame=>frame)
+    link(:sort_name, :id=>"overviewForm:sectionsTable:_idJsp54", :frame=>frame)
+    link(:sort_ta, :id=>"overviewForm:sectionsTable:_idJsp73", :frame=>frame)
+    link(:sort_day, :id=>"overviewForm:sectionsTable:_idJsp78", :frame=>frame)
+    link(:sort_time, :id=>"overviewForm:sectionsTable:_idJsp83", :frame=>frame)
+    link(:sort_location, :id=>"overviewForm:sectionsTable:_idJsp88", :frame=>frame)
+    link(:sort_current_size, :id=>"overviewForm:sectionsTable:_idJsp93", :frame=>frame)
+    link(:sort_avail, :id=>"overviewForm:sectionsTable:_idJsp97", :frame=>frame)
+    
+  end
+
+end
+
+# Sites page
+class Sites
+  
+  include PageObject
+  include ToolsMenu
+  
+  in_frame(:index=>0) do |frame|
+    link(:new_site, :text=>"New Site", :frame=>frame)
+    text_field(:search_field, :id=>"search", :frame=>frame)
+    link(:search_button, :text=>"Search", :frame=>frame)
+    text_field(:search_site_id, :id=>"search_site", :frame=>frame)
+    link(:search_site_id_button, :text=>"Site ID", :frame=>frame)
+    text_field(:search_user_id, :id=>"search_user", :frame=>frame)
+    link(:search_user_id_button, :text=>"User ID", :frame=>frame)
+    button(:next, :name=>"eventSubmit_doList_next", :frame=>frame)
+    button(:last, :name=>"eventSubmit_doList_last", :frame=>frame)
+    button(:previous, :name=>"eventSubmit_doList_prev", :frame=>frame)
+    button(:first, :name=>"eventSubmit_doList_first", :frame=>frame)
+    select_list(:select_page_size, :name=>"selectPageSize", :frame=>frame)
+    button(:next, :name=>"eventSubmit_doList_next", :frame=>frame)
+    button(:last, :name=>"eventSubmit_doList_last", :frame=>frame)
+    button(:previous, :name=>"eventSubmit_doList_prev", :frame=>frame)
+    button(:first, :name=>"eventSubmit_doList_first", :frame=>frame)
+  end
+
 end
 
 # The Site Editor page
@@ -410,6 +775,7 @@ class SiteSetupReview
   end
 
 end
+
 #The Site Type page that appears when creating a new site
 class SiteType
   
@@ -439,8 +805,41 @@ class Users
     link(:search, :text=>"Search", :frame=>frame)
     text_field(:search, :id=>"search", :frame=>frame)
     select_list(:select_page_size, :name=>"selectPageSize", :frame=>frame)
+    button(:next, :name=>"eventSubmit_doList_next", :frame=>frame)
+    button(:last, :name=>"eventSubmit_doList_last", :frame=>frame)
+    button(:previous, :name=>"eventSubmit_doList_prev", :frame=>frame)
+    button(:first, :name=>"eventSubmit_doList_first", :frame=>frame)
   end
   
+end
+
+# User Membership page for admin users
+class UserMembership
+  
+  include PageObject
+  include ToolsMenu
+  
+  in_frame(:index=>0) do |frame|
+    select_list(:user_type, :id=>"userlistForm:selectType", :frame=>frame)
+    select_list(:user_authority, :id=>"userlistForm:selectAuthority", :frame=>frame)
+    text_field(:search_field, :id=>"userlistForm:inputSearchBox", :frame=>frame)
+    button(:search_button, :id=>"userlistForm:searchButton", :frame=>frame)
+    button(:clear_search, :id=>"userlistForm:clearSearchButton", :frame=>frame)
+    select_list(:page_size, :id=>"userlistForm:pager_pageSize", :frame=>frame)
+    button(:export_csv, :id=>"userlistForm:exportCsv", :frame=>frame)
+    button(:export_excel, :id=>"userlistForm:exportXls", :frame=>frame)
+    link(:sort_user_id, =>"userlistForm:_idJsp13:_idJsp14", :frame=>frame)
+    link(:sort_internal_user_id, :id=>"userlistForm:_idJsp13:_idJsp18", :frame=>frame)
+    link(:sort_name, :id=>"userlistForm:_idJsp13:_idJsp21", :frame=>frame)
+    link(:sort_email, :id=>"userlistForm:_idJsp13:_idJsp24", :frame=>frame)
+    link(:sort_type, :id=>"userlistForm:_idJsp13:_idJsp28", :frame=>frame)
+    link(:sort_authority, :id=>"userlistForm:_idJsp13:_idJsp31", :frame=>frame)
+    link(:sort_created_on, :id=>"userlistForm:_idJsp13:_idJsp34", :frame=>frame)
+    link(:sort_modified_on, :id=>"userlistForm:_idJsp13:_idJsp37", :frame=>frame)
+    #(:, =>"", :frame=>frame)
+    
+  end
+
 end
 
 =begin
@@ -452,11 +851,11 @@ class Template
   include ToolsMenu
   
   in_frame(:index=>0) do |frame|
-    (:, =>"", :frame=>frame)
-    (:, =>"", :frame=>frame)
-    (:, =>"", :frame=>frame)
-    (:, =>"", :frame=>frame)
-    (:, =>"", :frame=>frame)
+    (:, :=>"", :frame=>frame)
+    (:, :=>"", :frame=>frame)
+    (:, :=>"", :frame=>frame)
+    (:, :=>"", :frame=>frame)
+    (:, :=>"", :frame=>frame)
     
   end
 

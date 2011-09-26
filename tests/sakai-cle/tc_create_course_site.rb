@@ -1,7 +1,7 @@
 # 
 # == Synopsis
 #
-# This case sets up a Site for testing
+# This case tests the setting up of a Course site.
 #
 # Author: Abe Heward (aheward@rSmart.com)
 
@@ -12,7 +12,7 @@ require File.dirname(__FILE__) + "/../../lib/utilities.rb"
 require File.dirname(__FILE__) + "/../../lib/sakai-CLE/page_elements.rb"
 require File.dirname(__FILE__) + "/../../lib/sakai-CLE/app_functions.rb"
 
-class TestCreatingSites < Test::Unit::TestCase
+class TestCreatingCourseSite < Test::Unit::TestCase
   
   include Utilities
 
@@ -34,7 +34,7 @@ class TestCreatingSites < Test::Unit::TestCase
     assert_equal [], @verification_errors
   end
   
-  def test_create_sites
+  def test_create_site1
     
     # Log in to Sakai
     @sakai.login(@user_name, @password)
@@ -64,6 +64,10 @@ class TestCreatingSites < Test::Unit::TestCase
     assert @browser.text.include?("Academic term:")
     assert site_type.academic_term_element.visible?
     
+    # Store the selected term value for use later
+    term = site_type.academic_term
+    
+    # Click continue
     site_type.continue
     
     #TEST CASE: Check the Course/Section Information page
@@ -71,10 +75,18 @@ class TestCreatingSites < Test::Unit::TestCase
     
     course_section = CourseSectionInfo.new(@browser)
     
-    # Fill in those fields
-    course_section.subject='1'
-    course_section.course='2'
-    course_section.section='3'
+    # Fill in those fields, storing the entered values for later verification steps
+    subject = random_string(8)
+    course_section.subject = subject
+    
+    course = random_string(8)
+    course_section.course = course
+    
+    section = random_string(8)
+    course_section.section = section
+    
+    # Store site name for ease of coding and readability later
+    site_name = "#{subject} #{course} #{section} #{term}"
     
     # Click continue button
     course_section.continue
@@ -99,6 +111,7 @@ class TestCreatingSites < Test::Unit::TestCase
     
     # TEST CASE: Check the Course Site Information page
     assert @browser.text.include?("Enter basic information about the course site...")
+    assert @browser.frame(:index, 0).p(:class, /shorttext/).text.include?("*\nSite Title\n#{site_name}")
     
     course_site = CourseSiteInfo.new(@browser)
     
@@ -150,7 +163,11 @@ class TestCreatingSites < Test::Unit::TestCase
     assert @browser.text.include?("Alert: Please specify an email address for Email Archive tool.")
     
     add_tools = AddMultipleTools.new(@browser)
-    add_tools.site_email_address=random_alphanums
+    
+    # Create a random email address and store the string for later
+    email_address = random_alphanums
+    
+    add_tools.site_email_address = email_address
     add_tools.web_content_source="http://www.rsmart.com"
     
     # Click the Continue button
@@ -169,11 +186,24 @@ class TestCreatingSites < Test::Unit::TestCase
     
     # TEST CASE: Verify the text on the Review page
     assert @browser.text.include?("Please review the following information about your site.")
+    assert @browser.text.include?("#{site_name}"), "Review page not showing site name #{site_name}"
     
     review = SiteSetupReview.new(@browser)
     review.request_site
     
-    #TEST CASE: 
+    # Create a string that will match the new Site's "creation date" string
+    creation_date = Time.now.strftime("%b %d, %Y %I:%M %P")
+    
+    #Sort the list of sites so the newest site appears at the top
+    2.times do
+      @browser.frame(:index=>0).link(:href, /criterion=created%20on&panel=Main&sakai_action=doSort_sites/).click
+    end
+    
+    link_text = @browser.frame(:index=>0).link(:href=>/xsl-portal.site/, :index=>0).text
+    
+    #TEST CASE: Verify the creation of the site by the name and creation date
+    assert_equal(link_text, site_name, "#{link_text} does not match #{site_name}")
+    assert @browser.text.include?("#{creation_date}"), "Could not find a site with a creation date of #{creation_date}"
     
   end
   
