@@ -23,7 +23,14 @@ class SakaiCLE
   # Log out
   
   def logout
-    
+    @browser.link(:text, "Logout").click
+  end
+  
+  def make_date(time_object)
+    front = time_object.strftime("%b %d, %Y ")
+    back = time_object.strftime(":%M %P")
+    hour = time_object.strftime("%l").to_i
+    return front + hour.to_s + back
   end
   
 end

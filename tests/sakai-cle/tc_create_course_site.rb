@@ -192,7 +192,7 @@ class TestCreatingCourseSite < Test::Unit::TestCase
     review.request_site
     
     # Create a string that will match the new Site's "creation date" string
-    creation_date = Time.now.strftime("%b %d, %Y %I:%M %P")
+    creation_date = @sakai.make_date(Time.now)
     
     #Sort the list of sites so the newest site appears at the top
     2.times do

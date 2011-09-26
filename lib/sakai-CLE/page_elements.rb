@@ -92,6 +92,69 @@ module ToolsMenu
   
 end
 
+# User Account page
+class Account
+  
+  # IMPORTANT: this class does not use PageObject or the ToolsMenu!!
+  # So, the only available method to navigate away from this page is
+  # Home. Otherwise, you'll have to call the navigation link
+  # Explicitly in the test case itself.
+  #
+  # Objects and methods used in this class must be explicitly
+  # defined using Watir and Ruby code.
+  #
+  # Do NOT use the PageObject syntax.
+  
+  def initialize(browser)
+    @browser = browser
+  end
+
+  def modify_details
+    @browser.frame(:index=>0).button(:name=>"eventSubmit_doModify").click
+  end
+  
+  def user_id
+    @browser.frame(:index=>0).table(:class=>"itemSummary", :index=>0)[0][1].text
+  end
+  
+  def first_name
+    @browser.frame(:index=>0).table(:class=>"itemSummary", :index=>0)[1][1].text
+  end
+  
+  def last_name
+    @browser.frame(:index=>0).table(:class=>"itemSummary", :index=>0)[2][1].text
+  end
+  
+  def email
+    @browser.frame(:index=>0).table(:class=>"itemSummary", :index=>0)[3][1].text
+  end
+  
+  def type
+    @browser.frame(:index=>0).table(:class=>"itemSummary", :index=>0)[4][1].text
+  end
+  
+  def created_by
+    @browser.frame(:index=>0).table(:class=>"itemSummary", :index=>1)[0][1].text
+  end
+  
+  def created
+    @browser.frame(:index=>0).table(:class=>"itemSummary", :index=>1)[1][1].text
+  end
+  
+  def modified_by
+    @browser.frame(:index=>0).table(:class=>"itemSummary", :index=>1)[2][1].text
+  end
+  
+  def modified
+    @browser.frame(:index=>0).table(:class=>"itemSummary", :index=>1)[3][1].text
+  end
+  
+  def home
+    @browser.link(:text, "Home").click
+  end
+
+end
+
 # Page for adding a new Announcement
 class AddAnnouncements
   
@@ -254,7 +317,7 @@ class AnnouncementsOptions
   
   include PageObject
   include ToolsMenu
-  
+=begin  
   in_frame(:index=>0) do |frame|
     (:, :=>"", :frame=>frame)
     (:, :=>"", :frame=>frame)
@@ -263,7 +326,7 @@ class AnnouncementsOptions
     (:, :=>"", :frame=>frame)
     
   end
-
+=end
 end
 
 # Page containing permissions options for announcements
@@ -271,7 +334,7 @@ class AnnouncementsPermissions
   
   include PageObject
   include ToolsMenu
-  
+=begin  
   in_frame(:index=>0) do |frame|
     (:, :=>"", :frame=>frame)
     (:, :=>"", :frame=>frame)
@@ -280,7 +343,7 @@ class AnnouncementsPermissions
     (:, :=>"", :frame=>frame)
     
   end
-
+=end
 end
 # The Course/Section Information page that appears when creating a new Site
 class CourseSectionInfo
@@ -515,6 +578,24 @@ class EditSections
 
 end
 
+# The Page for editing User Account details
+class EditAccount
+  
+  include PageObject
+  include ToolsMenu
+  
+  in_frame(:index=>0) do |frame|
+    text_field(:first_name, :id=>"first-name", :frame=>frame)
+    text_field(:last_name, :id=>"last-name", :frame=>frame)
+    text_field(:email, :id=>"email", :frame=>frame)
+    text_field(:create_new_password, :id=>"pw", :frame=>frame)
+    text_field(:verify_new_password, :id=>"pw0", :frame=>frame)
+    button(:update_details, :name=>"eventSubmit_doSave", :frame=>frame)
+    button(:cancel_changes, :name=>"eventSubmit_doCancel", :frame=>frame)
+  end
+
+end
+
 # Page for editing an existing Alias record
 class EditAlias
   
@@ -583,6 +664,32 @@ class MyWorkspace
   
   include PageObject
   include ToolsMenu
+  
+  # Because the links below are contained within iframes
+  # we need the in_frame method in place so that the
+  # links can be properly parsed in the PageObject
+  # methods for them.
+  # Note that the iframes are being identified by their
+  # index values on the page. This is a very brittle
+  # method for identifying them, but for now it's our
+  # only option because both the <id> and <name>
+  # tags are unique for every site.
+  in_frame(:index=>1) do |frame|
+    # Message of the Day, Options button
+    link(:message_of_the_day_options, :text=>"Options", :frame=>frame)
+    
+  end
+  
+  in_frame(:index=>2) do |frame|
+    # Calendar Options button
+    link(:calendar_options, :text=>"Options", :frame=>frame)
+  
+  end
+  
+  in_frame(:index=>2) do |frame|
+    # My Workspace Information Options
+    link(:my_workspace_information_options, :text=>"New Messages", :frame=>frame)
+  end
   
   in_frame(:index=>0) do |frame|
     select_list(:select_page_size, :id=>"selectPageSize", :frame=>frame)
@@ -828,7 +935,7 @@ class UserMembership
     select_list(:page_size, :id=>"userlistForm:pager_pageSize", :frame=>frame)
     button(:export_csv, :id=>"userlistForm:exportCsv", :frame=>frame)
     button(:export_excel, :id=>"userlistForm:exportXls", :frame=>frame)
-    link(:sort_user_id, =>"userlistForm:_idJsp13:_idJsp14", :frame=>frame)
+    link(:sort_user_id, :id=>"userlistForm:_idJsp13:_idJsp14", :frame=>frame)
     link(:sort_internal_user_id, :id=>"userlistForm:_idJsp13:_idJsp18", :frame=>frame)
     link(:sort_name, :id=>"userlistForm:_idJsp13:_idJsp21", :frame=>frame)
     link(:sort_email, :id=>"userlistForm:_idJsp13:_idJsp24", :frame=>frame)
