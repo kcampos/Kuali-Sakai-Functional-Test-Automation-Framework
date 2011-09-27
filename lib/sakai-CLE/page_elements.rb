@@ -188,6 +188,11 @@ class AddAssignment
   # It will need special handling in the test case itself.
   
   in_frame(:index=>0) do |frame|
+    link(:assignment_list, :text=>"Assignment List", :frame=>frame)
+    link(:grade_report, :text=>"Grade Report", :frame=>frame)
+    link(:student_view, :text=>"Student View", :frame=>frame)
+    link(:permissions, :text=>"Permissions", :frame=>frame)
+    link(:options, :text=>"Options", :frame=>frame)
     text_field(:title, :id=>"new_assignment_title", :frame=>frame)
     select_list(:open_month, :id=>"new_assignment_openmonth", :frame=>frame)
     select_list(:open_day, :id=>"new_assignment_openday", :frame=>frame)
@@ -744,6 +749,23 @@ class EditAlias
 
 end
 
+# The Grade Report page accessed from the Assignments page
+class GradeReport
+  
+  include PageObject
+  include ToolsMenu
+  
+  in_frame(:index=>0) do |frame|
+    #(:, :=>"", :frame=>frame)
+    #(:, :=>"", :frame=>frame)
+    #(:, :=>"", :frame=>frame)
+    #(:, :=>"", :frame=>frame)
+    #(:, :=>"", :frame=>frame)
+    
+  end
+
+end
+
 # Groups page inside the Site Editor
 class Groups
     
@@ -792,6 +814,9 @@ class Home
 end
 
 # The Page that appears when you are not in a particular Site
+# Note that this page differs depending on what user is logged in.
+# The definitions below include all potential objects. We may
+# have to split this class out into user-specific classes.
 class MyWorkspace
   
   include PageObject
@@ -818,9 +843,9 @@ class MyWorkspace
   
   end
   
-  in_frame(:index=>2) do |frame|
+  in_frame(:index=>1) do |frame|
     # My Workspace Information Options
-    link(:my_workspace_information_options, :text=>"New Messages", :frame=>frame)
+    link(:my_workspace_information_options, :text=>"Options", :frame=>frame)
   end
   
   in_frame(:index=>0) do |frame|
@@ -830,6 +855,60 @@ class MyWorkspace
     button(:previous, :name=>"eventSubmit_doList_prev", :frame=>frame)
     button(:first, :name=>"eventSubmit_doList_first", :frame=>frame)
   end
+end
+
+# The Permissions Page in Assignments
+class Permissions
+  
+  include PageObject
+  include ToolsMenu
+  
+  in_frame(:index=>0) do |frame|
+    checkbox(:guests_all_groups, :id=>"Guestasn.all.groups", :frame=>frame)
+    checkbox(:guests_create_assignments, :id=>"Guestasn.new", :frame=>frame)
+    checkbox(:guests_submit_to_assigments, :id=>"Guestasn.submit", :frame=>frame)
+    checkbox(:guests_delete_assignments, :id=>"Guestasn.delete", :frame=>frame)
+    checkbox(:guests_read_assignments, :id=>"Guestasn.read", :frame=>frame)
+    checkbox(:guests_revise_assignments, :id=>"Guestasn.revise", :frame=>frame)
+    checkbox(:guests_grade_assignments, :id=>"Guestasn.grade", :frame=>frame)
+    checkbox(:guests_receive_notifications, :id=>"Guestasn.receive.notifications", :frame=>frame)
+    checkbox(:guests_view_drafts, :id=>"Guestasn.share.drafts", :frame=>frame)
+    checkbox(:instructors_all_groups, :id=>"", :frame=>frame)
+    checkbox(:instructors_create_assignments, :id=>"", :frame=>frame)
+    checkbox(:instructors_submit_to_assigments, :id=>"", :frame=>frame)
+    checkbox(:instructors_delete_assignments, :id=>"", :frame=>frame)
+    checkbox(:instructors_read_assignments, :id=>"", :frame=>frame)
+    checkbox(:instructors_revise_assignments, :id=>"", :frame=>frame)
+    checkbox(:instructors_grade_assignments, :id=>"", :frame=>frame)
+    checkbox(:instructors_receive_notifications, :id=>"", :frame=>frame)
+    checkbox(:instructors_view_drafts, :id=>"", :frame=>frame)
+    checkbox(:students_all_groups, :id=>"", :frame=>frame)
+    checkbox(:students_create_assignments, :id=>"", :frame=>frame)
+    checkbox(:students_submit_to_assigments, :id=>"", :frame=>frame)
+    checkbox(:students_delete_assignments, :id=>"", :frame=>frame)
+    checkbox(:students_read_assignments, :id=>"", :frame=>frame)
+    checkbox(:students_revise_assignments, :id=>"", :frame=>frame)
+    checkbox(:students_grade_assignments, :id=>"", :frame=>frame)
+    checkbox(:students_receive_notifications, :id=>"", :frame=>frame)
+    checkbox(:students_view_drafts, :id=>"", :frame=>frame)
+    checkbox(:TAs_all_groups, :id=>"", :frame=>frame)
+    checkbox(:TAs_create_assignments, :id=>"", :frame=>frame)
+    checkbox(:TAs_submit_to_assigments, :id=>"", :frame=>frame)
+    checkbox(:TAs_delete_assignments, :id=>"", :frame=>frame)
+    checkbox(:TAs_read_assignments, :id=>"", :frame=>frame)
+    checkbox(:TAs_revise_assignments, :id=>"", :frame=>frame)
+    checkbox(:TAs_grade_assignments, :id=>"", :frame=>frame)
+    checkbox(:TAs_receive_notifications, :id=>"", :frame=>frame)
+    checkbox(:TAs_view_drafts, :id=>"", :frame=>frame)
+    
+    
+    #(:, :=>"", :frame=>frame)
+    #(:, :=>"", :frame=>frame)
+    #(:, :=>"", :frame=>frame)
+    #(:, :=>"", :frame=>frame)
+    
+  end
+
 end
 
 # Realms page
@@ -1033,6 +1112,32 @@ class SiteType
   
 end
 
+# The Student View page accessed from the Assignments page
+class StudentView
+  
+  include PageObject
+  include ToolsMenu
+  
+  in_frame(:index=>0) do |frame|
+    link(:add, :text=>"Add", :frame=>frame)
+    link(:grade_report, :text=>"Grade Report", :frame=>frame)
+    link(:assignment_list, :text=>"Assignment List", :frame=>frame)
+    link(:permissions, :text=>"Permissions", :frame=>frame)
+    link(:options, :text=>"Options", :frame=>frame)
+    link(:sort_assignment_title, :text=>"Assignment title", :frame=>frame)
+    link(:sort_status, :text=>"Status", :frame=>frame)
+    link(:sort_open, :text=>"Open", :frame=>frame)
+    link(:sort_due, :text=>"Due", :frame=>frame)
+    link(:sort_scale, :text=>"Scale", :frame=>frame)
+    select_list(:select_page_size, :name=>"selectPageSize", :frame=>frame)
+    button(:next, :name=>"eventSubmit_doList_next", :frame=>frame)
+    button(:last, :name=>"eventSubmit_doList_last", :frame=>frame)
+    button(:previous, :name=>"eventSubmit_doList_prev", :frame=>frame)
+    button(:first, :name=>"eventSubmit_doList_first", :frame=>frame)
+  end
+
+end
+
 # The Users page
 class Users
   
@@ -1041,8 +1146,9 @@ class Users
   
   in_frame(:index=>0) do |frame|
     link(:new_user, :text=>"New User", :frame=>frame)
-    link(:search, :text=>"Search", :frame=>frame)
-    text_field(:search, :id=>"search", :frame=>frame)
+    link(:search_button, :text=>"Search", :frame=>frame)
+    link(:clear_search, :text=>"Clear Search", :frame=>frame)
+    text_field(:search_field, :id=>"search", :frame=>frame)
     select_list(:select_page_size, :name=>"selectPageSize", :frame=>frame)
     button(:next, :name=>"eventSubmit_doList_next", :frame=>frame)
     button(:last, :name=>"eventSubmit_doList_last", :frame=>frame)

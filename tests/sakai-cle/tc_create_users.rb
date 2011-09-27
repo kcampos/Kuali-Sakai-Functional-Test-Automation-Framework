@@ -40,14 +40,13 @@ class CreateUsers < Test::Unit::TestCase
     # Log in to Sakai
     @sakai.login(@user_name, @password)
     
-    # TEST CASE: Verify "My Workspace Information" is present
-    assert @browser.text.include?("Welcome to your personal workspace.")
-    # Go to Users page in Sakai
     my_workspace = MyWorkspace.new(@browser)
-    my_workspace.users
     
-    # TEST CASE: Verify User Information is present
-    assert @browser.text.include?("These are the Users defined within the system that meet the search criteria.")
+    # TEST CASE: Verify you're on the My Workspace page
+    assert my_workspace.my_workspace_information_options_element.exist?
+    
+    # Go to Users page in Sakai
+    my_workspace.users
     
     #Hash of user information to use
     people = YAML.load_file("#{File.dirname(__FILE__)}/../../config/directory.yml")
@@ -68,8 +67,11 @@ class CreateUsers < Test::Unit::TestCase
       create.type=people["person#{x}"]['type']
       create.save_details
       users_page = Users.new(@browser)
+      
       # TEST CASE: Verify that the user has been created
-      assert @browser.text.include?(people["person#{x}"]['lastname'])
+      users_page.search_field=people["person#{x}"]['id']
+      users_page.search_button
+      assert @browser.frame(:index=>0).link(:text, people["person#{x}"]['id']).exist?
     end 
   end
   
