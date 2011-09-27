@@ -103,7 +103,7 @@ class Account
   # Objects and methods used in this class must be explicitly
   # defined using Watir and Ruby code.
   #
-  # Do NOT use the PageObject syntax.
+  # Do NOT use the PageObject syntax in this class.
   
   def initialize(browser)
     @browser = browser
@@ -177,6 +177,107 @@ class AddAnnouncements
   end
 
 end
+
+# The page where you create a new assignment
+class AddAssignment
+  
+  include PageObject
+  include ToolsMenu
+  
+  # The rich text editor on this page is not defined here, yet.
+  # It will need special handling in the test case itself.
+  
+  in_frame(:index=>0) do |frame|
+    text_field(:title, :id=>"new_assignment_title", :frame=>frame)
+    select_list(:open_month, :id=>"new_assignment_openmonth", :frame=>frame)
+    select_list(:open_day, :id=>"new_assignment_openday", :frame=>frame)
+    select_list(:open_year, :id=>"new_assignment_openyear", :frame=>frame)
+    select_list(:open_hour, :id=>"new_assignment_openhour", :frame=>frame)
+    select_list(:open_minute, :id=>"new_assignment_openmin", :frame=>frame)
+    select_list(:open_meridian, :id=>"new_assignment_openampm", :frame=>frame)
+    select_list(:due_month, :id=>"new_assignment_duemonth", :frame=>frame)
+    select_list(:due_day, :id=>"new_assignment_dueday", :frame=>frame)
+    select_list(:due_year, :id=>"new_assignment_dueyear", :frame=>frame)
+    select_list(:due_hour, :id=>"new_assignment_duehour", :frame=>frame)
+    select_list(:due_minute, :id=>"new_assignment_duemin", :frame=>frame)
+    select_list(:due_meridian, :id=>"new_assignment_dueampm", :frame=>frame)
+    select_list(:accept_month, :id=>"new_assignment_closemonth", :frame=>frame)
+    select_list(:accept_day, :id=>"new_assignment_closeday", :frame=>frame)
+    select_list(:accept_year, :id=>"new_assignment_closeyear", :frame=>frame)
+    select_list(:accept_hour, :id=>"new_assignment_closehour", :frame=>frame)
+    select_list(:accept_minute, :id=>"new_assignment_closemin", :frame=>frame)
+    select_list(:accept_meridian, :id=>"new_assignment_closeampm", :frame=>frame)
+    select_list(:student_submissions, :id=>"subType", :frame=>frame)
+    select_list(:grade_scale, :id=>"new_assignment_grade_type", :frame=>frame)
+    select_list(:num_resubmissions, :id=>"new_assignment_grade_type", :frame=>frame)
+    select_list(:resub_until_month, :id=>"allow_resubmit_closeMonth", :frame=>frame)
+    select_list(:resub_until_day, :id=>"allow_resubmit_closeDay", :frame=>frame)
+    select_list(:resub_until_year, :id=>"allow_resubmit_closeYear", :frame=>frame)
+    select_list(:resub_until_hour, :id=>"allow_resubmit_closeHour", :frame=>frame)
+    select_list(:resub_until_minute, :id=>"allow_resubmit_closeMin", :frame=>frame)
+    select_list(:resub_until_meridian, :id=>"allow_resubmit_closeAMPM", :frame=>frame)
+    text_field(:max_points, :name=>"new_assignment_grade_points", :frame=>frame)
+    checkbox(:add_due_date, :id=>"new_assignment_check_add_due_date", :frame=>frame)
+    checkbox(:add_open_announcement, :id=>"new_assignment_check_auto_announce", :frame=>frame)
+    checkbox(:add_honor_pledge, :id=>"new_assignment_check_add_honor_pledge", :frame=>frame)
+    radio_button(:do_not_add_assignment, :id=>"no",:name=>"new_assignment_add_to_gradebook", :frame=>frame)
+    radio_button(:add_assignment, :id=>"add", :name=>"new_assignment_add_to_gradebook", :frame=>frame)
+    radio_button(:do_not_send_notifications, :id=>"notsendnotif", :frame=>frame)
+    radio_button(:send_notifications, :id=>"sendnotif", :frame=>frame)
+    radio_button(:send_summary_email, :id=>"sendnotifsummary", :frame=>frame)
+    radio_button(:do_not_send_grade_notif, :id=>"notsendreleasegradenotif", :frame=>frame)
+    radio_button(:send_grade_notif, :id=>"sendreleasegradenotif", :frame=>frame)
+    button(:add_attachments, :name=>"attach", :frame=>frame)
+    link(:add_model_answer, :id=>"modelanswer_add", :frame=>frame)
+    link(:add_private_note, :id=>"note_add", :frame=>frame)
+    link(:add_all_purpose_item, :id=>"allPurpose_add", :frame=>frame)
+    button(:post, :name=>"post", :frame=>frame)
+    button(:preview, :name=>"preview", :frame=>frame)
+    button(:save_draft, :name=>"save", :frame=>frame)
+    button(:cancel, :name=>"cancel", :frame=>frame)
+    text_area(:model_answer, :id=>"modelanswer_text", :frame=>frame)
+    button(:model_answer_attach, :name=>"modelAnswerAttach", :frame=>frame)
+    select_list(:show_model_answer, :id=>"modelanswer_to", :frame=>frame)
+    button(:save_model_answer, :id=>"modelanswer_save", :frame=>frame)
+    button(:cancel_model_answer, :id=>"modelanswer_cancel", :frame=>frame)
+    text_area(:private_note, :id=>"note_text", :frame=>frame)
+    select_list(:share_note_with, :id=>"note_to", :frame=>frame)
+    button(:save_note, :id=>"note_save", :frame=>frame)
+    button(:cancel_note, :id=>"note_cancel", :frame=>frame)
+    text_field(:all_purpose_title, :id=>"allPurpose_title", :frame=>frame)
+    text_area(:all_purpose_text, :id=>"allPurpose_text", :frame=>frame)
+    button(:add_all_purpose_attachments, :id=>"allPurposeAttach", :frame=>frame)
+    radio_button(:show_this_all_purpose_item, :id=>"allPurposeHide1", :frame=>frame)
+    radio_button(:hide_this_all_purpose_item, :id=>"allPurposeHide2", :frame=>frame)
+    checkbox(:show_from, :id=>"allPurposeShowFrom", :frame=>frame)
+    checkbox(:show_until, :id=>"allPurposeShowTo", :frame=>frame)
+    select_list(:show_from_month, :id=>"allPurpose_releaseMonth", :frame=>frame)
+    select_list(:show_from_day, :id=>"allPurpose_releaseDay", :frame=>frame)
+    select_list(:show_from_year, :id=>"allPurpose_releaseYear", :frame=>frame)
+    select_list(:show_from_hour, :id=>"allPurpose_releaseHour", :frame=>frame)
+    select_list(:show_from_minute, :id=>"allPurpose_releaseMin", :frame=>frame)
+    select_list(:show_from_meridian, :id=>"allPurpose_releaseAMPM", :frame=>frame)
+    select_list(:show_until_month, :id=>"allPurpose_retractMonth", :frame=>frame)
+    select_list(:show_until_day, :id=>"allPurpose_retractDay", :frame=>frame)
+    select_list(:show_until_year, :id=>"allPurpose_retractYear", :frame=>frame)
+    select_list(:show_until_hour, :id=>"allPurpose_retractHour", :frame=>frame)
+    select_list(:show_until_minute, :id=>"allPurpose_retractMin", :frame=>frame)
+    select_list(:show_until_meridian, :id=>"allPurpose_retractAMPM", :frame=>frame)
+    link(:expand_guest_list, :id=>"expand_1", :frame=>frame)
+    link(:collapse_guest_list, :id=>"collapse_1", :frame=>frame)
+    link(:expand_TA_list, :id=>"expand_2", :frame=>frame)
+    link(:collapse_TA_list, :id=>"collapse_2", :frame=>frame)
+    link(:expand_instructor_list, :id=>"expand_3", :frame=>frame)
+    link(:collapse_instructor_list, :is=>"collapse_3", :frame=>frame)
+    
+    # Note that only the "All" checkboxes are defined, since other items may or may not be there
+    checkbox(:all_guests, :id=>"allPurpose_Guest", :frame=>frame)
+    checkbox(:all_TAs, :id=>"allPurpose_Teaching Assistant", :frame=>frame)
+    checkbox(:all_instructors, :id=>"allPurpose_Instructor", :frame=>frame)
+    
+  end
+end
+
 # The Add Multiple Tool Instances page that appears during Site creation
 # after the Course Site Tools page
 class AddMultipleTools
@@ -345,6 +446,37 @@ class AnnouncementsPermissions
   end
 =end
 end
+
+# Page that appears when you first click the Assignments link
+class AssignmentList
+  
+  include PageObject
+  include ToolsMenu
+ 
+  in_frame(:index=>0) do |frame|
+    link(:add, :text=>"Add", :frame=>frame)
+    link(:grade_report, :text=>"Grade Report", :frame=>frame)
+    link(:student_view, :text=>"Student View", :frame=>frame)
+    link(:permissions, :text=>"Permissions", :frame=>frame)
+    link(:options, :text=>"Options", :frame=>frame)
+    link(:sort_assignment_title, :text=>"Assignment title", :frame=>frame)
+    link(:sort_status, :text=>"Status", :frame=>frame)
+    link(:sort_open, :text=>"Open", :frame=>frame)
+    link(:sort_due, :text=>"Due", :frame=>frame)
+    link(:sort_in, :text=>"In", :frame=>frame)
+    link(:sort_new, :text=>"New", :frame=>frame)
+    link(:sort_scale, :text=>"Scale", :frame=>frame)
+    select_list(:assignment_list, :id=>"view", :frame=>frame)
+    select_list(:select_page_size, :id=>"selectPageSize", :frame=>frame)
+    button(:next, :name=>"eventSubmit_doList_next", :frame=>frame)
+    button(:last, :name=>"eventSubmit_doList_last", :frame=>frame)
+    button(:previous, :name=>"eventSubmit_doList_prev", :frame=>frame)
+    button(:first, :name=>"eventSubmit_doList_first", :frame=>frame)
+    button(:update, :name=>"eventSubmit_doDelete_confirm_assignment", :frame=>frame)
+  end
+  
+end
+
 # The Course/Section Information page that appears when creating a new Site
 class CourseSectionInfo
   
