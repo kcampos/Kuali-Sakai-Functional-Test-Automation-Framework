@@ -21,11 +21,12 @@ class SakaiCLE
   end
   
   # Log out
-  
   def logout
     @browser.link(:text, "Logout").click
   end
   
+  # Format a date string Sakai-style.
+  # Useful for verifying creation dates and such.
   def make_date(time_object)
     front = time_object.strftime("%b %d, %Y ")
     back = time_object.strftime(":%M %P")

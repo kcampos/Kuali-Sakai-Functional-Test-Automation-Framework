@@ -188,6 +188,7 @@ class AddAssignment
   # It will need special handling in the test case itself.
   
   in_frame(:index=>1) do |frame|
+    hidden_field(:assignment_id, :name=>"assignmentId", :frame=>frame)
     link(:assignment_list, :text=>"Assignment List", :frame=>frame)
     link(:grade_report, :text=>"Grade Report", :frame=>frame)
     link(:student_view, :text=>"Student View", :frame=>frame)
@@ -496,6 +497,143 @@ class AssignmentsOptions
     button(:update, :name=>"eventSubmit_doUpdate_options", :frame=>frame)
     button(:cancel, :name=>"eventSubmit_doCancel_options", :frame=>frame)
     
+  end
+
+end
+
+# The Permissions Page in Assignments
+class AssignmentsPermissions
+  
+  include PageObject
+  include ToolsMenu
+  
+  in_frame(:index=>1) do |frame|
+    checkbox(:guests_all_groups, :id=>"Guestasn.all.groups", :frame=>frame)
+    checkbox(:guests_create_assignments, :id=>"Guestasn.new", :frame=>frame)
+    checkbox(:guests_submit_to_assigments, :id=>"Guestasn.submit", :frame=>frame)
+    checkbox(:guests_delete_assignments, :id=>"Guestasn.delete", :frame=>frame)
+    checkbox(:guests_read_assignments, :id=>"Guestasn.read", :frame=>frame)
+    checkbox(:guests_revise_assignments, :id=>"Guestasn.revise", :frame=>frame)
+    checkbox(:guests_grade_assignments, :id=>"Guestasn.grade", :frame=>frame)
+    checkbox(:guests_receive_notifications, :id=>"Guestasn.receive.notifications", :frame=>frame)
+    checkbox(:guests_share_drafts, :id=>"Guestasn.share.drafts", :frame=>frame)
+    checkbox(:instructors_all_groups, :id=>"Instructorasn.all.groups", :frame=>frame)
+    checkbox(:instructors_create_assignments, :id=>"Instructorasn.new", :frame=>frame)
+    checkbox(:instructors_submit_to_assigments, :id=>"Instructorasn.submit", :frame=>frame)
+    checkbox(:instructors_delete_assignments, :id=>"Instructorasn.delete", :frame=>frame)
+    checkbox(:instructors_read_assignments, :id=>"Instructorasn.read", :frame=>frame)
+    checkbox(:instructors_revise_assignments, :id=>"Instructorasn.revise", :frame=>frame)
+    checkbox(:instructors_grade_assignments, :id=>"Instructorasn.grade", :frame=>frame)
+    checkbox(:instructors_receive_notifications, :id=>"Instructorasn.receive.notifications", :frame=>frame)
+    checkbox(:instructors_share_drafts, :id=>"Instructorasn.share.drafts", :frame=>frame)
+    checkbox(:students_all_groups, :id=>"Studentasn.all.groups", :frame=>frame)
+    checkbox(:students_create_assignments, :id=>"Studentasn.new", :frame=>frame)
+    checkbox(:students_submit_to_assigments, :id=>"Studentasn.submit", :frame=>frame)
+    checkbox(:students_delete_assignments, :id=>"Studentasn.delete", :frame=>frame)
+    checkbox(:students_read_assignments, :id=>"Studentasn.read", :frame=>frame)
+    checkbox(:students_revise_assignments, :id=>"Studentasn.revise", :frame=>frame)
+    checkbox(:students_grade_assignments, :id=>"Studentasn.grade", :frame=>frame)
+    checkbox(:students_receive_notifications, :id=>"Studentasn.receive.notifications", :frame=>frame)
+    checkbox(:students_share_drafts, :id=>"Studentasn.share.drafts", :frame=>frame)
+    checkbox(:tas_all_groups, :id=>"Teaching Assistantasn.all.groups", :frame=>frame)
+    checkbox(:tas_create_assignments, :id=>"Teaching Assistantasn.new", :frame=>frame)
+    checkbox(:tas_submit_to_assigments, :id=>"Teaching Assistantasn.submit", :frame=>frame)
+    checkbox(:tas_delete_assignments, :id=>"Teaching Assistantasn.delete", :frame=>frame)
+    checkbox(:tas_read_assignments, :id=>"Teaching Assistantasn.read", :frame=>frame)
+    checkbox(:tas_revise_assignments, :id=>"Teaching Assistantasn.revise", :frame=>frame)
+    checkbox(:tas_grade_assignments, :id=>"Teaching Assistantasn.grade", :frame=>frame)
+    checkbox(:tas_receive_notifications, :id=>"Teaching Assistantasn.receive.notifications", :frame=>frame)
+    checkbox(:tas_share_drafts, :id=>"Teaching Assistantasn.share.drafts", :frame=>frame)
+    link(:undo_changes, :text=>"Undo changes", :frame=>frame)
+    button(:save, :id=>"eventSubmit_doSave", :frame=>frame)
+    button(:cancel, :id=>"eventSubmit_doCancel", :frame=>frame)
+    link(:permission, :text=>"Permission", :frame=>frame)
+    link(:guest, :text=>"Guest", :frame=>frame)
+    link(:instructor, :text=>"Instructor", :frame=>frame)
+    link(:student, :text=>"Student", :frame=>frame)
+    link(:teaching_assistant, :text=>"Teaching Assistant", :frame=>frame)
+    link(:same_permissions_for_all_groups, :text=>"Same site level permissions for all groups inside the site", :frame=>frame)
+    link(:create_new_assignments, :text=>"Create new assignment(s)", :frame=>frame)
+    link(:submit_to_assignments, :text=>"Submit to assignment(s)", :frame=>frame)
+    link(:delete_assignments, :text=>"Delete assignment(s)", :frame=>frame)
+    link(:read_assignments, :text=>"Read Assignment(s)", :frame=>frame)
+    link(:revise_assignments, :text=>"Revise assignment(s)", :frame=>frame)
+    link(:grade_submissions, :text=>"Grade assignment submission(s)", :frame=>frame)
+    link(:receive_email_notifications, :text=>"Receive email notifications", :frame=>frame)
+    link(:view_drafts_from_others, :text=>"Able to view draft assignment(s) created by other users", :frame=>frame)
+  end
+
+end
+
+# Page that appears when you click to preview an Assignment
+class AssignmentsPreview
+  
+  include PageObject
+  include ToolsMenu
+  
+  in_frame(:index=>1) do |frame|
+    hidden_field(:assignment_id, :name=>"assignmentId", :frame=>frame)
+    link(:assignment_list, :text=>"Assignment List", :frame=>frame)
+    link(:student_view, :text=>"Student View", :frame=>frame)
+    link(:permissions, :text=>"Permissions", :frame=>frame)
+    link(:options, :text=>"Options", :frame=>frame)
+    link(:hide_assignment, :href=>/doHide_preview_assignment_assignment/, :frame=>frame)
+    link(:show_assignment, :href=>/doShow_preview_assignment_assignment/, :frame=>frame)
+    link(:hide_student_view, :href=>/doHide_preview_assignment_student_view/, :frame=>frame)
+    link(:show_student_view, :href=>/doShow_preview_assignment_student_view/, :frame=>frame)
+    button(:post, :name=>"post", :frame=>frame)
+    button(:edit, :name=>"revise", :frame=>frame)
+    button(:save_draft, :name=>"save", :frame=>frame)
+    button(:done, :name=>"done", :frame=>frame)
+    
+  end
+  
+  def created_by
+    @browser.frame(:index=>1).table(:class=>"itemSummary")[0][1].text
+  end
+  
+  def modified
+    @browser.frame(:index=>1).table(:class=>"itemSummary")[1][1].text
+  end
+  
+  def open
+    @browser.frame(:index=>1).table(:class=>"itemSummary")[2][1].text
+  end
+  
+  def due
+    @browser.frame(:index=>1).table(:class=>"itemSummary")[3][1].text
+  end
+  
+  def accept_until
+    @browser.frame(:index=>1).table(:class=>"itemSummary")[4][1].text
+  end
+  
+  def student_submissions
+    @browser.frame(:index=>1).table(:class=>"itemSummary")[5][1].text
+  end
+  
+  def grade_scale
+    @browser.frame(:index=>1).table(:class=>"itemSummary")[6][1].text
+  end
+  
+  def add_due_date
+    @browser.frame(:index=>1).table(:class=>"itemSummary")[7][1].text
+  end
+  
+  def announce_open_date
+    @browser.frame(:index=>1).table(:class=>"itemSummary")[8][1].text
+  end
+  
+  def honor_pledge
+    @browser.frame(:index=>1).table(:class=>"itemSummary")[9][1].text
+  end
+  
+  def add_to_gradebook
+    @browser.frame(:index=>1).table(:class=>"itemSummary")[10][1].text
+  end
+  
+  def assignment_instructions
+    @browser.frame(:index=>1).div(:class=>"textPanel").text
   end
 
 end
@@ -900,69 +1038,6 @@ class MyWorkspace
   end
 end
 
-# The Permissions Page in Assignments
-class Permissions
-  
-  include PageObject
-  include ToolsMenu
-  
-  in_frame(:index=>0) do |frame|
-    checkbox(:guests_all_groups, :id=>"Guestasn.all.groups", :frame=>frame)
-    checkbox(:guests_create_assignments, :id=>"Guestasn.new", :frame=>frame)
-    checkbox(:guests_submit_to_assigments, :id=>"Guestasn.submit", :frame=>frame)
-    checkbox(:guests_delete_assignments, :id=>"Guestasn.delete", :frame=>frame)
-    checkbox(:guests_read_assignments, :id=>"Guestasn.read", :frame=>frame)
-    checkbox(:guests_revise_assignments, :id=>"Guestasn.revise", :frame=>frame)
-    checkbox(:guests_grade_assignments, :id=>"Guestasn.grade", :frame=>frame)
-    checkbox(:guests_receive_notifications, :id=>"Guestasn.receive.notifications", :frame=>frame)
-    checkbox(:guests_view_drafts, :id=>"Guestasn.share.drafts", :frame=>frame)
-    checkbox(:instructors_all_groups, :id=>"Instructorasn.all.groups", :frame=>frame)
-    checkbox(:instructors_create_assignments, :id=>"Instructorasn.new", :frame=>frame)
-    checkbox(:instructors_submit_to_assigments, :id=>"Instructorasn.submit", :frame=>frame)
-    checkbox(:instructors_delete_assignments, :id=>"Instructorasn.delete", :frame=>frame)
-    checkbox(:instructors_read_assignments, :id=>"Instructorasn.read", :frame=>frame)
-    checkbox(:instructors_revise_assignments, :id=>"Instructorasn.revise", :frame=>frame)
-    checkbox(:instructors_grade_assignments, :id=>"Instructorasn.grade", :frame=>frame)
-    checkbox(:instructors_receive_notifications, :id=>"Instructorasn.receive.notifications", :frame=>frame)
-    checkbox(:instructors_view_drafts, :id=>"Instructorasn.share.drafts", :frame=>frame)
-    checkbox(:students_all_groups, :id=>"Studentasn.all.groups", :frame=>frame)
-    checkbox(:students_create_assignments, :id=>"Studentasn.new", :frame=>frame)
-    checkbox(:students_submit_to_assigments, :id=>"Studentasn.submit", :frame=>frame)
-    checkbox(:students_delete_assignments, :id=>"Studentasn.delete", :frame=>frame)
-    checkbox(:students_read_assignments, :id=>"Studentasn.read", :frame=>frame)
-    checkbox(:students_revise_assignments, :id=>"Studentasn.revise", :frame=>frame)
-    checkbox(:students_grade_assignments, :id=>"Studentasn.grade", :frame=>frame)
-    checkbox(:students_receive_notifications, :id=>"Studentasn.receive.notifications", :frame=>frame)
-    checkbox(:students_view_drafts, :id=>"Studentasn.share.drafts", :frame=>frame)
-    checkbox(:TAs_all_groups, :id=>"Teaching Assistantasn.all.groups", :frame=>frame)
-    checkbox(:TAs_create_assignments, :id=>"Teaching Assistantasn.new", :frame=>frame)
-    checkbox(:TAs_submit_to_assigments, :id=>"Teaching Assistantasn.submit", :frame=>frame)
-    checkbox(:TAs_delete_assignments, :id=>"Teaching Assistantasn.delete", :frame=>frame)
-    checkbox(:TAs_read_assignments, :id=>"Teaching Assistantasn.read", :frame=>frame)
-    checkbox(:TAs_revise_assignments, :id=>"Teaching Assistantasn.revise", :frame=>frame)
-    checkbox(:TAs_grade_assignments, :id=>"Teaching Assistantasn.grade", :frame=>frame)
-    checkbox(:TAs_receive_notifications, :id=>"Teaching Assistantasn.receive.notifications", :frame=>frame)
-    checkbox(:TAs_view_drafts, :id=>"Teaching Assistantasn.share.drafts", :frame=>frame)
-    link(:undo_changes, :text=>"Undo changes", :frame=>frame)
-    button(:save, :id=>"eventSubmit_doSave", :frame=>frame)
-    button(:cancel, :id=>"eventSubmit_doCancel", :frame=>frame)
-    link(:permission, :text=>"Permission", :frame=>frame)
-    link(:guest, :text=>"Guest", :frame=>frame)
-    link(:instructor, :text=>"Instructor", :frame=>frame)
-    link(:student, :text=>"Student", :frame=>frame)
-    link(:teaching_assistant, :text=>"Teaching Assistant", :frame=>frame)
-    link(:same_permissions_for_all_groups, :text=>"Same site level permissions for all groups inside the site", :frame=>frame)
-    link(:create_new_assignments, :text=>"Create new assignment(s)", :frame=>frame)
-    link(:submit_to_assignments, :text=>"Submit to assignment(s)", :frame=>frame)
-    link(:delete_assignments, :text=>"Delete assignment(s)", :frame=>frame)
-    link(:read_assignments, :text=>"Read Assignment(s)", :frame=>frame)
-    link(:revise_assignments, :text=>"Revise assignment(s)", :frame=>frame)
-    link(:grade_submissions, :text=>"Grade assignment submission(s)", :frame=>frame)
-    link(:receive_email_notifications, :text=>"Receive email notifications", :frame=>frame)
-    link(:view_drafts_from_others, :text=>"Able to view draft assignment(s) created by other users", :frame=>frame)
-  end
-
-end
 
 # Realms page
 class Realms
