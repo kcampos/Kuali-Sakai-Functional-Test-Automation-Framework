@@ -283,6 +283,17 @@ class AddAssignment
     checkbox(:all_instructors, :id=>"allPurpose_Instructor", :frame=>frame)
     
   end
+  
+  # The alert_text object on the Add/Edit Assignments page
+    def alert_text
+      @browser.frame(:index=>1).div(:class=>"portletBody").div(:class=>"alertMessage").text
+    end
+    
+    # A method to insert text into the rich text editor
+    def add_instructions(instructions)
+      @browser.frame(:index=>1).frame(:id, "new_assignment_instructions___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(instructions)
+    end
+  
 end
 
 # The Add Multiple Tool Instances page that appears during Site creation
@@ -467,6 +478,7 @@ class AssignmentsList
     link(:student_view, :text=>"Student View", :frame=>frame)
     link(:permissions, :text=>"Permissions", :frame=>frame)
     link(:options, :text=>"Options", :frame=>frame)
+    link(:reorder, :text=>"Reorder", :frame=>frame)
     link(:sort_assignment_title, :text=>"Assignment title", :frame=>frame)
     link(:sort_status, :text=>"Status", :frame=>frame)
     link(:sort_open, :text=>"Open", :frame=>frame)
@@ -634,6 +646,31 @@ class AssignmentsPreview
   
   def assignment_instructions
     @browser.frame(:index=>1).div(:class=>"textPanel").text
+  end
+
+end
+
+# The reorder page for Assignments
+class AssignmentsReorder
+  
+  include PageObject
+  include ToolsMenu
+  
+  in_frame(:index=>1) do |frame|
+    link(:add, :text=>"Add", :frame=>frame)
+    link(:assignment_list, :text=>"Assignment List", :frame=>frame)
+    link(:grade_report, :text=>"Grade Report", :frame=>frame)
+    link(:student_view, :text=>"Student View", :frame=>frame)
+    link(:permissions, :text=>"Permissions", :frame=>frame)
+    link(:options, :text=>"Options", :frame=>frame)
+    link(:sort_by_title, :text=>"Sort by title", :frame=>frame)
+    link(:sort_by_open_date, :text=>"Sort by open date", :frame=>frame)
+    link(:sort_by_due_date, :text=>"Sort by due date", :frame=>frame)
+    link(:undo_last, :text=>"Undo last", :frame=>frame)
+    link(:undo_all, :text=>"Undo all", :frame=>frame)
+    button(:save, :name=>"save", :frame=>frame)
+    button(:cancel, :name=>"cancel", :frame=>frame)
+    
   end
 
 end

@@ -44,7 +44,7 @@ class TestCreateAssignments < Test::Unit::TestCase
     @sakai.login(@user_name, @password)
  
     # Go to test site.
-    # Note that this test site is current hard-coded.
+    # Note that this test site is currently hard-coded.
     # This should be corrected as soon as possible.
     @browser.link(:text, "1 2 3 F11").click
     home = Home.new(@browser)
@@ -52,16 +52,6 @@ class TestCreateAssignments < Test::Unit::TestCase
     # Define the frame for ease of code writing (and reading)
     def frm
       @browser.frame(:index=>1)
-    end
-    
-    # Define the alert_text object for ease of code writing and reading
-    def alert_text
-      frm.div(:class=>"portletBody").div(:class=>"alertMessage").text
-    end
-    
-    # Define a method to update the rich text editor object
-    def add_instructions(instructions)
-      frm.frame(:id, "new_assignment_instructions___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(instructions)
     end
 
     # Go to assignments page
@@ -71,26 +61,29 @@ class TestCreateAssignments < Test::Unit::TestCase
     
     # Create a new assignment
     assignments.add
-    new_assignment = AddAssignment.new(@browser)
+    assignment1 = AddAssignment.new(@browser)
     
     # Store the title for later verification steps
     title1 = random_string
     
     # Store the due date for later verification steps
-    month_due1 = new_assignment.due_month_element.selected_options[0]
-    day_due1 = new_assignment.due_day_element.selected_options[0]
-    year_due1 = new_assignment.due_year_element.selected_options[0]
+    month_due1 = assignment1.due_month_element.selected_options[0]
+    day_due1 = assignment1.due_day_element.selected_options[0]
+    year_due1 = assignment1.due_year_element.selected_options[0]
     
-    new_assignment.title=title1
+    assignment1.title=title1
     
     # Try to post it
-    new_assignment.post
+    assignment1.post
     
     # TEST CASE: Alert appears when submitting without instructions
-    assert_equal alert_text, "Alert: This assignment has no instructions. Please make a correction or click the original button to proceed."
+    assert_equal(assignment1.alert_text, "Alert: This assignment has no instructions. Please make a correction or click the original button to proceed.")
+    
+    # Set the open date day to yesterday
+    assignment1.open_day=(Time.now - 86400).strftime("%d").to_i
     
     # Click post again
-    new_assignment.post
+    assignment1.post
     
     #===========
     # Add a test for trying to save without a title (but with instructions)
@@ -109,39 +102,39 @@ class TestCreateAssignments < Test::Unit::TestCase
     # Create a New Assignment
     assignments.add
     
-    new_assignment = AddAssignment.new(@browser)
+    assignment2 = AddAssignment.new(@browser)
     
     title2 = random_string(15)
-    new_assignment.title=title2
+    assignment2.title=title2
     
     # Set Open Date
-    new_assignment.open_hour=current_hour
+    assignment2.open_hour=current_hour
     
     # Store the due date for later verification steps
-    month_due2 = new_assignment.due_month_element.selected_options[0]
-    day_due2 = new_assignment.due_day_element.selected_options[0]
-    year_due2 = new_assignment.due_year_element.selected_options[0]
+    month_due2 = assignment2.due_month_element.selected_options[0]
+    day_due2 = assignment2.due_day_element.selected_options[0]
+    year_due2 = assignment2.due_year_element.selected_options[0]
     
     # Set inline submission only
-    new_assignment.student_submissions="Inline only"
+    assignment2.student_submissions="Inline only"
     
     # Set Letter Grade
-    new_assignment.grade_scale="Letter grade"
+    assignment2.grade_scale="Letter grade"
     
     # Set allow resubmission
-    new_assignment.check_allow_resubmission
+    assignment2.check_allow_resubmission
     
     # Fix these instructions when all debugging is completed.
-    instructions1 = "Nullam " #urna elit; placerat convallis, posuere nec, semper id, diam. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Duis dignissim pulvinar nisl. Nunc interdum vulputate eros. In nec nibh! Suspendisse potenti. Maecenas at felis. Donec velit diam, mattis ut, venenatis vehicula, accumsan et, orci. Sed leo. Curabitur odio quam, accumsan eu, molestie eu, fringilla sagittis, pede. Mauris luctus mi id ligula. Proin elementum volutpat leo. Cras aliquet commodo elit. Praesent auctor consectetuer risus!\n\nDuis euismod felis nec nunc. Ut lectus felis, malesuada consequat, hendrerit at; vestibulum et, enim. Ut nec nulla sed eros bibendum vulputate. Sed tincidunt diam eget lacus. Nulla nisl? Nam condimentum mattis dui! Aenean varius purus eget sem? Nullam odio. Donec condimentum mauris. Cras volutpat tristique lacus. Sed id dui. Mauris purus purus, tristique sed, ornare convallis, consequat a, ipsum. Donec fringilla, metus quis mollis lobortis, magna tellus malesuada augue; laoreet auctor velit lorem vitae neque. Duis augue sem, vehicula sit amet, vulputate vitae, viverra quis; dolor. Donec quis eros vel massa euismod dignissim! Aliquam quam. Nam non dolor."
+    instructions1 = "Nullam urna elit; placerat convallis, posuere nec, semper id, diam. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Duis dignissim pulvinar nisl. Nunc interdum vulputate eros. In nec nibh! Suspendisse potenti. Maecenas at felis. Donec velit diam, mattis ut, venenatis vehicula, accumsan et, orci. Sed leo. Curabitur odio quam, accumsan eu, molestie eu, fringilla sagittis, pede. Mauris luctus mi id ligula. Proin elementum volutpat leo. Cras aliquet commodo elit. Praesent auctor consectetuer risus!\n\nDuis euismod felis nec nunc. Ut lectus felis, malesuada consequat, hendrerit at; vestibulum et, enim. Ut nec nulla sed eros bibendum vulputate. Sed tincidunt diam eget lacus. Nulla nisl? Nam condimentum mattis dui! Aenean varius purus eget sem? Nullam odio. Donec condimentum mauris. Cras volutpat tristique lacus. Sed id dui. Mauris purus purus, tristique sed, ornare convallis, consequat a, ipsum. Donec fringilla, metus quis mollis lobortis, magna tellus malesuada augue; laoreet auctor velit lorem vitae neque. Duis augue sem, vehicula sit amet, vulputate vitae, viverra quis; dolor. Donec quis eros vel massa euismod dignissim! Aliquam quam. Nam non dolor."
     
     # Enter assignment instructions into the rich text editor
-    add_instructions(instructions1)
+    assignment2.add_instructions(instructions1)
      
     # Add due date to schedule
-    new_assignment.check_add_due_date
+    assignment2.check_add_due_date
     
     # Save
-    new_assignment.post
+    assignment2.post
     
     # TEST CASE: Verify save
     assert frm.link(:text, title2).exist?
@@ -193,27 +186,27 @@ class TestCreateAssignments < Test::Unit::TestCase
     # the draft mode link, etc.
     title3 = random_nicelink(20)
     
-    new_assignment = AddAssignment.new(@browser)
+    assignment3 = AddAssignment.new(@browser)
     
     #===========
     # Add a test for setting bad due, accept, and resubmission dates here.
     #===========
     
     # Set up Assignment 3
-    new_assignment.title=title3
-    new_assignment.open_hour=next_hour
-    new_assignment.student_submissions="Attachments only"
-    new_assignment.grade_scale="Points"
-    new_assignment.max_points="100"
+    assignment3.title=title3
+    assignment3.open_hour=next_hour
+    assignment3.student_submissions="Attachments only"
+    assignment3.grade_scale="Points"
+    assignment3.max_points="100"
     
     # Fix these instructions when all debugging is completed.
-    instructions2 = "Fusce" # mollis massa nec nisi. Aliquam turpis libero, consequat quis, fringilla eget, fermentum ut, velit? Integer velit nisl, placerat non, fringilla at, pellentesque ut, odio? Cras magna ligula, tincidunt ac, iaculis in, hendrerit eu, justo. Vivamus porta. Suspendisse lorem! Donec nec libero in leo lobortis consectetuer. Vivamus quis enim? Proin viverra condimentum purus. Sed commodo.\n\nCurabitur eget velit. Curabitur eleifend libero et nisi aliquet facilisis. Integer ultricies commodo purus. Praesent velit. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Phasellus pretium. Suspendisse gravida diam. Nulla justo nulla, facilisis ut, sagittis ut, fermentum ac, elit. Morbi accumsan. Maecenas id tellus. Fusce ornare ullamcorper felis. Etiam fringilla. Maecenas in nunc nec sem sollicitudin condimentum? Nullam metus nunc, varius sit amet, consectetuer sed, vestibulum quis, est. Quisque in sapien a justo elementum iaculis?"
+    instructions2 = "Fusce mollis massa nec nisi. Aliquam turpis libero, consequat quis, fringilla eget, fermentum ut, velit? Integer velit nisl, placerat non, fringilla at, pellentesque ut, odio? Cras magna ligula, tincidunt ac, iaculis in, hendrerit eu, justo. Vivamus porta. Suspendisse lorem! Donec nec libero in leo lobortis consectetuer. Vivamus quis enim? Proin viverra condimentum purus. Sed commodo.\n\nCurabitur eget velit. Curabitur eleifend libero et nisi aliquet facilisis. Integer ultricies commodo purus. Praesent velit. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Phasellus pretium. Suspendisse gravida diam. Nulla justo nulla, facilisis ut, sagittis ut, fermentum ac, elit. Morbi accumsan. Maecenas id tellus. Fusce ornare ullamcorper felis. Etiam fringilla. Maecenas in nunc nec sem sollicitudin condimentum? Nullam metus nunc, varius sit amet, consectetuer sed, vestibulum quis, est. Quisque in sapien a justo elementum iaculis?"
     
     # Enter assignment instructions into the rich text editor
-    add_instructions(instructions2)
+    assignment3.add_instructions(instructions2)
     
     # Setting up the test case by adding Assignment announcement
-    new_assignment.check_add_open_announcement
+    assignment3.check_add_open_announcement
     
     #===========
     # Need to add tests here for adding attachments
@@ -224,7 +217,7 @@ class TestCreateAssignments < Test::Unit::TestCase
     # new_assignment.attach
     #===========
     
-    new_assignment.save_draft
+    assignment3.save_draft
     
     assignments = AssignmentsList.new(@browser)
     
@@ -257,11 +250,11 @@ class TestCreateAssignments < Test::Unit::TestCase
     
     title4 = random_string(25)
     
-    new_assignment = AddAssignment.new(@browser)
-    new_assignment.title=title4
+    assignment4 = AddAssignment.new(@browser)
+    assignment4.title=title4
     
     # Cancel assignment creation
-    new_assignment.cancel
+    assignment4.cancel
     assignments = AssignmentsList.new(@browser)
     
     # TEST CASE: Verify assignment not created
@@ -270,20 +263,22 @@ class TestCreateAssignments < Test::Unit::TestCase
     # Add and set up Assignment 4 again
     assignments.add
     
-    new_assignment = AddAssignment.new(@browser)
-    new_assignment.title=title4
-    new_assignment.grade_scale="Pass"
+    assignment4 = AddAssignment.new(@browser)
+    assignment4.title=title4
+    assignment4.grade_scale="Pass"
     
     # Fix these instructions when all debugging is completed.
-    instructions3 = "Integer"# pulvinar facilisis purus. Quisque placerat! Maecenas risus. Nam vitae lacus. Quisque euismod imperdiet ipsum. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nam vitae nulla! Duis tincidunt. Nulla id felis. Duis accumsan, est ut volutpat mollis, tellus lorem venenatis justo, eu accumsan lorem neque sit amet ante. Sed dictum. Donec nulla mi, lacinia nec; viverra nec, commodo sed, justo. Praesent fermentum vehicula dui. Sed molestie eleifend leo. Nulla et risus! Nullam ut lacus. Etiam faucibus; eros sit amet tempus consectetuer, urna est hendrerit mi, eget molestie sapien lorem non tellus. In vitae nisl. Vivamus ac lectus id pede viverra placerat.\n\nMorbi nec dui eget pede dapibus mollis. Mauris nisl. Donec tempor blandit diam. In hac habitasse platea dictumst. Sed vulputate ornare urna. Nulla sed." 
+    instructions3 = "Integer pulvinar facilisis purus. Quisque placerat! Maecenas risus. Nam vitae lacus. Quisque euismod imperdiet ipsum. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nam vitae nulla! Duis tincidunt. Nulla id felis. Duis accumsan, est ut volutpat mollis, tellus lorem venenatis justo, eu accumsan lorem neque sit amet ante. Sed dictum. Donec nulla mi, lacinia nec; viverra nec, commodo sed, justo. Praesent fermentum vehicula dui. Sed molestie eleifend leo. Nulla et risus! Nullam ut lacus. Etiam faucibus; eros sit amet tempus consectetuer, urna est hendrerit mi, eget molestie sapien lorem non tellus. In vitae nisl. Vivamus ac lectus id pede viverra placerat.\n\nMorbi nec dui eget pede dapibus mollis. Mauris nisl. Donec tempor blandit diam. In hac habitasse platea dictumst. Sed vulputate ornare urna. Nulla sed." 
     
-    add_instructions(instructions3)
+    assignment4.add_instructions(instructions3)
     
     # TEST CASE: Verify that the alert message is not showing
     assert_equal(frm.div(:class, "portletBody").span(:id, "gradebookListWarnAssoc").visible?, false)
     
     # Select the "Add Assignment to Gradebook" radio button
-    new_assignment.select_add_assignment
+    assignment4.select_add_assignment
+    
+    # Wait for the alert message to appear
     sleep 0.1
     
     # TEST CASE: Verify that the alert message appears
@@ -291,10 +286,10 @@ class TestCreateAssignments < Test::Unit::TestCase
     
     # Need to clear the assignment radio button explicitly because
     # the radio button was actually selected, even though the UI doesn't show it.
-    new_assignment.select_do_not_add_assignment
+    assignment4.select_do_not_add_assignment
     
     # Preview the new assignment
-    new_assignment.preview
+    assignment4.preview
     preview = AssignmentsPreview.new(@browser)
     
     # TEST CASE: Verify the preview window contents
@@ -388,10 +383,10 @@ class TestCreateAssignments < Test::Unit::TestCase
     assignment5.grade_scale="Checkmark"
     
     # Fix these instructions when debugging is completed.
-    instructions4 = "Integer" # pulvinar facilisis purus. Quisque placerat! Maecenas risus. Nam vitae lacus. Quisque euismod imperdiet ipsum. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nam vitae nulla! Duis tincidunt. Nulla id felis. Duis accumsan, est ut volutpat mollis, tellus lorem venenatis justo, eu accumsan lorem neque sit amet ante. Sed dictum. Donec nulla mi, lacinia nec; viverra nec, commodo sed, justo. Praesent fermentum vehicula dui. Sed molestie eleifend leo. Nulla et risus! Nullam ut lacus. Etiam faucibus; eros sit amet tempus consectetuer, urna est hendrerit mi, eget molestie sapien lorem non tellus. In vitae nisl. Vivamus ac lectus id pede viverra placerat.\n\nMorbi nec dui eget pede dapibus mollis. Mauris nisl. Donec tempor blandit diam. In hac habitasse platea dictumst. Sed vulputate ornare urna. Nulla sed."
+    instructions4 = "Integer pulvinar facilisis purus. Quisque placerat! Maecenas risus. Nam vitae lacus. Quisque euismod imperdiet ipsum. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nam vitae nulla! Duis tincidunt. Nulla id felis. Duis accumsan, est ut volutpat mollis, tellus lorem venenatis justo, eu accumsan lorem neque sit amet ante. Sed dictum. Donec nulla mi, lacinia nec; viverra nec, commodo sed, justo. Praesent fermentum vehicula dui. Sed molestie eleifend leo. Nulla et risus! Nullam ut lacus. Etiam faucibus; eros sit amet tempus consectetuer, urna est hendrerit mi, eget molestie sapien lorem non tellus. In vitae nisl. Vivamus ac lectus id pede viverra placerat.\n\nMorbi nec dui eget pede dapibus mollis. Mauris nisl. Donec tempor blandit diam. In hac habitasse platea dictumst. Sed vulputate ornare urna. Nulla sed."
     
     # Enter assignment instructions into the rich text editor
-    add_instructions(instructions4)
+    assignment5.add_instructions(instructions4)
     
     #==========
     # Add attachment code should go here later
@@ -427,7 +422,7 @@ class TestCreateAssignments < Test::Unit::TestCase
     assignment_1 = AddAssignment.new(@browser)
     
     # TEST CASE: Verify the alert about revising assignments after the Open Date.
-    assert_equal(frm.div(:class=>"portletBody").div(:class=>"alertMessage").text, "Alert: You are revising an assignment after the open date.")
+    assert_equal(assignment_1.alert_text, "Alert: You are revising an assignment after the open date.")
     
     # Change letter grade
     assignment_1.grade_scale="Letter grade"
@@ -435,42 +430,54 @@ class TestCreateAssignments < Test::Unit::TestCase
     # Save
     assignment_1.post
     
+    assignment_1 = AddAssignment.new(@browser)
+    
     # Verify the instructions error message again
-    assert_equal frm.div(:class=>"portletBody").div(:class=>"alertMessage").text, "Alert: This assignment has no instructions. Please make a correction or click the original button to proceed."
+    assert_equal assignment_1.alert_text, "Alert: This assignment has no instructions. Please make a correction or click the original button to proceed."
     
     # Add instructions
     # Fix these when all debugging done
-    instructions5 = "Phasellus"# molestie. Sed in pede. Sed augue. Vestibulum lacus lectus, pulvinar nec, condimentum eu, sodales et, risus. Aenean dolor nisl, tristique at, vulputate nec, blandit in, mi. Fusce elementum ante. Maecenas rhoncus tincidunt sem. Sed leo dolor, faucibus hendrerit, tincidunt nec, elementum in, arcu. Donec et nulla. Vestibulum mauris nunc, consectetuer at, ultricies a, rutrum at, felis. Integer a nulla. Aliquam tincidunt nunc. Curabitur non purus. Nulla vel augue ac magna porttitor pretium.\n\nAenean fringilla enim. Vivamus nisi. Integer eleifend pharetra elit. Nulla scelerisque accumsan lectus. Morbi accumsan dui non velit. Suspendisse consequat mauris vitae neque. Etiam sit amet urna ut eros feugiat imperdiet? Nunc ut dolor. Nulla laoreet, nisi quis egestas condimentum, sapien nulla rutrum quam, quis auctor lorem justo at lectus. Integer in lacus eu nunc molestie pharetra. Curabitur dictum justo non eros. Nullam pellentesque ante rutrum mauris."
-    add_instructions(instructions5)
+    instructions5 = "Phasellus molestie. Sed in pede. Sed augue. Vestibulum lacus lectus, pulvinar nec, condimentum eu, sodales et, risus. Aenean dolor nisl, tristique at, vulputate nec, blandit in, mi. Fusce elementum ante. Maecenas rhoncus tincidunt sem. Sed leo dolor, faucibus hendrerit, tincidunt nec, elementum in, arcu. Donec et nulla. Vestibulum mauris nunc, consectetuer at, ultricies a, rutrum at, felis. Integer a nulla. Aliquam tincidunt nunc. Curabitur non purus. Nulla vel augue ac magna porttitor pretium.\n\nAenean fringilla enim. Vivamus nisi. Integer eleifend pharetra elit. Nulla scelerisque accumsan lectus. Morbi accumsan dui non velit. Suspendisse consequat mauris vitae neque. Etiam sit amet urna ut eros feugiat imperdiet? Nunc ut dolor. Nulla laoreet, nisi quis egestas condimentum, sapien nulla rutrum quam, quis auctor lorem justo at lectus. Integer in lacus eu nunc molestie pharetra. Curabitur dictum justo non eros. Nullam pellentesque ante rutrum mauris."
+    assignment_1.add_instructions(instructions5)
     
     # Click on Student View
     assignment_1.student_view
-    
-    # Verify alert message
-    assert_equal(alert_text, "Alert: You are revising an assignment after the open date.")
     
     # Save assignment
     assignment_1.post
     
     # Delete Assignment 1
-    frm.checkbox(:href, /#{assignment1_id}/).check
+    frm.checkbox(:value, /#{assignment1_id}/).set
     
     assignments = AssignmentsList.new(@browser)
     assignments.update
+    
+    # TEST CASE: Verify user is asked if they want to delete
+    assert_equal(frm.div(:class=>"portletBody").div(:class=>"alertMessage").text, "Are you sure you want to delete this assignment?")
+    
     frm.button(:name, "eventSubmit_doDelete_assignment").click
     
     # Verify delete
     assert_equal(frm.link(:text, title1).exist?, false)
     
     # Duplicate assignment 2 to assignment 1
+    frm.link(:text=>"Duplicate", :href=>/#{assignment2_id}/).click
     
-    # Verify duplication
+    # TEST CASE: Verify duplication
+    assert frm.link(:text, "Draft - #{title2} - Copy").exist?
     
     # Go to Reorder page
+    assignments = AssignmentsList.new(@browser)
+    assignments.reorder
     
-    # Sort assignments
+    # Sort assignments by title
+    reorder = AssignmentsReorder.new(@browser)
+    reorder.sort_by_title
+    reorder.save
     
-    # Verify sorts
+    #=============
+    # Add verification of sorts tests later - though this should probably get its own test case
+    #=============
     
   end
   
