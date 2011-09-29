@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+ <sibling value="5"/>
+ <sibling value="7"/>
+ <sibling value="9"/>
+ <sibling value="13"/>
+ <currentnode>some text</currentnode>
+</root>

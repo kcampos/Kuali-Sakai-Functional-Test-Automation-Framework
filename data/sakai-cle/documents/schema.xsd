@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 4 U (http://www.xmlspy.com) by Baldur Benediktsson (the r-smart group) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+	<xs:complexType name="emailListing">
+		<xs:annotation>
+			<xs:documentation>Email Listing</xs:documentation>
+		</xs:annotation>
+		<xs:sequence minOccurs="0">
+			<xs:element name="emailType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation source="ospi.label">Type</xs:documentation>
+					<xs:documentation source="ospi.description">Your email type (home, work, etc.)</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="20"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="emailAddress" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation source="ospi.label">Email</xs:documentation>
+					<xs:documentation source="ospi.description">Your email address</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="100"/>
+						<xs:pattern value=".*@.*"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="phonenumberListing">
+		<xs:annotation>
+			<xs:documentation>Phone Number Listing</xs:documentation>
+		</xs:annotation>
+		<xs:sequence minOccurs="0">
+			<xs:element name="phoneType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation source="ospi.label">Type</xs:documentation>
+					<xs:documentation source="ospi.description">Your phone number type</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:enumeration value="Home"/>
+						<xs:enumeration value="Work"/>
+						<xs:enumeration value="Cell"/>
+						<xs:enumeration value="Fax"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="phoneNumber" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation source="ospi.label">Number</xs:documentation>
+					<xs:documentation source="ospi.description">Phone number</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="20"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="contactInformation">
+		<xs:annotation>
+			<xs:documentation source="ospi.label">Contact Information</xs:documentation>
+			<xs:documentation source="ospi.description">Contact Information</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="firstName" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation source="ospi.label">First Name</xs:documentation>
+						<xs:documentation source="ospi.description">Your first name</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="50"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="middleName" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation source="ospi.label">Middle Name</xs:documentation>
+						<xs:documentation source="ospi.description">Your middle name</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="50"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="lastName" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation source="ospi.label">Last Name</xs:documentation>
+						<xs:documentation source="ospi.description">Your last name</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="100"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="addressOne" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation source="ospi.label">Address 1</xs:documentation>
+						<xs:documentation source="ospi.description">Your address, field 1</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="100"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="addressTwo" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation source="ospi.label">Address 2</xs:documentation>
+						<xs:documentation source="ospi.description">Your address, field 2</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="100"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="addressCity" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation source="ospi.label">City</xs:documentation>
+						<xs:documentation source="ospi.description">Your city</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="50"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="addressState" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation source="ospi.label">State/Province</xs:documentation>
+						<xs:documentation source="ospi.description">Your state or province</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="50"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="addressZip" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation source="ospi.label">Zip/Postal Code</xs:documentation>
+						<xs:documentation source="ospi.description">Your zip or postal code</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="50"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="addressCountry" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation source="ospi.label">Country</xs:documentation>
+						<xs:documentation source="ospi.description">Your country</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="50"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="emails" type="emailListing" minOccurs="0" maxOccurs="unbounded">
+					<xs:annotation>
+						<xs:documentation source="ospi.label">Email Addresses</xs:documentation>
+						<xs:documentation source="ospi.description">Your email address(es)</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="phoneNumbers" type="phonenumberListing" minOccurs="0" maxOccurs="unbounded">
+					<xs:annotation>
+						<xs:documentation source="ospi.label">Phone Numbers</xs:documentation>
+						<xs:documentation source="ospi.description">Your phone number(s)</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

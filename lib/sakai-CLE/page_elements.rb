@@ -675,6 +675,46 @@ class AssignmentsReorder
 
 end
 
+# A Student user's page for editing/submitting an assignment.
+class AssignmentStudent
+  
+  include PageObject
+  include ToolsMenu
+  
+  def title
+    @browser.frame(:index=>1).table(:class=>"itemSummary")[0][1].text
+  end
+  
+  def due
+    @browser.frame(:index=>1).table(:class=>"itemSummary")[0][2].text
+  end
+  
+  def status
+    @browser.frame(:index=>1).table(:class=>"itemSummary")[0][3].text
+  end
+  
+  def grade_scale
+    @browser.frame(:index=>1).table(:class=>"itemSummary")[0][4].text
+  end
+  
+  def modified
+    @browser.frame(:index=>1).table(:class=>"itemSummary")[0][5].text
+  end
+  
+  def add_assignment_text(text)
+    @browser.frame(:index=>1).frame(:id, "Assignment.view_submission_text___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(instructions)
+  end
+  
+  in_frame(:index=>1) do |frame|
+    button(:submit, :id=>"post", :frame=>frame)
+    button(:preview, :id=>"preview", :frame=>frame)
+    button(:save_draft, :id=>"save", :frame=>frame)
+    button(:cancel, :id=>"cancel", :frame=>frame)
+    
+  end
+
+end
+
 # Top page of the Calendar
 # For now it includes all views, though that probably
 # means it will have to be re-instantiated every time
