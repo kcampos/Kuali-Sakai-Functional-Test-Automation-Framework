@@ -14,6 +14,7 @@ class AutoConfig
     
     config = YAML.load_file("#{File.dirname(__FILE__)}/config.yml")
     @directory = YAML.load_file("#{File.dirname(__FILE__)}/directory.yml")
+    @test_data_path = "#{File.dirname(__FILE__)}/../data"
     
     @web_browser   = config['server']['browser']
     @url           = config['server']['url']

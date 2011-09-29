@@ -29,7 +29,7 @@ module Utilities
   
   # Some date and time helper functions
   def last_hour
-    (Time.now - 86400).strftime("%I").to_i
+    (Time.now - 3600).strftime("%I").to_i
   end
   
   def current_hour
@@ -37,7 +37,7 @@ module Utilities
   end
   
   def next_hour
-    (Time.now + 86400).strftime("%I").to_i
+    (Time.now + 3600).strftime("%I").to_i
   end
   
 end
