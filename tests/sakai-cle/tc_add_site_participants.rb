@@ -3,6 +3,7 @@
 #
 # Tests the adding of students, instructors, and Guests to an existing Site.
 #
+#
 # Author: Abe Heward (aheward@rSmart.com)
 
 require "test/unit"
@@ -37,6 +38,9 @@ class AddSiteParticipants < Test::Unit::TestCase
   end
   
   def test_adding_participants
+    
+    # This test case needs to check error paths.
+    # Currently it does not do any error checking.
     
     # Prepare the test case data...
     # Get participants and stick them in an array
