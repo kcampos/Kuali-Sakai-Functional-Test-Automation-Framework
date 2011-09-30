@@ -60,7 +60,7 @@ class TestCompleteAssignment < Test::Unit::TestCase
     frm.link(:href=>/sakai_action=doView_submission/, :index=>0).click
 
     # Enter in assignment text
-    assignment_1_text = "Etiam "#nec tellus. Nulla semper volutpat ipsum. Cras lectus magna, convallis eget, molestie ac, pharetra vel, lorem. Etiam massa velit, vulputate ut, malesuada aliquet, pretium vitae, arcu. In ipsum libero, porttitor ac, viverra eu, feugiat et, tortor. Donec vel turpis ac tortor malesuada sollicitudin! Ut et lectus. Mauris sodales. Fusce ultrices euismod metus. Aliquam eu felis eget diam malesuada bibendum. Nunc a orci in augue condimentum blandit. Proin at dolor. Donec velit. Donec ullamcorper eros a ligula. Sed ullamcorper risus nec nisl. Nunc vel justo ut risus interdum faucibus. Sed dictum tempus ipsum! In neque dolor, auctor vel, accumsan pulvinar, feugiat sit amet, urna. Aenean sagittis luctus felis.\n\nAenean elementum pretium urna. Nullam eleifend congue nulla. Suspendisse potenti. Nullam posuere elit. Sed tellus. In facilisis. Nulla aliquet, turpis nec dictum euismod, nisl dui gravida leo, et volutpat odio eros sagittis sapien. Aliquam at purus? Nunc nibh diam; imperdiet ut, sodales ut, venenatis a, leo? Suspendisse pede. Maecenas congue risus et leo! Praesent urna purus, lobortis at; dapibus nec, dictum id, elit. Vivamus gravida odio non tellus. Aliquam non nulla."
+    assignment_1_text = "Etiam"#nec tellus. Nulla semper volutpat ipsum. Cras lectus magna, convallis eget, molestie ac, pharetra vel, lorem. Etiam massa velit, vulputate ut, malesuada aliquet, pretium vitae, arcu. In ipsum libero, porttitor ac, viverra eu, feugiat et, tortor. Donec vel turpis ac tortor malesuada sollicitudin! Ut et lectus. Mauris sodales. Fusce ultrices euismod metus. Aliquam eu felis eget diam malesuada bibendum. Nunc a orci in augue condimentum blandit. Proin at dolor. Donec velit. Donec ullamcorper eros a ligula. Sed ullamcorper risus nec nisl. Nunc vel justo ut risus interdum faucibus. Sed dictum tempus ipsum! In neque dolor, auctor vel, accumsan pulvinar, feugiat sit amet, urna. Aenean sagittis luctus felis.\n\nAenean elementum pretium urna. Nullam eleifend congue nulla. Suspendisse potenti. Nullam posuere elit. Sed tellus. In facilisis. Nulla aliquet, turpis nec dictum euismod, nisl dui gravida leo, et volutpat odio eros sagittis sapien. Aliquam at purus? Nunc nibh diam; imperdiet ut, sodales ut, venenatis a, leo? Suspendisse pede. Maecenas congue risus et leo! Praesent urna purus, lobortis at; dapibus nec, dictum id, elit. Vivamus gravida odio non tellus. Aliquam non nulla."
     
     assignment1 = AssignmentStudent.new(@browser)
     
@@ -76,19 +76,30 @@ class TestCompleteAssignment < Test::Unit::TestCase
     frm.button(:id=>"save").click
     
     # TEST CASE: Verify saved as a draft
-    assert_equal(frm.div(:class=>"portletBody").div(:class=>"success").text, "You have successfully saved your work but NOT submitted yet. To complete submission, you must select the Submit button. ")
+    assert_equal(frm.div(:class=>"portletBody").div(:class=>"success").text, "You have successfully saved your work but NOT submitted yet. To complete submission, you must select the Submit button.")
     
     # Go back to assignment list
     frm.button(:name, "eventSubmit_doConfirm_assignment_submission").click
     
     # TEST CASE: Verify assignment shows as draft in list
-    assert_equal(frm.div(:class=>"portletBody").table(:class, "listHier lines nolines")[1][1].text, "Draft - In progress")
+    assert_equal(frm.div(:class=>"portletBody").table(:class, "listHier lines nolines")[1][2].text, "Draft - In progress")
     
     # Edit assignment
+    frm.link(:href=>/sakai_action=doView_submission/, :index=>0).click
+    assignment1 = AssignmentStudent.new(@browser)
     
     # Submit assignment
+    assignment1.submit
     
-    # Verify submitted
+    # TEST CASE: Verify Submission confirmation message.
+    assert_equal(frm.div(:class=>"portletBody").div(:class=>"success").text, "You have successfully submitted your work. You will receive an email confirmation containing this information.")
+    
+    frm.button(:name, "eventSubmit_doConfirm_assignment_submission").click
+    
+    submitted_date = @sakai.make_date(Time.now)
+    
+    # TEST CASE: Verify list shows assignment submitted
+    assert_equal(frm.div(:class=>"portletBody").table(:class, "listHier lines nolines")[1][2].text, "Submitted #{submitted_date}")
     
     #===============
     # Need to add tests for adding attachments here

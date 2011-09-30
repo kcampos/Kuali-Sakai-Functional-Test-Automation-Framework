@@ -20,15 +20,19 @@ class TestCreatingCourseSite < Test::Unit::TestCase
     @verification_errors = []
     
     # Get the test configuration data
-    config = AutoConfig.new
-    @browser = config.browser
-    @user_name = config.directory['admin']['username']
-    @password = config.directory['admin']['password']
+    @config = AutoConfig.new
+    @browser = @config.browser
+    @user_name = @config.directory['admin']['username']
+    @password = @config.directory['admin']['password']
     @sakai = SakaiCLE.new(@browser)
     
   end
   
   def teardown
+    # Save new site name for later scripts to use
+    File.open("#{File.dirname(__FILE__)}/../../config/directory.yml", "w+") { |out|
+      YAML::dump(@config.directory, out)
+    }
     # Close the browser window
     @browser.close
     assert_equal [], @verification_errors
@@ -87,6 +91,8 @@ class TestCreatingCourseSite < Test::Unit::TestCase
     
     # Store site name for ease of coding and readability later
     site_name = "#{subject} #{course} #{section} #{term}"
+    
+    @config.directory['course_site'] = site_name
     
     # Click continue button
     course_section.continue

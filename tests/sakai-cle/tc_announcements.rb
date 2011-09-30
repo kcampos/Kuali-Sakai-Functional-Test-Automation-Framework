@@ -1,8 +1,7 @@
 # 
 # == Synopsis
 #
-# This is the Sakai-CLE test case template file. Use it as the starting
-# point for a new test case.
+# 
 #
 # Author: Abe Heward (aheward@rSmart.com)
 
