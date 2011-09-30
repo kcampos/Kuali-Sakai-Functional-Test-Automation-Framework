@@ -93,4 +93,11 @@ person13:
   email: cswines@rsmart.com
   password: password
   type: registered
+person14:
+  id: superman
+  firstname: Clark
+  lastname: Kent
+  email: aheward@rsmart.com
+  password: password
+  type: guest
 course_site: "].]nktd[ 2P+$Pjov V+P:\"1?m F11"
