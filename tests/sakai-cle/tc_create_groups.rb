@@ -24,9 +24,10 @@ class TestGroups < Test::Unit::TestCase
     # Get the test configuration data
     config = AutoConfig.new
     @browser = config.browser
-    @site_name = config.directory['instructor']['site']
-    @user_name = config.directory['instructor']['username']
-    @password = config.directory['instructor']['password']
+    # Test user is an instructor
+    @site_name = config.directory['person3']['site']
+    @user_name = config.directory['person3']['id']
+    @password = config.directory['person3']['password']
     @sakai = SakaiCLE.new(@browser)
     
   end

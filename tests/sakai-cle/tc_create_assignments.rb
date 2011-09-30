@@ -20,14 +20,16 @@ class TestCreateAssignments < Test::Unit::TestCase
     @verification_errors = []
     
     # Get the test configuration data
-    config = AutoConfig.new
-    @browser = config.browser
+    @config = AutoConfig.new
+    @browser = @config.browser
     # Test user is an instructor
-    @user_name = config.directory['instructor']['username']
-    @password = config.directory['instructor']['password']
-    # This script requires a second test user
-    @user_name1 = config.directory['person4']['id']
-    @password1 = config.directory['person4']['password']
+    @user_name = @config.directory['person3']['id']
+    @password = @config.directory['person3']['password']
+    # This script requires a second test user (instructor)
+    @user_name1 = @config.directory['person4']['id']
+    @password1 = @config.directory['person4']['password']
+    # Test site
+    @site_name = @config.directory['course_site']
     @sakai = SakaiCLE.new(@browser)
     
   end
@@ -44,9 +46,7 @@ class TestCreateAssignments < Test::Unit::TestCase
     @sakai.login(@user_name, @password)
  
     # Go to test site.
-    # Note that this test site is currently hard-coded.
-    # This should be corrected as soon as possible.
-    @browser.link(:text, "1 2 3 F11").click
+    @browser.link(:text, @site_name).click
     home = Home.new(@browser)
     
     # Define the frame for ease of code writing (and reading)
