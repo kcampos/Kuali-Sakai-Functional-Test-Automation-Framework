@@ -219,52 +219,6 @@ class AssignmentAdd
   
 end
 
-# The Add Sections Page in Site Management
-class AddSections
-  
-  include PageObject
-  include ToolsMenu
-  
-  in_frame(:index=>0) do |frame|
-    link(:overview, :id=>"addSectionsForm:_idJsp3", :frame=>frame)
-    link(:student_memberships, :id=>"addSectionsForm:_idJsp12", :frame=>frame)
-    link(:options, :id=>"addSectionsForm:_idJsp17", :frame=>frame)
-    select_list(:num_to_add, :id=>"addSectionsForm:numToAdd", :frame=>frame)
-    select_list(:category, :id=>"addSectionsForm:category", :frame=>frame)
-    button(:add_sections, :id=>"addSectionsForm:_idJsp89", :frame=>frame)
-    button(:cancel, :id=>"addSectionsForm:_idJsp90", :frame=>frame)
-    
-    # Note that the following field definitions are appropriate for
-    # ONLY THE FIRST instance of each of the fields. The Add Sections page
-    # allows for an arbitrary number of these fields to exist.
-    # If you are going to test the addition of multiple sections
-    # and/or meetings, then their elements will have to be
-    # explicitly called or defined in the test scripts themselves.
-    text_field(:name, :id=>"addSectionsForm:sectionTable:0:titleInput", :frame=>frame)
-    radio_button(:unlimited_size, :name=>"addSectionsForm:sectionTable:0:limit", :index=>0, :frame=>frame)
-    radio_button(:limited_size, :name=>"addSectionsForm:sectionTable:0:limit", :index=>1, :frame=>frame)
-    text_field(:max_enrollment, :id=>"addSectionsForm:sectionTable:0:maxEnrollmentInput", :frame=>frame)
-    checkbox(:monday, :id=>"addSectionsForm:sectionTable:0:meetingsTable:0:monday", :frame=>frame)
-    checkbox(:tuesday, :id=>"addSectionsForm:sectionTable:0:meetingsTable:0:tuesday", :frame=>frame)
-    checkbox(:wednesday, :id=>"addSectionsForm:sectionTable:0:meetingsTable:0:wednesday", :frame=>frame)
-    checkbox(:thursday, :id=>"addSectionsForm:sectionTable:0:meetingsTable:0:thursday", :frame=>frame)
-    checkbox(:friday, :id=>"addSectionsForm:sectionTable:0:meetingsTable:0:friday", :frame=>frame)
-    checkbox(:saturday, :id=>"addSectionsForm:sectionTable:0:meetingsTable:0:saturday", :frame=>frame)
-    checkbox(:sunday, :id=>"addSectionsForm:sectionTable:0:meetingsTable:0:sunday", :frame=>frame)
-    text_field(:start_time, :id=>"addSectionsForm:sectionTable:0:meetingsTable:0:startTime", :frame=>frame)
-    radio_button(:start_am, :name=>"addSectionsForm:sectionTable:0:meetingsTable:0:startTimeAm", :index=>0, :frame=>frame)
-    radio_button(:start_pm, :name=>"addSectionsForm:sectionTable:0:meetingsTable:0:startTimeAm", :index=>1, :frame=>frame)
-    text_field(:end_time, :id=>"addSectionsForm:sectionTable:0:meetingsTable:0:endTime", :frame=>frame)
-    radio_button(:end_am, :name=>"addSectionsForm:sectionTable:0:meetingsTable:0:endTimeAm", :index=>0, :frame=>frame)
-    radio_button(:end_pm, :name=>"addSectionsForm:sectionTable:0:meetingsTable:0:endTimeAm", :index=>1, :frame=>frame)
-    text_field(:location, :id=>"addSectionsForm:sectionTable:0:meetingsTable:0:location", :frame=>frame)
-    link(:add_days, :id=>"addSectionsForm:sectionTable:0:addMeeting", :frame=>frame)
-    
-  end
-
-end
-
-
 
 #================
 # Aliases Pages
@@ -861,7 +815,6 @@ class Realms
 
 end
 
-
 #================
 # Administrative Search Pages
 #================
@@ -903,10 +856,55 @@ class SearchAdmin
 
 end
 
-
 #================
 # Sections - Site Management
 #================
+
+# The Add Sections Page in Site Management
+class AddSections
+  
+  include PageObject
+  include ToolsMenu
+  
+  in_frame(:index=>0) do |frame|
+    link(:overview, :id=>"addSectionsForm:_idJsp3", :frame=>frame)
+    link(:student_memberships, :id=>"addSectionsForm:_idJsp12", :frame=>frame)
+    link(:options, :id=>"addSectionsForm:_idJsp17", :frame=>frame)
+    select_list(:num_to_add, :id=>"addSectionsForm:numToAdd", :frame=>frame)
+    select_list(:category, :id=>"addSectionsForm:category", :frame=>frame)
+    button(:add_sections, :id=>"addSectionsForm:_idJsp89", :frame=>frame)
+    button(:cancel, :id=>"addSectionsForm:_idJsp90", :frame=>frame)
+    
+    # Note that the following field definitions are appropriate for
+    # ONLY THE FIRST instance of each of the fields. The Add Sections page
+    # allows for an arbitrary number of these fields to exist.
+    # If you are going to test the addition of multiple sections
+    # and/or meetings, then their elements will have to be
+    # explicitly called or defined in the test scripts themselves.
+    text_field(:name, :id=>"addSectionsForm:sectionTable:0:titleInput", :frame=>frame)
+    radio_button(:unlimited_size, :name=>"addSectionsForm:sectionTable:0:limit", :index=>0, :frame=>frame)
+    radio_button(:limited_size, :name=>"addSectionsForm:sectionTable:0:limit", :index=>1, :frame=>frame)
+    text_field(:max_enrollment, :id=>"addSectionsForm:sectionTable:0:maxEnrollmentInput", :frame=>frame)
+    checkbox(:monday, :id=>"addSectionsForm:sectionTable:0:meetingsTable:0:monday", :frame=>frame)
+    checkbox(:tuesday, :id=>"addSectionsForm:sectionTable:0:meetingsTable:0:tuesday", :frame=>frame)
+    checkbox(:wednesday, :id=>"addSectionsForm:sectionTable:0:meetingsTable:0:wednesday", :frame=>frame)
+    checkbox(:thursday, :id=>"addSectionsForm:sectionTable:0:meetingsTable:0:thursday", :frame=>frame)
+    checkbox(:friday, :id=>"addSectionsForm:sectionTable:0:meetingsTable:0:friday", :frame=>frame)
+    checkbox(:saturday, :id=>"addSectionsForm:sectionTable:0:meetingsTable:0:saturday", :frame=>frame)
+    checkbox(:sunday, :id=>"addSectionsForm:sectionTable:0:meetingsTable:0:sunday", :frame=>frame)
+    text_field(:start_time, :id=>"addSectionsForm:sectionTable:0:meetingsTable:0:startTime", :frame=>frame)
+    radio_button(:start_am, :name=>"addSectionsForm:sectionTable:0:meetingsTable:0:startTimeAm", :index=>0, :frame=>frame)
+    radio_button(:start_pm, :name=>"addSectionsForm:sectionTable:0:meetingsTable:0:startTimeAm", :index=>1, :frame=>frame)
+    text_field(:end_time, :id=>"addSectionsForm:sectionTable:0:meetingsTable:0:endTime", :frame=>frame)
+    radio_button(:end_am, :name=>"addSectionsForm:sectionTable:0:meetingsTable:0:endTimeAm", :index=>0, :frame=>frame)
+    radio_button(:end_pm, :name=>"addSectionsForm:sectionTable:0:meetingsTable:0:endTimeAm", :index=>1, :frame=>frame)
+    text_field(:location, :id=>"addSectionsForm:sectionTable:0:meetingsTable:0:location", :frame=>frame)
+    link(:add_days, :id=>"addSectionsForm:sectionTable:0:addMeeting", :frame=>frame)
+    
+  end
+
+end
+
 
 # Exactly like the Add Sections page, but used when editing an existing section
 class EditSections
