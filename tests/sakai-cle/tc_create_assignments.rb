@@ -30,6 +30,7 @@ class TestCreateAssignments < Test::Unit::TestCase
     @password1 = @config.directory['person4']['password']
     # Test site
     @site_name = @config.directory['course_site']
+    @site_id = @config.directory['site_id']
     @sakai = SakaiCLE.new(@browser)
     
   end
@@ -46,7 +47,7 @@ class TestCreateAssignments < Test::Unit::TestCase
     @sakai.login(@user_name, @password)
  
     # Go to test site.
-    @browser.link(:text, @site_name).click
+    @browser.link(:href, /#{@site_id}/).click
     home = Home.new(@browser)
     
     # Define the frame for ease of code writing (and reading)
@@ -61,7 +62,7 @@ class TestCreateAssignments < Test::Unit::TestCase
     
     # Create a new assignment
     assignments.add
-    assignment1 = AddAssignment.new(@browser)
+    assignment1 = AssignmentAdd.new(@browser)
     
     # Store the title for later verification steps
     title1 = random_string
@@ -102,7 +103,7 @@ class TestCreateAssignments < Test::Unit::TestCase
     # Create a New Assignment
     assignments.add
     
-    assignment2 = AddAssignment.new(@browser)
+    assignment2 = AssignmentAdd.new(@browser)
     
     title2 = random_string(15)
     assignment2.title=title2
@@ -186,7 +187,7 @@ class TestCreateAssignments < Test::Unit::TestCase
     # the draft mode link, etc.
     title3 = random_nicelink(20)
     
-    assignment3 = AddAssignment.new(@browser)
+    assignment3 = AssignmentAdd.new(@browser)
     
     #===========
     # Add a test for setting bad due, accept, and resubmission dates here.
@@ -227,7 +228,7 @@ class TestCreateAssignments < Test::Unit::TestCase
     # Get the assignment id
     frm.link(:text, "Draft - #{title3}").click
     
-    edit = AddAssignment.new(@browser)
+    edit = AssignmentAdd.new(@browser)
     edit.assignment_id_element.value =~ /(?<=\/a\/\S{36}\/).+/
     assignment3_id = $~.to_s
     
@@ -250,7 +251,7 @@ class TestCreateAssignments < Test::Unit::TestCase
     
     title4 = random_string(25)
     
-    assignment4 = AddAssignment.new(@browser)
+    assignment4 = AssignmentAdd.new(@browser)
     assignment4.title=title4
     
     # Cancel assignment creation
@@ -263,7 +264,7 @@ class TestCreateAssignments < Test::Unit::TestCase
     # Add and set up Assignment 4 again
     assignments.add
     
-    assignment4 = AddAssignment.new(@browser)
+    assignment4 = AssignmentAdd.new(@browser)
     assignment4.title=title4
     assignment4.grade_scale="Pass"
     
@@ -312,7 +313,7 @@ class TestCreateAssignments < Test::Unit::TestCase
     @sakai.login(@user_name1, @password1)
     
     # Go to the test site
-    @browser.link(:text, "1 2 3 F11").click
+    @browser.link(:href, /#{@site_id}/).click
     home = Home.new(@browser)
     
     # Go to the Assignments page
@@ -357,7 +358,7 @@ class TestCreateAssignments < Test::Unit::TestCase
     
     # Edit Assignment 3 and save it so it's no longer in Draft mode
     frm.link(:href, /#{assignment3_id}/).click
-    edit = AddAssignment.new(@browser)
+    edit = AssignmentAdd.new(@browser)
     edit.post
     
     # Go to Home page of Site
@@ -375,7 +376,7 @@ class TestCreateAssignments < Test::Unit::TestCase
     assignments = AssignmentsList.new(@browser)
     assignments.add
     
-    assignment5 = AddAssignment.new(@browser)
+    assignment5 = AssignmentAdd.new(@browser)
     
     title5 = random_nicelink(30)
     
@@ -407,7 +408,7 @@ class TestCreateAssignments < Test::Unit::TestCase
     @sakai.login(@user_name, @password)
     
     # Go to test site
-    @browser.link(:text, "1 2 3 F11").click
+    @browser.link(:href, /#{@site_id}/).click
     home = Home.new(@browser)
     
     # Go to assignments page
@@ -419,7 +420,7 @@ class TestCreateAssignments < Test::Unit::TestCase
     # Edit assignment 1
     frm.link(:href=>/#{assignment1_id}/, :text=>"Edit").click
     
-    assignment_1 = AddAssignment.new(@browser)
+    assignment_1 = AssignmentAdd.new(@browser)
     
     # TEST CASE: Verify the alert about revising assignments after the Open Date.
     assert_equal(assignment_1.alert_text, "Alert: You are revising an assignment after the open date.")
@@ -430,7 +431,7 @@ class TestCreateAssignments < Test::Unit::TestCase
     # Save
     assignment_1.post
     
-    assignment_1 = AddAssignment.new(@browser)
+    assignment_1 = AssignmentAdd.new(@browser)
     
     # Verify the instructions error message again
     assert_equal assignment_1.alert_text, "Alert: This assignment has no instructions. Please make a correction or click the original button to proceed."

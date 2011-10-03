@@ -25,6 +25,7 @@ class AddSiteParticipants < Test::Unit::TestCase
     @browser = @config.browser
     # Must log in as admin
     @site_name = @config.directory['course_site']
+    @site_id = @config.directory['site_id']
     @user_name = @config.directory['admin']['username']
     @password = @config.directory['admin']['password']
     @sakai = SakaiCLE.new(@browser)
@@ -97,7 +98,10 @@ class AddSiteParticipants < Test::Unit::TestCase
     # Get the site id so that we can check the right checkbox
     frm.link(:text, @site_name).href =~ /(?<=\/site\/).+/
     site_id = $~.to_s
-      
+    
+    # Make sure it's the right site id
+    assert_equal(site_id, @site_id, "The site id of the target link isn't the one expected")
+    
     # Check the checkbox
     frm.checkbox(:value, site_id).set
       
