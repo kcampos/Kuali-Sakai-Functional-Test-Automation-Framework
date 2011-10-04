@@ -29,7 +29,7 @@ class TestCreatingCourseSite < Test::Unit::TestCase
   end
   
   def teardown
-    # Save new site name for later scripts to use
+    # Save new site info for later scripts to use
     File.open("#{File.dirname(__FILE__)}/../../config/directory.yml", "w+") { |out|
       YAML::dump(@config.directory, out)
     }
@@ -62,6 +62,7 @@ class TestCreatingCourseSite < Test::Unit::TestCase
     
     site_type = SiteType.new(@browser)
     # Select the Course Site radio button
+    
     site_type.select_course_site
     
     #TEST CASE: Check that the academic term selection appeared
@@ -92,7 +93,7 @@ class TestCreatingCourseSite < Test::Unit::TestCase
     # Store site name for ease of coding and readability later
     site_name = "#{subject} #{course} #{section} #{term}"
     
-    @config.directory['course_site'] = site_name
+    @config.directory['site1']['name'] = site_name
     
     # Click continue button
     course_section.continue
@@ -220,7 +221,7 @@ class TestCreatingCourseSite < Test::Unit::TestCase
     
     # Get the site id
     @browser.frame(:index=>0).link(:href=>/xsl-portal.site/, :index=>0).href =~ /(?<=\/site\/).+/
-    @config.directory['site_id'] = $~.to_s
+    @config.directory['site1']['id'] = $~.to_s
     
   end
   

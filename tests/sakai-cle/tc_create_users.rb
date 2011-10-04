@@ -51,9 +51,16 @@ class CreateUsers < Test::Unit::TestCase
     #Hash of user information to use
     people = YAML.load_file("#{File.dirname(__FILE__)}/../../config/directory.yml")
     
+    # Get a count of how many users will be added
+    count = 1
+    while people["person#{count}"] != nil do
+      count+=1
+    end
+    count = count-1
+    
     users_page = Users.new(@browser)
     # Add each user to the workspace
-    1.upto(13) do |x|
+    1.upto(count) do |x|
       
       # Create a new user
       users_page.new_user
