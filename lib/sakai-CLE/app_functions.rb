@@ -28,10 +28,12 @@ class SakaiCLE
   # Format a date string Sakai-style.
   # Useful for verifying creation dates and such.
   def make_date(time_object)
-    front = time_object.strftime("%b %d, %Y ")
-    back = time_object.strftime(":%M %P")
+    month = time_object.strftime("%b ")
+    day = time_object.strftime("%d").to_i
+    year = time_object.strftime(", %Y ")
+    mins = time_object.strftime(":%M %P")
     hour = time_object.strftime("%l").to_i
-    return front + hour.to_s + back
+    return month + day.to_s + year + hour.to_s + mins
   end
   
 end

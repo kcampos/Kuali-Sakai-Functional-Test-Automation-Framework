@@ -30,12 +30,16 @@ class TestCreateAssignments < Test::Unit::TestCase
     @password1 = @config.directory['person4']['password']
     # Test site
     @site_name = @config.directory['course_site']
-    @site_id = @config.directory['site_id']
+    @site_id = @config.directory['site1']['id']
     @sakai = SakaiCLE.new(@browser)
     
   end
   
   def teardown
+    # Save new assignment info for later scripts to use
+    File.open("#{File.dirname(__FILE__)}/../../config/directory.yml", "w+") { |out|
+      YAML::dump(@config.directory, out)
+    }
     # Close the browser window
     @browser.close
     assert_equal [], @verification_errors
@@ -80,9 +84,10 @@ class TestCreateAssignments < Test::Unit::TestCase
     # TEST CASE: Alert appears when submitting without instructions
     assert_equal(assignment1.alert_text, "Alert: This assignment has no instructions. Please make a correction or click the original button to proceed.")
     
+    yesterdays_date = (Time.now - 86400).strftime("%d").to_i
     # Set the open date day to yesterday
-    assignment1.open_day=(Time.now - 86400).strftime("%d").to_i
-    
+    assignment1.open_day=yesterdays_date
+
     # Click post again
     assignment1.post
     
@@ -107,10 +112,11 @@ class TestCreateAssignments < Test::Unit::TestCase
     
     title2 = random_string(15)
     assignment2.title=title2
-    
+
     # Set Open Date
     assignment2.open_hour=current_hour
-    
+    assignment2.open_meridian="AM"
+
     # Store the due date for later verification steps
     month_due2 = assignment2.due_month_element.selected_options[0]
     day_due2 = assignment2.due_day_element.selected_options[0]
@@ -143,6 +149,7 @@ class TestCreateAssignments < Test::Unit::TestCase
     # Get the assignment id for use later in the script
     frm.link(:text, title2).href =~ /(?<=\/a\/\S{36}\/).+(?=&pan)/
     assignment2_id = $~.to_s
+    @config.directory["site1"]["assignment2"] = assignment2_id
     
     # Go to calendar page
     assignments = AssignmentsList.new(@browser)
@@ -231,6 +238,7 @@ class TestCreateAssignments < Test::Unit::TestCase
     edit = AssignmentAdd.new(@browser)
     edit.assignment_id_element.value =~ /(?<=\/a\/\S{36}\/).+/
     assignment3_id = $~.to_s
+    @config.directory["site1"]["assignment3"] = assignment3_id
     
     # Go to the Home page for the Site
     edit.cancel
@@ -266,6 +274,7 @@ class TestCreateAssignments < Test::Unit::TestCase
     
     assignment4 = AssignmentAdd.new(@browser)
     assignment4.title=title4
+    assignment4.open_day=yesterdays_date
     assignment4.grade_scale="Pass"
     
     # Fix these instructions when all debugging is completed.
@@ -307,6 +316,7 @@ class TestCreateAssignments < Test::Unit::TestCase
     # Get the assignment id for use later in the script
     frm.link(:text, title4).href =~ /(?<=\/a\/\S{36}\/).+(?=&pan)/
     assignment4_id = $~.to_s
+    @config.directory["site1"]["assignment4"] = assignment4_id
   
     # Log out and log back in as instructor2
     @sakai.logout
@@ -381,6 +391,7 @@ class TestCreateAssignments < Test::Unit::TestCase
     title5 = random_nicelink(30)
     
     assignment5.title=title5
+    assignment5.open_day=yesterdays_date
     assignment5.grade_scale="Checkmark"
     
     # Fix these instructions when debugging is completed.
@@ -402,6 +413,7 @@ class TestCreateAssignments < Test::Unit::TestCase
     # Get the assignment id
     frm.link(:text, "Draft - #{title5}").href =~ /(?<=\/a\/\S{36}\/).+(?=&pan)/
     assignment5_id = $~.to_s
+    @config.directory["site1"]["assignment5"] = assignment5_id
     
     # Log out and log back in as instructor1
     @sakai.logout
@@ -416,6 +428,11 @@ class TestCreateAssignments < Test::Unit::TestCase
     
     # TEST CASE: Make sure there's a link to the Assignment 5 draft.
     assert frm.link(:href, /#{assignment5_id}/).exist?
+    
+    # Post assignment 5
+    frm.link(:href=>/#{assignment5_id}/, :text=>"Edit").click
+    assignment_5 = AssignmentAdd.new(@browser)
+    assignment_5.post
     
     # Edit assignment 1
     frm.link(:href=>/#{assignment1_id}/, :text=>"Edit").click
@@ -466,6 +483,10 @@ class TestCreateAssignments < Test::Unit::TestCase
     
     # TEST CASE: Verify duplication
     assert frm.link(:text, "Draft - #{title2} - Copy").exist?
+    
+    frm.link(:text, "Draft - #{title2} - Copy").href =~ /(?<=\/a\/\S{36}\/).+(?=&pan)/
+    assignment1_id = $~.to_s
+    @config.directory["site1"]["assignment1"] = assignment1_id
     
     # Go to Reorder page
     assignments = AssignmentsList.new(@browser)
