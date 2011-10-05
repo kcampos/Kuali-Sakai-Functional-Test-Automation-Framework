@@ -17,7 +17,6 @@ class TestCreateAssignments < Test::Unit::TestCase
   include Utilities
 
   def setup
-    @verification_errors = []
     
     # Get the test configuration data
     @config = AutoConfig.new
@@ -29,7 +28,7 @@ class TestCreateAssignments < Test::Unit::TestCase
     @user_name1 = @config.directory['person4']['id']
     @password1 = @config.directory['person4']['password']
     # Test site
-    @site_name = @config.directory['course_site']
+    @site_name = @config.directory['site1']['name']
     @site_id = @config.directory['site1']['id']
     @sakai = SakaiCLE.new(@browser)
     
@@ -42,7 +41,6 @@ class TestCreateAssignments < Test::Unit::TestCase
     }
     # Close the browser window
     @browser.close
-    assert_equal [], @verification_errors
   end
   
   def test_assignments_creation
@@ -501,12 +499,6 @@ class TestCreateAssignments < Test::Unit::TestCase
     # Add verification of sorts tests later - though this should probably get its own test case
     #=============
     
-  end
-  
-  def verify(&blk)
-    yield
-  rescue Test::Unit::AssertionFailedError => ex
-    @verification_errors << ex
   end
   
 end
