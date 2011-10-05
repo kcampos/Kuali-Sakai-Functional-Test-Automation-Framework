@@ -17,7 +17,6 @@ class TestCompleteAssignment < Test::Unit::TestCase
   include Utilities
 
   def setup
-    @verification_errors = []
     
     # Get the test configuration data
     @config = AutoConfig.new
@@ -34,14 +33,13 @@ class TestCompleteAssignment < Test::Unit::TestCase
   def teardown
     # Close the browser window
     @browser.close
-    assert_equal [], @verification_errors
   end
   
   def test_complete_assignments
     
     # Gather the assignment ids for later
-    assignment_ids = []
-    1.upto(5) { |x| assignment_ids << @config.directory["site1"]["assignment#{x}"]}
+    assignment1id = @config.directory["site1"]["assignment4"]
+    assignment2id = @config.directory["site1"]["assignment2"]
     
     # Log in to Sakai
     @sakai.login(@user_name, @password)
@@ -58,10 +56,10 @@ class TestCompleteAssignment < Test::Unit::TestCase
     # Go to assignments page
     home.assignments
     
-    assignment1_title = frm.link(:href=>/#{assignment_ids[3]}/).text
+    assignment1_title = frm.link(:href=>/#{assignment1id}/).text
  
     # Open the first assignment
-    frm.link(:href=>/#{assignment_ids[3]}/).click
+    frm.link(:href=>/#{assignment1id}/).click
 
     # Enter in assignment text
     assignment_1_text = "Etiam nec tellus. Nulla semper volutpat ipsum. Cras lectus magna, convallis eget, molestie ac, pharetra vel, lorem. Etiam massa velit, vulputate ut, malesuada aliquet, pretium vitae, arcu. In ipsum libero, porttitor ac, viverra eu, feugiat et, tortor. Donec vel turpis ac tortor malesuada sollicitudin! Ut et lectus. Mauris sodales. Fusce ultrices euismod metus. Aliquam eu felis eget diam malesuada bibendum. Nunc a orci in augue condimentum blandit. Proin at dolor. Donec velit. Donec ullamcorper eros a ligula. Sed ullamcorper risus nec nisl. Nunc vel justo ut risus interdum faucibus. Sed dictum tempus ipsum! In neque dolor, auctor vel, accumsan pulvinar, feugiat sit amet, urna. Aenean sagittis luctus felis.\n\nAenean elementum pretium urna. Nullam eleifend congue nulla. Suspendisse potenti. Nullam posuere elit. Sed tellus. In facilisis. Nulla aliquet, turpis nec dictum euismod, nisl dui gravida leo, et volutpat odio eros sagittis sapien. Aliquam at purus? Nunc nibh diam; imperdiet ut, sodales ut, venenatis a, leo? Suspendisse pede. Maecenas congue risus et leo! Praesent urna purus, lobortis at; dapibus nec, dictum id, elit. Vivamus gravida odio non tellus. Aliquam non nulla."
@@ -100,7 +98,7 @@ class TestCompleteAssignment < Test::Unit::TestCase
     assert_equal(assignments_table[index][2], "Draft - In progress")
     
     # Edit assignment
-    frm.link(:href=>/#{assignment_ids[3]}/).click
+    frm.link(:href=>/#{assignment1id}/).click
     assignment1 = AssignmentStudent.new(@browser)
     
     # Submit assignment
@@ -112,13 +110,12 @@ class TestCompleteAssignment < Test::Unit::TestCase
     frm.button(:name, "eventSubmit_doConfirm_assignment_submission").click
     
     submitted_date = @sakai.make_date(Time.now)
-    puts submitted_date
     
     # TEST CASE: Verify list shows assignment submitted
     assert_equal(frm.div(:class=>"portletBody").table(:class, "listHier lines nolines")[index][2].text, "Submitted #{submitted_date}")
   
     # Open an assignment that allows 1 resubmission
-    frm.link(:href=>/#{assignment_ids[1]}/).click
+    frm.link(:href=>/#{assignment2id}/).click
 
     # Fill it out and submit
     assignment_2_text1 = "First submission. Proin vel arcu vestibulum mauris accumsan tristique at eget dolor. Maecenas lobortis, ligula a tincidunt fringilla, diam arcu sollicitudin lorem, id cursus erat arcu sed felis. Maecenas id magna elit, at laoreet ligula. Nam molestie, diam quis euismod mattis, mauris massa fringilla ante, non volutpat turpis velit non nisi. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vivamus congue condimentum urna, non venenatis leo blandit quis. Phasellus rutrum scelerisque quam, et placerat elit porta id. Donec vel diam velit, id adipiscing massa. Donec ut eleifend nunc.\n\nUt mauris elit, fermentum et ultrices at, commodo sit amet arcu. Ut arcu nisi, porta in pulvinar ac, pharetra dignissim urna. Proin blandit volutpat eros, sit amet porttitor lectus accumsan non. Nullam porttitor urna at elit elementum sit amet suscipit velit convallis. Quisque at libero enim, quis facilisis tellus. Aenean orci nibh, semper vel tempor a; consectetur non erat. Pellentesque scelerisque, libero sit amet posuere gravida, ligula erat pulvinar nulla, vitae placerat arcu purus et arcu. Ut urna urna, eleifend ut sagittis et, porttitor eu elit. Pellentesque auctor massa tellus. Aliquam lacinia euismod dolor quis mollis. Vestibulum tincidunt semper semper. Nullam non lorem non augue consectetur accumsan quis a odio? Duis id tellus eget est aliquam bibendum? Fusce neque massa, volutpat eget feugiat quis, tincidunt id dui. Nunc accumsan libero sed arcu fringilla a luctus risus sollicitudin. Nulla faucibus, tellus eget consequat facilisis, arcu massa volutpat tellus, non faucibus leo nunc vitae ipsum. Pellentesque vestibulum nisi at sem molestie vel eleifend arcu condimentum."
@@ -135,7 +132,7 @@ class TestCompleteAssignment < Test::Unit::TestCase
     frm.button(:name, "eventSubmit_doConfirm_assignment_submission").click
    
     # Edit it and resubmit
-    frm.link(:href=>/#{assignment_ids[1]}/).click
+    frm.link(:href=>/#{assignment2id}/).click
 
     assignment2 = AssignmentStudent.new(@browser)
     
@@ -157,7 +154,7 @@ class TestCompleteAssignment < Test::Unit::TestCase
     frm.button(:name=>"eventSubmit_doConfirm_assignment_submission").click
 
     # Edit assignment again
-    frm.link(:href=>/#{assignment_ids[1]}/).click
+    frm.link(:href=>/#{assignment2id}/).click
 
     # Verify the user is not allowed to edit assignment
     assert frm.button(:name=>"eventSubmit_doCancel_view_grade").exist?
