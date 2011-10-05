@@ -60,7 +60,7 @@ class TestGradingAssignments < Test::Unit::TestCase
     
     # Go to assignments page
     home.assignments
-   
+
     # Click to Grade the first assignment
     frm.link(:xpath=>"//a[contains(@onclick, '#{assignment1id}')]").click
     
@@ -95,6 +95,9 @@ class TestGradingAssignments < Test::Unit::TestCase
     
     # Go back to the assignments list
     frm.link(:text, "Assignment List").click
+ 
+    # Ensure the page is fully loaded
+    frm.button(:name, "eventSubmit_doDelete_confirm_assignment").wait_until_present
    
     # Grade Assignment 2...
     frm.link(:xpath, "//a[contains(@onclick, '#{assignment2id}')]").click
@@ -114,18 +117,18 @@ class TestGradingAssignments < Test::Unit::TestCase
     
     # Save and don't release
     grade_assignment.save_dont_release
-    
+
     # Log out and log back in as student user
     @sakai.logout
     @sakai.login(@student_id, @student_pw)
-    
+  
     # Go to the test site
     @browser.link(:href, /#{@site_id}/).click
     home = Home.new(@browser)
     
     # Go to assignments page
     home.assignments
-    
+
     name1 = frm.link(:href, /#{assignment1id}/).text
     frm.link(:href, /#{assignment1id}/).click
     info_table = frm.table(:class, "itemSummary").to_a
@@ -137,16 +140,16 @@ class TestGradingAssignments < Test::Unit::TestCase
     assert_equal( frm.div(:class=>"portletBody").h3(:index=>0).text, "#{name1} - Resubmit" )
     
     frm.button(:name=>"cancel").click
-    
+  
     name2 = frm.link(:href, /#{assignment2id}/).text
     frm.link(:href, /#{assignment2id}/).click
     
+    frm.div(:class=>"textPanel", :index=>1).wait_until_present
+    
     # TEST CASE: Verify assignment 2 still shows "submitted"
     assert_equal( frm.div(:class=>"portletBody").h3(:index=>0).text, "#{name2} - Submitted" )
-    # TEST CASE: Verify there's no 'resubmit' button on the page
-    assert_equal(false, frm.button(:id=>post).exist?)
-    
-    sleep 20
+    # TEST CASE: Verify the "Back to list" button is present
+    assert frm.button(:name=>"eventSubmit_doCancel_view_grade").exist?
     
   end
   
