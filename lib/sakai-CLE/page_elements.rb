@@ -381,6 +381,10 @@ class AssignmentsList
   
   include PageObject
   include ToolsMenu
+  
+  def assignments_table
+    table = @browser.frame(:index=>1).table(:class=>"listHier lines nolines").to_a
+  end
  
   in_frame(:index=>1) do |frame|
     link(:add, :text=>"Add", :frame=>frame)
@@ -631,6 +635,110 @@ class AssignmentStudent
     button(:cancel, :id=>"cancel", :frame=>frame)
     button(:select_files, :id=>"attach", :frame=>frame)
     link(:add_another_file, :id=>"addMoreAttachmentControls", :frame=>frame)
+  end
+
+end
+
+# The page that appears when you click on an assignments "Grade" link
+# as an instructor. Shows the list of students and their
+# assignment submission status.
+class AssignmentSubmissionList
+  
+  include PageObject
+  include ToolsMenu
+  
+  def show_resubmission_settings
+    @browser.frame(:index=>1).image(:src, "/library/image/sakai/expand.gif?panel=Main").click
+  end
+  
+  def show_assignment_details
+    @browser.frame(:index=>1).image(:src, "/library/image/sakai/expand.gif").click
+  end
+  
+  def student_table
+    table = @browser.frame(:index=>1).table(:class=>"listHier lines nolines").to_a
+  end
+  
+  in_frame(:index=>1) do |frame|
+    link(:add, :text=>"Add", :frame=>frame)
+    link(:grade_report, :text=>"Grade Report", :frame=>frame)
+    link(:assignment_list, :text=>"Assignment List", :frame=>frame)
+    link(:permissions, :text=>"Permissions", :frame=>frame)
+    link(:options, :text=>"Options", :frame=>frame)
+    link(:student_view, :text=>"Student View", :frame=>frame)
+    link(:reorder, :text=>"Reorder", :frame=>frame)
+    text_field(:search_input, :id=>"search", :frame=>frame)
+    button(:find, :value=>"Find", :frame=>frame)
+    button(:clear, :value=>"Clear", :frame=>frame)
+    link(:download_all, :text=>"Download All", :frame=>frame)
+    link(:upload_all, :text=>"Upload All", :frame=>frame)
+    link(:release_grades, :text=>"Release Grades", :frame=>frame)
+    link(:sort_by_student, :text=>"Student", :frame=>frame)
+    link(:sort_by_submitted, :text=>"Submitted", :frame=>frame)
+    link(:sort_by_status, :text=>"Status", :frame=>frame)
+    link(:sort_by_grade, :text=>"Grade", :frame=>frame)
+    link(:sort_by_release, :text=>"Release", :frame=>frame)
+    select_list(:default_grade, :id=>"defaultGrade_1", :frame=>frame)
+    button(:apply, :name=>"apply", :frame=>frame)
+    select_list(:num_resubmissions, :id=>"allowResubmitNumber", :frame=>frame)
+    select_list(:accept_until_month, :id=>"allow_resubmit_closeMonth", :frame=>frame)
+    select_list(:accept_until_day, :id=>"allow_resubmit_closeDay", :frame=>frame)
+    select_list(:accept_until_year, :id=>"allow_resubmit_closeYear", :frame=>frame)
+    select_list(:accept_until_hour, :id=>"allow_resubmit_closeHour", :frame=>frame)
+    select_list(:accept_until_min, :id=>"allow_resubmit_closeMin", :frame=>frame)
+    select_list(:accept_until_meridian, :id=>"allow_resubmit_closeAMPM", :frame=>frame)
+    button(:update, :id=>"eventSubmit_doSave_resubmission_option", :frame=>frame)
+    select_list(:select_page_size, :id=>"selectPageSize", :frame=>frame)
+    button(:next, :name=>"eventSubmit_doList_next", :frame=>frame)
+    button(:last, :name=>"eventSubmit_doList_last", :frame=>frame)
+    button(:previous, :name=>"eventSubmit_doList_prev", :frame=>frame)
+    button(:first, :name=>"eventSubmit_doList_first", :frame=>frame)
+    button(:update, :name=>"eventSubmit_doDelete_confirm_assignment", :frame=>frame)
+    
+  end
+
+end
+
+# The page that shows a student's submitted assignment
+class AssignmentSubmission
+  
+  include PageObject
+  include ToolsMenu
+  
+  def student_assignment_text
+    @browser.frame(:index, 1).frame(:id, "grade_submission_feedback_text___Frame").td(:id, "xEditingArea").frame(:index=>0)
+  end
+  
+  def set_instructor_comments(text)
+    @browser.frame(:index, 1).frame(:id, "grade_submission_feedback_comment___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(text)
+  end
+  
+  in_frame(:index=>1) do |frame|
+    link(:add, :text=>"Add", :frame=>frame)
+    link(:grade_report, :text=>"Grade Report", :frame=>frame)
+    link(:assignment_list, :text=>"Assignment List", :frame=>frame)
+    link(:permissions, :text=>"Permissions", :frame=>frame)
+    link(:options, :text=>"Options", :frame=>frame)
+    link(:student_view, :text=>"Student View", :frame=>frame)
+    link(:reorder, :text=>"Reorder", :frame=>frame)
+    button(:previous, :name=>"prevsubmission1", :frame=>frame)
+    button(:return_to_list, :name=>"cancelgradesubmission1", :frame=>frame)
+    button(:next, :name=>"nextsubmission1", :frame=>frame)
+    button(:add_attachments, :name=>"attach", :frame=>frame)
+    select_list(:select_default_grade, :name=>"grade_submission_grade", :frame=>frame)
+    checkbox(:allow_resubmission, :id=>"allowResToggle", :frame=>frame)
+    select_list(:num_resubmissions, :id=>"allowResubmitNumberSelect", :frame=>frame)
+    select_list(:accept_until_month, :id=>"allow_resubmit_closeMonth", :frame=>frame)
+    select_list(:accept_until_day, :id=>"allow_resubmit_closeDay", :frame=>frame)
+    select_list(:accept_until_year, :id=>"allow_resubmit_closeYear", :frame=>frame)
+    select_list(:accept_until_hour, :id=>"allow_resubmit_closeHour", :frame=>frame)
+    select_list(:accept_until_min, :id=>"allow_resubmit_closeMin", :frame=>frame)
+    select_list(:accept_until_meridian, :id=>"allow_resubmit_closeAMPM", :frame=>frame)
+    button(:save_dont_release, :name=>"save", :frame=>frame)
+    button(:save_and_release, :name=>"return", :frame=>frame)
+    button(:preview, :name=>"preview", :frame=>frame)
+    button(:cancel, :name=>"cancel", :frame=>frame)
+    
   end
 
 end
