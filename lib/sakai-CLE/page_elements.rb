@@ -88,7 +88,12 @@ module ToolsMenu
   link(:skin_manager, :text=>"Skin Manager")
   link(:super_user, :text=>"Super User")
   link(:syllabus, :text=>"Syllabus")
-  link(:tests_and_quizzes, :text=>"Tests & Quizzes")
+  
+  def tests_and_quizzes
+    @browser.link(:text=>"Tests & Quizzes").click
+    AssessmentsList.new(@browser)
+  end
+  
   link(:user_membership, :text=>"User Membership")
   link(:users, :text=>"Users")
   link(:web_content, :text=>"Web Content")
@@ -96,6 +101,12 @@ module ToolsMenu
   
   # The Page Reset button, found on all Site pages
   link(:reset, :title=>"Reset")
+  
+  # Shortcut method so you don't have to type out
+  # the whole string: @browser.frame(:index=>index)
+  def frm(index)
+    @browser.frame(:index=>index)
+  end
   
 end
 
@@ -259,7 +270,7 @@ end
 
 
 #================
-# Assessments pages - "Samigo"
+# Assessments pages - "Samigo", a.k.a., "Tests & Quizzes"
 #================
 
 # The Course Tools "Tests and Quizzes" page for a given site.
@@ -284,6 +295,136 @@ class AssessmentsList
 
 end
 
+# Page that appears when previewing an assessment.
+# It shows the basic information about the assessment.
+class PreviewOverview
+  
+  include PageObject
+  include ToolsMenu
+  
+  def due_date
+    frm(1).div(:class=>"tier2").table(:index=>0)[0][0].text
+  end
+  
+  def time_limit
+    frm(1).div(:class=>"tier2").table(:index=>0)[3][0].text
+  end
+  
+  def submission_limit
+    frm(1).div(:class=>"tier2").table(:index=>0)[6][0].text
+  end
+  
+  def feedback
+    frm(1).div(:class=>"tier2").table(:index=>0)[9][0].text
+  end
+  
+  def done
+    frm(1).button(:name=>"takeAssessmentForm:_id5").click
+    EditAssessment.new(@browser)
+  end
+  
+  in_frame(:index=>1) do |frame|
+    button(:begin_assessment, :id=>"takeAssessmentForm:beginAssessment3", :frame=>frame)
+    
+  end
+
+end
+
+# The Settings page for a particular Assessment
+class AssessmentSettings
+  
+  include PageObject
+  include ToolsMenu
+  
+  def assessment_type_title
+    frm(1).div(:class=>"tier2").table(:index=>0)[0][1].text
+  end
+  
+  def assessment_type_author
+    frm(1).div(:class=>"tier2").table(:index=>0)[1][1].text
+  end
+  
+  def assessment_type_description
+    frm(1).div(:class=>"tier2").table(:index=>0)[2][1].text
+  end
+  
+  def save_and_publish
+    frm(1).button(:name=>"assessmentSettingsAction:_id381").click
+    PublishAssessment.new(@browser)
+  end  
+  
+  in_frame(:index=>1) do |frame|
+    link(:open, :text=>"Open", :frame=>frame)
+    link(:close, :text=>"Close", :frame=>frame)
+    text_field(:title, :id=>"assessmentSettingsAction:intro:assessment_title", :frame=>frame)
+    text_field(:authors, :id=>"assessmentSettingsAction:intro:assessment_author", :frame=>frame)
+    text_area(:description, :id=>"assessmentSettingsAction:intro:_id44_textinput", :frame=>frame)
+    button(:add_attachments_to_intro, :name=>"assessmentSettingsAction:intro:_id90", :frame=>frame)
+    text_field(:available_date, :id=>"assessmentSettingsAction:startDate", :frame=>frame)
+    text_field(:due_date, :id=>"assessmentSettingsAction:endDate", :frame=>frame)
+    text_field(:retract_date, :id=>"assessmentSettingsAction:retractDate", :frame=>frame)
+    radio_button(:released_to_anonymous) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:_id117", :index=>0, :frame=>frame) }
+    radio_button(:released_to_site) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:_id117", :index=>1, :frame=>frame) }
+    text_area(:specified_ips, :name=>"assessmentSettingsAction:_id132", :frame=>frame)
+    text_field(:secondary_id, :id=>"assessmentSettingsAction:username", :frame=>frame)
+    text_field(:secondary_pw, :id=>"assessmentSettingsAction:password", :frame=>frame)
+    checkbox(:timed_assessment, :id=>"assessmentSettingsAction:selTimeAssess", :frame=>frame)
+    select_list(:limit_hour, :id=>"assessmentSettingsAction:timedHours", :frame=>frame)
+    select_list(:limit_mins, :id=>"assessmentSettingsAction:timedMinutes", :frame=>frame)
+    radio_button(:linear_access) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:itemNavigation", :index=>0, :frame=>frame) }
+    radio_button(:random_access) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:itemNavigation", :index=>1, :frame=>frame) }
+    radio_button(:question_per_page) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:assessmentFormat", :index=>0, :frame=>frame) }
+    radio_button(:part_per_page) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:assessmentFormat", :index=>1, :frame=>frame) }
+    radio_button(:assessment_per_page) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:assessmentFormat", :index=>2, :frame=>frame) }
+    radio_button(:continuous_numbering) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:itemNumbering", :index=>0, :frame=>frame) }
+    radio_button(:restart_per_part) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:itemNumbering", :index=>1, :frame=>frame) }
+    checkbox(:add_mark_for_review, :id=>"assessmentSettingsAction:markForReview1", :frame=>frame)
+    radio_button(:unlimited_submissions) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:unlimitedSubmissions", :index=>0, :frame=>frame) }
+    radio_button(:only_x_submissions) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:unlimitedSubmissions", :index=>1, :frame=>frame) }
+    text_field(:allowed_submissions, :id=>"assessmentSettingsAction:submissions_Allowed", :frame=>frame)
+    radio_button(:late_submissions_not_accepted) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:lateHandling", :index=>0, :frame=>frame) }
+    radio_button(:late_submissions_accepted) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:lateHandling", :index=>1, :frame=>frame) }
+    text_area(:submission_message, :id=>"assessmentSettingsAction:_id245_textinput", :frame=>frame)
+    text_field(:final_page_url, :id=>"assessmentSettingsAction:finalPageUrl", :frame=>frame)
+    radio_button(:question_level_feedback) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:feedbackAuthoring", :index=>0, :frame=>frame) }
+    radio_button(:selection_level_feedback) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:feedbackAuthoring", :index=>1, :frame=>frame) }
+    radio_button(:both_feeback_levels) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:feedbackAuthoring", :index=>2, :frame=>frame) }
+    radio_button(:immediate_feedback) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:feedbackDelivery", :index=>0, :frame=>frame) }
+    radio_button(:feedback_on_submission) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:feedbackDelivery", :index=>1, :frame=>frame) }
+    radio_button(:no_feedback) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:feedbackDelivery", :index=>2, :frame=>frame) }
+    radio_button(:feedback_on_date) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:feedbackDelivery", :index=>3, :frame=>frame) }
+    text_field(:feedback_date, :id=>"assessmentSettingsAction:feedbackDate", :frame=>frame)
+    radio_button(:only_release_scores) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:feedbackComponentOption", :index=>0, :frame=>frame) }
+    radio_button(:release_questions_and) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:feedbackComponentOption", :index=>1, :frame=>frame) }
+    checkbox(:release_student_response, :id=>"assessmentSettingsAction:feedbackCheckbox1", :frame=>frame)
+    checkbox(:release_correct_response, :id=>"assessmentSettingsAction:feedbackCheckbox3", :frame=>frame)
+    checkbox(:release_students_assessment_scores, :id=>"assessmentSettingsAction:feedbackCheckbox5", :frame=>frame)
+    checkbox(:release_students_question_and_part_scores, :id=>"assessmentSettingsAction:feedbackCheckbox7", :frame=>frame)
+    checkbox(:release_question_level_feedback, :id=>"assessmentSettingsAction:feedbackCheckbox2", :frame=>frame)
+    checkbox(:release_selection_level_feedback, :id=>"assessmentSettingsAction:feedbackCheckbox4", :frame=>frame)
+    checkbox(:release_graders_comments, :id=>"assessmentSettingsAction:feedbackCheckbox6", :frame=>frame)
+    checkbox(:release_statistics, :id=>"assessmentSettingsAction:feedbackCheckbox8", :frame=>frame)
+    radio_button(:student_ids_seen) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:anonymousGrading1", :index=>0, :frame=>frame) }
+    radio_button(:anonymous_grading) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:anonymousGrading1", :index=>1, :frame=>frame) }
+    #radio_button(:no_gradebook_options) { |page| page.radio_button_element( :name=>"", :index=>0, :frame=>frame) }
+    #radio_button(:grades_sent_to_gradebook) { |page| page.radio_button_element( :name=>"", :index=>0, :frame=>frame) }
+    #radio_button(:record_highest_score) { |page| page.radio_button_element( :name=>"", :index=>0, :frame=>frame) }
+    #radio_button(:record_last_score) { |page| page.radio_button_element( :name=>"", :index=>0, :frame=>frame) }
+    #radio_button(:background_color) { |page| page.radio_button_element( :name=>"", :index=>0, :frame=>frame) }
+    #text_field(:color_value, :id=>"", :frame=>frame)
+    #radio_button(:background_image) { |page| page.radio_button_element( :name=>"", :index=>0, :frame=>frame) }
+    #text_field(:image_name, :=>"", :frame=>frame)
+    #text_field(:keywords, :=>"", :frame=>frame)
+    #text_field(:objectives, :=>"", :frame=>frame)
+    #text_field(:rubrics, :=>"", :frame=>frame)
+    #checkbox(:record_metadata_for_questions, :=>"", :frame=>frame)
+    button(:save, :name=>"assessmentSettingsAction:_id383", :frame=>frame)
+    button(:cancel, :name=>"assessmentSettingsAction:_id385", :frame=>frame)
+    
+  end
+
+end
+
 # The page that appears when you're creating a new quiz
 # or editing an existing one
 class EditAssessment
@@ -291,26 +432,110 @@ class EditAssessment
   include PageObject
   include ToolsMenu
   
+  def insert_question_after(part_num, question_num, type)
+    if question_num.to_i == 0
+      @browser.frame(:index=>1).select(:id=>"assesssmentForm:parts:#{part_num.to_i - 1}:changeQType").select(type)
+    else
+      @browser.frame(:index=>1).select(:id=>"assesssmentForm:parts:#{part_num.to_i - 1}:parts:#{question_num.to_i - 1}:changeQType").select(type)
+    end
+    
+    page = case(type)
+    when "Multiple Choice" then MultipleChoice.new(@browser)
+    when "True False" then TrueFalse.new(@browser)
+    when "Survey" then Survey.new(@browser)
+    when "Short Answer/Essay" then ShortAnswer.new(@browser)
+    when "Fill in the Blank" then FillInBlank.new(@browser)
+    when "Numeric Response" then NumericResponse.new(@browser)
+    when "Matching" then Matching.new(@browser)
+    when "Audio Recording" then AudioRecording.new(@browser)
+    when "File Upload" then FileUpload.new(@browser)
+    else puts "#{type} is not a valid question type"
+    end
+    
+    return page
+    
+  end
+  
+  def remove_question(part_num, question_num)
+    @browser.frame(:index=>1).link(:id=>"assesssmentForm:parts:#{part_num.to_i-1}:parts:#{question_num.to_i-1}:deleteitem").click
+  end
+  
+  def edit_question(part_num, question_num)
+    @browser.frame(:index=>1).link(:id=>"assesssmentForm:parts:#{part_num.to_i-1}:parts:#{question_num.to_i-1}:modify").click
+  end
+  
+  def copy_part_to_pool(part_num)
+    @browser.frame(:index=>1).link(:id=>"assesssmentForm:parts:#{part_num.to_i-1}:copyToPool").click
+  end
+  
+  def remove_part(part_num)
+    @browser.frame(:index=>1).link(:xpath, "//a[contains(@onclick, 'assesssmentForm:parts:#{part_num.to_i-1}:copyToPool')]").click
+  end
+  
+  def add_part
+    frm(1).link(:text=>"Add Part").click
+    AddEditAssessmentPart.new(@browser)
+  end
+  
+  def select_question_type(type)
+    @browser.frame(:index=>1).select(:id=>"assesssmentForm:changeQType").select(type)
+
+    page = case(type)
+    when "Multiple Choice" then MultipleChoice.new(@browser)
+    when "True False" then TrueFalse.new(@browser)
+    when "Survey" then Survey.new(@browser)
+    when "Short Answer/Essay" then ShortAnswer.new(@browser)
+    when "Fill in the Blank" then FillInBlank.new(@browser)
+    when "Numeric Response" then NumericResponse.new(@browser)
+    when "Matching" then Matching.new(@browser)
+    when "Audio Recording" then AudioRecording.new(@browser)
+    when "File Upload" then FileUpload.new(@browser)
+    else puts "#{type} is not a valid question type"
+    end
+    
+    return page
+    
+  end
+  
+  def preview
+    frm(1).link(:text=>"Preview").click
+    PreviewOverview.new(@browser)
+  end
+  
+  def settings
+    frm(1).link(:text=>"Settings").click
+    AssessmentSettings.new(@browser)
+  end
+  
+  def publish
+    frm(1).link(:text=>"Publish").click
+    AssessmentsList.new(@browser)
+  end
+  
+  def question_pools
+    frm(1).link(:text=>"Question Pools").click
+    QuestionPoolsList.new(@browser)
+  end
+  
   in_frame(:index=>1) do |frame|
     link(:assessments, :text=>"Assessments", :frame=>frame)
     link(:assessment_types, :text=>"Assessment Types", :frame=>frame)
-    link(:question_pools, :text=>"Question Pools", :frame=>frame)
-    link(:preview, :text=>"Preview", :frame=>frame)
     link(:print, :text=>"Print", :frame=>frame)
-    link(:settings, :text=>"Settings", :frame=>frame)
-    link(:add_part, :text=>"Add Part", :frame=>frame)
-    select_list(:select_question_type, :id=>"assesssmentForm:changeQType", :frame=>frame)
-    #(:, :=>"", :frame=>frame)
-    #(:, :=>"", :frame=>frame)
+    button(:update_points, :id=>"assesssmentForm:pointsUpdate", :frame=>frame)
   end
 
 end
 
 # This is the page for adding and editing a part of an assessment
-class EditAssessmentPart
+class AddEditAssessmentPart
   
   include PageObject
   include ToolsMenu
+  
+  def save
+    @browser.frame(:index=>1).button(:name=>"modifyPartForm:_id89").click
+    EditAssessment.new(@browser)    
+  end
   
   in_frame(:index=>1) do |frame|
     text_field(:title, :id=>"modifyPartForm:title", :frame=>frame)
@@ -329,8 +554,28 @@ class EditAssessmentPart
     text_field(:objective, :id=>"modifyPartForm:obj", :frame=>frame)
     text_field(:keyword, :id=>"modifyPartForm:keyword", :frame=>frame)
     text_field(:rubric, :id=>"modifyPartForm:rubric", :frame=>frame)
-    button(:save, :name=>"modifyPartForm:_id89", :frame=>frame)
     button(:cancel, :name=>"modifyPartForm:_id90", :frame=>frame)
+  end
+
+end
+
+# The review page once you've selected to Save and Publish
+# the assessment
+class PublishAssessment
+  
+  include PageObject
+  include ToolsMenu
+  
+  def publish
+    @browser.frame(:index=>1).button(:value=>"Publish").click
+    AssessmentsList.new(@browser)
+  end
+  
+  in_frame(:index=>1) do |frame|
+    button(:cancel, :value=>"Cancel", :frame=>frame)
+    button(:edit, :name=>"publishAssessmentForm:_id23", :frame=>frame)
+    select_list(:notification, :id=>"publishAssessmentForm:number", :frame=>frame)
+    
   end
 
 end
@@ -346,7 +591,7 @@ class MultipleChoice
     link(:assessment_types, :text=>"Assessment Types", :frame=>frame)
     link(:question_pools, :text=>"Question Pools", :frame=>frame)
     link(:questions, :text=>/Questions:/, :frame=>frame)
-    button(:save, :id=>"itemForm:_id60", :frame=>frame)
+    button(:save, :id=>"itemForm:_id198", :frame=>frame)
     button(:cancel, :id=>"itemForm:_id62", :frame=>frame)
     text_field(:answer_point_value, :id=>"itemForm:answerptr", :frame=>frame)
     link(:whats_this, :text=>"(What's This?)", :frame=>frame)
@@ -359,7 +604,7 @@ class MultipleChoice
     radio_button(:enable_partial_credit) { |page| page.radio_button_element(:name=>"itemForm:partialCreadit_NegativeMarking", :index=>1, :frame=>frame) }
     link(:reset_to_default, :text=>"Reset to Default Grading Logic", :frame=>frame)
     radio_button(:multi_single) {|page| page.radio_button_element(:name=>"itemForm:chooseAnswerTypeForMC", :index=>1, :frame=>frame) }
-    radio_button(:multi_multi, {|page| page.radio_button_element(:name=>"itemForm:chooseAnswerTypeForMC", :index=>2, :frame=>frame) }
+    radio_button(:multi_multi) {|page| page.radio_button_element(:name=>"itemForm:chooseAnswerTypeForMC", :index=>2, :frame=>frame) }
     text_area(:question_text, :id=>"itemForm:_id81_textinput", :frame=>frame)
     button(:add_attachments, :name=>"itemForm:_id125", :frame=>frame)
     
@@ -393,10 +638,10 @@ class MultipleChoice
     checkbox(:d_correct, :name=>"itemForm:mcchoices:3:mccheckboxes", :frame=>frame)
     
     select_list(:insert_additional_answers, :id=>"itemForm:insertAdditionalAnswerSelectMenu", :frame=>frame)
-    #radio_button(:randomize_answers_yes, {:value=>"true", :name=>"itemForm:_id161"}, :frame=>frame)
-    #radio_button(:randomize_answers_no, {:value=>"false", :name=>"itemForm:_id161"}, :frame=>frame)
-    #radio_button(:require_rationale_yes, {:value=>"true", :name=>"itemForm:_id165"}, :frame=>frame)
-    #radio_button(:require_rationale_no, {:value=>"false", :name=>"itemForm:_id165"}, :frame=>frame)
+    radio_button(:randomize_answers_yes) {|page| page.radio_button_element(:index=>0, :name=>"itemForm:_id161", :frame=>frame) }
+    radio_button(:randomize_answers_no) {|page| page.radio_button_element(:index=>1, :name=>"itemForm:_id161", :frame=>frame) }
+    radio_button(:require_rationale_yes) {|page| page.radio_button_element(:index=>0, :name=>"itemForm:_id165", :frame=>frame) }
+    radio_button(:require_rationale_no) {|page| page.radio_button_element(:index=>1, :name=>"itemForm:_id165", :frame=>frame) }
     select_list(:assign_to_part, :id=>"itemForm:assignToPart", :frame=>frame)
     select_list(:assign_to_pool, :id=>"itemForm:assignToPool", :frame=>frame)
     text_area(:feedback_for_correct, :id=>"itemForm:_id185_textinput", :frame=>frame)
@@ -421,14 +666,14 @@ class Survey
     button(:cancel, :id=>"itemForm:_id62", :frame=>frame)
     text_area(:question_text, :id=>"itemForm:_id68_textinput", :frame=>frame)
     button(:add_attachments, :id=>"itemForm:_id112", :frame=>frame)
-    #radio_button(:yes_no, {:value=>"YES", :name=>"itemForm:selectscale"}, :frame=>frame)
-    #radio_button(:disagree_agree, {:value=>"AGREE", :name=>"itemForm:selectscale"}, :frame=>frame)
-    #radio_button(:disagree_undecided, {:value=>"UNDECIDED", :name=>"itemForm:selectscale"}, :frame=>frame)
-    #radio_button(:below_above, {:value=>"AVERAGE", :name=>"itemForm:selectscale"}, :frame=>frame)
-    #radio_button(:strongly_agree, {:value=>"STRONGLY_AGREE", :name=>"itemForm:selectscale"}, :frame=>frame)
-    #radio_button(:unacceptable_excellent, {:value=>"EXCELLENT", :name=>"itemForm:selectscale"}, :frame=>frame)
-    #radio_button(:one_to_five, {:value=>"5", :name=>"itemForm:selectscale"}, :frame=>frame)
-    #radio_button(:one_to_ten, {:value=>"10", :name=>"itemForm:selectscale"}, :frame=>frame)
+    radio_button(:yes_no) { |page| page.radio_button_element(:index=>0, :name=>"itemForm:selectscale", :frame=>frame) }
+    radio_button(:disagree_agree) {|page| page.radio_button_element(:index=>1, :name=>"itemForm:selectscale", :frame=>frame) }
+    radio_button(:disagree_undecided) {|page| page.radio_button_element(:index=>2, :name=>"itemForm:selectscale", :frame=>frame) }
+    radio_button(:below_above) {|page| page.radio_button_element(:index=>3, :name=>"itemForm:selectscale", :frame=>frame)}
+    radio_button(:strongly_agree) {|page| page.radio_button_element(:index=>4, :name=>"itemForm:selectscale", :frame=>frame)}
+    radio_button(:unacceptable_excellent) {|page| page.radio_button_element(:index=>5, :name=>"itemForm:selectscale", :frame=>frame)}
+    radio_button(:one_to_five) {|page| page.radio_button_element(:index=>6, :name=>"itemForm:selectscale", :frame=>frame)}
+    radio_button(:one_to_ten) {|page| page.radio_button_element(:index=>7, :name=>"itemForm:selectscale", :frame=>frame)}
     text_area(:feedback, :id=>"itemForm:_id139_textinput", :frame=>frame)
     select_list(:assign_to_part, :id=>"itemForm:assignToPart", :frame=>frame)
     select_list(:assign_to_pool, :id=>"itemForm:assignToPool", :frame=>frame)
@@ -546,7 +791,7 @@ class TrueFalse
   include PageObject
   include ToolsMenu
   
-  in_frame(:index=>0) do |frame|
+  in_frame(:index=>1) do |frame|
     link(:assessments, :text=>"Assessments", :frame=>frame)
     link(:assessment_types, :text=>"Assessment Types", :frame=>frame)
     link(:question_pools, :text=>"Question Pools", :frame=>frame)
@@ -557,10 +802,10 @@ class TrueFalse
     text_area(:question_text, :id=>"itemForm:_id76_textinput", :frame=>frame)
     button(:add_attachments, :id=>"itemForm:_id120", :frame=>frame)
     text_field(:negative_point_value, :id=>"itemForm:answerdsc", :frame=>frame)
-    #radio_button(:answer_true, {:value=>"true", :name=>"itemForm:TF"}, :frame=>frame)
-    #radio_button(:answer_false, {:value=>"false", :name=>"itemForm:TF"}, :frame=>frame)
-    #radio_button(:required_rationale_yes, {:value=>"true", :name=>"itemForm:rational"}, :frame=>frame)
-    #radio_button(:required_rationale_no, {:value=>"false", :name=>"itemForm:rational"}, :frame=>frame)
+    radio_button(:answer_true) {|page| page.radio_button_element(:index=>0, :name=>"itemForm:TF", :frame=>frame)}
+    radio_button(:answer_false) {|page| page.radio_button_element(:index=>1, :name=>"itemForm:TF", :frame=>frame)}
+    radio_button(:required_rationale_yes) {|page| page.radio_button_element(:index=>0, :name=>"itemForm:rational", :frame=>frame)}
+    radio_button(:required_rationale_no) {|page| page.radio_button_element(:index=>1, :name=>"itemForm:rational", :frame=>frame)}
     text_area(:feedback_for_correct, :id=>"itemForm:_id147_textinput", :frame=>frame)
     text_area(:feedback_for_incorrect, :id=>"itemForm:_id151_textinput", :frame=>frame)
     select_list(:assign_to_part, :id=>"itemForm:assignToPart", :frame=>frame)
@@ -576,7 +821,7 @@ class AudioRecording
   include PageObject
   include ToolsMenu
   
-  in_frame(:index=>0) do |frame|
+  in_frame(:index=>1) do |frame|
     link(:assessments, :text=>"Assessments", :frame=>frame)
     link(:assessment_types, :text=>"Assessment Types", :frame=>frame)
     link(:question_pools, :text=>"Question Pools", :frame=>frame)
@@ -603,7 +848,7 @@ class FileUpload
   include PageObject
   include ToolsMenu
   
-  in_frame(:index=>0) do |frame|
+  in_frame(:index=>1) do |frame|
     link(:assessments, :text=>"Assessments", :frame=>frame)
     link(:assessment_types, :text=>"Assessment Types", :frame=>frame)
     link(:question_pools, :text=>"Question Pools", :frame=>frame)
@@ -645,12 +890,42 @@ class AddQuestionPool
   include PageObject
   include ToolsMenu
   
+  def save
+    frm(1).button(:id=>"questionpool:submit").click
+    QuestionPoolsList.new(@browser)
+  end
+  
+  
   in_frame(:index=>1) do |frame|
     text_field(:pool_name, :id=>"questionpool:namefield", :frame=>frame)
     text_field(:department_group, :id=>"questionpool:orgfield", :frame=>frame)
     text_area(:description, :id=>"questionpool:descfield", :frame=>frame)
     text_field(:objectives, :id=>"questionpool:objfield", :frame=>frame)
     text_field(:keywords, :id=>"questionpool:keyfield", :frame=>frame)
+    button(:cancel, :id=>"questionpool:_id11", :frame=>frame)
+    
+  end
+
+end
+
+# The Page that appears when editing an existing question pool
+class EditQuestionPool
+  
+  include PageObject
+  include ToolsMenu
+  
+  def add_question
+    @browser.frame(:index=>1).link(:id=>"editform:addQlink").click
+    SelectQuestionType.new(@browser)
+  end
+  
+  in_frame(:index=>1) do |frame|
+    text_field(:pool_name, :id=>"editform:namefield", :frame=>frame)
+    text_field(:department_group, :id=>"editform:orgfield", :frame=>frame)
+    text_area(:description, :id=>"editform:descfield", :frame=>frame)
+    text_field(:objectives, :id=>"editform:objfield", :frame=>frame)
+    text_field(:keywords, :id=>"editform:keyfield", :frame=>frame)
+    button(:update, :id=>"editform:Update", :frame=>frame)
     button(:save, :id=>"questionpool:submit", :frame=>frame)
     button(:cancel, :id=>"questionpool:_id11", :frame=>frame)
     
@@ -658,6 +933,60 @@ class AddQuestionPool
 
 end
 
+# The page with the list of existing Question Pools
+class QuestionPoolsList
+  
+  include PageObject
+  include ToolsMenu
+  
+  def edit_pool(name)
+    frm(1).span(:text=>name).fire_event("onclick")
+    EditQuestionPool.new(@browser)
+  end
+  
+  in_frame(:index=>1) do |frame|
+    link(:assessments, :text=>"Assessments", :frame=>frame)
+    link(:assessment_types, :text=>"Assessment Types", :frame=>frame)
+    link(:question_pools, :text=>"Question Pools", :frame=>frame)
+    link(:add_new_pool, :text=>"Add New Pool", :frame=>frame)
+  end
+  
+end
+
+# This page appears when adding a question to a pool
+class SelectQuestionType
+  
+  include PageObject
+  include ToolsMenu
+  
+  def save
+    type = frm(1).select(:id=>"_id1:selType").value
+    frm(1).button(:value=>"Save").click
+    
+    page = case(type)
+    when "Multiple Choice" then MultipleChoice.new(@browser)
+    when "True False" then TrueFalse.new(@browser)
+    when "Survey" then Survey.new(@browser)
+    when "Short Answer/Essay" then ShortAnswer.new(@browser)
+    when "Fill in the Blank" then FillInBlank.new(@browser)
+    when "Numeric Response" then NumericResponse.new(@browser)
+    when "Matching" then Matching.new(@browser)
+    when "Audio Recording" then AudioRecording.new(@browser)
+    when "File Upload" then FileUpload.new(@browser)
+    else puts "nothing selected"
+    end
+    
+    return page
+    
+  end
+  
+  in_frame(:index=>1) do |frame|
+    select_list(:question_type, :id=>"_id1:selType", :frame=>frame)
+    button(:save, :value=>"Save", :frame=>frame)
+    button(:cancel, :value=>"Cancel", :frame=>frame)
+  end
+  
+end
 
 #================
 # Assignments Pages
