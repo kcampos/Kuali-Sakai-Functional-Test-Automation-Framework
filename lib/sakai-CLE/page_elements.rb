@@ -18,6 +18,7 @@
 # copying when you create a new class.
 
 require 'page-object'
+require 'cgi'
 
 #================
 # Page Navigation Objects
@@ -279,11 +280,35 @@ class AssessmentsList
   include PageObject
   include ToolsMenu
   
+  def create
+    builder_or_text = frm(1).radio(:value=>"1", :name=>"authorIndexForm:_id29").set?
+    
+    frm(1).button(:value=>"Create").click
+    
+    if builder_or_text == true
+      EditAssessment.new(@browser)
+    else
+      # Need to add Markup page class, then add the reference here.
+    end
+    
+  end
+  
+  def question_pools
+    frm(1).link(:text=>"Question Pools").click
+    QuestionPoolsList.new(@browser)
+  end
+  
+  def get_published_titles
+    table_array = @browser.frame(:index=>1).div(:class=>"tier2", :index=>2).table(:class=>"listHier").to_a
+    table_array.delete_at(0)
+    titles = []
+    table_array.each { |row| titles << CGI::unescapeHTML(row[1])}
+    return titles
+  end
+  
   in_frame(:index=>1) do |frame|
     link(:assessment_types, :text=>"Assessment Types", :frame=>frame)
-    link(:question_pools, :text=>"Question Pools", :frame=>frame)
     text_field(:title, :id=>"authorIndexForm:title", :frame=>frame)
-    button(:create, :name=>"authorIndexForm:_id26", :frame=>frame)
     radio_button(:create_using_builder) { |page| page.radio_button_element(:name=>"authorIndexForm:_id29", index=>0, :frame=>frame) }
     radio_button(:create_using_text) { |page| page.radio_button_element(:name=>"authorIndexForm:_id29", :index=>1, :frame=>frame) }
     select_list(:select_assessment_type, :id=>"authorIndexForm:assessmentTemplate", :frame=>frame)
@@ -432,14 +457,14 @@ class EditAssessment
   include PageObject
   include ToolsMenu
   
-  def insert_question_after(part_num, question_num, type)
+  def insert_question_after(part_num, question_num, qtype)
     if question_num.to_i == 0
-      @browser.frame(:index=>1).select(:id=>"assesssmentForm:parts:#{part_num.to_i - 1}:changeQType").select(type)
+      @browser.frame(:index=>1).select(:id=>"assesssmentForm:parts:#{part_num.to_i - 1}:changeQType").select(qtype)
     else
-      @browser.frame(:index=>1).select(:id=>"assesssmentForm:parts:#{part_num.to_i - 1}:parts:#{question_num.to_i - 1}:changeQType").select(type)
+      @browser.frame(:index=>1).select(:id=>"assesssmentForm:parts:#{part_num.to_i - 1}:parts:#{question_num.to_i - 1}:changeQType").select(qtype)
     end
     
-    page = case(type)
+    page = case(qtype)
     when "Multiple Choice" then MultipleChoice.new(@browser)
     when "True False" then TrueFalse.new(@browser)
     when "Survey" then Survey.new(@browser)
@@ -449,7 +474,7 @@ class EditAssessment
     when "Matching" then Matching.new(@browser)
     when "Audio Recording" then AudioRecording.new(@browser)
     when "File Upload" then FileUpload.new(@browser)
-    else puts "#{type} is not a valid question type"
+    else puts "#{qtype} is not a valid question type"
     end
     
     return page
@@ -477,10 +502,10 @@ class EditAssessment
     AddEditAssessmentPart.new(@browser)
   end
   
-  def select_question_type(type)
-    @browser.frame(:index=>1).select(:id=>"assesssmentForm:changeQType").select(type)
+  def select_question_type(qtype)
+    @browser.frame(:index=>1).select(:id=>"assesssmentForm:changeQType").select(qtype)
 
-    page = case(type)
+    page = case(qtype)
     when "Multiple Choice" then MultipleChoice.new(@browser)
     when "True False" then TrueFalse.new(@browser)
     when "Survey" then Survey.new(@browser)
@@ -490,7 +515,7 @@ class EditAssessment
     when "Matching" then Matching.new(@browser)
     when "Audio Recording" then AudioRecording.new(@browser)
     when "File Upload" then FileUpload.new(@browser)
-    else puts "#{type} is not a valid question type"
+    else puts "#{qtype} is not a valid question type"
     end
     
     return page
@@ -515,6 +540,10 @@ class EditAssessment
   def question_pools
     frm(1).link(:text=>"Question Pools").click
     QuestionPoolsList.new(@browser)
+  end
+  
+  def get_question_text(part_number, question_number)
+    frm(1).table(:id=>"assesssmentForm:parts:#{part_number.to_i-1}:parts").div(:class=>"tier3", :index=>question_number.to_i-1).text
   end
   
   in_frame(:index=>1) do |frame|
@@ -580,19 +609,49 @@ class PublishAssessment
 
 end
 
-# The page for setting up a multiple choice question
-class MultipleChoice
+# This is a module containing methods that are
+# common to all the question pages
+module QuestionHelpers
   
   include PageObject
-  include ToolsMenu
+  
+  def save
+    
+    quiz = frm(1).div(:class=>"portletBody").div(:index=>0).text
+    pool = frm(1).div(:class=>"portletBody").div(:index=>1).text
+    
+    frm(1).button(:value=>"Save").click
+    
+    if quiz =~ /^Assessments/
+      EditAssessment.new(@browser)
+    elsif pool =~ /^Question Pools/
+      EditQuestionPool.new(@browser)
+    else
+      puts "Unexpected text: "
+      p pool
+      p quiz
+    end
+    
+  end
   
   in_frame(:index=>1) do |frame|
     link(:assessments, :text=>"Assessments", :frame=>frame)
     link(:assessment_types, :text=>"Assessment Types", :frame=>frame)
     link(:question_pools, :text=>"Question Pools", :frame=>frame)
     link(:questions, :text=>/Questions:/, :frame=>frame)
-    button(:save, :id=>"itemForm:_id198", :frame=>frame)
-    button(:cancel, :id=>"itemForm:_id62", :frame=>frame)
+  end
+  
+end
+
+# The page for setting up a multiple choice question
+class MultipleChoice
+  
+  include PageObject
+  include ToolsMenu
+  include QuestionHelpers
+
+  in_frame(:index=>1) do |frame|
+    button(:cancel, :value=>"Cancel", :frame=>frame)
     text_field(:answer_point_value, :id=>"itemForm:answerptr", :frame=>frame)
     link(:whats_this, :text=>"(What's This?)", :frame=>frame)
     radio_button(:single_correct) { |page| page.radio_button_element(:name=>"itemForm:chooseAnswerTypeForMC", :index=>0, :frame=>frame) }
@@ -608,14 +667,14 @@ class MultipleChoice
     text_area(:question_text, :id=>"itemForm:_id81_textinput", :frame=>frame)
     button(:add_attachments, :name=>"itemForm:_id125", :frame=>frame)
     
-    text_area(:a_text, :id=>"itemForm:mcchoices:0:_id139_textinput", :frame=>frame)
-    link(:a_remove, :id=>"itemForm:mcchoices:0:removelinkSingle", :frame=>frame)
-    text_area(:b_text, :id=>"itemForm:mcchoices:1:_id139_textinput", :frame=>frame)
-    link(:b_remove, :id=>"itemForm:mcchoices:1:removelinkSingle", :frame=>frame)
-    text_area(:c_text, :id=>"itemForm:mcchoices:2:_id139_textinput", :frame=>frame)
-    link(:c_remove, :id=>"itemForm:mcchoices:2:removelinkSingle", :frame=>frame)
-    text_area(:d_text, :id=>"itemForm:mcchoices:3:_id139_textinput", :frame=>frame)
-    link(:d_remove, :id=>"itemForm:mcchoices:3:removelinkSingle", :frame=>frame)
+    text_area(:answer_a, :id=>"itemForm:mcchoices:0:_id139_textinput", :frame=>frame)
+    link(:remove_a, :id=>"itemForm:mcchoices:0:removelinkSingle", :frame=>frame)
+    text_area(:answer_b, :id=>"itemForm:mcchoices:1:_id139_textinput", :frame=>frame)
+    link(:remove_b, :id=>"itemForm:mcchoices:1:removelinkSingle", :frame=>frame)
+    text_area(:answer_c, :id=>"itemForm:mcchoices:2:_id139_textinput", :frame=>frame)
+    link(:remove_c, :id=>"itemForm:mcchoices:2:removelinkSingle", :frame=>frame)
+    text_area(:answer_d, :id=>"itemForm:mcchoices:3:_id139_textinput", :frame=>frame)
+    link(:remove_d, :id=>"itemForm:mcchoices:3:removelinkSingle", :frame=>frame)
     
     # Radio buttons that appear when "single correct" is selected
     radio_button(:a_correct, :name=>"itemForm:mcchoices:0:mcradiobtn", :frame=>frame)
@@ -656,13 +715,9 @@ class Survey
   
   include PageObject
   include ToolsMenu
+  include QuestionHelpers
   
   in_frame(:index=>1) do |frame|
-    link(:assessments, :text=>"Assessments", :frame=>frame)
-    link(:assessment_types, :text=>"Assessment Types", :frame=>frame)
-    link(:question_pools, :text=>"Question Pools", :frame=>frame)
-    link(:questions, :text=>/Questions:/, :frame=>frame)
-    button(:save, :id=>"itemForm:_id60", :frame=>frame)
     button(:cancel, :id=>"itemForm:_id62", :frame=>frame)
     text_area(:question_text, :id=>"itemForm:_id68_textinput", :frame=>frame)
     button(:add_attachments, :id=>"itemForm:_id112", :frame=>frame)
@@ -687,13 +742,9 @@ class ShortAnswer
   
   include PageObject
   include ToolsMenu
+  include QuestionHelpers
   
   in_frame(:index=>1) do |frame|
-    link(:assessments, :text=>"Assessments", :frame=>frame)
-    link(:assessment_types, :text=>"Assessment Types", :frame=>frame)
-    link(:question_pools, :text=>"Question Pools", :frame=>frame)
-    link(:questions, :text=>/Questions:/, :frame=>frame)
-    button(:save, :id=>"itemForm:_id60", :frame=>frame)
     button(:cancel, :id=>"itemForm:_id62", :frame=>frame)
     text_field(:answer_point_value, :id=>"itemForm:answerptr", :frame=>frame)
     text_area(:question_text, :id=>"itemForm:_id68_textinput", :frame=>frame)
@@ -712,13 +763,9 @@ class FillInBlank
   
   include PageObject
   include ToolsMenu
+  include QuestionHelpers
   
   in_frame(:index=>1) do |frame|
-    link(:assessments, :text=>"Assessments", :frame=>frame)
-    link(:assessment_types, :text=>"Assessment Types", :frame=>frame)
-    link(:question_pools, :text=>"Question Pools", :frame=>frame)
-    link(:questions, :text=>/Questions:/, :frame=>frame)
-    button(:save, :id=>"itemForm:_id60", :frame=>frame)
     button(:cancel, :id=>"itemForm:_id62", :frame=>frame)
     text_field(:answer_point_value, :id=>"itemForm:answerptr", :frame=>frame)
     text_area(:question_text, :id=>"itemForm:_id74_textinput", :frame=>frame)
@@ -737,13 +784,9 @@ class NumericResponse
   
   include PageObject
   include ToolsMenu
+  include QuestionHelpers
   
   in_frame(:index=>1) do |frame|
-    link(:assessments, :text=>"Assessments", :frame=>frame)
-    link(:assessment_types, :text=>"Assessment Types", :frame=>frame)
-    link(:question_pools, :text=>"Question Pools", :frame=>frame)
-    link(:questions, :text=>/Questions:/, :frame=>frame)
-    button(:save, :id=>"itemForm:_id60", :frame=>frame)
     button(:cancel, :id=>"itemForm:_id62", :frame=>frame)
     text_field(:answer_point_value, :id=>"itemForm:answerptr", :frame=>frame)
     text_area(:question_text, :id=>"itemForm:_id72_textinput", :frame=>frame)
@@ -762,13 +805,9 @@ class Matching
   
   include PageObject
   include ToolsMenu
+  include QuestionHelpers
   
   in_frame(:index=>1) do |frame|
-    link(:assessments, :text=>"Assessments", :frame=>frame)
-    link(:assessment_types, :text=>"Assessment Types", :frame=>frame)
-    link(:question_pools, :text=>"Question Pools", :frame=>frame)
-    link(:questions, :text=>/Questions:/, :frame=>frame)
-    button(:save, :id=>"itemForm:_id60", :frame=>frame)
     button(:cancel, :id=>"itemForm:_id62", :frame=>frame)
     text_field(:answer_point_value, :id=>"itemForm:answerptr", :frame=>frame)
     text_area(:question_text, :id=>"itemForm:_id76_textinput", :frame=>frame)
@@ -790,13 +829,9 @@ class TrueFalse
   
   include PageObject
   include ToolsMenu
+  include QuestionHelpers
   
   in_frame(:index=>1) do |frame|
-    link(:assessments, :text=>"Assessments", :frame=>frame)
-    link(:assessment_types, :text=>"Assessment Types", :frame=>frame)
-    link(:question_pools, :text=>"Question Pools", :frame=>frame)
-    link(:questions, :text=>/Questions:/, :frame=>frame)
-    button(:save, :id=>"itemForm:_id60", :frame=>frame)
     button(:cancel, :id=>"itemForm:_id62", :frame=>frame)
     text_field(:answer_point_value, :id=>"itemForm:answerptr", :frame=>frame)
     text_area(:question_text, :id=>"itemForm:_id76_textinput", :frame=>frame)
@@ -820,13 +855,9 @@ class AudioRecording
   
   include PageObject
   include ToolsMenu
+  include QuestionHelpers
   
   in_frame(:index=>1) do |frame|
-    link(:assessments, :text=>"Assessments", :frame=>frame)
-    link(:assessment_types, :text=>"Assessment Types", :frame=>frame)
-    link(:question_pools, :text=>"Question Pools", :frame=>frame)
-    link(:questions, :text=>/Questions:/, :frame=>frame)
-    button(:save, :id=>"itemForm:_id60", :frame=>frame)
     button(:cancel, :id=>"itemForm:_id62", :frame=>frame)
     text_field(:answer_point_value, :id=>"itemForm:answerptr", :frame=>frame)
     text_area(:question_text, :id=>"itemForm:_id68_textinput", :frame=>frame)
@@ -847,13 +878,9 @@ class FileUpload
   
   include PageObject
   include ToolsMenu
+  include QuestionHelpers
   
   in_frame(:index=>1) do |frame|
-    link(:assessments, :text=>"Assessments", :frame=>frame)
-    link(:assessment_types, :text=>"Assessment Types", :frame=>frame)
-    link(:question_pools, :text=>"Question Pools", :frame=>frame)
-    link(:questions, :text=>/Questions:/, :frame=>frame)
-    button(:save, :id=>"itemForm:_id60", :frame=>frame)
     button(:cancel, :id=>"itemForm:_id62", :frame=>frame)
     text_field(:answer_point_value, :id=>"itemForm:answerptr", :frame=>frame)
     text_area(:question_text, :id=>"itemForm:_id68_textinput", :frame=>frame)
@@ -915,8 +942,13 @@ class EditQuestionPool
   include ToolsMenu
   
   def add_question
-    @browser.frame(:index=>1).link(:id=>"editform:addQlink").click
+    frm(1).link(:id=>"editform:addQlink").click
     SelectQuestionType.new(@browser)
+  end
+  
+  def question_pools
+    frm(1).link(:text=>"Question Pools").click
+    QuestionPoolsList.new(@browser)
   end
   
   in_frame(:index=>1) do |frame|
@@ -944,11 +976,41 @@ class QuestionPoolsList
     EditQuestionPool.new(@browser)
   end
   
+  def add_new_pool
+    frm(1).link(:text=>"Add New Pool").click
+    AddQuestionPool.new(@browser)
+  end
+  
+  def import
+    frm(1).link(:text=>"Import").click
+    PoolImport.new(@browser)
+  end
+  
+  def assessments
+    frm(1).link(:text=>"Assessments").click
+    AssessmentsList.new(@browser)
+  end
+  
   in_frame(:index=>1) do |frame|
-    link(:assessments, :text=>"Assessments", :frame=>frame)
     link(:assessment_types, :text=>"Assessment Types", :frame=>frame)
-    link(:question_pools, :text=>"Question Pools", :frame=>frame)
-    link(:add_new_pool, :text=>"Add New Pool", :frame=>frame)
+  end
+  
+end
+
+# The page that appears when you click to import
+# a pool.
+class PoolImport
+  
+  include PageObject
+  include ToolsMenu
+  
+  def choose_file(filename)
+    frm(1).file_field(:name=>"importPoolForm:_id6.upload").value=filename
+  end
+  
+  def import
+    frm(1).button(:value=>"Import").click
+    QuestionPoolsList.new(@browser)
   end
   
 end
@@ -959,11 +1021,11 @@ class SelectQuestionType
   include PageObject
   include ToolsMenu
   
-  def save
-    type = frm(1).select(:id=>"_id1:selType").value
+  def select_question_type(qtype)
+    frm(1).select(:id=>"_id1:selType").select(qtype)
     frm(1).button(:value=>"Save").click
     
-    page = case(type)
+    page = case(qtype)
     when "Multiple Choice" then MultipleChoice.new(@browser)
     when "True False" then TrueFalse.new(@browser)
     when "Survey" then Survey.new(@browser)
@@ -981,8 +1043,6 @@ class SelectQuestionType
   end
   
   in_frame(:index=>1) do |frame|
-    select_list(:question_type, :id=>"_id1:selType", :frame=>frame)
-    button(:save, :value=>"Save", :frame=>frame)
     button(:cancel, :value=>"Cancel", :frame=>frame)
   end
   
