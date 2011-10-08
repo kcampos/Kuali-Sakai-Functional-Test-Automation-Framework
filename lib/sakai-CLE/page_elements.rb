@@ -91,8 +91,12 @@ module ToolsMenu
   link(:syllabus, :text=>"Syllabus")
   
   def tests_and_quizzes
+    # Need this logic to determine whether user
+    # is a student or instructor/admin
+    @browser.link(:class, "icon-sakai-siteinfo").exist? ? x=0 : x=1
     @browser.link(:text=>"Tests & Quizzes").click
-    AssessmentsList.new(@browser)
+    x==0 ? AssessmentsList.new(@browser) : TakeAssessmentList.new(@browser)
+    
   end
   
   link(:user_membership, :text=>"User Membership")
@@ -1046,6 +1050,47 @@ class SelectQuestionType
     button(:cancel, :value=>"Cancel", :frame=>frame)
   end
   
+end
+
+# Page of Assessments accessible to a student user
+class TakeAssessmentList
+  
+  include PageObject
+  include ToolsMenu
+  
+  def available_assessments
+    # define this later
+  end
+  
+  def submitted_assessments
+    # define this later
+  end
+  
+  def take_assessment(name)
+    begin
+      frm(1).link(:text=>name).click
+    rescue Watir::Exception::UnknownObjectException
+      frm(1).link(:text=>CGI::escapeHTML(name)).clic
+    end
+    BeginAssessment.new(@browser)
+  end
+
+end
+
+# The student view of the overview page of an Assessment
+class BeginAssessment
+  
+  include PageObject
+  include ToolsMenu
+  
+  def begin_assessment
+    frm(1).button(:value=>"Begin Assessment").click
+  end
+  
+  def cancel
+    # Define this later
+  end
+
 end
 
 #================
