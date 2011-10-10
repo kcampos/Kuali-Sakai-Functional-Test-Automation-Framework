@@ -17,8 +17,7 @@ class TestCreatingCourseSite < Test::Unit::TestCase
   include Utilities
 
   def setup
-    @verification_errors = []
-    
+
     # Get the test configuration data
     @config = AutoConfig.new
     @browser = @config.browser
@@ -35,7 +34,6 @@ class TestCreatingCourseSite < Test::Unit::TestCase
     }
     # Close the browser window
     @browser.close
-    assert_equal [], @verification_errors
   end
   
   def test_create_site1
@@ -45,7 +43,7 @@ class TestCreatingCourseSite < Test::Unit::TestCase
     
     #Go to Site Setup page
     workspace = MyWorkspace.new(@browser)
-    workspace.site_setup
+    site_setup = workspace.site_setup
     
     # TEST CASE: Check the Site Setup page contents
     assert @browser.frame(:index=>0).span(:class, "instruction").text.include?("Check box(es) to take action on a site. Click column title to sort.")
@@ -54,7 +52,6 @@ class TestCreatingCourseSite < Test::Unit::TestCase
     # (because no sites are checked)
     assert_equal(@browser.link(:text, "Edit").exists?, false)
     
-    site_setup = SiteSetup.new(@browser)
     site_setup.new
     
     # TEST CASE: Check the Site Type page
@@ -202,9 +199,7 @@ class TestCreatingCourseSite < Test::Unit::TestCase
     creation_date = @sakai.make_date(Time.now)
     
     #Sort the list of sites so the newest site appears at the top
-    2.times do
-      @browser.frame(:index=>0).link(:href, /criterion=created%20on&panel=Main&sakai_action=doSort_sites/).click
-    end
+    2.times { @browser.frame(:index=>0).link(:href, /criterion=created%20on&panel=Main&sakai_action=doSort_sites/).click }
     
     link_text = @browser.frame(:index=>0).link(:href=>/xsl-portal.site/, :index=>0).text
     
@@ -223,12 +218,6 @@ class TestCreatingCourseSite < Test::Unit::TestCase
     @browser.frame(:index=>0).link(:href=>/xsl-portal.site/, :index=>0).href =~ /(?<=\/site\/).+/
     @config.directory['site1']['id'] = $~.to_s
     
-  end
-  
-  def verify(&blk)
-    yield
-  rescue Test::Unit::AssertionFailedError => ex
-    @verification_errors << ex
   end
   
 end

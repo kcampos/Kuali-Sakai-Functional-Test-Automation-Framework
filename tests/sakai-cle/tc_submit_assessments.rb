@@ -22,8 +22,8 @@ class TestSubmitAssessment < Test::Unit::TestCase
     @config = AutoConfig.new
     @browser = @config.browser
     # Log in with student user
-    @user_name = @config.directory['person13']['id']
-    @password = @config.directory['person13']['password']
+    @user_name = @config.directory['person1']['id']
+    @password = @config.directory['person1']['password']
     @test1 = @config.directory['site1']['quiz1']
     @test2 = @config.directory['site1']['quiz2']
     # Test site
@@ -116,13 +116,14 @@ class TestSubmitAssessment < Test::Unit::TestCase
     
     frm.button(:value=>"Continue").click
     
+    tests = TakeAssessmentList.new(@browser)
+    
     # TEST CASE: Verify test is listed as submitted
-    assert frm.table(:id=>"selectIndexForm:reviewTable").text.include?(Regexp.escape(@test1))
+    assert tests.submitted_assessments.include?(@test1), "#{@test1} not found in #{tests.submitted_assessments}"
     
     # Take the second test
     
-    list_page = TakeAssessmentList.new(@browser)
-    quiz2 = list_page.take_assessment(@test2)
+    quiz2 = tests.take_assessment(@test2)
     quiz2.begin_assessment
     
     frm.radio(:name=>"takeAssessmentForm:_id48:0:_id105:0:deliverMultipleChoiceSingleCorrect:_id733:2:_id736").set
@@ -130,12 +131,13 @@ class TestSubmitAssessment < Test::Unit::TestCase
     
     frm.radio(:name=>"takeAssessmentForm:_id48:0:_id105:0:deliverTrueFalse:_id1075:0:question").set
     frm.button(:value=>"Submit for Grading").click
-    
     frm.button(:value=>"Submit for Grading").click
+    frm.button(:value=>"Continue").click
+    tests_lists = TakeAssessmentList.new(@browser)
     
     # TEST CASE: Verify test is listed as submitted
-    assert frm.table(:id=>"selectIndexForm:reviewTable").text.include?(Regexp.escape(@test2))
-    
+    assert tests_lists.submitted_assessments.include?(@test2), "#{@test2} not found in #{tests_lists.submitted_assessments}"
+
     @sakai.logout
     
   end
