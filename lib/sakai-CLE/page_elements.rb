@@ -83,7 +83,12 @@ module ToolsMenu
   link(:sections, :text=>"Sections")
   link(:site_archive, :text=>"Site Archive")
   link(:site_editor, :text=>"Site Editor")
-  link(:site_setup, :text=>"Site Setup")
+  
+  def site_setup
+    @browser.link(:text=>"Site Setup").click
+    SiteSetup.new(@browser)
+  end
+  
   link(:site_statistics, :text=>"Site Statistics")
   link(:sites, :text=>"Sites")
   link(:skin_manager, :text=>"Skin Manager")
@@ -105,7 +110,7 @@ module ToolsMenu
   link(:wiki, :text=>"Wiki")
   
   # The Page Reset button, found on all Site pages
-  link(:reset, :title=>"Reset")
+  link(:reset, :href=>/tool-reset/)
   
   # Shortcut method so you don't have to type out
   # the whole string: @browser.frame(:index=>index)
@@ -279,6 +284,7 @@ end
 #================
 
 # The Course Tools "Tests and Quizzes" page for a given site.
+# (Instructor view)
 class AssessmentsList
   
   include PageObject
@@ -308,6 +314,13 @@ class AssessmentsList
     titles = []
     table_array.each { |row| titles << CGI::unescapeHTML(row[1])}
     return titles
+  end
+  
+  def score_test(test_title)
+    test_names = get_published_titles
+    index_value = test_names.index(test_title)
+    frm(1).link(:id=>"authorIndexForm:_id88:#{index_value}:authorIndexToScore1").click
+    AssessmentTotalScores.new(@browser)
   end
   
   in_frame(:index=>1) do |frame|
@@ -378,7 +391,7 @@ class AssessmentSettings
   end
   
   def save_and_publish
-    frm(1).button(:name=>"assessmentSettingsAction:_id381").click
+    frm(1).button(:value=>"Save Settings and Publish").click
     PublishAssessment.new(@browser)
   end  
   
@@ -417,7 +430,7 @@ class AssessmentSettings
     text_field(:final_page_url, :id=>"assessmentSettingsAction:finalPageUrl", :frame=>frame)
     radio_button(:question_level_feedback) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:feedbackAuthoring", :index=>0, :frame=>frame) }
     radio_button(:selection_level_feedback) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:feedbackAuthoring", :index=>1, :frame=>frame) }
-    radio_button(:both_feeback_levels) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:feedbackAuthoring", :index=>2, :frame=>frame) }
+    radio_button(:both_feedback_levels) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:feedbackAuthoring", :index=>2, :frame=>frame) }
     radio_button(:immediate_feedback) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:feedbackDelivery", :index=>0, :frame=>frame) }
     radio_button(:feedback_on_submission) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:feedbackDelivery", :index=>1, :frame=>frame) }
     radio_button(:no_feedback) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:feedbackDelivery", :index=>2, :frame=>frame) }
@@ -450,6 +463,43 @@ class AssessmentSettings
     button(:save, :name=>"assessmentSettingsAction:_id383", :frame=>frame)
     button(:cancel, :name=>"assessmentSettingsAction:_id385", :frame=>frame)
     
+  end
+
+end
+
+# Instructor's view of Students' assessment scores
+class AssessmentTotalScores
+  
+  include PageObject
+  include ToolsMenu
+  
+  # This method gets the user ids listed in the
+  # scores table.
+  def student_ids
+    ids = []
+    scores_table = frm(1).table(:id=>"editTotalResults:totalScoreTable").to_a
+    scores_table.delete_at(0)
+    scores_table.each { |row| ids << row[1] }
+    return ids
+  end
+  
+  # Method for adding a comment to a particular student's comment box.
+  def comment_for_student(student_id, comment)
+    available_ids = student_ids
+    index_val = available_ids.index(student_id)
+    
+    frm(1).text_field(:name=>"editTotalResults:totalScoreTable:#{index_val}:_id345").value=comment
+    
+  end
+  
+  def update
+    frm(1).button(:value=>"Update").click
+    AssessmentTotalScores.new(@browser)
+  end
+  
+  def assessments
+    frm(1).link(:text=>"Assessments").click
+    AssessmentsList
   end
 
 end
@@ -1062,17 +1112,39 @@ class TakeAssessmentList
     # define this later
   end
   
+  # Method to get the titles of assessments that
+  # the student user has submitted
   def submitted_assessments
-    # define this later
+    table_array = @browser.frame(:index=>1).table(:id=>"selectIndexForm:reviewTable").to_a
+    table_array.delete_at(0)
+    titles = []
+    table_array.each { |row|
+      unless row[0] == ""
+        titles << row[0]
+      end
+    }
+    
+    return titles
+    
   end
   
   def take_assessment(name)
     begin
       frm(1).link(:text=>name).click
     rescue Watir::Exception::UnknownObjectException
-      frm(1).link(:text=>CGI::escapeHTML(name)).clic
+      frm(1).link(:text=>CGI::escapeHTML(name)).click
     end
     BeginAssessment.new(@browser)
+  end
+
+  # This method is in need of improvement to make it
+  # more generalized for finding the correct test.
+  def feedback(test_name)
+    test_table = frm(1).table(:id=>"selectIndexForm:reviewTable").to_a
+    test_table.delete_if { |row| row[3] != "Immediate" }
+    index_value = test_table.index { |row| row[0] == test_name }
+    frm(1).link(:text=>"Feedback", :index=>index_value).click
+    # Need to add a call to a New class here, when it's written
   end
 
 end
@@ -1711,12 +1783,6 @@ class MyWorkspace
   # method for identifying them, but for now it's our
   # only option because both the <id> and <name>
   # tags are unique for every site.
-  in_frame(:index=>1) do |frame|
-    # Message of the Day, Options button
-    link(:message_of_the_day_options, :text=>"Options", :frame=>frame)
-    
-  end
-  
   in_frame(:index=>2) do |frame|
     # Calendar Options button
     link(:calendar_options, :text=>"Options", :frame=>frame)
@@ -1726,6 +1792,9 @@ class MyWorkspace
   in_frame(:index=>1) do |frame|
     # My Workspace Information Options
     link(:my_workspace_information_options, :text=>"Options", :frame=>frame)
+     # Message of the Day, Options button
+    link(:message_of_the_day_options, :text=>"Options", :frame=>frame)
+    
   end
   
   in_frame(:index=>0) do |frame|

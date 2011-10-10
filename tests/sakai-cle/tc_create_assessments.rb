@@ -186,12 +186,25 @@ class TestCreateNewAssessments < Test::Unit::TestCase
     
     settings_page.open
     # Set assessment dates
-    settings_page.available_date=(Time.now.strftime("%m/%d/%Y %I:%M:%S %p"))
+    settings_page.available_date=((Time.now - 60).strftime("%m/%d/%Y %I:%M:%S %p"))
     settings_page.due_date=((Time.now + (86400*3)).strftime("%m/%d/%Y %I:%M:%S %p"))
     settings_page.retract_date=((Time.now + (86400*3)).strftime("%m/%d/%Y %I:%M:%S %p"))
     
+    # Set feedback options
+    settings_page.select_immediate_feedback
+    settings_page.select_both_feedback_levels
+    settings_page.select_release_questions_and
+    settings_page.check_release_student_response
+    settings_page.check_release_correct_response
+    settings_page.check_release_students_assessment_scores
+    settings_page.check_release_students_question_and_part_scores
+    settings_page.check_release_question_level_feedback
+    settings_page.check_release_selection_level_feedback
+    settings_page.check_release_graders_comments
+    settings_page.check_release_statistics
+    
     # Set Grading options
-    settings_page.select_anonymous_grading
+    settings_page.select_student_ids_seen
     
     # Set only one submission allowed
     settings_page.select_only_x_submissions
@@ -200,7 +213,7 @@ class TestCreateNewAssessments < Test::Unit::TestCase
     # Save and publish the assessment
     assessment = settings_page.save_and_publish
     list_page = assessment.publish
-    
+
     # TEST CASE: Verify the assessment is published
     assert list_page.get_published_titles.include?(title1), "Can't find #{title1} in published list: #{list_page.get_published_titles}"
     
@@ -298,17 +311,17 @@ class TestCreateNewAssessments < Test::Unit::TestCase
     
     settings_page = quiz2.settings
     settings_page.open
-    settings_page.select_anonymous_grading
-    settings_page.available_date=(Time.now.strftime("%m/%d/%Y %I:%M:%S %p"))
+    settings_page.select_student_ids_seen
+    settings_page.available_date=((Time.now - 60).strftime("%m/%d/%Y %I:%M:%S %p"))
     settings_page.due_date=((Time.now + (86400*3)).strftime("%m/%d/%Y %I:%M:%S %p"))
     settings_page.retract_date=((Time.now + (86400*3)).strftime("%m/%d/%Y %I:%M:%S %p"))
     settings_page.select_only_x_submissions
     settings_page.allowed_submissions="1"
     assessment = settings_page.save_and_publish
     list_page = assessment.publish
-    
+
     # TEST CASE: Verify assessment published
-    assert list_page.get_published_titles.include?(title2)
+    assert list_page.get_published_titles.include?(title2), "Can't find #{title2} in published list: #{list_page.get_published_titles}"
     
   end
   

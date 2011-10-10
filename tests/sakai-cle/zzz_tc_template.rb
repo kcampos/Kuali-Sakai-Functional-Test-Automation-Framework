@@ -1,9 +1,7 @@
 # 
 # == Synopsis
 #
-# This is the Sakai-CLE test case template file. Use it as the starting
-# point for a new test case.
-#
+# 
 # Author: Abe Heward (aheward@rSmart.com)
 
 require "test/unit"
@@ -13,18 +11,20 @@ require File.dirname(__FILE__) + "/../../lib/utilities.rb"
 require File.dirname(__FILE__) + "/../../lib/sakai-CLE/page_elements.rb"
 require File.dirname(__FILE__) + "/../../lib/sakai-CLE/app_functions.rb"
 
-class }}name{{ < Test::Unit::TestCase
+class }}ClassName{{ < Test::Unit::TestCase
   
   include Utilities
 
   def setup
-    @verification_errors = []
     
     # Get the test configuration data
-    config = AutoConfig.new
-    @browser = config.browser
-    @user_name = config.directory['']['username']
-    @password = config.directory['']['password']
+    @config = AutoConfig.new
+    @browser = @config.browser
+    # 
+    @user_name = @config.directory['person3']['id']
+    @password = @config.directory['']['password']
+    @site_name = @config.directory['site1']['name']
+    @site_id = @config.directory['site1']['id']
     @sakai = SakaiCLE.new(@browser)
     
   end
@@ -32,7 +32,6 @@ class }}name{{ < Test::Unit::TestCase
   def teardown
     # Close the browser window
     @browser.close
-    assert_equal [], @verification_errors
   end
   
   def test_))casename((
@@ -40,12 +39,11 @@ class }}name{{ < Test::Unit::TestCase
     # Log in to Sakai
     @sakai.login(@user_name, @password)
     
-  end
-  
-  def verify(&blk)
-    yield
-  rescue Test::Unit::AssertionFailedError => ex
-    @verification_errors << ex
+    # some code to simplify writing steps in this test case
+    def frm
+      @browser.frame(:index=>1)
+    end
+    
   end
   
 end

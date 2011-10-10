@@ -23,9 +23,9 @@ class TestCompleteAssignment < Test::Unit::TestCase
     @browser = @config.browser
     # This test case requires logging in with a student user
     @user_name = @config.directory['person1']['id']
+    @password = @config.directory['person1']['password']
     @site_name = @config.directory['site1']['name']
     @site_id = @config.directory['site1']['id']
-    @password = @config.directory['person1']['password']
     @sakai = SakaiCLE.new(@browser)
     
   end
