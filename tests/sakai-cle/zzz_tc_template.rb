@@ -2,14 +2,13 @@
 # == Synopsis
 #
 # 
+# 
 # Author: Abe Heward (aheward@rSmart.com)
 
-require "test/unit"
-require 'watir-webdriver'
-require File.dirname(__FILE__) + "/../../config/config.rb"
-require File.dirname(__FILE__) + "/../../lib/utilities.rb"
-require File.dirname(__FILE__) + "/../../lib/sakai-CLE/page_elements.rb"
-require File.dirname(__FILE__) + "/../../lib/sakai-CLE/app_functions.rb"
+gems = ["test/unit", "watir-webdriver"]
+gems.each { |gem| require gem }
+files = [ "/../../config/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-CLE/page_elements.rb", "/../../lib/sakai-CLE/app_functions.rb" ]
+files.each { |file| require File.dirname(__FILE__) + file }
 
 class }}ClassName{{ < Test::Unit::TestCase
   

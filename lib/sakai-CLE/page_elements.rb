@@ -34,6 +34,12 @@ module ToolsMenu
   # PageObject requirements...
   link(:account, :text=>"Account")
   link(:aliases, :text=>"Aliases")
+  
+  def administration_workspace
+    @browser.link(:text, "Administration Workspace").click
+    MyWorkspace.new(@browser)
+  end
+  
   link(:announcements, :class => 'icon-sakai-announcements')
   link(:assignments, :text=>"Assignments")
   link(:basic_lti, :text=>"Basic LTI")
@@ -54,7 +60,12 @@ module ToolsMenu
   link(:gradebook, :text=>"Gradebook")
   link(:gradebook2, :text=>"Gradebook2")
   link(:help, :text=>"Help")
-  link(:home, :text=>"Home")
+  
+  def home
+    @browser.link(:text, "Home").click
+    Home.new(@browser)
+  end
+  
   link(:job_scheduler, :text=>"Job Scheduler")
   link(:lessons, :text=>"Lessons")
   link(:lesson_builder, :text=>"Lesson Builder")
@@ -65,6 +76,7 @@ module ToolsMenu
   link(:membership, :text=>"Membership")
   link(:memory, :text=>"Memory")
   link(:messages, :text=>"Messages")
+  link(:my_sites, :text=>"My Sites")
   link(:news, :text=>"News")
   link(:online, :text=>"On-Line")
   link(:oauth_providers, :text=>"Oauth Providers")
@@ -76,7 +88,19 @@ module ToolsMenu
   link(:preferences, :text=>"Preferences")
   link(:profile, :text=>"Profile")
   link(:realms, :text=>"Realms")
-  link(:resources, :text=>"Resources")
+  
+  def resources
+    # Will eventually need logic here
+    # to determine whether to load the class for
+    # the Resources page in a particular site or the page
+    # while in the Admin workspace.
+    
+    # For now, though, this only works to go to
+    # the page within a given Site.
+    @browser.link(:text, "Resources").click
+    Resources.new(@browser)
+  end
+  
   link(:roster, :text=>"Roster")
   link(:rsmart_support, :text=>"rSmart Support")
   link(:search, :text=>"Search")
@@ -90,7 +114,12 @@ module ToolsMenu
   end
   
   link(:site_statistics, :text=>"Site Statistics")
-  link(:sites, :text=>"Sites")
+  
+  def sites
+    @browser.link(:text=>"Sites").click
+    Sites.new(@browser)
+  end
+  
   link(:skin_manager, :text=>"Skin Manager")
   link(:super_user, :text=>"Super User")
   link(:syllabus, :text=>"Syllabus")
@@ -1277,12 +1306,12 @@ class AssignmentAdd
   
   # The alert_text object on the Add/Edit Assignments page
     def alert_text
-      @browser.frame(:index=>1).div(:class=>"portletBody").div(:class=>"alertMessage").text
+      frm(1).div(:class=>"portletBody").div(:class=>"alertMessage").text
     end
     
     # A method to insert text into the rich text editor
     def add_instructions(instructions)
-      @browser.frame(:index=>1).frame(:id, "new_assignment_instructions___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(instructions)
+      frm(1).frame(:id, "new_assignment_instructions___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(instructions)
     end
   
 end
@@ -1756,13 +1785,10 @@ class Home
   in_frame(:index=>2) do |frame|
     # Recent Announcements Options button
     link(:recent_announcements_options, :text=>"Options", :frame=>frame)
-  
-  end
-  
-  in_frame(:index=>2) do |frame|
     # Link for New In Forms
     link(:new_in_forums, :text=>"New Messages", :frame=>frame)
   end
+  
 end
 
 # The Page that appears when you are not in a particular Site
@@ -1826,6 +1852,59 @@ class Realms
     button(:last, :name=>"eventSubmit_doList_last", :frame=>frame)
     button(:previous, :name=>"eventSubmit_doList_prev", :frame=>frame)
     button(:first, :name=>"eventSubmit_doList_first", :frame=>frame)
+    
+  end
+
+end
+
+#================
+# Resources Pages 
+#================
+
+# Resources page for a given Site, in the Course Tools menu
+class Resources
+  
+  include PageObject
+  include ToolsMenu
+  
+  # This method will need to be improved to allow
+  # for Resources pages that contain multiple
+  # folders
+  def upload_files
+    frm(1).link(:text, "Start Add Menu").fire_event("onfocus")
+    frm(1).link(:text, "Upload Files").click
+    ResourcesUploadFiles.new(@browser)
+  end
+  
+  in_frame(:index=>1) do |frame|
+    
+    
+  end
+
+end
+
+# New class template. For quick class creation...
+class ResourcesUploadFiles
+  
+  include PageObject
+  include ToolsMenu
+  
+  @@filex=0
+  
+  def file_to_upload(file_name)
+    frm(1).file_field(:id, "content_#{@@filex}").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + file_name)
+    @@filex+=1
+  end
+  
+  def upload_files_now
+    frm(1).button(:value=>"Upload Files Now").click
+    Resources.new(@browser)
+  end
+  
+  in_frame(:index=>1) do |frame|
+    # Interactive page objects that do no navigation
+    # or page refreshes go here.
+    link(:add_another_file, :text=>"Add Another File", :frame=>frame)
     
   end
 
@@ -2019,8 +2098,30 @@ class Sites
   include PageObject
   include ToolsMenu
   
+  # A method to click the first site Id link
+  # listed. Useful when you've run a search and
+  # you're certain you've got the result you want
+  def click_top_item
+    frm(0).link(:href, /#{Regexp.escape("&panel=Main&sakai_action=doEdit")}/).click
+    EditSiteInfo.new(@browser)
+  end
+  
+  # Use this method when you know the target site ID
+  def edit_site_id(id)
+    frm(0).text_field(:id=>"search").value=id
+    sleep 5
+    frm(0).link(:text=>"Search").click
+    sleep 3
+    frm(0).link(:text, id).click
+    EditSiteInfo.new(@browser)
+  end
+  
+  def new_site
+    frm(0).link(:text, "New Site").click
+    EditSiteInfo.new(@browser)
+  end
+  
   in_frame(:index=>0) do |frame|
-    link(:new_site, :text=>"New Site", :frame=>frame)
     text_field(:search_field, :id=>"search", :frame=>frame)
     link(:search_button, :text=>"Search", :frame=>frame)
     text_field(:search_site_id, :id=>"search_site", :frame=>frame)
@@ -2040,7 +2141,169 @@ class Sites
 
 end
 
+# Page that appears when you've clicked a Site ID in the
+# Sites section of the Administration Workspace.
+class EditSiteInfo
+  
+  include PageObject
+  include ToolsMenu
+  
+  def remove_site
+    frm(0).link(:text, "Remove Site").click
+    RemoveSite.new(@browser)
+  end
+  
+  def save
+    frm(0).button(:value=>"Save").click
+    Sites.new(@browser)
+  end
+  
+  def save_as
+    frm(0).link(:text, "Save As").click
+    SiteSaveAs.new(@browser)
+  end
+  
+  def site_id
+    frm(0).table(:class=>"itemSummary").td(:class=>"shorttext", :index=>0).text
+  end
+  
+  # Method for adding text to the rich text editor
+  def add_description(text)
+    frm(0).frame(:id, "description___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(text)
+  end
+  
+  def pages
+    frm(0).button(:value=>"Pages").click
+    AddEditPages.new(@browser)
+  end
+  
+  in_frame(:index=>0) do |frame|
+    # Non-navigating, interactive page objects go here
+    text_field(:site_id, :id=>"id", :frame=>frame)
+    text_field(:title, :id=>"title", :frame=>frame)
+    text_field(:type, :id=>"type", :frame=>frame)
+    text_area(:short_description, :id=>"shortDescription", :frame=>frame)
+    radio_button(:unpublished, :id=>"publishedfalse", :frame=>frame)
+    radio_button(:published, :id=>"publishedtrue", :frame=>frame)
+    radio_button(:public_view_yes, :id=>"pubViewtrue", :frame=>frame)
+  end
+  
+end
 
+# The page you come to when editing a Site in Sites
+# and you click on the Pages button
+class AddEditPages
+  
+  include PageObject
+  include ToolsMenu
+  
+  def new_page
+    frm(0).link(:text=>"New Page").click
+    NewPage.new(@browser)
+  end
+  
+  in_frame(:index=>0) do |frame|
+    # Interactive page objects that do no navigation
+    # or page refreshes go here.
+    # (:, :=>"", :frame=>frame)
+  end
+
+end
+
+# Page for adding a new page to a Site.
+class NewPage
+  
+  include PageObject
+  include ToolsMenu
+  
+  def tools
+    frm(0).button(:value=>"Tools").click
+    AddEditTools.new(@browser)
+  end
+  
+  in_frame(:index=>0) do |frame|
+    # Interactive page objects that do no navigation
+    # or page refreshes go here.
+    text_field(:title, :id=>"title", :frame=>frame)
+  end
+
+end
+
+# Page when editing a Site and adding/editing tools for pages.
+class AddEditTools
+  
+  include PageObject
+  include ToolsMenu
+  
+  def new_tool
+    frm(0).link(:text=>"New Tool").click
+    NewTool.new(@browser)
+  end
+  
+  def save
+    frm(0).button(:value=>"Save").click
+    AddEditPages.new(@browser)
+  end
+  
+  in_frame(:index=>0) do |frame|
+    # Interactive page objects that do no navigation
+    # or page refreshes go here.
+    #(:, :=>"", :frame=>frame)
+    
+  end
+
+end
+
+# Page for creating a new tool for a page in a site
+class NewTool
+  
+  include PageObject
+  include ToolsMenu
+  
+  def done
+    frm(0).button(:value=>"Done").click
+    AddEditTools.new(@browser)
+  end
+  
+  in_frame(:index=>0) do |frame|
+    # Interactive page objects that do no navigation
+    # or page refreshes go here.
+    text_field(:title, :id=>"title", :frame=>frame)
+    text_field(:layout_hints, :id=>"layoutHints", :frame=>frame)
+    radio_button(:resources, :id=>"feature80", :frame=>frame)
+  end
+  
+end
+
+# Page that appears when you click "Remove Site" when editing a Site in Sites
+class RemoveSite
+  
+  include PageObject
+  include ToolsMenu
+  
+  def remove
+    frm(0).button(:value=>"Remove").click
+    Sites.new(@browser)
+  end
+  
+end
+
+# Page that appears when you click "Save As" when editing a Site in Sites
+class SiteSaveAs
+  
+  include PageObject
+  include ToolsMenu
+  
+  def save
+    frm(0).button(:value, "Save").click
+    Sites.new(@browser)
+  end
+  
+  in_frame(:index=>0) do |frame|
+    text_field(:site_id, :id=>"id", :frame=>frame)
+  end
+  
+end
 #================
 # Site Editor Pages for an individual Site
 #================
@@ -2199,13 +2462,13 @@ class SiteSetupEdit
   include PageObject
   include ToolsMenu
   
-  # Again we are defining the page <iframe> by its index.
-  # This is a bad way to do it, but unless there's a
-  # persistent and consistent <id> or <name> tag for the
-  # iframe then this is our best option.
+  def edit_tools
+    frm(0).link(:text=>"Edit Tools").click
+    EditSiteTools.new(@browser)
+  end
+  
   in_frame(:index=>0) do |frame|
     link(:edit_site_information, :text=>"Edit Site Information", :frame=>frame)
-    link(:edit_tools, :text=>"Edit Tools", :frame=>frame)
     link(:add_participants, :text=>"Add Participants", :frame=>frame)
     link(:edit_class_rosters, :text=>"Edit Class Roster(s)", :frame=>frame)
     link(:manage_groups, :text=>"Manage Groups", :frame=>frame)
@@ -2229,6 +2492,102 @@ class SiteSetupEdit
 
 end
 
+# The Edit Tools page (click on "Edit Tools" when editing a site
+# in Site Setup in the Admin Workspace)
+class EditSiteTools
+
+  include PageObject
+  include ToolsMenu
+  
+  def continue
+    frm(0).button(:value=>"Continue").click
+    # Logic for determining the new page class...
+    if frm(0).div(:class=>"portletBody").text =~ /^Add Multiple Tool/
+      AddMultipleTools.new(@browser)
+    elsif frm(0).div(:class=>"portletBody").text =~ /^Confirming site tools edits for/
+      ConfirmSiteToolsEdits.new(@browser)
+    else
+      puts "Something is wrong"
+      puts frm(0).div(:class=>"portletBody").text
+    end
+  end
+  
+  in_frame(:index=>0) do |frame|
+    # This is a comprehensive list of all checkboxes and
+    # radio buttons for this page, 
+    # though not all will appear at one time.
+    # The list will depend on the type of site being
+    # created/edited.
+    checkbox(:all_tools, :id=>"all", :frame=>frame)
+    checkbox(:home, :id=>"home", :frame=>frame)
+    checkbox(:announcements, :id=>"sakai.announcements", :frame=>frame)
+    checkbox(:assignments, :id=>"sakai.assignment.grades", :frame=>frame)
+    checkbox(:basic_lti, :id=>"sakai.basiclti", :frame=>frame)
+    checkbox(:calendar, :id=>"sakai.schedule", :frame=>frame)
+    checkbox(:email_archive, :id=>"sakai.mailbox", :frame=>frame)
+    checkbox(:evaluations, :id=>"osp.evaluation", :frame=>frame)
+    checkbox(:forms, :id=>"sakai.metaobj", :frame=>frame)
+    checkbox(:glossary, :id=>"osp.glossary", :frame=>frame)
+    checkbox(:matrices, :id=>"osp.matrix", :frame=>frame)
+    checkbox(:news, :id=>"sakai.news", :frame=>frame)
+    checkbox(:portfolio_layouts, :id=>"osp.presLayout", :frame=>frame)
+    checkbox(:portfolio_showcase, :id=>"sakai.rsn.osp.iframe", :frame=>frame)
+    checkbox(:portfolio_templates, :id=>"osp.presTemplate", :frame=>frame)
+    checkbox(:portfolios, :id=>"osp.presentation", :frame=>frame)
+    checkbox(:resources, :id=>"sakai.resources", :frame=>frame)
+    checkbox(:roster, :id=>"sakai.site.roster", :frame=>frame)
+    checkbox(:search, :id=>"sakai.search", :frame=>frame)
+    checkbox(:styles, :id=>"osp.style", :frame=>frame)
+    checkbox(:web_content, :id=>"sakai.iframe", :frame=>frame)
+    checkbox(:wizards, :id=>"osp.wizard", :frame=>frame)
+    checkbox(:blogger, :id=>"blogger", :frame=>frame)
+    checkbox(:blogs, :id=>"sakai.blogwow", :frame=>frame)
+    checkbox(:chat_room, :id=>"sakai.chat", :frame=>frame)
+    checkbox(:discussion_forums, :id=>"sakai.jforum.tool", :frame=>frame)
+    checkbox(:drop_box, :id=>"sakai.dropbox", :frame=>frame)
+    checkbox(:email, :id=>"sakai.mailtool", :frame=>frame)
+    checkbox(:forums, :id=>"sakai.forums", :frame=>frame)
+    checkbox(:certification, :id=>"com.rsmart.certification", :frame=>frame)
+    checkbox(:feedback, :id=>"sakai.postem", :frame=>frame)
+    checkbox(:gradebook, :id=>"sakai.gradebook.tool", :frame=>frame)
+    checkbox(:gradebook2, :id=>"sakai.gradebook.gwt.rpc", :frame=>frame)
+    checkbox(:lesson_builder, :id=>"sakai.lessonbuildertool", :frame=>frame)
+    checkbox(:lessons, :id=>"sakai.melete", :frame=>frame)
+    checkbox(:live_virtual_classroom, :id=>"rsmart.virtual_classroom.tool", :frame=>frame)
+    checkbox(:media_gallery, :id=>"sakai.kaltura", :frame=>frame)
+    checkbox(:messages, :id=>"sakai.messages", :frame=>frame)
+    checkbox(:news, :id=>"sakai.news", :frame=>frame)
+    checkbox(:opensyllabus, :id=>"sakai.opensyllabus.tool", :frame=>frame)
+    checkbox(:podcasts, :id=>"sakai.podcasts", :frame=>frame)
+    checkbox(:polls, :id=>"sakai.poll", :frame=>frame)
+    checkbox(:sections, :id=>"sakai.sections", :frame=>frame)
+    checkbox(:site_editor, :id=>"sakai.siteinfo", :frame=>frame)
+    checkbox(:site_statistics, :id=>"sitestats", :frame=>frame)
+    checkbox(:syllabus, :id=>"sakai.syllabus", :frame=>frame)
+    checkbox(:tests_and_quizzes_cb, :id=>"sakai.samigo", :frame=>frame)
+    checkbox(:wiki, :id=>"sakai.rwiki", :frame=>frame)
+    radio_button(:no_thanks, :id=>"import_no", :frame=>frame)
+    radio_button(:yes, :id=>"import_yes", :frame=>frame)
+    select_list(:import_sites, :id=>"importSites", :frame=>frame)
+    button(:back, :name=>"Back", :frame=>frame)
+    button(:cancel, :name=>"Cancel", :frame=>frame)
+  end
+  
+end
+
+# Confirmation page when editing site tools in Site Setup
+class ConfirmSiteToolsEdits
+  
+  include PageObject
+  include ToolsMenu
+  
+  def finish
+    frm(0).button(:value=>"Finish").click
+    SiteSetupEdit.new(@browser)
+  end
+  
+end
+
 # The Site Setup page - a.k.a., link class=>"icon-sakai-sitesetup"
 class SiteSetup
   
@@ -2237,10 +2596,36 @@ class SiteSetup
   
   # Site list contents are not defined as objects here,
   # as they will always have the potential to be different
+  
+  # Method for clicking the "New" link on the Site Setup page.
+  def new
+    frm(0).link(:text=>"New").click
+    SiteType.new(@browser)
+  end
+  
+  # Note that this method (and the following)
+  # presumes that the site search
+  # will be successful and that only one site will
+  # be returned. It will need additional coding if
+  # there may be future situations where this won't always
+  # be true.
+  def edit(site_name)
+    frm(0).text_field(:id, "search").value=site_name
+    frm(0).button(:value=>"Search").click
+    frm(0).checkbox(:name=>"selectedMembers").set
+    frm(0).link(:text, "Edit").click
+    SiteSetupEdit.new(@browser)
+  end
+
+  def delete(site_name)
+    frm(0).text_field(:id, "Search").value=site_name
+    frm(0).button(:value=>"Search").click
+    frm(0).checkbox(:name=>"selectedMembers").set
+    frm(0).link(:text, "Delete").click
+    DeleteSite.new(@browser)
+  end
 
   in_frame(:index=>0) do |frame|
-    link(:new, :text=>"New", :frame=>frame)
-    link(:edit, :text=>"Edit", :frame=>frame)
     link(:delete, :text=>"Delete", :frame=>frame)
     text_field(:search, :id=>"search", :frame=>frame)
     button(:search, :value=>"Search", :frame=>frame)
@@ -2255,18 +2640,22 @@ class SiteSetup
 
 end
 
-# Site Setup Review page -- appears at the end of the Site creation process
-class SiteSetupReview
+# The Delete Confirmation Page for deleting a Site
+class DeleteSite
   
   include PageObject
   include ToolsMenu
   
-  in_frame(:index=>0) do |frame|
-    button(:request_site, :id=>"addSite", :frame=>frame)
-    button(:back, :id=>"back", :frame=>frame)
-    button(:cancel, :id=>"cancel", :frame=>frame)
+  def remove
+    frm(0).button(:value=>"Remove").click
+    SiteSetup.new(@browser)
   end
-
+  
+  def cancel
+    frm(0).button(:value=>"Cancel").click
+    SiteSetup.new(@browser)
+  end
+  
 end
 
 #The Site Type page that appears when creating a new site
@@ -2275,12 +2664,48 @@ class SiteType
   include PageObject
   include ToolsMenu
   
+  def select_course_site
+    frm(0).radio(:id, "course").set
+    @site_type = 1
+  end
+  
+  def select_project_site
+    frm(0).radio(:id, "project").set
+    @site_type = 2
+  end
+  
+  def select_portfolio_site
+    frm(0).radio(:id, "portfolio").set
+    @site_type = 3
+  end
+  
+  def select_template_site
+    frm(0).radio(:id, "copy").set
+    @site_type = 4
+  end
+  
+  # The page's Continue button
+  def continue
+    # Logic for the type of site selected...
+    case(@site_type)
+    when 1
+      frm(0).button(:id=>"submitBuildOwn").click
+      CourseSectionInfo.new(@browser)
+    when 2
+      frm(0).button(:id=>"submitFromTemplateCourse").click
+      # Add page class here
+    when 3
+      frm(0).button(:id=>"submitBuildOwn").click
+      # Add page class here
+    when 4
+      frm(0).button(:id=>"submitBuildOwn").click
+      # Add page class here
+    end
+    
+  end
+  
   in_frame(:index=>0) do |frame|
-    radio_button(:course_site, :id=>"course", :frame=>frame)
-    radio_button(:project_site, :id=>"project", :frame=>frame)
-    radio_button(:portfolio_site, :id=>"portfolio", :frame=>frame)
     select_list(:academic_term, :id=>"selectTerm", :frame=>frame)
-    button(:continue, :id=>"submitBuildOwn", :frame=>frame)
     button(:cancel, :id=>"cancelCreate", :frame=>frame)
   end
   
@@ -2294,6 +2719,18 @@ class AddMultipleTools
   include PageObject
   include ToolsMenu
   
+  def continue
+    frm(0).button(:value=>"Continue").click
+    # Logic to determine the new page class
+    if frm(0).div(:class=>"portletBody").text =~ /Course Site Access/
+      CourseSiteAccess.new(@browser)
+    elsif frm(0).div(:class=>"portletBody").text =~ /^Confirming site tools edits/
+      ConfirmSiteToolsEdits.new(@browser)
+    else
+      puts "There's another path to define"
+    end
+  end
+  
   in_frame(:index=>0) do |frame|
     # Note that the text field definitions included here
     # for the Tools definitions are ONLY for the first
@@ -2301,7 +2738,7 @@ class AddMultipleTools
     # an arbitrary number, if you are writing tests
     # that add more then you're going to have to explicitly
     # reference them or define them in the test case script
-    # itself.
+    # itself--for now, anyway.
     text_field(:site_email_address, :id=>"emailId", :frame=>frame)
     text_field(:basic_lti_title, :id=>"title_sakai.basiclti", :frame=>frame)
     select_list(:more_basic_lti_tools, :id=>"num_sakai.basiclti", :frame=>frame)
@@ -2313,7 +2750,6 @@ class AddMultipleTools
     text_field(:web_content_title, :id=>"title_sakai.iframe", :frame=>frame)
     text_field(:web_content_source, :id=>"source_sakai.iframe", :frame=>frame)
     select_list(:more_web_content_tools, :id=>"num_sakai.iframe", :frame=>frame)
-    button(:continue, :id=>"addButton", :frame=>frame)
     button(:back, :name=>"Back", :frame=>frame)
     button(:cancel, :name=>"Cancel", :frame=>frame)
   end
@@ -2325,6 +2761,11 @@ class CourseSectionInfo
   
   include PageObject
   include ToolsMenu
+  
+  def continue
+    frm(0).button(:value=>"Continue").click
+    CourseSiteInfo.new(@browser)
+  end
   
   in_frame(:index=>0) do |frame|
     # Note that ONLY THE FIRST instances of the
@@ -2342,7 +2783,6 @@ class CourseSectionInfo
     text_field(:authorizers_username, :id=>"uniqname", :frame=>frame)
     text_field(:special_instructions, :id=>"additional", :frame=>frame)
     select_list(:add_more_rosters, :id=>"number", :frame=>frame)
-    button(:continue, :id=>"addButton", :frame=>frame)
     button(:back, :name=>"Back", :frame=>frame)
     button(:cancel, :name=>"Cancel", :frame=>frame)
   end
@@ -2356,17 +2796,34 @@ class CourseSiteAccess
   include PageObject
   include ToolsMenu
   
+  def continue
+    frm(0).button(:value=>"Continue").click
+    ConfirmCourseSiteSetup.new(@browser)
+  end
+  
   in_frame(:index=>0) do |frame|
     radio_button(:publish_site, :id=>"publish", :frame=>frame)
     radio_button(:leave_as_draft, :id=>"unpublish", :frame=>frame)
     radio_button(:limited, :id=>"unjoinable", :frame=>frame)
     radio_button(:allow, :id=>"joinable", :frame=>frame)
-    button(:continue, :name=>"eventSubmit_doUpdate_site_access", :frame=>frame)
     button(:back, :name=>"eventSubmit_doBack", :frame=>frame)
     button(:cancel, :name=>"eventSubmit_doCancel_create", :frame=>frame)
     select_list(:joiner_role, :id=>"joinerRole", :frame=>frame)
   end
 
+end
+
+# The Confirmation page at the end of a Course Site Setup
+class ConfirmCourseSiteSetup
+  
+  include PageObject
+  include ToolsMenu
+  
+  def request_site
+    frm(0).button(:value=>"Request Site").click
+    SiteSetup.new(@browser)
+  end
+  
 end
 
 # The Course Site Information page that appears when creating a new Site
@@ -2376,6 +2833,11 @@ class CourseSiteInfo
   include PageObject
   include ToolsMenu
   
+  def continue
+    frm(0).button(:value=>"Continue").click
+    EditSiteTools.new(@browser)
+  end
+  
   # The WYSIWYG FCKEditor on this page will have to be
   # set up carefully, but later. The time for doing this is TBD.
   
@@ -2384,68 +2846,6 @@ class CourseSiteInfo
     text_field(:special_instructions, :id=>"additional", :frame=>frame)
     text_field(:site_contact_name, :id=>"siteContactName", :frame=>frame)
     text_field(:site_contact_email, :id=>"siteContactEmail", :frame=>frame)
-    button(:continue, :name=>"continue", :frame=>frame)
-    button(:back, :name=>"Back", :frame=>frame)
-    button(:cancel, :name=>"Cancel", :frame=>frame)
-  end
-  
-end
-
-# The Course Site Tools page that appears when creating a new Site
-# immediately after the Course Site Information page
-class CourseSiteTools
-  
-  include PageObject
-  include ToolsMenu
-  
-  in_frame(:index=>0) do |frame|
-    # Note the naming convention used here for the checkboxes:
-    # "<checkbox_name>_cb"
-    # It's in order that the checkboxes have method names
-    # that do not conflict with the method names created
-    # in the ToolsMenu for the links that these checkboxes
-    # refer to.
-    checkbox(:all_tools_cb, :id=>"all", :frame=>frame)
-    checkbox(:home_cb, :id=>"home", :frame=>frame)
-    checkbox(:announcements_cb, :id=>"sakai.announcements", :frame=>frame)
-    checkbox(:assignments_cb, :id=>"sakai.assignment.grades", :frame=>frame)
-    checkbox(:basic_lti_cb, :id=>"sakai.basiclti", :frame=>frame)
-    checkbox(:blogger_cb, :id=>"blogger", :frame=>frame)
-    checkbox(:blogs_cb, :id=>"sakai.blogwow", :frame=>frame)
-    checkbox(:calendar_cb, :id=>"sakai.schedule", :frame=>frame)
-    checkbox(:certification_cb, :id=>"com.rsmart.certification", :frame=>frame)
-    checkbox(:chat_room_cb, :id=>"sakai.chat", :frame=>frame)
-    checkbox(:discussion_forums_cb, :id=>"sakai.jforum.tool", :frame=>frame)
-    checkbox(:drop_box_cb, :id=>"sakai.dropbox", :frame=>frame)
-    checkbox(:email_cb, :id=>"sakai.mailtool", :frame=>frame)
-    checkbox(:email_archive_cb, :id=>"sakai.mailbox", :frame=>frame)
-    checkbox(:feedback_cb, :id=>"sakai.postem", :frame=>frame)
-    checkbox(:forums_cb, :id=>"sakai.forums", :frame=>frame)
-    checkbox(:gradebook_cb, :id=>"sakai.gradebook.tool", :frame=>frame)
-    checkbox(:gradebook2_cb, :id=>"sakai.gradebook.gwt.rpc", :frame=>frame)
-    checkbox(:lesson_builder_cb, :id=>"sakai.lessonbuildertool", :frame=>frame)
-    checkbox(:lessons_cb, :id=>"sakai.melete", :frame=>frame)
-    checkbox(:live_virtual_classroom_cb, :id=>"rsmart.virtual_classroom.tool", :frame=>frame)
-    checkbox(:media_gallery_cb, :id=>"sakai.kaltura", :frame=>frame)
-    checkbox(:messages_cb, :id=>"sakai.messages", :frame=>frame)
-    checkbox(:news_cb, :id=>"sakai.news", :frame=>frame)
-    checkbox(:opensyllabus_cb, :id=>"sakai.opensyllabus.tool", :frame=>frame)
-    checkbox(:podcasts_cb, :id=>"sakai.podcasts", :frame=>frame)
-    checkbox(:polls_cb, :id=>"sakai.poll", :frame=>frame)
-    checkbox(:resources_cb, :id=>"sakai.resources", :frame=>frame)
-    checkbox(:roster_cb, :id=>"sakai.site.roster", :frame=>frame)
-    checkbox(:search_cb, :id=>"sakai.search", :frame=>frame)
-    checkbox(:sections_cb, :id=>"sakai.sections", :frame=>frame)
-    checkbox(:site_editor_cb, :id=>"sakai.siteinfo", :frame=>frame)
-    checkbox(:site_statistics_cb, :id=>"sitestats", :frame=>frame)
-    checkbox(:syllabus_cb, :id=>"sakai.syllabus", :frame=>frame)
-    checkbox(:tests_and_quizzes_cb, :id=>"sakai.samigo", :frame=>frame)
-    checkbox(:web_content_cb, :id=>"sakai.iframe", :frame=>frame)
-    checkbox(:wiki_cb, :id=>"sakai.rwiki", :frame=>frame)
-    radio_button(:no_thanks, :id=>"import_no", :frame=>frame)
-    radio_button(:yes, :id=>"import_yes", :frame=>frame)
-    select_list(:import_sites, :id=>"importSites", :frame=>frame)
-    button(:continue, :name=>"Continue", :frame=>frame)
     button(:back, :name=>"Back", :frame=>frame)
     button(:cancel, :name=>"Cancel", :frame=>frame)
   end
@@ -2654,6 +3054,8 @@ class Template
   include ToolsMenu
   
   in_frame(:index=>0) do |frame|
+    # Interactive page objects that do no navigation
+    # or page refreshes go here.
     (:, :=>"", :frame=>frame)
     (:, :=>"", :frame=>frame)
     (:, :=>"", :frame=>frame)
