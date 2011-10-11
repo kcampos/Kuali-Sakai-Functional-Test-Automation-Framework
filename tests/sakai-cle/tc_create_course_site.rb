@@ -52,12 +52,11 @@ class TestCreatingCourseSite < Test::Unit::TestCase
     # (because no sites are checked)
     assert_equal(@browser.link(:text, "Edit").exists?, false)
     
-    site_setup.new
+    site_type = site_setup.new
     
     # TEST CASE: Check the Site Type page
     assert @browser.text.include?("Choose the type of site you want to create.")
     
-    site_type = SiteType.new(@browser)
     # Select the Course Site radio button
     
     site_type.select_course_site
@@ -70,12 +69,10 @@ class TestCreatingCourseSite < Test::Unit::TestCase
     term = site_type.academic_term
     
     # Click continue
-    site_type.continue
+    course_section = site_type.continue
     
     #TEST CASE: Check the Course/Section Information page
     assert @browser.text.include?("You have thus far selected the following course/section(s) for this course site:")
-    
-    course_section = CourseSectionInfo.new(@browser)
     
     # Fill in those fields, storing the entered values for later verification steps
     subject = random_string(8)
@@ -111,13 +108,11 @@ class TestCreatingCourseSite < Test::Unit::TestCase
     course_section.authorizers_username="admin"
     
     # Click continue button
-    course_section.continue
+    course_site = course_section.continue
     
     # TEST CASE: Check the Course Site Information page
     assert @browser.text.include?("Enter basic information about the course site...")
     assert @browser.frame(:index, 0).p(:class, /shorttext/).text.include?("*\nSite Title\n#{site_name}")
-    
-    course_site = CourseSiteInfo.new(@browser)
     
     # Enter an invalid email address
     address = random_alphanums
@@ -132,30 +127,28 @@ class TestCreatingCourseSite < Test::Unit::TestCase
     course_site.site_contact_email=""
     
     # Click Continue
-    course_site.continue
+    course_tools = course_site.continue
     
     # TEST CASE: Check the Course Site Tools page
     assert @browser.text.include?("Choose tools to include on your site...")
     
-    course_tools = CourseSiteTools.new(@browser)
-    
     # TEST CASE: Check that the Site Editor can't be edited
-    assert(course_tools.site_editor_cb_element.disabled?, "Site Editor checkbox is not read-only.")
+    assert(course_tools.site_editor_element.disabled?, "Site Editor checkbox is not read-only.")
     
     # TEST CASE: Check that the Home checkbox is selected by default
-    assert course_tools.home_cb_checked?
+    assert course_tools.home_checked?
     # TEST CASE: Check that the Announcements checkbox is NOT checked by default
-    assert_equal(course_tools.announcements_cb_checked?, false)
+    assert_equal(course_tools.announcements_checked?, false)
     # TEST CASE: Check that "No, thanks" is selected by default
     assert course_tools.no_thanks_selected?
     
     #Check All Tools
-    course_tools.check_all_tools_cb
+    course_tools.check_all_tools
     
     #TEST CASE: Check that the All Tools checkbox worked
-    assert course_tools.announcements_cb_checked?
+    assert course_tools.announcements_checked?
     
-    course_tools.continue
+    add_tools = course_tools.continue
     
     # TEST CASE: Check the Add Multiple Tool page
     assert @browser.text.include?("Add multiple tool instances or configure tool options.")
@@ -165,8 +158,6 @@ class TestCreatingCourseSite < Test::Unit::TestCase
     
     # TEST CASE: Site email address is required to continue
     assert @browser.text.include?("Alert: Please specify an email address for Email Archive tool.")
-    
-    add_tools = AddMultipleTools.new(@browser)
     
     # Create a random email address and store the string for later
     email_address = random_alphanums
@@ -186,13 +177,12 @@ class TestCreatingCourseSite < Test::Unit::TestCase
     access.select_allow
     access.joiner_role="Student"
     
-    access.continue
+    review = access.continue
     
     # TEST CASE: Verify the text on the Review page
     assert @browser.text.include?("Please review the following information about your site.")
     assert @browser.text.include?("#{site_name}"), "Review page not showing site name #{site_name}"
-    
-    review = SiteSetupReview.new(@browser)
+
     review.request_site
     
     # Create a string that will match the new Site's "creation date" string
@@ -214,7 +204,7 @@ class TestCreatingCourseSite < Test::Unit::TestCase
     #  assert @browser.text.include?("#{@sakai.make_date(Time.now)}"), "Could not find a site with a creation date of #{creation_date} or #{@sakai.make_date(Time.now)}"
     #end
     
-    # Get the site id
+    # Get the site id for storage
     @browser.frame(:index=>0).link(:href=>/xsl-portal.site/, :index=>0).href =~ /(?<=\/site\/).+/
     @config.directory['site1']['id'] = $~.to_s
     
