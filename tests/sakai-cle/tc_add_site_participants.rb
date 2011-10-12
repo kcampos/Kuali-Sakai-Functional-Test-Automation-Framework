@@ -81,25 +81,10 @@ class AddSiteParticipants < Test::Unit::TestCase
     # Go to Site Setup
     home = Home.new(@browser)
     home.site_setup
-   
-    # Define the frame for ease of code writing (and reading)
-    def frm
-      @browser.frame(:index=>0)
-    end
-
-    # Narrow down and sort the list to easily
-    # find the test site
-    frm.select(:id, "view").select("course Sites")
     
     site_setup = SiteSetup.new(@browser)
 
-    2.times{site_setup.sort_by_creation_date}
-    
-    # Check the checkbox for the desired site
-    frm.checkbox(:value, @site_id).set
-      
-    # Edit the site
-    site_setup.edit
+    site_setup.edit(@site_name)
 
     users.each do | user_type, user_list |
       
@@ -148,12 +133,6 @@ class AddSiteParticipants < Test::Unit::TestCase
       
     end
     
-  end
-  
-  def verify(&blk)
-    yield
-  rescue Test::Unit::AssertionFailedError => ex
-    @verification_errors << ex
   end
   
 end

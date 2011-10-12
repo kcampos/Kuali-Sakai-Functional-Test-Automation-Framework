@@ -1,7 +1,7 @@
 # 
 # == Synopsis
 #
-# 
+# Tests of Discussion Forums
 # 
 # Author: Abe Heward (aheward@rSmart.com)
 
@@ -10,7 +10,7 @@ gems.each { |gem| require gem }
 files = [ "/../../config/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-CLE/page_elements.rb", "/../../lib/sakai-CLE/app_functions.rb" ]
 files.each { |file| require File.dirname(__FILE__) + file }
 
-class }}ClassName{{ < Test::Unit::TestCase
+class TestDiscussionForums < Test::Unit::TestCase
   
   include Utilities
 
@@ -33,15 +33,15 @@ class }}ClassName{{ < Test::Unit::TestCase
     @browser.close
   end
   
-  def test_))casename((
+  def test_forums
     
     # Log in to Sakai
     @sakai.login(@instructor, @ipassword)
     
-    # some code to simplify writing steps in this test case
-    def frm
-      @browser.frame(:index=>1)
-    end
+    # Go to the test site
+    home = home.new(@browser)
+    
+    
     
   end
   

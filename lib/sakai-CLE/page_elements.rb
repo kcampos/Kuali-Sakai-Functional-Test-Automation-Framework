@@ -1762,6 +1762,13 @@ end
 
 
 #================
+# Discussion Forum Pages
+#================
+
+
+
+
+#================
 # Overview-type Pages
 #================
 
@@ -2625,9 +2632,9 @@ class SiteSetup
   # there may be future situations where this won't always
   # be true.
   def edit(site_name)
-    frm(0).text_field(:id, "search").value=site_name
+    frm(0).text_field(:id, "search").value=Regexp.escape(site_name)
     frm(0).button(:value=>"Search").click
-    frm(0).checkbox(:name=>"selectedMembers").set
+    frm(0).div(:class=>"portletBody").checkbox(:name=>"selectedMembers").set
     frm(0).link(:text, "Edit").click
     SiteSetupEdit.new(@browser)
   end
