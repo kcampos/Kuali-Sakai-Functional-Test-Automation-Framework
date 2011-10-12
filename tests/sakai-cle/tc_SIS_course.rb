@@ -41,7 +41,7 @@ class TestMasterCourseSite < Test::Unit::TestCase
  
     # Go to the Site Setup page
     home = Home.new(@browser)
- 
+
     site_setup = home.site_setup
     
     # Make a new Course Site
@@ -61,7 +61,7 @@ class TestMasterCourseSite < Test::Unit::TestCase
     course_tools = basic_site_info.continue
     
     # Choose the tools
-    course_tools.check_all_tools_cb
+    course_tools.check_all_tools
 
     add_mult_tools = course_tools.continue
     
@@ -84,14 +84,14 @@ class TestMasterCourseSite < Test::Unit::TestCase
     # Search for the site
     sites_page.search_field="TST"
     sites_page.search_button
-    
+
     # Edit the site
     site_info = sites_page.click_top_item
-    
+
     # Store the site ID so it can be used for
     # site removal later...
-    tst_site_id = site_info.site_id
-  
+    tst_site_id = @browser.frame(:index=>0).table(:class=>"itemSummary").td(:class=>"shorttext", :index=>0).text
+
     # Change the Site ID to the master site id value
     tst_save_as = site_info.save_as
     tst_save_as.site_id=@master_course_site_id
@@ -111,13 +111,11 @@ class TestMasterCourseSite < Test::Unit::TestCase
     
     # Open "My Sites" list
     home = sites_page.home
-    home.my_sites
     
     # Go to the master course site
-    @browser.link(:href, /#{@master_course_site_id}/).click
+    home = home.open_my_site_by_id(@master_course_site_id)
     
     # Go to the Resources page
-    home = Home.new(@browser)
     tst_resources_page = home.resources
     
     # Upload files
@@ -131,7 +129,30 @@ class TestMasterCourseSite < Test::Unit::TestCase
     end
     
     upload_page.upload_files_now
+
+    # Go back to the admin workspace
+    workspace = upload_page.administration_workspace
     
+    job_scheduler = workspace.job_scheduler
+
+    jobs = job_scheduler.jobs
+    jobs = JobList.new(@browser)
+
+    new_job = jobs.new_job
+
+    new_job.job_name="SIS"
+    new_job.type="SIS Synchronization"
+
+    jobs = new_job.post
+
+    triggers = jobs.triggers
+
+    confirmation = triggers.run_job_now
+
+    jobs = confirmation.run_now
+    
+    home = jobs.home
+
     @sakai.logout
     
   end

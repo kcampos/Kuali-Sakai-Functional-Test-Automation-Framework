@@ -66,7 +66,11 @@ module ToolsMenu
     Home.new(@browser)
   end
   
-  link(:job_scheduler, :text=>"Job Scheduler")
+  def job_scheduler
+    @browser.link(:text=>"Job Scheduler").click
+    JobScheduler.new(@browser)
+  end
+  
   link(:lessons, :text=>"Lessons")
   link(:lesson_builder, :text=>"Lesson Builder")
   link(:link_tool, :text=>"Link Tool")
@@ -116,7 +120,7 @@ module ToolsMenu
   link(:site_statistics, :text=>"Site Statistics")
   
   def sites
-    @browser.link(:text=>"Sites").click
+    @browser.link(:class=>"icon-sakai-sites").click
     Sites.new(@browser)
   end
   
@@ -1789,6 +1793,19 @@ class Home
     link(:new_in_forums, :text=>"New Messages", :frame=>frame)
   end
   
+  def open_my_site_by_id(id)
+    @browser.link(:text, "My Sites").click
+    @browser.link(:href, /#{id}/).click
+    Home.new(@browser)
+  end
+  
+  def open_my_site_by_name(name)
+    @browser.link(:text, "My Sites").click
+    @browser.link(:text, name).click
+    # Add rescue clause here for truncated names...
+    Home.new(@browser)
+  end
+  
 end
 
 # The Page that appears when you are not in a particular Site
@@ -2108,10 +2125,8 @@ class Sites
   
   # Use this method when you know the target site ID
   def edit_site_id(id)
-    frm(0).text_field(:id=>"search").value=id
-    sleep 5
-    frm(0).link(:text=>"Search").click
-    sleep 3
+    frm(0).text_field(:id=>"search_site").value=id
+    frm(0).link(:text=>"Site ID").click
     frm(0).link(:text, id).click
     EditSiteInfo.new(@browser)
   end
@@ -2164,12 +2179,12 @@ class EditSiteInfo
   end
   
   def site_id
-    frm(0).table(:class=>"itemSummary").td(:class=>"shorttext", :index=>0).text
+    @browser.frame(:index=>0).table(:class=>"itemSummary").td(:class=>"shorttext", :index=>0).text
   end
   
   # Method for adding text to the rich text editor
   def add_description(text)
-    frm(0).frame(:id, "description___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(text)
+    @browser.frame(:index=>0).frame(:id, "description___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(text)
   end
   
   def pages
@@ -2562,7 +2577,7 @@ class EditSiteTools
     checkbox(:polls, :id=>"sakai.poll", :frame=>frame)
     checkbox(:sections, :id=>"sakai.sections", :frame=>frame)
     checkbox(:site_editor, :id=>"sakai.siteinfo", :frame=>frame)
-    checkbox(:site_statistics, :id=>"sitestats", :frame=>frame)
+    checkbox(:site_statistics, :id=>"sakai.sitestats", :frame=>frame)
     checkbox(:syllabus, :id=>"sakai.syllabus", :frame=>frame)
     checkbox(:tests_and_quizzes_cb, :id=>"sakai.samigo", :frame=>frame)
     checkbox(:wiki, :id=>"sakai.rwiki", :frame=>frame)
@@ -2657,7 +2672,6 @@ class DeleteSite
   end
   
 end
-
 #The Site Type page that appears when creating a new site
 class SiteType
   
@@ -2730,7 +2744,7 @@ class AddMultipleTools
       puts "There's another path to define"
     end
   end
-  
+
   in_frame(:index=>0) do |frame|
     # Note that the text field definitions included here
     # for the Tools definitions are ONLY for the first
@@ -2752,6 +2766,7 @@ class AddMultipleTools
     select_list(:more_web_content_tools, :id=>"num_sakai.iframe", :frame=>frame)
     button(:back, :name=>"Back", :frame=>frame)
     button(:cancel, :name=>"Cancel", :frame=>frame)
+    
   end
   
 end
@@ -3042,28 +3057,92 @@ class UserMembership
 
 end
 
-=begin
 #================
-# 
+# Job Scheduler pages in Admin Workspace
 #================
 
-# New class template. For quick class creation...
-class Template
+# The topmost page in the Job Scheduler in Admin Workspace
+class JobScheduler
   
   include PageObject
   include ToolsMenu
   
-  in_frame(:index=>0) do |frame|
-    # Interactive page objects that do no navigation
-    # or page refreshes go here.
-    (:, :=>"", :frame=>frame)
-    (:, :=>"", :frame=>frame)
-    (:, :=>"", :frame=>frame)
-    (:, :=>"", :frame=>frame)
-    (:, :=>"", :frame=>frame)
-    
+  def jobs
+    frm(0).link(:text=>"Jobs").click
+    JobList.new(@browser)
   end
-
+  
+  in_frame(:index=>0) do |frame|
+  
+  end
 end
 
-=end
+# The list of Jobs (click the Jobs button on Job Scheduler)
+class JobList
+  
+  include PageObject
+  include ToolsMenu
+  
+  def new_job
+    frm(0).link(:text=>"New Job").click
+    CreateNewJob.new(@browser)
+  end
+  
+  def triggers
+    frm(0).link(:text=>"Triggers(0)").click
+    EditTriggers.new(@browser)
+  end
+  
+  in_frame(:index=>0) do |frame|
+    #(:, =>"", :frame=>frame)
+  end
+end
+
+# The Create New Job page
+class CreateNewJob
+  
+  include PageObject
+  include ToolsMenu
+  
+  def post
+    frm(0).button(:value=>"Post").click
+    JobList.new(@browser)
+  end
+  
+  in_frame(:index=>0) do |frame|
+    text_field(:job_name, :id=>"_id2:job_name", :frame=>frame)
+    select_list(:type, :name=>"_id2:_id10", :frame=>frame)
+  end
+end
+
+# The page for Editing Triggers
+class EditTriggers
+  
+  include PageObject
+  include ToolsMenu
+  
+  def run_job_now
+    frm(0).div(:class=>"portletBody").link(:text=>"Jobs").click
+    RunJobConfirmation.new(@browser)
+  end
+  
+  in_frame(:index=>0) do |frame|
+    #(:, =>"", :frame=>frame)
+  end
+end
+
+# The page for confirming you want to run a job
+class RunJobConfirmation
+  
+  include PageObject
+  include ToolsMenu
+  
+  def run_now
+    frm(0).button(:value=>"Run Now").click
+    JobList.new(@browser)
+  end
+  
+  in_frame(:index=>0) do |frame|
+    #(:, =>"", :frame=>frame)
+  end
+end

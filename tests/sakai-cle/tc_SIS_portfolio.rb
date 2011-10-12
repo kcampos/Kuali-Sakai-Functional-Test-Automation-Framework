@@ -115,12 +115,9 @@ class TestMasterPortfolioSite < Test::Unit::TestCase
     
     home = site_edit.home
     
-    home.my_sites
-    
-    @browser.link(:href, /#{@master_portfolio_site_id}/).click
+    home = home.open_my_site_by_id(@master_portfolio_site_id)
     
     # Go to the Resources page
-    home = Home.new(@browser)
     port_resources_page = home.resources
     
     # Upload files
@@ -135,6 +132,31 @@ class TestMasterPortfolioSite < Test::Unit::TestCase
     
     upload_page.upload_files_now
     
+    # Go back to the admin workspace
+    workspace = upload_page.administration_workspace
+    
+    job_scheduler = workspace.job_scheduler
+
+    jobs = job_scheduler.jobs
+    jobs = JobList.new(@browser)
+
+    new_job = jobs.new_job
+
+    new_job.job_name="SIS"
+    new_job.type="SIS Synchronization"
+
+    jobs = new_job.post
+
+    triggers = jobs.triggers
+
+    confirmation = triggers.run_job_now
+
+    jobs = confirmation.run_now
+    
+    home = jobs.home
+    
+    @sakai.logout
+  
   end
   
 end
