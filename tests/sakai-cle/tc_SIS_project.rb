@@ -42,11 +42,12 @@ class TestMasterProjectSite < Test::Unit::TestCase
     # Go to the Sites page
     home = Home.new(@browser)
     sites_page = home.sites
-    
+=begin    
     # Create a new site
     new_site = sites_page.new_site
     
     # Enter the master site id and other site attributes
+    @browser.frame(:index=>0).frame(:id, "description___Frame").wait_until_present
     new_site.site_id=@master_project_site_id
     new_site.title="Test Project"
     new_site.type="project"
@@ -56,7 +57,7 @@ class TestMasterProjectSite < Test::Unit::TestCase
     new_site.select_public_view_yes
     
     sites_page = new_site.save
-    
+=end    
     edit_site = sites_page.edit_site_id(@master_project_site_id)
     
     pages = edit_site.pages
@@ -83,8 +84,8 @@ class TestMasterProjectSite < Test::Unit::TestCase
     edit_tools_page.check_blogger
     edit_tools_page.check_calendar
     edit_tools_page.check_chat_room
-    edit_tools_page.check_dicussion_forums
-    edit_tools_page.check_dropbox
+    edit_tools_page.check_discussion_forums
+    edit_tools_page.check_drop_box
     edit_tools_page.check_email_archive
     edit_tools_page.check_forums
     edit_tools_page.check_lessons
@@ -103,13 +104,22 @@ class TestMasterProjectSite < Test::Unit::TestCase
     
     add_mult = edit_tools_page.continue
 
-
-
+    add_mult.site_email_address="testproject"
+    add_mult.web_content_source="http://www.rsmart.com"
     
-    sleep 25 
-asdfasdf
+    confirm = add_mult.continue
+    
+    site_edit = confirm.finish
+
+    home = site_edit.home
+    
+    home = home.open_my_site_by_id(@master_project_site_id)
+    
+    # Go to the Resources page
+    tst_proj_resources = home.resources
+
     # Upload files
-    upload_page = port_resources_page.upload_files
+    upload_page = tst_proj_resources.upload_files
     
     files_to_upload = [ "documents/resources.doc", "presentations/resources.ppt", "documents/resources.txt", "spreadsheets/resources.xls", "audio/resources.mp3" ]
     
@@ -119,6 +129,30 @@ asdfasdf
     end
     
     upload_page.upload_files_now
+    # Go back to the admin workspace
+    workspace = upload_page.administration_workspace
+    
+    job_scheduler = workspace.job_scheduler
+
+    jobs = job_scheduler.jobs
+    jobs = JobList.new(@browser)
+
+    new_job = jobs.new_job
+
+    new_job.job_name="SIS"
+    new_job.type="SIS Synchronization"
+
+    jobs = new_job.post
+
+    triggers = jobs.triggers
+
+    confirmation = triggers.run_job_now
+
+    jobs = confirmation.run_now
+    
+    home = jobs.home
+    
+    @sakai.logout
     
   end
   
