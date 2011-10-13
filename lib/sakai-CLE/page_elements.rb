@@ -56,7 +56,12 @@ module ToolsMenu
   link(:email_template_administration, :text=>"Email Template Administration")
   link(:evaluation_system, :text=>"Evaluation System")
   link(:feedback, :text=>"Feedback")
-  link(:forums, :text=>"Forums")
+  
+  def forums
+    @browser.link(:text=>"Forums").click
+    Forums.new(@browser)
+  end
+  
   link(:gradebook, :text=>"Gradebook")
   link(:gradebook2, :text=>"Gradebook2")
   link(:help, :text=>"Help")
@@ -110,7 +115,11 @@ module ToolsMenu
   link(:search, :text=>"Search")
   link(:sections, :text=>"Sections")
   link(:site_archive, :text=>"Site Archive")
-  link(:site_editor, :text=>"Site Editor")
+  
+  def site_editor
+    @browser.link(:text=>"Site Editor").click
+    SiteEditor.new(@browser)
+  end
   
   def site_setup
     @browser.link(:text=>"Site Setup").click
@@ -1762,11 +1771,211 @@ end
 
 
 #================
-# Discussion Forum Pages
+# Forum Pages - NOT "Discussion Forums"
 #================
 
+# The forums page in a particular Site
+class Forums
+  
+  include PageObject
+  include ToolsMenu
+  
+  def new_forum
+    frm(1).link(:text=>"New Forum").click
+    EditForum.new(@browser)
+  end
 
+  def organize
+    frm(1).link(:text=>"Organize").click
+    OrganizeForums.new(@browser)
+  end
 
+  def template_settings
+    frm(1).link(:text=>"Template Settings").click
+    ForumTemplateSettings.new(@browser)
+  end
+
+  def forum_titles
+    titles = []
+    title_links = frm(1).div(:class=>"portletBody").links.find_all { |link| link.class_name=="title" && link.id=="" }
+    title_links.each { |link| titles << link.text }
+    return titles
+  end
+  
+  def topic_titles
+    titles = []
+    title_links = frm(1).div(:class=>"portletBody").links.find_all { |link| link.class_name == "title" && link.id != "" }
+    title_links.each { |link| titles << link.text }
+    return titles
+  end
+  
+  # Enter the count of the Forum you want to edit,
+  # starting with 1, not zero.
+  def forum_settings(index)
+    frm(1).link(:text=>"Forum", :index=>index.to_i-1).click
+    EditForum.new(@browser)
+  end
+  
+  # Enter the count of the topic you want to edit,
+  # starting with 1, not zero.
+  # Note this is a count of ALL topics on the page,
+  # not just the count of topics in the given forum.
+  def topic_setting(topicindex)
+    frm(1).link(:text=>"Topic Index", :index=>topicindex.to_i - 1).click
+    AddEditTopic.new(@browser)
+  end
+  
+  in_frame(:index=>1) do |frame|
+    #(:, =>"", :frame=>frame)
+  end
+end
+
+class ForumTemplateSettings
+  
+  include PageObject
+  include ToolsMenu
+  
+  def save
+    frm(1).button(:value=>"Save").click
+    Forum.new(@browser)
+  end
+  
+  def cancel
+    frm(1).button(:value=>"Cancel").click
+    Forum.new(@browser)
+  end
+=begin
+    def site_role=(role)
+    frm(1).select(:id=>"revise:role").select(role)
+    0.upto(frm(1).select(:id=>"revise:role").length - 1) do |x|
+      if frm(1).div(:class=>"portletBody").table(:class=>"permissionPanel jsfFormTable lines nolines", :index=>x).visible?
+        @@table_index = x
+        
+        def permission_level=(value)
+          frm(1).select(:id=>"revise:perm:#{@@table_index}:level").select(value)
+        end
+        
+      end
+    end
+  end
+=end  
+  in_frame(:index=>1) do |frame|
+    #radio_button(:name, :id=>"id", :frame=>frame)
+  end
+end
+
+class OrganizeForums
+  
+  include PageObject
+  include ToolsMenu
+  
+  def save
+    frm(1).button(:value=>"Save").click
+    Forums.new(@browser)
+  end
+  
+  # These are set to so that the user
+  # does not have to start the list at zero...
+  def forum(index)
+    frm(1).select(:id, "revise:forums:#{index.to_i - 1}:forumIndex")
+  end
+  
+  def topic(forumindex, topicindex)
+    frm(1).select(:id, "revise:forums:#{forumindex.to_i - 1}:topics:#{topicindex.to_i - 1}:topicIndex")
+  end
+  
+end
+
+# The page for creating/editing a forum in a Site
+class EditForum
+  
+  include PageObject
+  include ToolsMenu
+  
+  def save
+    frm(1).link(:value=>"Save").click
+    Forums.new(@browser)
+  end
+  
+  def save_and_add
+    frm(1).button(:value=>"Save Settings & Add Topic").click
+    AddEditTopic.new(@browser)
+  end
+  
+  def editor
+    frm(1).div(:class=>"portletBody").frame(:id, "revise:df_compose_description_inputRichText___Frame").td(:id, "xEditingArea").frame(:index=>0)
+  end
+  
+  def description=(text)
+    editor.send_keys(text)
+  end
+  
+  def add_attachments
+    frm(1).button(:value=>/attachments/).click
+    ForumsAddAttachments.new(@browser)
+  end
+  
+  in_frame(:index=>1) do |frame|
+    text_field(:title, :id=>"revise:forum_title", :frame=>frame)
+    text_area(:short_description, :id=>"revise:forum_shortDescription", :frame=>frame)
+    
+  end
+end
+
+class ForumsAddAttachments
+  
+  include PageObject
+  include ToolsMenu
+  
+  def continue
+    frm(1).button(:value=>"Continue").click
+    EditForum.new(@browser)
+  end
+  
+  in_frame(:index=>1) do |frame|
+    #(:, =>"", :frame=>frame)
+  end
+end
+
+class AddEditTopic
+  
+  include PageObject
+  include ToolsMenu
+  
+  @@table_index=0
+  
+  def editor
+    frm(1).div(:class=>"portletBody").frame(:id, "revise:topic_description_inputRichText___Frame").td(:id, "xEditingArea").frame(:index=>0)
+  end
+  
+  def description=(text)
+    editor.send_keys(text)
+  end
+  
+  def save
+    frm(1).button(:value=>"Save").click
+    Forums.new(@browser)
+  end
+  
+  def site_role=(role)
+    frm(1).select(:id=>"revise:role").select(role)
+    0.upto(frm(1).select(:id=>"revise:role").length - 1) do |x|
+      if frm(1).div(:class=>"portletBody").table(:class=>"permissionPanel jsfFormTable lines nolines", :index=>x).visible?
+        @@table_index = x
+        
+        def permission_level=(value)
+          frm(1).select(:id=>"revise:perm:#{@@table_index}:level").select(value)
+        end
+        
+      end
+    end
+  end
+  
+  in_frame(:index=>1) do |frame|
+    text_field(:title, :id=>"revise:topic_title", :frame=>frame)
+    text_area(:short_description, :id=>"revise:topic_shortDescription", :frame=>frame)
+  end
+end
 
 #================
 # Overview-type Pages
@@ -1823,6 +2032,19 @@ class MyWorkspace
   
   include PageObject
   include ToolsMenu
+  
+  def open_my_site_by_id(id)
+    @browser.link(:text, "My Sites").click
+    @browser.link(:href, /#{id}/).click
+    Home.new(@browser)
+  end
+  
+  def open_my_site_by_name(name)
+    @browser.link(:text, "My Sites").click
+    @browser.link(:text, name).click
+    # Add rescue clause here for truncated names...
+    Home.new(@browser)
+  end
   
   # Because the links below are contained within iframes
   # we need the in_frame method in place so that the
@@ -2185,7 +2407,7 @@ class EditSiteInfo
     SiteSaveAs.new(@browser)
   end
   
-  def site_id
+  def site_id_read_only
     @browser.frame(:index=>0).table(:class=>"itemSummary").td(:class=>"shorttext", :index=>0).text
   end
   
@@ -2337,6 +2559,11 @@ class SiteEditor
   include PageObject
   include ToolsMenu
   
+  def manage_groups
+    frm(1).link(:text=>"Manage Groups").click
+    Groups.new(@browser)
+  end
+  
   # Again we are defining the page <iframe> by its index.
   # This is a bad way to do it, but unless there's a
   # persistent and consistent <id> or <name> tag for the
@@ -2346,7 +2573,6 @@ class SiteEditor
     link(:edit_tools, :text=>"Edit Tools", :frame=>frame)
     link(:add_participants, :text=>"Add Participants", :frame=>frame)
     link(:edit_class_rosters, :text=>"Edit Class Roster(s)", :frame=>frame)
-    link(:manage_groups, :text=>"Manage Groups", :frame=>frame)
     link(:link_to_parent_site, :text=>"Link to Parent Site", :frame=>frame)
     link(:manage_access, :text=> "Manage Access", :frame=>frame)
   end
@@ -2359,8 +2585,12 @@ class Groups
   include PageObject
   include ToolsMenu
   
+  def create_new_group
+    frm(1).link(:text=>"Create New Group").click
+    CreateNewGroup.new(@browser)
+  end
+  
   in_frame(:index=>1) do |frame|
-    link(:create_new_group, :text=>"Create New Group", :frame=>frame)
     link(:auto_groups, :text=>"Auto Groups", :frame=>frame)
     button(:remove_checked, :id=>"delete-groups", :frame=>frame)
     button(:cancel, :id=>"cancel", :frame=>frame)
@@ -2373,6 +2603,11 @@ class CreateNewGroup
   include PageObject
   include ToolsMenu
   
+  def add
+    frm(1).button(:id=>"save").click
+    Groups.new(@browser)
+  end
+  
   in_frame(:index=>1) do |frame|
     text_field(:title, :id=>"group_title", :frame=>frame)
     text_field(:description, :id=>"group_description", :frame=>frame)
@@ -2382,7 +2617,6 @@ class CreateNewGroup
     button(:left, :name=>"left", :index=>0, :frame=>frame)
     button(:all_right, :name=>"right", :index=>1, :frame=>frame)
     button(:all_left, :name=>"left",:index=>1, :frame=>frame)
-    button(:add, :id=>"save", :frame=>frame)
     button(:cancel, :id=>"cancel", :frame=>frame)
   end
 end
