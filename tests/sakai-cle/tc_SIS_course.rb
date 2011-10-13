@@ -90,7 +90,7 @@ class TestMasterCourseSite < Test::Unit::TestCase
 
     # Store the site ID so it can be used for
     # site removal later...
-    tst_site_id = site_info.site_id_read_only
+    tst_site_id = @browser.frame(:index=>0).table(:class=>"itemSummary").td(:class=>"shorttext", :index=>0).text
 
     # Change the Site ID to the master site id value
     tst_save_as = site_info.save_as
