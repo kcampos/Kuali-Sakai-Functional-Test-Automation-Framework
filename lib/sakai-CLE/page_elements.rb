@@ -1100,8 +1100,8 @@ class PoolImport
   include PageObject
   include ToolsMenu
   
-  def choose_file(filename)
-    frm(1).file_field(:name=>"importPoolForm:_id6.upload").value=filename
+  def choose_file=(filename)
+    frm(1).file_field(:name=>"importPoolForm:_id6.upload").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + file_name)
   end
   
   def import
@@ -1577,7 +1577,7 @@ class AssignmentStudent
     @browser.frame(:index=>1).frame(:id, "Assignment.view_submission_text___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys :backspace
   end
   
-  def file_field
+  def file_field #FIXME
     @browser.frame(:index=>1).file_field(:id=>"clonableUpload")
   end
   
@@ -1785,6 +1785,12 @@ class Forums
     EditForum.new(@browser)
   end
 
+  def new_topic_for_forum(name)
+    index = forum_titles.index(name)
+    frm(1).link(:text=>"New Topic", :index=>index).click
+    AddEditTopic.new(@browser)
+  end
+
   def organize
     frm(1).link(:text=>"Organize").click
     OrganizeForums.new(@browser)
@@ -1793,6 +1799,10 @@ class Forums
   def template_settings
     frm(1).link(:text=>"Template Settings").click
     ForumTemplateSettings.new(@browser)
+  end
+
+  def forums_table
+    @browser.frame(:index=>1).div(:class=>"portletBody").table(:id=>"msgForum:forums")
   end
 
   def forum_titles
@@ -1809,24 +1819,129 @@ class Forums
     return titles
   end
   
-  # Enter the count of the Forum you want to edit,
-  # starting with 1, not zero.
-  def forum_settings(index)
-    frm(1).link(:text=>"Forum", :index=>index.to_i-1).click
+  def forum_settings(name)
+    index = forum_titles.index(name)
+    frm(1).link(:text=>"Forum Settings", :index=>index).click
     EditForum.new(@browser)
   end
   
-  # Enter the count of the topic you want to edit,
-  # starting with 1, not zero.
-  # Note this is a count of ALL topics on the page,
-  # not just the count of topics in the given forum.
-  def topic_setting(topicindex)
-    frm(1).link(:text=>"Topic Index", :index=>topicindex.to_i - 1).click
+  def topic_settings(name)
+    index = topic_titles.index(name)
+    frm(1).link(:text=>"Topic Settings", :index=>index).click
     AddEditTopic.new(@browser)
+  end
+  
+  def delete_forum(name)
+    index = forum_titles.index(name)
+    frm(1).link(:id=>/msgForum:forums:\d+:delete/,:text=>"Delete", :index=>index).click
+    EditForum.new(@browser)
+  end
+  
+  def delete_topic(name)
+    index = topic_titles.index(name)
+    frm(1).link(:id=>/topics:\d+:delete_confirm/, :text=>"Delete", :index=>index).click
+    AddEditTopic.new(@browser)
+  end
+  
+  def open_forum(forum_title)
+    frm(1).link(:text=>forum_title).click
+    # New Class def goes here.
+  end
+  
+  def open_topic(topic_title)
+    frm(1).link(:text=>topic_title).click
+    TopicPage.new(@browser)
   end
   
   in_frame(:index=>1) do |frame|
     #(:, =>"", :frame=>frame)
+  end
+end
+
+class TopicPage
+  
+  include PageObject
+  include ToolsMenu
+  
+  def post_new_thread
+    frm(1).link(:text=>"Post New Thread").click
+    ComposeForumMessage.new(@browser)
+  end
+  
+  def open_message(message_title)
+    frm(1).div(:class=>"portletBody").link(:text=>message_title).click
+    ViewForumThread.new(@browser)
+  end
+  
+  def display_entire_message
+    frm(1).link(:text=>"Display Entire Message").click
+    TopicPage.new(@browser)
+  end
+  
+  in_frame(:index=>1) do |frame|
+    
+  end
+end
+
+class ViewForumThread
+  
+  include PageObject
+  include ToolsMenu
+  
+  def reply_to_thread
+    frm(1).link(:text=>"Reply to Thread").click
+    ComposeForumMessage.new(@browser)
+  end
+  
+  def reply_to_message(index)
+    frm(1).link(:text=>"Reply", :index=>(index.to_i - 1)).click
+    ComposeForumMessage.new(@browser)
+  end
+  
+  in_frame(:index=>1) do |frame|
+    
+  end
+end
+
+class ComposeForumMessage
+  
+  include PageObject
+  include ToolsMenu
+  
+  def post_message
+    frm(1).button(:text=>"Post Message").click
+    # Not sure if we need logic here...
+    TopicPage.new(@browser)
+  end
+  
+  def editor
+    frm(1).frame(:id, "dfCompose:df_compose_body_inputRichText___Frame").td(:id, "xEditingArea").frame(:index=>0)
+  end
+  
+  def message=(text)
+    editor.send_keys(text)
+  end
+  
+  def reply_text
+    @browser.frame(:index=>1).div(:class=>"singleMessageReply").text
+  end
+  
+  def add_attachments
+    
+  end
+  
+  def cancel
+    frm(1).button(:value=>"Cancel").click
+    # Logic for picking the correct page class
+    if frm(1).link(:text=>"Reply to Thread")
+      ViewForumThread.new(@browser)
+    elsif frm(1).link(:text=>"Post New Thread").click
+      TopicPage.new(@browser)
+    end 
+  end
+  
+  in_frame(:index=>1) do |frame|
+    text_field(:title, :id=>"dfCompose:df_compose_title", :frame=>frame)
   end
 end
 
@@ -1835,14 +1950,18 @@ class ForumTemplateSettings
   include PageObject
   include ToolsMenu
   
+  def page_title
+    frm(1).div(:class=>"portletBody").h3(:index=>0).text
+  end
+  
   def save
     frm(1).button(:value=>"Save").click
-    Forum.new(@browser)
+    Forums.new(@browser)
   end
   
   def cancel
     frm(1).button(:value=>"Cancel").click
-    Forum.new(@browser)
+    Forums.new(@browser)
   end
 =begin
     def site_role=(role)
@@ -1893,7 +2012,7 @@ class EditForum
   include ToolsMenu
   
   def save
-    frm(1).link(:value=>"Save").click
+    frm(1).button(:value=>"Save").click
     Forums.new(@browser)
   end
   
@@ -1929,7 +2048,21 @@ class ForumsAddAttachments
   
   def continue
     frm(1).button(:value=>"Continue").click
-    EditForum.new(@browser)
+    frm(1).div(:class=>"portletBody").h3(:index=>0).wait_until_present
+    title = frm(1).div(:class=>"portletBody").h3(:index=>0).text
+    # Need logic because new page will be different
+    if title=="Topic Settings"
+      AddEditTopic.new(@browser)
+    elsif title=="Forum Settings"
+      EditForum.new(@browser)
+    end
+  end
+  
+  def upload_file=(file_name)
+    frm(1).file_field(:id, "upload").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + file_name)
+  rescue Watir::Exception::ObjectDisabledException
+    sleep 5
+    frm(1).file_field(:id, "upload").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + file_name)
   end
   
   in_frame(:index=>1) do |frame|
@@ -1955,6 +2088,18 @@ class AddEditTopic
   def save
     frm(1).button(:value=>"Save").click
     Forums.new(@browser)
+  end
+  
+  def add_attachments
+    frm(1).button(:value=>/Add.+ttachment/).click
+    ForumsAddAttachments.new(@browser)
+  end
+  
+  def roles
+    roles=[]
+    options = frm(1).select(:id=>"revise:role").options.to_a
+    options.each { |option| roles << option.text }
+    return roles
   end
   
   def site_role=(role)
@@ -2137,7 +2282,7 @@ class ResourcesUploadFiles
   
   @@filex=0
   
-  def file_to_upload(file_name)
+  def file_to_upload=(file_name)
     frm(1).file_field(:id, "content_#{@@filex}").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + file_name)
     @@filex+=1
   end
