@@ -1868,6 +1868,15 @@ class TopicPage
     ComposeForumMessage.new(@browser)
   end
   
+  def thread_titles
+    titles = []
+    message_table = frm(1).table(:id=>"msgForum:messagesInHierDataTable")
+    1.upto(message_table.rows.size-1) do |x|
+      titles << message_table[x][1].span(:class=>"firstChild").link(:index=>0).text
+    end
+    return titles
+  end
+  
   def open_message(message_title)
     frm(1).div(:class=>"portletBody").link(:text=>message_title).click
     ViewForumThread.new(@browser)
@@ -2048,6 +2057,7 @@ class ForumsAddAttachments
   
   def continue
     frm(1).button(:value=>"Continue").click
+    sleep 2 #FIXME
     frm(1).div(:class=>"portletBody").h3(:index=>0).wait_until_present
     title = frm(1).div(:class=>"portletBody").h3(:index=>0).text
     # Need logic because new page will be different
@@ -2059,9 +2069,6 @@ class ForumsAddAttachments
   end
   
   def upload_file=(file_name)
-    frm(1).file_field(:id, "upload").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + file_name)
-  rescue Watir::Exception::ObjectDisabledException
-    sleep 5
     frm(1).file_field(:id, "upload").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + file_name)
   end
   

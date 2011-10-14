@@ -41,7 +41,7 @@ class TestDiscussionForums < Test::Unit::TestCase
     # Go to the test site
     workspace = MyWorkspace.new(@browser)
     home = workspace.open_my_site_by_id(@site_id)
-=begin 
+
     # Set up the test groups
     site_editor = home.site_editor
     groups = site_editor.manage_groups
@@ -67,8 +67,8 @@ class TestDiscussionForums < Test::Unit::TestCase
     add_forum = forums.new_forum
     add_forum.title="Forum 1"
     add_forum.short_description="Test Forum"
-    
-    add_forum.editor.wait_until_present(45)
+    sleep 5 #FIXME - Takes a while for FCKEditor to load on VPN
+    add_forum.editor.wait_until_present
     add_forum.description="Donec pellentesque leo in diam? Sed eget lacus sed orci rutrum porttitor. Phasellus id risus scelerisque mi consequat scelerisque. Nam at leo."
     
     # Add a topic to the forum
@@ -95,7 +95,7 @@ class TestDiscussionForums < Test::Unit::TestCase
     add_forum2 = forums.new_forum
     add_forum2.title=forum2_title
     add_forum2.short_description="Test Forum"
-    add_forum2.editor.wait_until_present(45)
+    add_forum2.editor.wait_until_present(25)
     add_forum2.description="Donec pellentesque leo in diam? Sed eget lacus sed orci rutrum porttitor. Phasellus id risus scelerisque mi consequat scelerisque. Nam at leo."
     
     add_topic2 = add_forum2.save_and_add
@@ -132,20 +132,15 @@ class TestDiscussionForums < Test::Unit::TestCase
     @sakai.login(@config.directory['person7']['id'], @config.directory['person7']['password'])
     
     workspace = MyWorkspace.new(@browser)
-    
     home = workspace.open_my_site_by_id(@site_id)
-    
     forums = home.forums
-   
-    forum_names = forums.forum_titles
-    topic_names = forums.topic_titles
     
     # TEST CASE: Verify the student can seen the right stuff
-    assert forum_names.include? "Forum 1"
-    assert topic_names.include? "Topic 1"
+    assert forums.forum_titles.include? "Forum 1"
+    assert forums.topic_titles.include? "Topic 1"
     # What about a link to the uploaded file???
-    assert_equal forum_names.include?(forum2_title), false #FIXME - Is this supposed to be the case???
-    assert_equal topic_names.include?(topic2_title), false
+    assert_equal forums.forum_titles.include?(forum2_title), false #FIXME - Is this supposed to be the case???
+    assert_equal forums.topic_titles.include?(topic2_title), false
   
     # Open topic 1
     topic_page = forums.open_topic "Topic 1"
@@ -251,8 +246,6 @@ class TestDiscussionForums < Test::Unit::TestCase
     topic.permission_level="None"
     
     forums = topic.save
-=end
-forums = home.forums
     
     # TEST CASE: Number of messages has updated
     assert forums.forums_table.text.include? "2 messages - 0 unread"
@@ -270,6 +263,7 @@ forums = home.forums
     
     # Log out and log back in with a student from Group 2
     @sakai.logout
+  
     @sakai.login(@config.directory["person8"]["id"], @config.directory["person8"]["password"])
     workspace = MyWorkspace.new(@browser)
     home = workspace.open_my_site_by_id(@site_id)
@@ -279,7 +273,7 @@ forums = home.forums
     assert forums.topic_titles.include?("Topic for Group 2")
     #assert_equal forums.topic_titles.include?(topic2_title), false
     
-    topic_page = forums.open_topic topic2_title
+    topic_page = forums.open_topic "Topic for Group 2"
     
     compose_new = topic_page.post_new_thread
     compose_new.title="Thread for Topic for Group 2"
@@ -292,17 +286,53 @@ forums = home.forums
     
     # Log out and log back in as the instructor, to change the permissions
     # of a topic...
+    @sakai.logout
+    
     @sakai.login(@instructor, @ipassword)
     workspace = MyWorkspace.new(@browser)
     home = workspace.open_my_site_by_id(@site_id)
-    
-    # TEST CASE:
-    # In Topic for Group 2, update Group 1 permission to "Reviewer"
-    # Verify student in group 1 can see but not edit Group 2 thread items.
     forums = home.forums
     
-    # ADD TEST CASE for saving a group in DRAFT mode
-    # ADD TEST CASE for clicking to view full descriptions and attachments
+    # In Topic for Group 2, update Group 1 permission to "Reviewer"
+    topic_settings = forums.topic_settings "Topic for Group 2"
+    topic_settings.site_role= /Group 1/
+    topic_settings.permission_level="Reviewer"
+    topic_settings.save
+    
+    @sakai.logout
+    
+    # Log in with a student from Group 1
+    @sakai.login(@config.directory["person5"]["id"], @config.directory["person5"]["password"])
+    workspace = MyWorkspace.new(@browser)
+    home = workspace.open_my_site_by_id(@site_id)
+    forums = home.forums
+    
+    topic_page = forums.open_topic "Topic for Group 2"
+    
+    # TEST CASE: Verify student in group 1 can see but not edit Group 2 thread items.
+    assert topic_page.thread_titles.include? "Thread for Topic for Group 2"
+    assert_equal @browser.frame(:index=>1).table(:class=>/topicBloc/).link(:text=>"Post New Thread").exist?, false
+    assert_equal @browser.frame(:index=>1).table(:class=>/topicBloc/).link(:text=>"Topic Settings").exist?, false
+    assert_equal @browser.frame(:index=>1).table(:class=>/topicBloc/).link(:text=>"Delete").exist?, false
+    
+    @sakai.logout
+    
+    # Log in with a student from Group 2
+    @sakai.login(@config.directory["person6"]["id"], @config.directory["person6"]["password"])
+    workspace = MyWorkspace.new(@browser)
+    home = workspace.open_my_site_by_id(@site_id)
+    forums = home.forums
+    
+    topic_page = forums.open_topic "Topic for Group 2"
+    
+    # Verify student in group 2's permissions have not changed
+    assert topic_page.thread_titles.include? "Thread for Topic for Group 2"
+    assert @browser.frame(:index=>1).table(:class=>/topicBloc/).link(:text=>"Post New Thread").exist?
+    assert_equal @browser.frame(:index=>1).table(:class=>/topicBloc/).link(:text=>"Topic Settings").exist?, false
+    assert_equal @browser.frame(:index=>1).table(:class=>/topicBloc/).link(:text=>"Delete").exist?, false
+    
+    #FIXME ADD TEST CASE for saving a group in DRAFT mode
+    #FIXME ADD TEST CASE for clicking to view full descriptions and attachments
   end
   
 end
