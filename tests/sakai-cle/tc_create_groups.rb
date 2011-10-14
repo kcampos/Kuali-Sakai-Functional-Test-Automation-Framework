@@ -7,27 +7,25 @@
 #
 # Author: Abe Heward (aheward@rSmart.com)
 
-require "test/unit"
-require 'watir-webdriver'
-require File.dirname(__FILE__) + "/../../config/config.rb"
-require File.dirname(__FILE__) + "/../../lib/utilities.rb"
-require File.dirname(__FILE__) + "/../../lib/sakai-CLE/page_elements.rb"
-require File.dirname(__FILE__) + "/../../lib/sakai-CLE/app_functions.rb"
+gems = ["test/unit", "watir-webdriver"]
+gems.each { |gem| require gem }
+files = [ "/../../config/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-CLE/page_elements.rb", "/../../lib/sakai-CLE/app_functions.rb" ]
+files.each { |file| require File.dirname(__FILE__) + file }
 
 class TestGroups < Test::Unit::TestCase
   
   include Utilities
   
   def setup
-    @verification_errors = []
     
     # Get the test configuration data
-    config = AutoConfig.new
-    @browser = config.browser
+    @config = AutoConfig.new
+    @browser = @config.browser
     # Test user is an instructor
-    @site_name = config.directory['person3']['site']
-    @user_name = config.directory['person3']['id']
-    @password = config.directory['person3']['password']
+    @site_name = @config.directory['site1']['name']
+    @site_id = @config.directory['site1']['id']
+    @user_name = @config.directory['person3']['id']
+    @password = @config.directory['person3']['password']
     @sakai = SakaiCLE.new(@browser)
     
   end
@@ -35,7 +33,6 @@ class TestGroups < Test::Unit::TestCase
   def teardown
     # Close the browser window
     @browser.close
-    assert_equal [], @verification_errors
   end
   
   def test_create_groups
@@ -44,23 +41,20 @@ class TestGroups < Test::Unit::TestCase
     @sakai.login(@user_name, @password)
     
     # Go to test Site in Sakai
-    @browser.link(:text, @site_name).click
-    home = Home.new(@browser)
+    workspace = MyWorkspace.new(@browser)
+    home = workspace.open_my_site_by_id(@site_id)
     
     # Go to the Site Editor page
-    home.site_editor
-    site_editor = SiteEditor.new(@browser)
+    site_editor = home.site_editor
     
     # Go to Manage Groups
-    site_editor.manage_groups
+    group = site_editor.manage_groups
     
     # This test case creates 2 groups
     2.times do
-      #Create a New Group
-      group = Groups.new(@browser)
-      group.create_new_group
       
-      new_group = CreateNewGroup.new(@browser)
+      #Create a New Group
+      new_group = group.create_new_group
       
       # Make a random title for the group
       group_title = random_string(84) + " - " + Time.now.strftime("%Y%m%d%H%M")
@@ -87,19 +81,14 @@ class TestGroups < Test::Unit::TestCase
       new_group.right
       
       # Save the new group (Click the Add button)
-      new_group.add
-      sleep 1
+      group = new_group.add
+      
+      sleep 1 #FIXME
       # TEST CASE: Check that the Group Name appears in the Groups List
       assert @browser.text.include?(group_title)
       
     end
     
-  end
-
-  def verify(&blk)
-    yield
-  rescue Test::Unit::AssertionFailedError => ex
-    @verification_errors << ex
   end
 
 end
