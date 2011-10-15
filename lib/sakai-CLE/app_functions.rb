@@ -5,6 +5,7 @@
 # This file contains custom methods used throughout the Sakai test scripts
 
 require 'watir-webdriver'
+require File.dirname(__FILE__) + '/page_elements.rb'
 
 class SakaiCLE
   
@@ -18,6 +19,7 @@ class SakaiCLE
     frame.text_field(:id, "eid").set username
     frame.text_field(:id, "pw").set password
     frame.form(:method, "post").submit
+    MyWorkspace.new(@browser)
   end
   
   # Log out

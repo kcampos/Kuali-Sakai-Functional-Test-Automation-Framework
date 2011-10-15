@@ -29,6 +29,19 @@ require 'cgi'
 module ToolsMenu
   
   include PageObject
+    
+  def open_my_site_by_id(id)
+    @browser.link(:text, "My Sites").click
+    @browser.link(:href, /#{id}/).click
+    Home.new(@browser)
+  end
+  
+  def open_my_site_by_name(name)
+    short_name = name[0..20]
+    @browser.link(:text, "My Sites").click
+    @browser.link(:text, /#{Regexp.escape(short_name)}/).click
+    Home.new(@browser)
+  end
   
   # The list of left side menu items, formatted according to the
   # PageObject requirements...
@@ -41,7 +54,12 @@ module ToolsMenu
   end
   
   link(:announcements, :class => 'icon-sakai-announcements')
-  link(:assignments, :text=>"Assignments")
+  
+  def assignments
+    @browser.link(:class=>"icon-sakai-assignment-grades").click
+    AssignmentsList.new(@browser)
+  end
+  
   link(:basic_lti, :text=>"Basic LTI")
   link(:blogs, :text=>"Blogs")
   link(:calendar, :text=>"Calendar")
@@ -135,7 +153,11 @@ module ToolsMenu
   
   link(:skin_manager, :text=>"Skin Manager")
   link(:super_user, :text=>"Super User")
-  link(:syllabus, :text=>"Syllabus")
+  
+  def syllabus
+    @browser.link(:text=>"Syllabus").click
+    Syllabus.new(@browser)
+  end
   
   def tests_and_quizzes
     # Need this logic to determine whether user
@@ -350,11 +372,30 @@ class AssessmentsList
     QuestionPoolsList.new(@browser)
   end
   
-  def get_published_titles
-    table_array = @browser.frame(:index=>1).div(:class=>"tier2", :index=>2).table(:class=>"listHier").to_a
-    table_array.delete_at(0)
-    titles = []
-    table_array.each { |row| titles << CGI::unescapeHTML(row[1])}
+  def pending_assessment_titles
+    titles =[]
+    pending_table = @browser.frame(:index=>1).table(:class=>"authorIndexForm:coreAssessments")
+    1.upto(pending_table.rows.size-1) do |x|
+      titles << pending_table[x][1].span(:class=>"firstChild").link(:index=>0).text
+    end
+    return titles
+  end
+  
+  def published_assessment_titles
+    titles =[]
+    published_table = @browser.frame(:index=>1).div(:class=>"tier2", :index=>2).table(:class=>"listHier")
+    1.upto(published_table.rows.size-1) do |x|
+      titles << published_table[x][1].span(:class=>"firstChild").link(:index=>0).text
+    end
+    return titles
+  end
+  
+  def inactive_assessment_titles
+    titles =[]
+    inactive_table = @browser.frame(:index=>1).div(:class=>"tier2", :index=>2).table(:class=>"authorIndexForm:inactivePublishedAssessments")
+    1.upto(inactive_table.rows.size-1) do |x|
+      titles << inactive_table[x][1].span(:class=>"firstChild").link(:index=>0).text
+    end
     return titles
   end
   
@@ -630,7 +671,7 @@ class EditAssessment
   
   def publish
     frm(1).link(:text=>"Publish").click
-    AssessmentsList.new(@browser)
+    PublishAssessment.new(@browser)
   end
   
   def question_pools
@@ -1220,6 +1261,11 @@ class AssignmentAdd
   # The rich text editor on this page is not defined here, yet.
   # It will need special handling in the test case itself.
   
+  def post
+    frm(1).button(:value=>"Post").click
+    AssignmentsList.new(@browser)
+  end
+  
   in_frame(:index=>1) do |frame|
     hidden_field(:assignment_id, :name=>"assignmentId", :frame=>frame)
     link(:assignment_list, :text=>"Assignment List", :frame=>frame)
@@ -1271,7 +1317,7 @@ class AssignmentAdd
     link(:add_model_answer, :id=>"modelanswer_add", :frame=>frame)
     link(:add_private_note, :id=>"note_add", :frame=>frame)
     link(:add_all_purpose_item, :id=>"allPurpose_add", :frame=>frame)
-    button(:post, :name=>"post", :frame=>frame)
+    
     button(:preview, :name=>"preview", :frame=>frame)
     button(:save_draft, :name=>"save", :frame=>frame)
     button(:cancel, :name=>"cancel", :frame=>frame)
@@ -1323,7 +1369,7 @@ class AssignmentAdd
     end
     
     # A method to insert text into the rich text editor
-    def add_instructions(instructions)
+    def instructions=(instructions)
       frm(1).frame(:id, "new_assignment_instructions___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(instructions)
     end
   
@@ -1338,9 +1384,22 @@ class AssignmentsList
   def assignments_table
     table = @browser.frame(:index=>1).table(:class=>"listHier lines nolines").to_a
   end
- 
+  
+  def assignments_titles
+    titles = []
+    a_table = @browser.frame(:index=>1).table(:class=>"listHier lines nolines")
+    1.upto(a_table.rows.size-1) do |x|
+      titles << assignments_table[x][1].h4(:index=>0).text
+    end
+    return titles
+  end
+  
+  def add
+    frm(1).link(:text=>"Add").click
+    AssignmentAdd.new(@browser)
+  end
+  
   in_frame(:index=>1) do |frame|
-    link(:add, :text=>"Add", :frame=>frame)
     link(:grade_report, :text=>"Grade Report", :frame=>frame)
     link(:student_view, :text=>"Student View", :frame=>frame)
     link(:permissions, :text=>"Permissions", :frame=>frame)
@@ -2161,18 +2220,6 @@ class Home
     link(:new_in_forums, :text=>"New Messages", :frame=>frame)
   end
   
-  def open_my_site_by_id(id)
-    @browser.link(:text, "My Sites").click
-    @browser.link(:href, /#{id}/).click
-    Home.new(@browser)
-  end
-  
-  def open_my_site_by_name(name)
-    @browser.link(:text, "My Sites").click
-    @browser.link(:text, name).click
-    # Add rescue clause here for truncated names...
-    Home.new(@browser)
-  end
   
 end
 
@@ -2184,20 +2231,7 @@ class MyWorkspace
   
   include PageObject
   include ToolsMenu
-  
-  def open_my_site_by_id(id)
-    @browser.link(:text, "My Sites").click
-    @browser.link(:href, /#{id}/).click
-    Home.new(@browser)
-  end
-  
-  def open_my_site_by_name(name)
-    @browser.link(:text, "My Sites").click
-    @browser.link(:text, name).click
-    # Add rescue clause here for truncated names...
-    Home.new(@browser)
-  end
-  
+
   # Because the links below are contained within iframes
   # we need the in_frame method in place so that the
   # links can be properly parsed in the PageObject
@@ -2274,9 +2308,20 @@ class Resources
     ResourcesUploadFiles.new(@browser)
   end
   
+  
+  def resource_names
+    titles = []
+    resources_table = frm(1).table(:class=>"listHier lines centerLines")
+    1.upto(resources_table.rows.size-1) do |x|
+      titles << resources_table[x][2].text
+    end
+    return titles
+  end
+    
+  
   in_frame(:index=>1) do |frame|
-    
-    
+    button(:remove, :value=>"Remove", :frame=>frame)
+    button(:move, :value=>"Move", :frame=>frame)
   end
 
 end
@@ -2286,6 +2331,11 @@ class ResourcesUploadFiles
   
   include PageObject
   include ToolsMenu
+  
+  # Note that the file_to_upload method can be used
+  # multiple times, but it assumes
+  # that the add_another_file method is used
+  # before it, every time but the first time.
   
   @@filex=0
   
@@ -2568,6 +2618,11 @@ class EditSiteInfo
     @browser.frame(:index=>0).frame(:id, "description___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(text)
   end
   
+  def properties
+    frm(0).button(:value=>"Properties").click
+    AddEditSiteProperties.new(@browser)
+  end
+  
   def pages
     frm(0).button(:value=>"Pages").click
     AddEditPages.new(@browser)
@@ -2700,6 +2755,34 @@ class SiteSaveAs
   end
   
 end
+
+class AddEditSiteProperties
+  
+  include PageObject
+  include ToolsMenu
+  
+  def new_property
+    frm(0).button(:value=>"New Property").click
+    #Class.new(@browser)
+  end
+  
+  def done
+    frm(0).button(:value=>"Done").click
+    EditSiteInfo.new(@browser)
+  end
+  
+  def save
+    frm(0).button(:value=>"Save").click
+    Sites.new(@browser)
+  end
+  
+  in_frame(:index=>0) do |frame|
+    text_field(:name, :id=>"new_name", :frame=>frame)
+    text_field(:value, :id=>"new_value", :frame=>frame)
+  end
+end
+
+
 #================
 # Site Editor Pages for an individual Site
 #================
@@ -3025,6 +3108,12 @@ class SiteSetup
     SiteSetupEdit.new(@browser)
   end
 
+  def search(site_name)
+    frm(0).text_field(:id, "search").set site_name
+    frm(0).button(:value, "Search").click
+    SiteSetup.new(@browser)
+  end
+
   def delete(site_name)
     frm(0).text_field(:id, "Search").value=site_name
     frm(0).button(:value=>"Search").click
@@ -3032,12 +3121,20 @@ class SiteSetup
     frm(0).link(:text, "Delete").click
     DeleteSite.new(@browser)
   end
-
+  
+  def site_titles
+    titles = []
+    sites_table = frm(0).table(:id=>"siteList")
+    1.upto(sites_table.rows.size-1) do |x|
+      titles << sites_table[x][1].text
+    end
+    return titles
+  end
+  
   in_frame(:index=>0) do |frame|
     link(:delete, :text=>"Delete", :frame=>frame)
-    text_field(:search, :id=>"search", :frame=>frame)
-    button(:search, :value=>"Search", :frame=>frame)
     select_list(:view, :id=>"view", :frame=>frame)
+    button(:clear_search, :value=>"Clear Search", :frame=>frame)
     select_list(:select_page_size, :id=>"selectPageSize", :frame=>frame)
     link(:sort_by_title, :text=>"Worksite Title", :frame=>frame)
     link(:sort_by_type, :text=>"Type", :frame=>frame)
@@ -3086,7 +3183,7 @@ class SiteType
     @site_type = 3
   end
   
-  def select_template_site
+  def select_create_site_from_template
     frm(0).radio(:id, "copy").set
     @site_type = 4
   end
@@ -3094,6 +3191,7 @@ class SiteType
   # The page's Continue button
   def continue
     # Logic for the type of site selected...
+    #FIXME!!!
     case(@site_type)
     when 1
       frm(0).button(:id=>"submitBuildOwn").click
@@ -3105,15 +3203,19 @@ class SiteType
       frm(0).button(:id=>"submitBuildOwn").click
       # Add page class here
     when 4
-      frm(0).button(:id=>"submitBuildOwn").click
-      # Add page class here
+      frm(0).button(:id=>"submitFromTemplateCourse").click
+      CourseSectionInfo.new(@browser)
     end
     
   end
   
   in_frame(:index=>0) do |frame|
     select_list(:academic_term, :id=>"selectTerm", :frame=>frame)
+    select_list(:select_template, :id=>"templateSiteId", :frame=>frame)
+    select_list(:select_term, :id=>"selectTermTemplate", :frame=>frame)
     button(:cancel, :id=>"cancelCreate", :frame=>frame)
+    checkbox(:copy_users, :id=>"copyUsers", :frame=>frame)
+    checkbox(:copy_content, :id=>"copyContent", :frame=>frame)
   end
   
   
@@ -3173,6 +3275,14 @@ class CourseSectionInfo
   def continue
     frm(0).button(:value=>"Continue").click
     CourseSiteInfo.new(@browser)
+  end
+  
+  # The Done button appears in certain contexts.
+  # use this method ONLY if the Done button is
+  # present on the page.
+  def done
+    frm(0).button(:value=>"Done").click
+    SiteSetup.new(@browser)
   end
   
   in_frame(:index=>0) do |frame|
@@ -3256,6 +3366,116 @@ class CourseSiteInfo
     text_field(:site_contact_email, :id=>"siteContactEmail", :frame=>frame)
     button(:back, :name=>"Back", :frame=>frame)
     button(:cancel, :name=>"Cancel", :frame=>frame)
+  end
+  
+end
+
+
+#================
+# Syllabus pages in a Site
+#================
+
+# This page will appear differently
+# if there are no syllabi present.
+# However, this class represents both pages.
+class Syllabus
+  
+  include PageObject
+  include ToolsMenu
+  
+  # This method is only available when the
+  # Create/Edit button is present, which is
+  # only when there are no syllabus items
+  # on the page at all.
+  def create_edit
+    frm(1).link(:text=>"Create/Edit").click
+    sleep 0.2
+    frm(1).link(:text=>"Add").click
+    sleep 0.2
+    AddEditSyllabusItem.new(@browser)
+  end
+  
+  def add
+    frm(1).link(:text=>"Add").click
+    AddEditSyllabusItem.new(@browser)
+  end
+  
+  def check_title(title)
+    index=syllabus_titles.index(title)
+    frm(1).checkbox(:index=>index).set
+  end
+  
+  def move_title_up(title)
+    #FIXME
+  end
+  
+  def move_title_down(title)
+    #FIXME
+  end
+  
+  def update
+    frm(1).button(:value=>"Update").click
+    DeleteSyllabusItems.new(@browser)
+  end
+  
+  def open_item(title)
+    frm(1).link(:text=>title).click
+    Class.new(@browser)
+  end
+  
+  def syllabus_titles
+    titles = []
+    s_table = frm(1).table(:class=>"listHier lines nolines")
+    1.upto(s_table.rows.size-1) do |x|
+      titles << s_table[x][1].text
+    end
+    return titles
+  end
+  
+end
+
+class AddEditSyllabusItem
+  
+  include PageObject
+  include ToolsMenu
+  
+  def post
+    frm(1).button(:value=>"Post").click
+    Syllabus.new(@browser)
+  end
+  
+  def editor
+    if frm(1).div(:class=>"portletBody").h3(:index=>0).text=="Add syllabus..."
+      frm(1).frame(:id, "_id4:_id19_textarea___Frame").td(:id, "xEditingArea").frame(:index=>0)
+    elsif frm(1).div(:class=>"portletBody").h3(:index=>0).text=="Edit Syllabus Item"
+      frm(1).frame(:id, "_id3:_id18_textarea___Frame").td(:id, "xEditingArea").frame(:index=>0)
+    end
+  end
+  
+  def content=(text)
+    editor.send_keys(text)
+  end
+  
+  
+  def post
+    frm(1).button(:value=>"Post").click
+    Syllabus.new(@browser)
+  end
+  
+  in_frame(:index=>1) do |frame|
+    text_field(:title, :id=>"_id4:title", :frame=>frame)
+  end
+  
+end
+
+class DeleteSyllabusItems
+  
+  include PageObject
+  include ToolsMenu
+  
+  def delete
+    frm(1).button(:value=>"Delete").click
+    CreateEditSyllabus.new(@browser)
   end
   
 end
