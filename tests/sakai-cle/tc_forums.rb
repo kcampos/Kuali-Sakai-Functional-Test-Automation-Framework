@@ -36,10 +36,9 @@ class TestDiscussionForums < Test::Unit::TestCase
   def test_forums
 
     # Log in to Sakai
-    @sakai.login(@instructor, @ipassword)
+    workspace = @sakai.login(@instructor, @ipassword)
     
     # Go to the test site
-    workspace = MyWorkspace.new(@browser)
     home = workspace.open_my_site_by_id(@site_id)
 
     # Set up the test groups

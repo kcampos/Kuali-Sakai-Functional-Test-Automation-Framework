@@ -3,6 +3,9 @@
 #
 # Tests creation of several assignments with various properties
 #
+# NOTE: This test case was created before page_elements was updated
+# to call page classes inside methods. It should be fixed.
+#
 # Author: Abe Heward (aheward@rSmart.com)
 
 require "test/unit"
@@ -46,11 +49,10 @@ class TestCreateAssignments < Test::Unit::TestCase
   def test_assignments_creation
     
     # Log in to Sakai
-    @sakai.login(@user_name, @password)
- 
+    my_workspace = @sakai.login(@user_name, @password)
+
     # Go to test site.
-    @browser.link(:href, /#{@site_id}/).click
-    home = Home.new(@browser)
+    home = my_workspace.open_my_site_by_id(@site_id)
     
     # Define the frame for ease of code writing (and reading)
     def frm
@@ -58,13 +60,10 @@ class TestCreateAssignments < Test::Unit::TestCase
     end
 
     # Go to assignments page
-    home.assignments
-  
-    assignments = AssignmentsList.new(@browser)
+    assignments = home.assignments
     
     # Create a new assignment
-    assignments.add
-    assignment1 = AssignmentAdd.new(@browser)
+    assignment1 = assignments.add
     
     # Store the title for later verification steps
     title1 = random_string
