@@ -3,8 +3,6 @@
 #
 # Tests creation of several assignments with various properties
 #
-# NOTE: This test case was created before page_elements was updated
-# to call page classes inside methods. It should be fixed.
 #
 # Author: Abe Heward (aheward@rSmart.com)
 
@@ -86,21 +84,18 @@ class TestCreateAssignments < Test::Unit::TestCase
     assignment1.open_day=yesterdays_date
 
     # Click post again
-    assignment1.post
+    assignments = assignment1.post
     
     #===========
     # Add a test for trying to save without a title (but with instructions)
     #===========
-    
-    assignments = AssignmentsList.new(@browser)
     
     # TEST CASE: Assignment saves this time
     assert assignments.view_element.exist?
     assert frm.link(:text, title1).exist?
     
     # Get the assignment id for use later in the script
-    frm.link(:text, title1).href =~ /(?<=\/a\/\S{36}\/).+(?=&pan)/
-    assignment1_id = $~.to_s
+    assignment1_id = assignments.get_assignment_id(title1)
     
     # Create a New Assignment
     assignments.add
@@ -132,28 +127,25 @@ class TestCreateAssignments < Test::Unit::TestCase
     instructions1 = "Nullam urna elit; placerat convallis, posuere nec, semper id, diam. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Duis dignissim pulvinar nisl. Nunc interdum vulputate eros. In nec nibh! Suspendisse potenti. Maecenas at felis. Donec velit diam, mattis ut, venenatis vehicula, accumsan et, orci. Sed leo. Curabitur odio quam, accumsan eu, molestie eu, fringilla sagittis, pede. Mauris luctus mi id ligula. Proin elementum volutpat leo. Cras aliquet commodo elit. Praesent auctor consectetuer risus!\n\nDuis euismod felis nec nunc. Ut lectus felis, malesuada consequat, hendrerit at; vestibulum et, enim. Ut nec nulla sed eros bibendum vulputate. Sed tincidunt diam eget lacus. Nulla nisl? Nam condimentum mattis dui! Aenean varius purus eget sem? Nullam odio. Donec condimentum mauris. Cras volutpat tristique lacus. Sed id dui. Mauris purus purus, tristique sed, ornare convallis, consequat a, ipsum. Donec fringilla, metus quis mollis lobortis, magna tellus malesuada augue; laoreet auctor velit lorem vitae neque. Duis augue sem, vehicula sit amet, vulputate vitae, viverra quis; dolor. Donec quis eros vel massa euismod dignissim! Aliquam quam. Nam non dolor."
     
     # Enter assignment instructions into the rich text editor
-    assignment2.add_instructions(instructions1)
+    assignment2.instructions=instructions1
      
     # Add due date to schedule
     assignment2.check_add_due_date
     
     # Save
-    assignment2.post
+    assignments = assignment2.post
     
     # TEST CASE: Verify save
     assert frm.link(:text, title2).exist?
     
     # Get the assignment id for use later in the script
-    frm.link(:text, title2).href =~ /(?<=\/a\/\S{36}\/).+(?=&pan)/
-    assignment2_id = $~.to_s
+    assignment2_id = assignments.get_assignment_id(title2)
     @config.directory["site1"]["assignment2"] = assignment2_id
     
     # Go to calendar page
-    assignments = AssignmentsList.new(@browser)
-    assignments.calendar
+    calendar = assignments.calendar
     
     # List events on the expected due date for Assignment 2
-    calendar = Calendar.new(@browser)
     calendar.view="List of Events"
     calendar.show_events="Custom date range"
     calendar.start_month=month_due2
@@ -181,17 +173,14 @@ class TestCreateAssignments < Test::Unit::TestCase
     assert_equal(frm.link(:href, /#{assignment1_id}/).exist?, false, "#{title1} appears in the calendar?")
     
     # Go back to the Assignments List
-    calendar.assignments
+    assignments = calendar.assignments
 
     # Add Assignment 3
-    assignments = AssignmentsList.new(@browser)
-    assignments.add
+    assignment3 = assignments.add
     
     # Using "nicelink" here because of potential problems validating
     # the draft mode link, etc.
     title3 = random_nicelink(20)
-    
-    assignment3 = AssignmentAdd.new(@browser)
     
     #===========
     # Add a test for setting bad due, accept, and resubmission dates here.
@@ -208,7 +197,7 @@ class TestCreateAssignments < Test::Unit::TestCase
     instructions2 = "Fusce mollis massa nec nisi. Aliquam turpis libero, consequat quis, fringilla eget, fermentum ut, velit? Integer velit nisl, placerat non, fringilla at, pellentesque ut, odio? Cras magna ligula, tincidunt ac, iaculis in, hendrerit eu, justo. Vivamus porta. Suspendisse lorem! Donec nec libero in leo lobortis consectetuer. Vivamus quis enim? Proin viverra condimentum purus. Sed commodo.\n\nCurabitur eget velit. Curabitur eleifend libero et nisi aliquet facilisis. Integer ultricies commodo purus. Praesent velit. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Phasellus pretium. Suspendisse gravida diam. Nulla justo nulla, facilisis ut, sagittis ut, fermentum ac, elit. Morbi accumsan. Maecenas id tellus. Fusce ornare ullamcorper felis. Etiam fringilla. Maecenas in nunc nec sem sollicitudin condimentum? Nullam metus nunc, varius sit amet, consectetuer sed, vestibulum quis, est. Quisque in sapien a justo elementum iaculis?"
     
     # Enter assignment instructions into the rich text editor
-    assignment3.add_instructions(instructions2)
+    assignment3.instructions=(instructions2)
     
     # Setting up the test case by adding Assignment announcement
     assignment3.check_add_open_announcement
@@ -223,8 +212,6 @@ class TestCreateAssignments < Test::Unit::TestCase
     #===========
     
     assignment3.save_draft
-    
-    assignments = AssignmentsList.new(@browser)
     
     # TEST CASE: Assignment link shows "draft" mode
     assert frm.link(:text, "Draft - #{title3}").exist?
@@ -277,7 +264,7 @@ class TestCreateAssignments < Test::Unit::TestCase
     # Fix these instructions when all debugging is completed.
     instructions3 = "Integer pulvinar facilisis purus. Quisque placerat! Maecenas risus. Nam vitae lacus. Quisque euismod imperdiet ipsum. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nam vitae nulla! Duis tincidunt. Nulla id felis. Duis accumsan, est ut volutpat mollis, tellus lorem venenatis justo, eu accumsan lorem neque sit amet ante. Sed dictum. Donec nulla mi, lacinia nec; viverra nec, commodo sed, justo. Praesent fermentum vehicula dui. Sed molestie eleifend leo. Nulla et risus! Nullam ut lacus. Etiam faucibus; eros sit amet tempus consectetuer, urna est hendrerit mi, eget molestie sapien lorem non tellus. In vitae nisl. Vivamus ac lectus id pede viverra placerat.\n\nMorbi nec dui eget pede dapibus mollis. Mauris nisl. Donec tempor blandit diam. In hac habitasse platea dictumst. Sed vulputate ornare urna. Nulla sed." 
     
-    assignment4.add_instructions(instructions3)
+    assignment4.instructions=(instructions3)
     
     # TEST CASE: Verify that the alert message is not showing
     assert_equal(frm.div(:class, "portletBody").span(:id, "gradebookListWarnAssoc").visible?, false)
@@ -305,26 +292,24 @@ class TestCreateAssignments < Test::Unit::TestCase
     assert_equal preview.add_due_date, "No"
     
     # Save the Assignment
-    preview.post
+    assignments = preview.post
     
     # TEST CASE: Verify assignment appears in the list
     assert frm.link(:text, title4).exist?
     
     # Get the assignment id for use later in the script
-    frm.link(:text, title4).href =~ /(?<=\/a\/\S{36}\/).+(?=&pan)/
-    assignment4_id = $~.to_s
+    assignment4_id = assignments.get_assignment_id(title4)
     @config.directory["site1"]["assignment4"] = assignment4_id
   
     # Log out and log back in as instructor2
     @sakai.logout
-    @sakai.login(@user_name1, @password1)
+    workspace = @sakai.login(@user_name1, @password1)
     
     # Go to the test site
-    @browser.link(:href, /#{@site_id}/).click
-    home = Home.new(@browser)
+    home = workspace.open_my_site_by_id(@site_id)
     
     # Go to the Assignments page
-    home.assignments
+    assignments = home.assignments
     
     # TEST CASE: Verify all expected assignments appear in list
     assert frm.link(:text, title1).exist?
@@ -336,7 +321,6 @@ class TestCreateAssignments < Test::Unit::TestCase
     assert frm.link(:href, /#{assignment4_id}/).exist?
     
     # Go to Assignments Permissions page
-    assignments = AssignmentsList.new(@browser)
     assignments.permissions
     
     permissions = AssignmentsPermissions.new(@browser)
@@ -355,9 +339,7 @@ class TestCreateAssignments < Test::Unit::TestCase
     
     # Go to Assignments Permissions page
     assignments = AssignmentsList.new(@browser)
-    assignments.permissions
-    
-    permissions = AssignmentsPermissions.new(@browser)
+    permissions = assignments.permissions
     
     # Re-check "Instructors share drafts"
     permissions.check_instructors_share_drafts
@@ -370,20 +352,15 @@ class TestCreateAssignments < Test::Unit::TestCase
     
     # Go to Home page of Site
     assignments = AssignmentsList.new(@browser)
-    assignments.home
-    
-    home = Home.new(@browser)
+    home = assignments.home
     
     # TEST CASE: Verify assignment 3 appears in announcements
     assert @browser.frame(:index=>2).link(:text, "Assignment: Open Date for '#{title3}'").exist?
     
     # Go to the assignments page and make Assignment 5
-    home.assignments
+    assignments = home.assignments
     
-    assignments = AssignmentsList.new(@browser)
-    assignments.add
-    
-    assignment5 = AssignmentAdd.new(@browser)
+    assignment5 = assignments.add
     
     title5 = random_nicelink(30)
     
@@ -395,46 +372,42 @@ class TestCreateAssignments < Test::Unit::TestCase
     instructions4 = "Integer pulvinar facilisis purus. Quisque placerat! Maecenas risus. Nam vitae lacus. Quisque euismod imperdiet ipsum. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nam vitae nulla! Duis tincidunt. Nulla id felis. Duis accumsan, est ut volutpat mollis, tellus lorem venenatis justo, eu accumsan lorem neque sit amet ante. Sed dictum. Donec nulla mi, lacinia nec; viverra nec, commodo sed, justo. Praesent fermentum vehicula dui. Sed molestie eleifend leo. Nulla et risus! Nullam ut lacus. Etiam faucibus; eros sit amet tempus consectetuer, urna est hendrerit mi, eget molestie sapien lorem non tellus. In vitae nisl. Vivamus ac lectus id pede viverra placerat.\n\nMorbi nec dui eget pede dapibus mollis. Mauris nisl. Donec tempor blandit diam. In hac habitasse platea dictumst. Sed vulputate ornare urna. Nulla sed."
     
     # Enter assignment instructions into the rich text editor
-    assignment5.add_instructions(instructions4)
+    assignment5.instructions=(instructions4)
     
     #==========
     # Add attachment code should go here later
     #==========
     
     # Save assignment 5 as draft
-    assignment5.save_draft
+    assignments = assignment5.save_draft
     
     # TEST CASE: Assignment link shows "draft" mode
     assert frm.link(:text, "Draft - #{title5}").exist?
     
     # Get the assignment id
-    frm.link(:text, "Draft - #{title5}").href =~ /(?<=\/a\/\S{36}\/).+(?=&pan)/
-    assignment5_id = $~.to_s
+    assignment5_id = assignments.get_assignment_id(title5)
     @config.directory["site1"]["assignment5"] = assignment5_id
     
     # Log out and log back in as instructor1
     @sakai.logout
-    @sakai.login(@user_name, @password)
+    workspace = @sakai.login(@user_name, @password)
     
     # Go to test site
-    @browser.link(:href, /#{@site_id}/).click
-    home = Home.new(@browser)
+    home = workspace.open_my_site_by_id(@site_id)
     
     # Go to assignments page
-    home.assignments
+    assignments = home.assignments
     
     # TEST CASE: Make sure there's a link to the Assignment 5 draft.
     assert frm.link(:href, /#{assignment5_id}/).exist?
     
     # Post assignment 5
-    frm.link(:href=>/#{assignment5_id}/, :text=>"Edit").click
-    assignment_5 = AssignmentAdd.new(@browser)
-    assignment_5.post
+    assignment5 = assignments.edit_assignment_id(assignment5_id)
+    
+    assignments = assignment_5.post
     
     # Edit assignment 1
-    frm.link(:href=>/#{assignment1_id}/, :text=>"Edit").click
-    
-    assignment_1 = AssignmentAdd.new(@browser)
+    assignment1 = assignments.edit_assignment_id(assignment1_id)
     
     # TEST CASE: Verify the alert about revising assignments after the Open Date.
     assert_equal(assignment_1.alert_text, "Alert: You are revising an assignment after the open date.")
@@ -459,12 +432,10 @@ class TestCreateAssignments < Test::Unit::TestCase
     assignment_1.student_view
     
     # Save assignment
-    assignment_1.post
+    assignments = assignment_1.post
     
     # Delete Assignment 1
-    frm.checkbox(:value, /#{assignment1_id}/).set
-    
-    assignments = AssignmentsList.new(@browser)
+    assignments.check_assignment(assignment1_id)
     assignments.update
     
     # TEST CASE: Verify user is asked if they want to delete
@@ -476,13 +447,13 @@ class TestCreateAssignments < Test::Unit::TestCase
     assert_equal(frm.link(:text, title1).exist?, false)
     
     # Duplicate assignment 2 to assignment 1
-    frm.link(:text=>"Duplicate", :href=>/#{assignment2_id}/).click
+    frm.link(:text=>"Duplicate", :href=>/#{assignment2_id}/).click #FIXME
     
     # TEST CASE: Verify duplication
     assert frm.link(:text, "Draft - #{title2} - Copy").exist?
     
-    frm.link(:text, "Draft - #{title2} - Copy").href =~ /(?<=\/a\/\S{36}\/).+(?=&pan)/
-    assignment1_id = $~.to_s
+    frm.link(:text, "Draft - #{title2} - Copy").href =~ /(?<=\/a\/\S{36}\/).+(?=&pan)/ #FIXME
+    assignment1_id = $~.to_s 
     @config.directory["site1"]["assignment1"] = assignment1_id
     
     # Go to Reorder page
