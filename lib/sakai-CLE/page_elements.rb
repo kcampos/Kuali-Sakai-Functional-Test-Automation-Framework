@@ -62,7 +62,12 @@ module ToolsMenu
   
   link(:basic_lti, :text=>"Basic LTI")
   link(:blogs, :text=>"Blogs")
-  link(:calendar, :text=>"Calendar")
+  
+  def calendar
+    @browser.link(:text=>"Calendar").click
+    Calendar.new(@browser)
+  end
+  
   link(:certification, :text=>"Certification")
   link(:chat_room, :text=>"Chat Room")
   link(:configuration_viewer, :text=>"Configuration Viewer")
@@ -1266,6 +1271,21 @@ class AssignmentAdd
     AssignmentsList.new(@browser)
   end
   
+  def save_draft
+    frm(1).button(:name=>"save").click
+    AssignmentsList.new(@browser)
+  end
+   
+  # The alert_text object on the Add/Edit Assignments page
+  def alert_text
+    frm(1).div(:class=>"portletBody").div(:class=>"alertMessage").text
+  end
+    
+  # A method to insert text into the rich text editor
+  def instructions=(instructions)
+    frm(1).frame(:id, "new_assignment_instructions___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(instructions)
+  end
+  
   in_frame(:index=>1) do |frame|
     hidden_field(:assignment_id, :name=>"assignmentId", :frame=>frame)
     link(:assignment_list, :text=>"Assignment List", :frame=>frame)
@@ -1319,7 +1339,6 @@ class AssignmentAdd
     link(:add_all_purpose_item, :id=>"allPurpose_add", :frame=>frame)
     
     button(:preview, :name=>"preview", :frame=>frame)
-    button(:save_draft, :name=>"save", :frame=>frame)
     button(:cancel, :name=>"cancel", :frame=>frame)
     text_area(:model_answer, :id=>"modelanswer_text", :frame=>frame)
     button(:model_answer_attach, :name=>"modelAnswerAttach", :frame=>frame)
@@ -1363,16 +1382,6 @@ class AssignmentAdd
     
   end
   
-  # The alert_text object on the Add/Edit Assignments page
-    def alert_text
-      frm(1).div(:class=>"portletBody").div(:class=>"alertMessage").text
-    end
-    
-    # A method to insert text into the rich text editor
-    def instructions=(instructions)
-      frm(1).frame(:id, "new_assignment_instructions___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(instructions)
-    end
-  
 end
 
 # Page that appears when you first click the Assignments link
@@ -1380,10 +1389,6 @@ class AssignmentsList
   
   include PageObject
   include ToolsMenu
-  
-  def assignments_table
-    table = @browser.frame(:index=>1).table(:class=>"listHier lines nolines").to_a
-  end
   
   def assignments_titles
     titles = []
@@ -1399,10 +1404,28 @@ class AssignmentsList
     AssignmentAdd.new(@browser)
   end
   
+  def edit_assignment_id(id)
+    frm(1).link(:href=>/#{Regexp.escape(id)}/).click
+    AssignmentAdd.new(@browser)
+  end
+  
+  def get_assignment_id(assignment_name)
+    frm(1).link(:text=>/#{Regexp.escape(assignment_name)}/).href =~ /(?<=\/a\/\S{36}\/).+(?=&pan)/
+    return $~.to_s
+  end
+  
+  def permissions
+    frm(1).link(:text=>"Permissions").click
+    AssignmentsPermissions.new(@browser)
+  end
+  
+  def check_assignment(id) #FIXME to use name instead of id.
+    frm(1).checkbox(:value, /#{id}/).set
+  end
+  
   in_frame(:index=>1) do |frame|
     link(:grade_report, :text=>"Grade Report", :frame=>frame)
     link(:student_view, :text=>"Student View", :frame=>frame)
-    link(:permissions, :text=>"Permissions", :frame=>frame)
     link(:options, :text=>"Options", :frame=>frame)
     link(:reorder, :text=>"Reorder", :frame=>frame)
     link(:sort_assignment_title, :text=>"Assignment title", :frame=>frame)
@@ -1509,23 +1532,6 @@ class AssignmentsPreview
   include PageObject
   include ToolsMenu
   
-  in_frame(:index=>1) do |frame|
-    hidden_field(:assignment_id, :name=>"assignmentId", :frame=>frame)
-    link(:assignment_list, :text=>"Assignment List", :frame=>frame)
-    link(:student_view, :text=>"Student View", :frame=>frame)
-    link(:permissions, :text=>"Permissions", :frame=>frame)
-    link(:options, :text=>"Options", :frame=>frame)
-    link(:hide_assignment, :href=>/doHide_preview_assignment_assignment/, :frame=>frame)
-    link(:show_assignment, :href=>/doShow_preview_assignment_assignment/, :frame=>frame)
-    link(:hide_student_view, :href=>/doHide_preview_assignment_student_view/, :frame=>frame)
-    link(:show_student_view, :href=>/doShow_preview_assignment_student_view/, :frame=>frame)
-    button(:post, :name=>"post", :frame=>frame)
-    button(:edit, :name=>"revise", :frame=>frame)
-    button(:save_draft, :name=>"save", :frame=>frame)
-    button(:done, :name=>"done", :frame=>frame)
-    
-  end
-  
   def created_by
     @browser.frame(:index=>1).table(:class=>"itemSummary")[0][1].text
   end
@@ -1573,7 +1579,28 @@ class AssignmentsPreview
   def assignment_instructions
     @browser.frame(:index=>1).div(:class=>"textPanel").text
   end
-
+  
+  def post
+    frm(1).button(:name=>"post").click
+    AssignmentsList.new(@browser)
+  end
+  
+  in_frame(:index=>1) do |frame|
+    hidden_field(:assignment_id, :name=>"assignmentId", :frame=>frame)
+    link(:assignment_list, :text=>"Assignment List", :frame=>frame)
+    link(:student_view, :text=>"Student View", :frame=>frame)
+    link(:permissions, :text=>"Permissions", :frame=>frame)
+    link(:options, :text=>"Options", :frame=>frame)
+    link(:hide_assignment, :href=>/doHide_preview_assignment_assignment/, :frame=>frame)
+    link(:show_assignment, :href=>/doShow_preview_assignment_assignment/, :frame=>frame)
+    link(:hide_student_view, :href=>/doHide_preview_assignment_student_view/, :frame=>frame)
+    link(:show_student_view, :href=>/doShow_preview_assignment_student_view/, :frame=>frame)
+    button(:edit, :name=>"revise", :frame=>frame)
+    button(:save_draft, :name=>"save", :frame=>frame)
+    button(:done, :name=>"done", :frame=>frame)
+    
+  end
+  
 end
 
 # The reorder page for Assignments
