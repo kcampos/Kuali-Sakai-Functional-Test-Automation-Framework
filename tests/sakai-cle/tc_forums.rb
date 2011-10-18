@@ -133,7 +133,7 @@ class TestDiscussionForums < Test::Unit::TestCase
     workspace = MyWorkspace.new(@browser)
     home = workspace.open_my_site_by_id(@site_id)
     forums = home.forums
-    
+    sleep 30
     # TEST CASE: Verify the student can seen the right stuff
     assert forums.forum_titles.include? "Forum 1"
     assert forums.topic_titles.include? "Topic 1"

@@ -2,7 +2,11 @@
 # == Synopsis
 #
 # Testing Creating and Editing Lessons in a Site.
-# 
+#
+# Note: This script should be fixed to use programmatically generated
+# test content, such as for the start and end dates of lessons.
+# Currently these are hard-coded, making this test somewhat brittle.
+#
 # Author: Abe Heward (aheward@rSmart.com)
 
 gems = ["test/unit", "watir-webdriver"]
@@ -36,126 +40,126 @@ class TestCreateLessons < Test::Unit::TestCase
   def test_lesson_creation
     
     # Log in to Sakai
-    @sakai.login(@instructor, @ipassword)
+    workspace = @sakai.login(@instructor, @ipassword)
     
     # some code to simplify writing steps in this test case
     def frm
       @browser.frame(:index=>1)
     end
-    
+  
     # Go to test site
-    @selenium.click "//a[contains(@title,'1 2 3 ')]"
-    # Go to lessons
-    @selenium.click "//a[@class='icon-sakai-melete']"
-    # Add a module
-    @selenium.click "//a[@id='listauthmodulesform:authtop:addAction']"
-    # Enter module attributes
-    @selenium.type "AddModuleForm:title", "Lesson1"
-    @selenium.type "AddModuleForm:description", "Lesson1"
-    @selenium.click "AddModuleForm:addImg"
-    # Add a section
-    @selenium.click "AddModuleConfirmForm:sectionsImg"
-    # Enter section info
-    @selenium.type "AddSectionForm:title", "Lesson1-Section1"
-    @selenium.select "AddSectionForm:contentType", "label=Compose content with editor"
-     
-    @selenium.click "//td[@class='TB_Button_Text']"
+    home = workspace.open_site_by_id(@site_id)
     
-    @selenium.type "//textarea[@class='SourceField']", "<h3 style=\"color: Red;\"><b>Aliquet vitae, sollicitudin et, pretium a, dolor? </b></h3> <br /> <tt>Aenean ante risus, vehicula nec, malesuada eu, laoreet sit amet, tortor. Nunc non dui vitae lectus aliquet vehicula. Vivamus dolor turpis, elementum sed, adipiscing ac, sodales vel, felis. Aenean dui nunc, placerat in, fermentum eu, commodo nec, odio. <br /> </tt> <ol>     <li>Duis sit amet lorem.</li>     <li>Maecenas nec dolor.</li>     <li>Vivamus lacus.</li>     <li>Vivamus ante. Duis vitae quam.</li> </ol> <span style=\"background-color: rgb(255, 153, 0);\">Vestibulum posuere diam quis purus dapibus et vehicula diam mollis. Sed non erat a lacus iaculis semper. Sed quis est eget ante ornare molestie vel eget mi? Mauris mollis pulvinar diam eu aliquet.</span> <b>Morbi placerat, magna metus</b>.<br /> <br />"
-    @selenium.click "//td[@class='TB_Button_Text']"
-    @selenium.click "AddSectionForm:addImg"
+    # Go to lessons
+    lessons = home.lessons
+    
+    # Add a module
+    new_module = lessons.add_module
+    
+    # Enter module attributes
+    new_module.title="Lesson1"
+    new_module.description="Lesson1"
+    
+    # Add a section
+    confirm = new_module.add
+    new_section = confirm.add_content_sections
+    
+    # Enter section info
+    new_section.title="Lesson1-Section1"
+    new_section.content_type="Compose content with editor"
+    
+    new_section.clear_content
+    new_section.add_content="<h3 style=\"color: Red;\"><b>Aliquet vitae, sollicitudin et, pretium a, dolor? </b></h3> <br /> <tt>Aenean ante risus, vehicula nec, malesuada eu, laoreet sit amet, tortor. Nunc non dui vitae lectus aliquet vehicula. Vivamus dolor turpis, elementum sed, adipiscing ac, sodales vel, felis. Aenean dui nunc, placerat in, fermentum eu, commodo nec, odio. <br /> </tt> <ol>     <li>Duis sit amet lorem.</li>     <li>Maecenas nec dolor.</li>     <li>Vivamus lacus.</li>     <li>Vivamus ante. Duis vitae quam.</li> </ol> <span style=\"background-color: rgb(255, 153, 0);\">Vestibulum posuere diam quis purus dapibus et vehicula diam mollis. Sed non erat a lacus iaculis semper. Sed quis est eget ante ornare molestie vel eget mi? Mauris mollis pulvinar diam eu aliquet.</span> <b>Morbi placerat, magna metus</b>.<br /> <br />"
+    confirm = new_section.add
     # Save section and add another... 
-    @selenium.click "AddSectionConfirmForm:saveAddAnotherImg"
+    new_section2 = confirm.add_another_section
+    
+    new_section2.title="Lesson1-Section2"
+    new_section2.content_type="Link to new or existing URL resource on server"
+    
+    select_content = new_section2.select_url
+    
+    select_content.new_url="http://www.rsmart.com"
+    select_content.url_title="rsmart"
+    new_section2 = select_content.continue
      
-    @selenium.type "AddSectionForm:title", "Lesson1-Section2"
-    @selenium.select "AddSectionForm:contentType", "label=Link to new or existing URL resource on server"
+    confirm = new_section2.add
      
-    @selenium.click "AddSectionForm:ContentLinkView:serverViewButton"
+    lessons = confirm.finish
+    
+    # Add another Lesson (from the past)...
+    new_module2 = lessons.add_module
+    new_module2.title="Lesson2 (Expired)"
+    new_module2.start_date="July 6, 2008 08:00 AM"
+    new_module2.end_date="July 15, 2008 08:00 AM"
+    
+    confirm = new_module2.add
+    
+    # Add a section to the module...
+    new_section3 = confirm.add_content_sections 
+    new_section3.title="Lesson2 - Section1"
+    new_section3.content_type="Link to new or existing URL resource on server"
+    
+    select_content2 = new_section3.select_url
      
-    @selenium.type "//input[@id='ServerViewForm:link']", "http://www.rsmart.com"
-    @selenium.type "//input[@id='ServerViewForm:link_title']", "rsmart"
-    @selenium.click "ServerViewForm:addImg2"
+    select_content2.new_url="http://sakaiproject.org"
+    select_content2.url_title="sakai"
+    
+    new_section3 = select_content2.continue
+    
+    confirm = new_section3.add
+    
+    lessons = confirm.finish
+    
+    # Add another lesson (for the future)...
+    new_module3 = lessons.add_module
+    
+    new_module3.title="Lesson3-Future"
+    new_module3.start_date="July 15, 2012 08:00 AM"
+    
+    confirm = new_module3.add
+    
+    # Add a section to the module
+    new_section4 = confirm.add_content_sections
      
-    @selenium.click "AddSectionForm:addImg2"
+    new_section4.title="Lesson3-Section1"
+    new_section4.content_type="Compose content with editor"
+    
+    new_section4.clear_content
+    new_section4.add_content="<h3 style=\"color: Red;\"><b>Aliquet vitae, sollicitudin et, pretium a, dolor? </b></h3> <br /> <tt>Aenean ante risus, vehicula nec, malesuada eu, laoreet sit amet, tortor. Nunc non dui vitae lectus aliquet vehicula. Vivamus dolor turpis, elementum sed, adipiscing ac, sodales vel, felis. Aenean dui nunc, placerat in, fermentum eu, commodo nec, odio. <br /> </tt> <ol>     <li>Duis sit amet lorem.</li>     <li>Maecenas nec dolor.</li>     <li>Vivamus lacus.</li>     <li>Vivamus ante. Duis vitae quam.</li> </ol> <span style=\"background-color: rgb(255, 153, 0);\">Vestibulum posuere diam quis purus dapibus et vehicula diam mollis. Sed non erat a lacus iaculis semper. Sed quis est eget ante ornare molestie vel eget mi? Mauris mollis pulvinar diam eu aliquet.</span> <b>Morbi placerat, magna metus</b>.<br /> <br />"
+    
+    confirm = new_section4.add
+    
+    lessons = confirm.finish
+    
+    # Add another lesson module...
+    new_module4 = lessons.add_module
+    new_module4.title="Lesson4"
+    
+    confirm = new_module4.add
      
-    @selenium.click "AddSectionConfirmForm:finishImg"
-    # Add another Lesson...
-    @selenium.click "listauthmodulesform:authtop:addAction"
-     
-    @selenium.type "AddModuleForm:title", "Lesson2 (Expired)"
-    @selenium.type "AddModuleForm:startDate", "July 6, 2008 08:00 AM"
-    @selenium.type "AddModuleForm:endDate", "July 15, 2008 08:00 AM"
-    @selenium.click "AddModuleForm:addImg"
-     
-    @selenium.click "AddModuleConfirmForm:sectionsImg"
-     
-    @selenium.type "AddSectionForm:title", "Lesson2 - Section1"
-    @selenium.select "AddSectionForm:contentType", "label=Link to new or existing URL resource on server"
-     
-    @selenium.click "AddSectionForm:ContentLinkView:serverViewButton"
-     
-    @selenium.type "//input[@id='ServerViewForm:link']", "http://sakaiproject.org"
-    @selenium.type "//input[@id='ServerViewForm:link_title']", "sakai"
-    @selenium.click "ServerViewForm:addImg2"
-     
-    @selenium.click "AddSectionForm:addImg2"
-     
-    @selenium.click "AddSectionConfirmForm:finishImg"
-     
-    @selenium.click "listauthmodulesform:authtop:addAction"
-     
-    @selenium.type "AddModuleForm:title", "Lesson3-Future"
-    @selenium.type "AddModuleForm:startDate", "July 15, 2011 08:00 AM"
-    @selenium.click "AddModuleForm:addImg"
-     
-    @selenium.click "AddModuleConfirmForm:sectionsImg"
-     
-    @selenium.type "AddSectionForm:title", "Lesson3-Section1"
-    @selenium.select "AddSectionForm:contentType", "label=Compose content with editor"
-     
-    @selenium.click "//td[@class='TB_Button_Text']"
-    sleep 1
-    @selenium.type "//textarea[@class='SourceField']", "<h3 style=\"color: Red;\"><b>Aliquet vitae, sollicitudin et, pretium a, dolor? </b></h3> <br /> <tt>Aenean ante risus, vehicula nec, malesuada eu, laoreet sit amet, tortor. Nunc non dui vitae lectus aliquet vehicula. Vivamus dolor turpis, elementum sed, adipiscing ac, sodales vel, felis. Aenean dui nunc, placerat in, fermentum eu, commodo nec, odio. <br /> </tt> <ol>     <li>Duis sit amet lorem.</li>     <li>Maecenas nec dolor.</li>     <li>Vivamus lacus.</li>     <li>Vivamus ante. Duis vitae quam.</li> </ol> <span style=\"background-color: rgb(255, 153, 0);\">Vestibulum posuere diam quis purus dapibus et vehicula diam mollis. Sed non erat a lacus iaculis semper. Sed quis est eget ante ornare molestie vel eget mi? Mauris mollis pulvinar diam eu aliquet.</span> <b>Morbi placerat, magna metus</b>.<br /> <br />"
-    @selenium.click "//td[@class='TB_Button_Text']"
-    @selenium.click "AddSectionForm:addImg"
-     
-    @selenium.click "AddSectionConfirmForm:finishImg"
-     
-    @selenium.click "listauthmodulesform:authtop:addAction"
-     
-    @selenium.type "AddModuleForm:title", "Lesson4"
-    @selenium.click "AddModuleForm:addImg"
-     
-    @selenium.click "AddModuleConfirmForm:sectionsImg"
-     
-    @selenium.type "AddSectionForm:title", "Lesson4-Section1"
-    @selenium.select "AddSectionForm:contentType", "label=Compose content with editor"
-     
-    @selenium.click "//td[@class='TB_Button_Text']"
-    sleep 1
-    @selenium.type "//textarea[@class='SourceField']", "<h3 style=\"color: Red;\"><b>Aliquet vitae, sollicitudin et, pretium a, dolor? </b></h3> <br /> <tt>Aenean ante risus, vehicula nec, malesuada eu, laoreet sit amet, tortor. Nunc non dui vitae lectus aliquet vehicula. Vivamus dolor turpis, elementum sed, adipiscing ac, sodales vel, felis. Aenean dui nunc, placerat in, fermentum eu, commodo nec, odio. <br /> </tt> <ol>     <li>Duis sit amet lorem.</li>     <li>Maecenas nec dolor.</li>     <li>Vivamus lacus.</li>     <li>Vivamus ante. Duis vitae quam.</li> </ol> <span style=\"background-color: rgb(255, 153, 0);\">Vestibulum posuere diam quis purus dapibus et vehicula diam mollis. Sed non erat a lacus iaculis semper. Sed quis est eget ante ornare molestie vel eget mi? Mauris mollis pulvinar diam eu aliquet.</span> <b>Morbi placerat, magna metus</b>.<br /> <br />"
-    @selenium.click "//td[@class='TB_Button_Text']"
-    @selenium.click "AddSectionForm:addImg"
-     
-    @selenium.click "AddSectionConfirmForm:finishImg"
-     
-    @selenium.click "listauthmodulesform:authtop:addAction"
-     
-    @selenium.type "AddModuleForm:title", "Lesson5"
-    @selenium.click "AddModuleForm:addImg"
-     
-    @selenium.click "AddModuleConfirmForm:sectionsImg"
-     
-    @selenium.type "AddSectionForm:title", "Lesson5-Section1"
-    @selenium.select "AddSectionForm:contentType", "label=Upload or link to a file in Resources"
-     
-    @selenium.click "AddSectionForm:ResourceHelperLinkView:serverViewButton"
-     
-    begin
-        assert @selenium.is_element_present("//h3[contains(@title,'1 2 3')]")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
+    new_section5 = confirm.add_content_sections
+    new_section5.title="Lesson4-Section1"
+    new_section5.content_type="Compose content with editor"
+    new_section5.clear_content
+    new_section5.add_content="<h3 style=\"color: Red;\"><b>Aliquet vitae, sollicitudin et, pretium a, dolor? </b></h3> <br /> <tt>Aenean ante risus, vehicula nec, malesuada eu, laoreet sit amet, tortor. Nunc non dui vitae lectus aliquet vehicula. Vivamus dolor turpis, elementum sed, adipiscing ac, sodales vel, felis. Aenean dui nunc, placerat in, fermentum eu, commodo nec, odio. <br /> </tt> <ol>     <li>Duis sit amet lorem.</li>     <li>Maecenas nec dolor.</li>     <li>Vivamus lacus.</li>     <li>Vivamus ante. Duis vitae quam.</li> </ol> <span style=\"background-color: rgb(255, 153, 0);\">Vestibulum posuere diam quis purus dapibus et vehicula diam mollis. Sed non erat a lacus iaculis semper. Sed quis est eget ante ornare molestie vel eget mi? Mauris mollis pulvinar diam eu aliquet.</span> <b>Morbi placerat, magna metus</b>.<br /> <br />"
+    
+    confirm = new_section5.add
+    
+    lessons = confirm.finish
+    
+    # Add another lesson
+    new_module5 = lessons.add_module
+    new_module5.title="Lesson5"
+    
+    confirm = new_module5.add
+    
+    new_section6 = confirm.add_content_sections
+    
+    new_section6.title="Lesson5-Section1"
+    new_section6.content_type="Upload or link to a file in Resources"
+    new_section6.select_or_upload_file
+
     @selenium.click "link=Select"
      
     @selenium.click "attachButton"
