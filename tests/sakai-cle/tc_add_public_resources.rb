@@ -51,7 +51,9 @@ class AddPublicResources < Test::Unit::TestCase
     files_1 = [
     "documents/accomplishment.xsd",
     "images/flower01.jpg",
-    "presentations/resources.ppt"
+    "presentations/resources.ppt",
+    "audio/resources.mp3",
+    "images/resources.JPG"
     ]
     
     files_1.each do |file|
@@ -61,7 +63,7 @@ class AddPublicResources < Test::Unit::TestCase
     resources = upload_files.upload_files_now
     
     filenames_1 = [ "accomplishment.xsd", 
-    "flower01.jpg", "resources.ppt"]
+    "flower01.jpg", "resources.ppt", "resources.mp3", "resources.JPG" ]
     
     # Make them public
     filenames_1.each do |file|

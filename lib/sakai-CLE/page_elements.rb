@@ -19,180 +19,7 @@
 
 require 'page-object'
 require 'cgi'
-
-#================
-# Page Navigation Objects
-#================
-
-# ToolsMenu contains all possible links that could
-# be found in the menu along the left side of the Sakai pages.
-module ToolsMenu
-  
-  include PageObject
-    
-  def open_my_site_by_id(id)
-    @browser.link(:text, "My Sites").click
-    @browser.link(:href, /#{id}/).click
-    Home.new(@browser)
-  end
-  
-  def open_my_site_by_name(name)
-    short_name = name[0..20]
-    @browser.link(:text, "My Sites").click
-    @browser.link(:text, /#{Regexp.escape(short_name)}/).click
-    Home.new(@browser)
-  end
-  
-  # The list of left side menu items, formatted according to the
-  # PageObject requirements...
-  link(:account, :text=>"Account")
-  link(:aliases, :text=>"Aliases")
-  
-  def administration_workspace
-    @browser.link(:text, "Administration Workspace").click
-    MyWorkspace.new(@browser)
-  end
-  
-  link(:announcements, :class => 'icon-sakai-announcements')
-  
-  def assignments
-    @browser.link(:class=>"icon-sakai-assignment-grades").click
-    AssignmentsList.new(@browser)
-  end
-  
-  link(:basic_lti, :text=>"Basic LTI")
-  link(:blogs, :text=>"Blogs")
-  
-  def calendar
-    @browser.link(:text=>"Calendar").click
-    Calendar.new(@browser)
-  end
-  
-  link(:certification, :text=>"Certification")
-  link(:chat_room, :text=>"Chat Room")
-  link(:configuration_viewer, :text=>"Configuration Viewer")
-  link(:customizer, :text=>"Customizer")
-  link(:discussion_forums, :text=>"Discussion Forums")
-  link(:drop_box, :text=>"Drop Box")
-  link(:email, :text=>"Email")
-  link(:email_archive, :text=>"Email Archive")
-  link(:email_template_administration, :text=>"Email Template Administration")
-  link(:evaluation_system, :text=>"Evaluation System")
-  link(:feedback, :text=>"Feedback")
-  
-  def forums
-    @browser.link(:text=>"Forums").click
-    Forums.new(@browser)
-  end
-  
-  link(:gradebook, :text=>"Gradebook")
-  link(:gradebook2, :text=>"Gradebook2")
-  link(:help, :text=>"Help")
-  
-  def home
-    @browser.link(:text, "Home").click
-    Home.new(@browser)
-  end
-  
-  def job_scheduler
-    @browser.link(:text=>"Job Scheduler").click
-    JobScheduler.new(@browser)
-  end
-  
-  def lessons
-    @browser.link(:text=>"Lessons").click
-    Lessons.new(@browser)
-  end
-  
-  link(:lesson_builder, :text=>"Lesson Builder")
-  link(:link_tool, :text=>"Link Tool")
-  link(:live_virtual_classroom, :text=>"Live Virtual Classroom")
-  link(:matrices, :text=>"Matrices")
-  link(:media_gallery, :text=>"Media Gallery")
-  link(:membership, :text=>"Membership")
-  link(:memory, :text=>"Memory")
-  link(:messages, :text=>"Messages")
-  link(:my_sites, :text=>"My Sites")
-  link(:news, :text=>"News")
-  link(:online, :text=>"On-Line")
-  link(:oauth_providers, :text=>"Oauth Providers")
-  link(:oauth_tokens, :text=>"Oauth Tokens")
-  link(:openSyllabus, :text=>"OpenSyllabus")
-  link(:podcasts, :text=>"Podcasts")
-  link(:polls, :text=>"Polls")
-  link(:portfolios, :text=>"Portfolios")
-  link(:preferences, :text=>"Preferences")
-  link(:profile, :text=>"Profile")
-  link(:realms, :text=>"Realms")
-  
-  def resources
-    # Will eventually need logic here
-    # to determine whether to load the class for
-    # the Resources page in a particular site or the page
-    # while in the Admin workspace.
-    
-    # For now, though, this only works to go to
-    # the page within a given Site.
-    @browser.link(:text, "Resources").click
-    Resources.new(@browser)
-  end
-  
-  link(:roster, :text=>"Roster")
-  link(:rsmart_support, :text=>"rSmart Support")
-  link(:search, :text=>"Search")
-  link(:sections, :text=>"Sections")
-  link(:site_archive, :text=>"Site Archive")
-  
-  def site_editor
-    @browser.link(:text=>"Site Editor").click
-    SiteEditor.new(@browser)
-  end
-  
-  def site_setup
-    @browser.link(:text=>"Site Setup").click
-    SiteSetup.new(@browser)
-  end
-  
-  link(:site_statistics, :text=>"Site Statistics")
-  
-  def sites
-    @browser.link(:class=>"icon-sakai-sites").click
-    Sites.new(@browser)
-  end
-  
-  link(:skin_manager, :text=>"Skin Manager")
-  link(:super_user, :text=>"Super User")
-  
-  def syllabus
-    @browser.link(:text=>"Syllabus").click
-    Syllabus.new(@browser)
-  end
-  
-  def tests_and_quizzes
-    # Need this logic to determine whether user
-    # is a student or instructor/admin
-    @browser.link(:class, "icon-sakai-siteinfo").exist? ? x=0 : x=1
-    @browser.link(:text=>"Tests & Quizzes").click
-    x==0 ? AssessmentsList.new(@browser) : TakeAssessmentList.new(@browser)
-    
-  end
-  
-  link(:user_membership, :text=>"User Membership")
-  link(:users, :text=>"Users")
-  link(:web_content, :text=>"Web Content")
-  link(:wiki, :text=>"Wiki")
-  
-  # The Page Reset button, found on all Site pages
-  link(:reset, :href=>/tool-reset/)
-  
-  # Shortcut method so you don't have to type out
-  # the whole string: @browser.frame(:index=>index)
-  def frm(index)
-    @browser.frame(:index=>index)
-  end
-  
-end
-
+require  File.dirname(__FILE__) + '/app_functions.rb'
 
 #================
 # Aliases Pages
@@ -753,40 +580,6 @@ class PublishAssessment
     
   end
 
-end
-
-# This is a module containing methods that are
-# common to all the question pages
-module QuestionHelpers
-  
-  include PageObject
-  
-  def save
-    
-    quiz = frm(1).div(:class=>"portletBody").div(:index=>0).text
-    pool = frm(1).div(:class=>"portletBody").div(:index=>1).text
-    
-    frm(1).button(:value=>"Save").click
-    
-    if quiz =~ /^Assessments/
-      EditAssessment.new(@browser)
-    elsif pool =~ /^Question Pools/
-      EditQuestionPool.new(@browser)
-    else
-      puts "Unexpected text: "
-      p pool
-      p quiz
-    end
-    
-  end
-  
-  in_frame(:index=>1) do |frame|
-    link(:assessments, :text=>"Assessments", :frame=>frame)
-    link(:assessment_types, :text=>"Assessment Types", :frame=>frame)
-    link(:question_pools, :text=>"Question Pools", :frame=>frame)
-    link(:questions, :text=>/Questions:/, :frame=>frame)
-  end
-  
 end
 
 # The page for setting up a multiple choice question
@@ -2224,53 +2017,225 @@ end
 #================
 
 # The Lessons page in a site ("icon-sakai-melete")
+#
+# Note that this class is inclusive of both the
+# Instructor/Admin and the Student views of this page
+# many methods will error out if used when in the
+# Student view.
 class Lessons
   
   include PageObject
   include ToolsMenu
   
+  # Clicks the Add Module link, then
+  # instantiates the AddModule class.
+  #
+  # Assumes the Add Module link is present
+  # and will error out if it is not.
   def add_module
     frm(1).link(:text=>"Add Module").click
-    AddModule.new(@browser)
+    AddEditModule.new(@browser)
+  end
+  
+  # Clicks on the Preferences link on the Lessons page,
+  # then instantiates the LessonPreferences class.
+  def preferences
+    frm(1).link(:text=>"Preferences").click
+    LessonPreferences.new(@browser)
+  end
+  
+  def view
+    frm(1).link(:text=>"View").click
+    if frm(1).div(:class=>"meletePortletToolBarMessage").text=="Viewing student side..."
+      ViewModuleList.new(@browser)
+    else
+      #FIXME
+    end
+  end
+  
+  # Clicks on the link that matches the supplied
+  # name value, then instantiates the
+  # AddEditLesson, or ViewLesson class, depending
+  # on which page loads.
+  #
+  # Will error out if there is no
+  # matching link in the list.
+  def open_lesson(name)
+    frm(1).link(:text=>name).click
+    if frm(1).div(:class=>"meletePortletToolBarMessage").text=="Editing module..."
+      AddEditModule.new(@browser)
+    else
+      ViewModule.new(@browser)
+    end
   end
 
-  in_frame(:index=>1) do |frame|
-    
-  end
 end
 
-class AddModule
+# The student user's view of a Lesson Module.
+class ViewModule
+  
+  include PageObject
+  include ToolsMenu
+
+  #FIXME
+
+end
+
+# This is the Instructor's preview of the Student's view
+# of the list of Lesson Modules.
+class ViewModuleList
   
   include PageObject
   include ToolsMenu
   
-  def add
-    frm(1).link(:id=>"AddModuleForm:submitsave").click
-    ConfirmModule.new(@browser)
+  def open_lesson(name)
+    frm(1).link(:text=>name).click
+    LessonStudentSide.new(@browser)
+  end
+  
+  def open_section(name)
+    frm(1).link(:text=>name).click
+    SectionStudentSide.new(@browser)
+  end
+  
+end
+
+# The instructor's preview of the student view of the lesson.
+class LessonStudentSide
+  
+  include PageObject
+  include ToolsMenu
+  
+end
+
+# The instructor's preview of the student's view of the section.
+class SectionStudentSide
+  
+  include PageObject
+  include ToolsMenu
+  
+  def manage
+    frm(1).link(:text=>"Manage").click
+    LessonManage.new(@browser)
+  end
+  
+end
+
+# The Managing Options page for Lessons
+class LessonManage
+  
+  include PageObject
+  include ToolsMenu
+  
+  def manage_content
+    frm(1).link(:text=>"Manage Content").click
+    LessonManageContent.new(@browser)
+  end
+  
+  def sort
+    frm(1).link(:text=>"Sort").click
+    LessonManageSort.new(@browser)
+  end
+
+end
+
+# The Sorting Modules and Sections page in Lessons
+class LessonManageSort
+  
+  include PageObject
+  include ToolsMenu
+
+  def view
+    frm(1).link(:text=>"View").click
+    if frm(1).div(:class=>"meletePortletToolBarMessage").text=="Viewing student side..."
+      ViewModuleList.new(@browser)
+    else
+      #FIXME
+    end
   end
 
   in_frame(:index=>1) do |frame|
-    text_field(:title, :id=>"AddModuleForm:title", :frame=>frame)
-    text_area(:description, :id=>"AddModuleForm:description", :frame=>frame)
-    text_area(:keywords, :id=>"AddModuleForm:keywords", :frame=>frame)
-    text_field(:start_date, :id=>"AddModuleForm:startDate", :frame=>frame)
-    text_field(:end_date, :id=>"AddModuleForm:endDate", :frame=>frame)
+    link(:sort_modules, :id=>"SortSectionForm:sortmod", :frame=>frame)
+    link(:sort_sections, :id=>"SortModuleForm:sortsec", :frame=>frame)
+    
   end
 end
 
+
+# The User preference options page for Lessons.
+#
+# Note that this class is inclusive of Student
+# and Instructor views of the page. Thus,
+# not all methods in the class will work
+# at all times.
+class LessonPreferences
+  
+  include PageObject
+  include ToolsMenu
+  
+  # Clicks the Set button
+  def set
+    frm(1).link(:id=>"UserPreferenceForm:SetButton").click
+  end
+  
+  # Clicks the View button
+  # then instantiates the Lessons class.
+  def view
+    frm(1).link(:text=>"View").click
+    Lessons.new(@browser)
+  end
+  
+  in_frame(:index=>1) do |frame|
+    radio_button(:expanded) { |page| page.radio_button_element(:name=>"UserPreferenceForm:_id5", :index=>0, :frame=>frame) }
+    radio_button(:collapsed) { |page| page.radio_button_element(:name=>"UserPreferenceForm:_id5", :index=>1, :frame=>frame) }
+  end
+end
+
+# This Class encompasses methods for both the Add and the Edit pages for Lesson Modules.
+class AddEditModule
+  
+  include PageObject
+  include ToolsMenu
+  
+  # Clicks the Add button for the Lesson Module
+  # then instantiates the ConfirmModule class.
+  def add
+    frm(1).link(:id=>/ModuleForm:submitsave/).click
+    ConfirmModule.new(@browser)
+  end
+
+  def add_content_sections
+    frm(1).link(:id=>/ModuleForm:sectionButton/).click
+    AddEditSection.new(@browser)
+  end
+
+  in_frame(:index=>1) do |frame|
+    text_field(:title, :id=>/ModuleForm:title/, :frame=>frame)
+    text_area(:description, :id=>/ModuleForm:description/, :frame=>frame)
+    text_area(:keywords, :id=>/ModuleForm:keywords/, :frame=>frame)
+    text_field(:start_date, :id=>/ModuleForm:startDate/, :frame=>frame)
+    text_field(:end_date, :id=>/ModuleForm:endDate/, :frame=>frame)
+  end
+end
+
+# The confirmation page when you are saving a Lesson Module.
 class ConfirmModule
   
   include PageObject
   include ToolsMenu
   
+  # Clicks the Add Content Sections button and
+  # instantiates the AddEditSection class.
   def add_content_sections
-    frm(1).link(:id=>"AddModuleConfirmForm:sectionButton").click
-    AddSection.new(@browser)
+    frm(1).link(:id=>/ModuleConfirmForm:sectionButton/).click
+    AddEditSection.new(@browser)
   end
   
+  # Clicks the Return to Modules button, then
+  # instantiates the AddEditModule class.
   def return_to_modules
     frm(1).link(:id=>"AddModuleConfirmForm:returnModImg").click
-    AddModule.new(@browser)
+    AddEditModule.new(@browser)
   end
 
   in_frame(:index=>1) do |frame|
@@ -2278,16 +2243,20 @@ class ConfirmModule
   end
 end
 
-class AddSection
+class AddEditSection
   
   include PageObject
   include ToolsMenu
   
+  # Clicks the Add button on the page
+  # then instantiates the ConfirmSectionAdd class.
   def add
-    frm(1).link(:id=>"AddSectionForm:submitsave").click
-    ConfirmSection.new(@browser)
+    frm(1).link(:id=>/SectionForm:submitsave/).click
+    ConfirmSectionAdd.new(@browser)
   end
 
+  # Pointer to the Edit Text box of the FCKEditor
+  # on the page.
   def content_editor
     frm(1).frame(:id, "AddSectionForm:fckEditorView:otherMeletecontentEditor_inputRichText___Frame").td(:id, "xEditingArea").frame(:index=>0)
   end
@@ -2306,6 +2275,11 @@ class AddSection
     SelectingContent.new(@browser)
   end
   
+  # This method clicks the Select button that appears on the page
+  # then calls the LessonAddAttachment class.
+  #
+  # It assumes that the Content Type selection box has
+  # already been updated to "Upload or link to a file in Resources".
   def select_or_upload_file
     frm(1).link(:id=>"AddSectionForm:ResourceHelperLinkView:serverViewButton").click
     LessonAddAttachment.new(@browser)
@@ -2314,22 +2288,28 @@ class AddSection
   in_frame(:index=>1) do |frame|
     text_field(:title, :id=>"AddSectionForm:title", :frame=>frame)
     select_list(:content_type, :id=>"AddSectionForm:contentType", :frame=>frame)
-    
+    checkbox(:auditory_content, :id=>"AddSectionForm:contentaudio", :frame=>frame)
   end
 end
 
+# Confirmation page for Adding (or Editing)
+# a Section to a Module in Lessons.
 class ConfirmSectionAdd
   
   include PageObject
   include ToolsMenu
   
+  # Clicks the Add Another Section button
+  # then instantiates the AddSection class.
   def add_another_section
-    frm(1).link(:id=>"AddSectionConfirmForm:saveAddAnotherbutton").click
-    AddSection.new(@browser)
+    frm(1).link(:id=>/SectionConfirmForm:saveAddAnotherbutton/).click
+    AddEditSection.new(@browser)
   end
   
+  # Clicks the Finish button
+  # then instantiates the Lessons class.
   def finish
-    frm(1).link(:id=>"AddSectionConfirmForm:finishImg").click
+    frm(1).link(:id=>/Form:FinishButton/).click
     Lessons.new(@browser)
   end
 
@@ -2345,7 +2325,7 @@ class SelectingContent
   
   def continue
     frm(1).link(:id=>"ServerViewForm:addButton").click
-    AddSection.new(@browser)
+    AddEditSection.new(@browser)
   end
 
   in_frame(:index=>1) do |frame|
@@ -2359,15 +2339,73 @@ class LessonAddAttachment
   include PageObject
   include ToolsMenu
   
+  # Clicks the Continue button on the page
+  # and instantiates the AddSection class.
+  #
+  # Note that it assumes the Continue button is present
+  # and available.
   def continue
     frm(1).button(:value=>"Continue").click
-    AddModule.new(@browser)
+    AddEditSection.new(@browser)
   end
   
-  def add
-    
+  # Finds the row containing the target filename, then
+  # clicks the Select link associated with the
+  # file.
+  #
+  # Note it will error out if the name used is not found
+  # in the list.
+  def select_file(filename)
+    index = file_names.index(filename)
+    frm(1).link(:text=>"Select", :index=>index).click
   end
   
+  # Returns an array of the file names currently listed
+  # on the Add Attachments page for Lessons.
+  # 
+  # It excludes folder names.
+  def file_names
+    names = []
+    table = frm(1).table(:class=>"listHier lines")
+    anchors = table.links.find_all { |link| link.text != "" && link.title =~/File Type/ }
+    anchors.each { |anchor| names << anchor.text }
+    return names
+  end
+  
+  #FIXME!!!
+=begin
+  # This method returns folder names only
+  def folder_names
+    names = []
+    resources_table = frm(1).table(:class=>"listHier lines")
+    1.upto(resources_table.rows.size-1) do |x|
+      if resources_table[x][2].h3.exist? && resources_table[x][2].a.title=~/folder/
+        names << resources_table[x][2].text
+      end
+    end
+    return names
+  end
+  
+  # This method returns an array of both the file and folder names
+  # currently listed on the Resources page.
+  #
+  # Note that it adds "" entries for any blank lines found
+  # so that the row index will still be accurate for the
+  # table itself. This is sometimes necessary for being
+  # able to find the correct row.
+  def resource_names
+    titles = []
+    resources_table = frm(1).table(:class=>"listHier lines")
+    1.upto(resources_table.rows.size-1) do |x|
+      if resources_table[x][2].link.exist?
+        titles << resources_table[x][2].text
+      else
+        titles << ""
+      end
+    end
+    return titles
+  end
+=end  
   in_frame(:index=>1) do |frame|
     
   end
@@ -2514,7 +2552,7 @@ class Resources
     frm(1).link(:text=>"Edit Details", :index=>index).click
     EditFileDetails.new(@browser)
   end
-  
+ 
   # This method returns folder names only
   def folder_names
     names = []
@@ -2527,7 +2565,10 @@ class Resources
     return names
   end
   
-  # This method returns only file names
+  # This method returns an array of the file names currently listed
+  # on the Resources page.
+  # 
+  # It excludes folder names.
   def file_names
     names = []
     resources_table = frm(1).table(:class=>"listHier lines centerLines")
@@ -2539,7 +2580,13 @@ class Resources
     return names
   end
   
-  # This method returns both file and folder names
+  # This method returns an array of both the file and folder names
+  # currently listed on the Resources page.
+  #
+  # Note that it adds "" entries for any blank lines found
+  # so that the row index will still be accurate for the
+  # table itself. This is sometimes necessary for being
+  # able to find the correct row.
   def resource_names
     titles = []
     resources_table = frm(1).table(:class=>"listHier lines centerLines")
@@ -2552,7 +2599,7 @@ class Resources
     end
     return titles
   end
-  
+
   def access_level(filename)
     index = resource_names.index(filename)
     frm(1).table(:class=>"listHier lines centerLines")[index+1][6].text
@@ -2571,13 +2618,12 @@ class ResourcesUploadFiles
   include PageObject
   include ToolsMenu
   
+  @@filex=0
+  
   # Note that the file_to_upload method can be used
   # multiple times, but it assumes
   # that the add_another_file method is used
   # before it, every time except before the first time.
-  
-  @@filex=0
-  
   def file_to_upload=(file_name)
     frm(1).file_field(:id, "content_#{@@filex}").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + file_name)
     @@filex+=1
