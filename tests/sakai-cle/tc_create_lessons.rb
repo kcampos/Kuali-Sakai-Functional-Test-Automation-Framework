@@ -23,9 +23,11 @@ class TestCreateLessons < Test::Unit::TestCase
     # Get the test configuration data
     @config = AutoConfig.new
     @browser = @config.browser
-    # Using instructor2 for this test case
+    # Using instructor2 and student04 for this test case
     @instructor =@config.directory['person4']['id']
     @ipassword = @config.directory['person4']['password']
+    @student = @config.directory["person6"]["id"]
+    @spassword = @config.directory["person6"]["password"]
     @site_name = @config.directory['site1']['name']
     @site_id = @config.directory['site1']['id']
     @sakai = SakaiCLE.new(@browser)
@@ -38,17 +40,17 @@ class TestCreateLessons < Test::Unit::TestCase
   end
   
   def test_lesson_creation
-    
-    # Log in to Sakai
-    workspace = @sakai.login(@instructor, @ipassword)
-    
+      
     # some code to simplify writing steps in this test case
     def frm
       @browser.frame(:index=>1)
     end
   
+    # Log in to Sakai
+    workspace = @sakai.login(@instructor, @ipassword)
+
     # Go to test site
-    home = workspace.open_site_by_id(@site_id)
+    home = workspace.open_my_site_by_id(@site_id)
     
     # Go to lessons
     lessons = home.lessons
@@ -69,7 +71,7 @@ class TestCreateLessons < Test::Unit::TestCase
     new_section.content_type="Compose content with editor"
     
     new_section.clear_content
-    new_section.add_content="<h3 style=\"color: Red;\"><b>Aliquet vitae, sollicitudin et, pretium a, dolor? </b></h3> <br /> <tt>Aenean ante risus, vehicula nec, malesuada eu, laoreet sit amet, tortor. Nunc non dui vitae lectus aliquet vehicula. Vivamus dolor turpis, elementum sed, adipiscing ac, sodales vel, felis. Aenean dui nunc, placerat in, fermentum eu, commodo nec, odio. <br /> </tt> <ol>     <li>Duis sit amet lorem.</li>     <li>Maecenas nec dolor.</li>     <li>Vivamus lacus.</li>     <li>Vivamus ante. Duis vitae quam.</li> </ol> <span style=\"background-color: rgb(255, 153, 0);\">Vestibulum posuere diam quis purus dapibus et vehicula diam mollis. Sed non erat a lacus iaculis semper. Sed quis est eget ante ornare molestie vel eget mi? Mauris mollis pulvinar diam eu aliquet.</span> <b>Morbi placerat, magna metus</b>.<br /> <br />"
+    new_section.add_content="<h3" # style=\"color: Red;\"><b>Aliquet vitae, sollicitudin et, pretium a, dolor? </b></h3> <br /> <tt>Aenean ante risus, vehicula nec, malesuada eu, laoreet sit amet, tortor. Nunc non dui vitae lectus aliquet vehicula. Vivamus dolor turpis, elementum sed, adipiscing ac, sodales vel, felis. Aenean dui nunc, placerat in, fermentum eu, commodo nec, odio. <br /> </tt> <ol>     <li>Duis sit amet lorem.</li>     <li>Maecenas nec dolor.</li>     <li>Vivamus lacus.</li>     <li>Vivamus ante. Duis vitae quam.</li> </ol> <span style=\"background-color: rgb(255, 153, 0);\">Vestibulum posuere diam quis purus dapibus et vehicula diam mollis. Sed non erat a lacus iaculis semper. Sed quis est eget ante ornare molestie vel eget mi? Mauris mollis pulvinar diam eu aliquet.</span> <b>Morbi placerat, magna metus</b>.<br /> <br />"
     confirm = new_section.add
     # Save section and add another... 
     new_section2 = confirm.add_another_section
@@ -106,7 +108,7 @@ class TestCreateLessons < Test::Unit::TestCase
     select_content2.url_title="sakai"
     
     new_section3 = select_content2.continue
-    
+
     confirm = new_section3.add
     
     lessons = confirm.finish
@@ -126,7 +128,7 @@ class TestCreateLessons < Test::Unit::TestCase
     new_section4.content_type="Compose content with editor"
     
     new_section4.clear_content
-    new_section4.add_content="<h3 style=\"color: Red;\"><b>Aliquet vitae, sollicitudin et, pretium a, dolor? </b></h3> <br /> <tt>Aenean ante risus, vehicula nec, malesuada eu, laoreet sit amet, tortor. Nunc non dui vitae lectus aliquet vehicula. Vivamus dolor turpis, elementum sed, adipiscing ac, sodales vel, felis. Aenean dui nunc, placerat in, fermentum eu, commodo nec, odio. <br /> </tt> <ol>     <li>Duis sit amet lorem.</li>     <li>Maecenas nec dolor.</li>     <li>Vivamus lacus.</li>     <li>Vivamus ante. Duis vitae quam.</li> </ol> <span style=\"background-color: rgb(255, 153, 0);\">Vestibulum posuere diam quis purus dapibus et vehicula diam mollis. Sed non erat a lacus iaculis semper. Sed quis est eget ante ornare molestie vel eget mi? Mauris mollis pulvinar diam eu aliquet.</span> <b>Morbi placerat, magna metus</b>.<br /> <br />"
+    new_section4.add_content="<h3"# style=\"color: Red;\"><b>Aliquet vitae, sollicitudin et, pretium a, dolor? </b></h3> <br /> <tt>Aenean ante risus, vehicula nec, malesuada eu, laoreet sit amet, tortor. Nunc non dui vitae lectus aliquet vehicula. Vivamus dolor turpis, elementum sed, adipiscing ac, sodales vel, felis. Aenean dui nunc, placerat in, fermentum eu, commodo nec, odio. <br /> </tt> <ol>     <li>Duis sit amet lorem.</li>     <li>Maecenas nec dolor.</li>     <li>Vivamus lacus.</li>     <li>Vivamus ante. Duis vitae quam.</li> </ol> <span style=\"background-color: rgb(255, 153, 0);\">Vestibulum posuere diam quis purus dapibus et vehicula diam mollis. Sed non erat a lacus iaculis semper. Sed quis est eget ante ornare molestie vel eget mi? Mauris mollis pulvinar diam eu aliquet.</span> <b>Morbi placerat, magna metus</b>.<br /> <br />"
     
     confirm = new_section4.add
     
@@ -142,7 +144,7 @@ class TestCreateLessons < Test::Unit::TestCase
     new_section5.title="Lesson4-Section1"
     new_section5.content_type="Compose content with editor"
     new_section5.clear_content
-    new_section5.add_content="<h3 style=\"color: Red;\"><b>Aliquet vitae, sollicitudin et, pretium a, dolor? </b></h3> <br /> <tt>Aenean ante risus, vehicula nec, malesuada eu, laoreet sit amet, tortor. Nunc non dui vitae lectus aliquet vehicula. Vivamus dolor turpis, elementum sed, adipiscing ac, sodales vel, felis. Aenean dui nunc, placerat in, fermentum eu, commodo nec, odio. <br /> </tt> <ol>     <li>Duis sit amet lorem.</li>     <li>Maecenas nec dolor.</li>     <li>Vivamus lacus.</li>     <li>Vivamus ante. Duis vitae quam.</li> </ol> <span style=\"background-color: rgb(255, 153, 0);\">Vestibulum posuere diam quis purus dapibus et vehicula diam mollis. Sed non erat a lacus iaculis semper. Sed quis est eget ante ornare molestie vel eget mi? Mauris mollis pulvinar diam eu aliquet.</span> <b>Morbi placerat, magna metus</b>.<br /> <br />"
+    new_section5.add_content="<h3"# style=\"color: Red;\"><b>Aliquet vitae, sollicitudin et, pretium a, dolor? </b></h3> <br /> <tt>Aenean ante risus, vehicula nec, malesuada eu, laoreet sit amet, tortor. Nunc non dui vitae lectus aliquet vehicula. Vivamus dolor turpis, elementum sed, adipiscing ac, sodales vel, felis. Aenean dui nunc, placerat in, fermentum eu, commodo nec, odio. <br /> </tt> <ol>     <li>Duis sit amet lorem.</li>     <li>Maecenas nec dolor.</li>     <li>Vivamus lacus.</li>     <li>Vivamus ante. Duis vitae quam.</li> </ol> <span style=\"background-color: rgb(255, 153, 0);\">Vestibulum posuere diam quis purus dapibus et vehicula diam mollis. Sed non erat a lacus iaculis semper. Sed quis est eget ante ornare molestie vel eget mi? Mauris mollis pulvinar diam eu aliquet.</span> <b>Morbi placerat, magna metus</b>.<br /> <br />"
     
     confirm = new_section5.add
     
@@ -158,323 +160,159 @@ class TestCreateLessons < Test::Unit::TestCase
     
     new_section6.title="Lesson5-Section1"
     new_section6.content_type="Upload or link to a file in Resources"
-    new_section6.select_or_upload_file
+    add_attach = new_section6.select_or_upload_file
 
-    @selenium.click "link=Select"
+    add_attach.select_file "resources.ppt"
+
+    new_section6 = add_attach.continue
+
+    confirm = new_section6.add
+
+    lessons = confirm.finish
+    
+    new_module6 = lessons.add_module
+    new_module6.title="Lesson6"
+    
+    confirm = new_module6.add
+    
+    new_section7 = confirm.add_content_sections
+    
+    new_section7.title="Lesson6-Section1"
+    new_section7.check_auditory_content
+    
+    new_section7.content_type="Upload or link to a file in Resources"
      
-    @selenium.click "attachButton"
-     
-    @selenium.click "AddSectionForm:addImg2"
-     
-    @selenium.click "AddSectionConfirmForm:finishImg"
-     
-    @selenium.click "listauthmodulesform:authtop:addAction"
-     
-    @selenium.type "AddModuleForm:title", "Lesson6"
-    @selenium.click "AddModuleForm:addImg"
-     
-    @selenium.click "AddModuleConfirmForm:sectionsImg"
-     
-    @selenium.type "AddSectionForm:title", "Lesson6-Section1"
-    @selenium.click "AddSectionForm:contentaudio"
-    @selenium.select "AddSectionForm:contentType", "label=Upload or link to a file in Resources"
-     
-    @selenium.click "link=Select"
-     
-    @selenium.click "//h4[@title='resources.mp3']/../../td/div/a[@title='Select']"
-     
-    @selenium.click "attachButton"
-     
-    @selenium.click "AddSectionForm:addImg2"
-     
-    @selenium.click "AddSectionConfirmForm:finishImg"
-     
-    begin
-        assert @selenium.is_element_present("link=Lesson1-Section1")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("link=Lesson1-Section2")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("link=Lesson2 (Expired)")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("link=Lesson2 - Section1")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("link=Lesson3-Future")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("link=Lesson3-Section1")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("link=Lesson4")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("link=Lesson4-Section1")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("link=Lesson5")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("link=Lesson5-Section1")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("link=Lesson6")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("link=Lesson6-Section1")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.click "link=Logout"
-     
-    @selenium.type "eid", "student04"
-    @selenium.type "pw", "password"
-    @selenium.click "//input[@value='submit']"
-     
-    @selenium.click "//a[contains(@title,'1 2 3 ')]"
-     
-    @selenium.click "//a[@class='icon-sakai-melete']"
-     
-    begin
-        assert @selenium.is_element_present("link=Lesson1")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert !@selenium.is_element_present("link=Lesson2 (Expired)")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert !@selenium.is_element_present("link=Lesson3-Future")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("link=Lesson4")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("link=Lesson5")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("link=Lesson6")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.click "link=Lesson1"
-     
-    begin
-        assert @selenium.is_element_present("link=Lesson1-Section1")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("link=Lesson1-Section2")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.click "link=Next"
-     
-    @selenium.click "link=Next"
-     
-    @selenium.click "link=Next"
-     
-    begin
-        assert @selenium.is_element_present("link=Lesson4-Section1")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.click "link=Prev"
-     
-    begin
-        assert @selenium.is_element_present("//img[@alt='rSmart']")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.click "link=Table Of Contents"
-     
-    @selenium.click "link=Lesson5"
-     
-    begin
-        assert @selenium.is_element_present("link=Lesson5-Section1")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.click "link=Next"
-     
-    begin
-        assert @selenium.is_element_present("//a[@id='viewsectionStudentform:contentResourceLink']/span")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.click "link=Next"
-     
-    begin
-        assert @selenium.is_element_present("link=Lesson6-Section1")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.click "link=Next"
-     
-    begin
-        assert @selenium.is_element_present("//a[@id='viewsectionStudentform:contentResourceLink']/span")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.click "link=Preferences"
-     
-    @selenium.click "//input[@name='UserPreferenceForm:_id5' and @value='true']"
-    @selenium.click "//img[@id='UserPreferenceForm:setImg']"
-     
-    @selenium.click "link=View"
-     
-    begin
-        assert @selenium.is_element_present("link=Lesson1")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("link=Lesson1-Section1")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("link=Lesson1-Section2")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert !@selenium.is_element_present("link=Lesson2")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert !@selenium.is_element_present("link=Lesson2-Section1")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("//span[contains(text(),'Lesson2 (Expired)')]")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert !@selenium.is_element_present("link=Lesson3")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert !@selenium.is_element_present("link=Lesson3-Section1")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("link=Lesson4")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("link=Lesson4-Section1")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("link=Lesson5")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("link=Lesson5-Section1")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("link=Lesson6")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("link=Lesson6-Section1")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.click "link=Logout"
-     
-    @selenium.type "eid", "instructor2"
-    @selenium.type "pw", "password"
-    @selenium.click "//input[@value='submit']"
-     
-    @selenium.click "//a[contains(@title,'1 2 3 ')]"
-     
-    @selenium.click "//a[@class='icon-sakai-melete']"
-     
-    @selenium.click "link=Lesson5"
-     
-    @selenium.click "EditModuleForm:sectionsImg"
-     
-    @selenium.type "AddSectionForm:title", "Lesson5-Section2"
-    @selenium.select "AddSectionForm:contentType", "label=Upload or link to a file in Resources"
-     
-    @selenium.click "AddSectionForm:ResourceHelperLinkView:serverViewButton"
-     
-    @selenium.click "//h4[@title='resources.jpg']/../../td/div/a[@title='Select']"
-     
-    @selenium.click "attachButton"
-     
-    @selenium.click "AddSectionForm:addImg2"
-     
-    @selenium.click "AddSectionConfirmForm:finishImg"
-     
-    @selenium.click "listauthmodulesform:top:viewItem"
-     
-    @selenium.click "listmodulesform:table:4:tablesec:1:sectitleLink"
-     
-    begin
-        assert @selenium.is_element_present("link=resources.JPG")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.click "viewsectionform:top:manageItem"
-     
-    @selenium.click "ManageModuleForm:sort"
-     
-    @selenium.click "SortModuleForm:sortSectionsImg"
-     
-    @selenium.click "SortSectionForm:sortModulesImg"
-     
-    @selenium.click "SortModuleForm:top:viewItem"
-     
-    @selenium.select_frame "relative=up"
-    @selenium.click "link=Logout"
-     
+    add_attach = new_section7.select_or_upload_file
+    add_attach.select_file "resources.mp3"
+    
+    new_section7 = add_attach.continue
+    
+    confirm = new_section7.add
+    
+    lessons =confirm.finish
+    
+    #TEST CASE: Confirm all lessons and sections are listed properly
+    assert frm.link(:text, "Lesson1-Section1").exist?
+    assert frm.link(:text, "Lesson1-Section2").exist?
+    assert frm.link(:text, "Lesson2 (Expired)").exist?
+    assert frm.link(:text, "Lesson2 - Section1").exist?
+    assert frm.link(:text, "Lesson3-Future").exist?
+    assert frm.link(:text, "Lesson3-Section1").exist?
+    assert frm.link(:text, "Lesson4").exist?
+    assert frm.link(:text, "Lesson4-Section1").exist?
+    assert frm.link(:text, "Lesson5").exist?
+    assert frm.link(:text, "Lesson5-Section1").exist?
+    assert frm.link(:text, "Lesson6").exist?
+    assert frm.link(:text, "Lesson6-Section1").exist?
+    
+    @sakai.logout
+   
+    workspace = @sakai.login(@student, @spassword)
+    
+    home = workspace.open_my_site_by_id(@site_id)
+    
+    lessons = home.lessons
+    
+    # TEST CASE: Make sure Lessons appear, or not, for the student
+    # as expected.
+    assert frm.link(:text, "Lesson1").exist?
+    assert_equal frm.link(:text, "Lesson2 (Expired)").exist?, false
+    assert_equal frm.link(:text, "Lesson3-Future").exist?, false
+    assert frm.link(:text, "Lesson4").exist?
+    assert frm.link(:text, "Lesson5").exist?
+    assert frm.link(:text, "Lesson6").exist?
+    
+    frm.link(:text, "Lesson1").click #FIXME
+    
+    # TEST CASE: Verify the sections are present, as expected
+    assert frm.link(:text, "Lesson1-Section1").exist?
+    assert frm.link(:text, "Lesson1-Section2").exist?
+    
+    frm.link(:text=>"Next").click #FIXME
+    frm.link(:text=>"Next").click #FIXME
+    frm.link(:text=>"Next").click #FIXME
+    
+    # TEST CASE: Verify the section link is present
+    assert frm.link(:text, "Lesson4-Section1")
+    
+    frm.link(:text=>"Prev").click #FIXME
+    
+    # TEST CASE: Verify the iframe for the rsmart page is present
+    assert frm.frame(:id=>"iframe1").exist? #FIXME
+    
+    frm.link(:text=>"Table Of Contents").click #FIXME
+    frm.link(:text=>"Lesson5").click #FIXME
+    
+    # TEST CASE: Verify the section link is available
+    assert frm.link(:text=>"Lesson5-Section1").exist?
+    
+    frm.link(:text=>"Next").click #FIXME
+    
+    # TEST CASE: Verify file link is present
+    assert frm.span(:id=>"viewsectionStudentform:contentResourceLinkName").exist?
+    
+    frm.link(:text=>"Next").click #FIXME
+    
+    #TEST CASE: Verify section link is present
+    assert frm.link(:text=>"Lesson6-Section1").exist?
+    
+    frm.link(:text=>"Next").click #FIXME
+    
+    # TEST CASE: Verify file link is present
+    assert frm.span(:id=>"viewsectionStudentform:contentResourceLinkName").exist?
+  
+    lessons = Lessons.new(@browser)
+    
+    prefs = lessons.preferences
+    prefs.select_collapsed
+    prefs.set
+    
+    lessons = prefs.view
+    
+    # TEST CASE: Verify collapsed view
+    assert frm.link(:text=>"Lesson1").exist?
+    assert_equal frm.link(:text=>"Lesson1-Section1").exist?, false
+    assert_equal frm.span(:id=>"listmodulesStudentform:table:1:titleTxt2").text, "Lesson2 (Expired)" #FIXME
+    
+    @sakai.logout
+    
+    workspace = @sakai.login(@instructor, @ipassword)
+    
+    home = workspace.open_my_site_by_id(@site_id)
+    
+    lessons = home.lessons
+    
+    module_5 = lessons.open_lesson "Lesson5"
+    
+    section_2 = module_5.add_content_sections
+    section_2.title="Lesson5-Section2"
+    section_2.content_type="Upload or link to a file in Resources"
+    
+    attach = section_2.select_or_upload_file
+    attach.select_file "resources.JPG"
+    
+    section_2 = attach.continue
+    
+    confirm = section_2.add
+    
+    lessons = confirm.finish
+    
+    listview = lessons.view
+    
+    sectionview = listview.open_section "Lesson5-Section2"
+    
+    # TEST CASE: Verify the uploaded file appears
+    assert frm.link(:text, "resources.JPG").exist?
+    
+    manage = sectionview.manage
+    
+    sort = manage.sort
+    
+    sort.sort_sections
+    sort.sort_modules
+    sort.view
+    
+    @sakai.logout
     
   end
   
