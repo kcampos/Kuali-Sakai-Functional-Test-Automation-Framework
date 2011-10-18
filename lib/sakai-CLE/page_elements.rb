@@ -99,7 +99,11 @@ module ToolsMenu
     JobScheduler.new(@browser)
   end
   
-  link(:lessons, :text=>"Lessons")
+  def lessons
+    @browser.link(:text=>"Lessons").click
+    Lessons.new(@browser)
+  end
+  
   link(:lesson_builder, :text=>"Lesson Builder")
   link(:link_tool, :text=>"Link Tool")
   link(:live_virtual_classroom, :text=>"Live Virtual Classroom")
@@ -2022,7 +2026,7 @@ class ComposeForumMessage
   end
   
   def add_attachments
-    
+    #FIXME
   end
   
   def cancel
@@ -2216,6 +2220,161 @@ class AddEditTopic
 end
 
 #================
+# Lesson Pages
+#================
+
+# The Lessons page in a site ("icon-sakai-melete")
+class Lessons
+  
+  include PageObject
+  include ToolsMenu
+  
+  def add_module
+    frm(1).link(:text=>"Add Module").click
+    AddModule.new(@browser)
+  end
+
+  in_frame(:index=>1) do |frame|
+    
+  end
+end
+
+class AddModule
+  
+  include PageObject
+  include ToolsMenu
+  
+  def add
+    frm(1).link(:id=>"AddModuleForm:submitsave").click
+    ConfirmModule.new(@browser)
+  end
+
+  in_frame(:index=>1) do |frame|
+    text_field(:title, :id=>"AddModuleForm:title", :frame=>frame)
+    text_area(:description, :id=>"AddModuleForm:description", :frame=>frame)
+    text_area(:keywords, :id=>"AddModuleForm:keywords", :frame=>frame)
+    text_field(:start_date, :id=>"AddModuleForm:startDate", :frame=>frame)
+    text_field(:end_date, :id=>"AddModuleForm:endDate", :frame=>frame)
+  end
+end
+
+class ConfirmModule
+  
+  include PageObject
+  include ToolsMenu
+  
+  def add_content_sections
+    frm(1).link(:id=>"AddModuleConfirmForm:sectionButton").click
+    AddSection.new(@browser)
+  end
+  
+  def return_to_modules
+    frm(1).link(:id=>"AddModuleConfirmForm:returnModImg").click
+    AddModule.new(@browser)
+  end
+
+  in_frame(:index=>1) do |frame|
+    
+  end
+end
+
+class AddSection
+  
+  include PageObject
+  include ToolsMenu
+  
+  def add
+    frm(1).link(:id=>"AddSectionForm:submitsave").click
+    ConfirmSection.new(@browser)
+  end
+
+  def content_editor
+    frm(1).frame(:id, "AddSectionForm:fckEditorView:otherMeletecontentEditor_inputRichText___Frame").td(:id, "xEditingArea").frame(:index=>0)
+  end
+
+  def add_content=(text)
+    content_editor.send_keys(text)
+  end
+
+  def clear_content
+    frm(1).frame(:id, "AddSectionForm:fckEditorView:otherMeletecontentEditor_inputRichText___Frame").div(:title=>"Select All").fire_event("onclick")
+    content_editor.send_keys :backspace
+  end
+
+  def select_url
+    frm(1).link(:id=>"AddSectionForm:ContentLinkView:serverViewButton").click
+    SelectingContent.new(@browser)
+  end
+  
+  def select_or_upload_file
+    frm(1).link(:id=>"AddSectionForm:ResourceHelperLinkView:serverViewButton").click
+    LessonAddAttachment.new(@browser)
+  end
+  
+  in_frame(:index=>1) do |frame|
+    text_field(:title, :id=>"AddSectionForm:title", :frame=>frame)
+    select_list(:content_type, :id=>"AddSectionForm:contentType", :frame=>frame)
+    
+  end
+end
+
+class ConfirmSectionAdd
+  
+  include PageObject
+  include ToolsMenu
+  
+  def add_another_section
+    frm(1).link(:id=>"AddSectionConfirmForm:saveAddAnotherbutton").click
+    AddSection.new(@browser)
+  end
+  
+  def finish
+    frm(1).link(:id=>"AddSectionConfirmForm:finishImg").click
+    Lessons.new(@browser)
+  end
+
+  in_frame(:index=>1) do |frame|
+    
+  end
+end
+
+class SelectingContent
+  
+  include PageObject
+  include ToolsMenu
+  
+  def continue
+    frm(1).link(:id=>"ServerViewForm:addButton").click
+    AddSection.new(@browser)
+  end
+
+  in_frame(:index=>1) do |frame|
+    text_field(:new_url, :id=>"ServerViewForm:link", :frame=>frame)
+    text_field(:url_title, :id=>"ServerViewForm:link_title", :frame=>frame)
+  end
+end
+
+class LessonAddAttachment
+  
+  include PageObject
+  include ToolsMenu
+  
+  def continue
+    frm(1).button(:value=>"Continue").click
+    AddModule.new(@browser)
+  end
+  
+  def add
+    
+  end
+  
+  in_frame(:index=>1) do |frame|
+    
+  end
+end
+
+
+#================
 # Overview-type Pages
 #================
 
@@ -2329,23 +2488,76 @@ class Resources
   # This method will need to be improved to allow
   # for Resources pages that contain multiple
   # folders
-  def upload_files
-    frm(1).link(:text, "Start Add Menu").fire_event("onfocus")
+  def upload_files_to_folder(folder_name)
+    index = folder_names.index(folder_name)
+    frm(1).link(:text=>"Start Add Menu", :index=>index).fire_event("onfocus")
     frm(1).link(:text, "Upload Files").click
     ResourcesUploadFiles.new(@browser)
   end
   
+  def open_folder(name)
+    frm(1).link(:text=>name).click
+    Resources.new(@browser)
+  end
   
+  def create_subfolders_in(folder_name)
+    index = folder_names.index(folder_name)
+    frm(1).link(:text=>"Start Add Menu", :index=>index).fire_event("onfocus")
+    frm(1).link(:text, "Create Folders").click
+    CreateFolders.new(@browser)
+  end
+  
+  def edit_details(name)
+    menus = resource_names.compact
+    index=menus.index(name)
+    frm(1).li(:text=>/Action/, :class=>"menuOpen", :index=>index).fire_event("onclick")
+    frm(1).link(:text=>"Edit Details", :index=>index).click
+    EditFileDetails.new(@browser)
+  end
+  
+  # This method returns folder names only
+  def folder_names
+    names = []
+    resources_table = frm(1).table(:class=>"listHier lines centerLines")
+    1.upto(resources_table.rows.size-1) do |x|
+      if resources_table[x][2].h3.exist? && resources_table[x][2].a.title=="Folder"
+        names << resources_table[x][2].text
+      end
+    end
+    return names
+  end
+  
+  # This method returns only file names
+  def file_names
+    names = []
+    resources_table = frm(1).table(:class=>"listHier lines centerLines")
+    1.upto(resources_table.rows.size-1) do |x|
+      if resources_table[x][2].h4.exist? && resources_table[x][2].a(:index=>1).title=="Unknown"
+        names << resources_table[x][2].text
+      end
+    end
+    return names
+  end
+  
+  # This method returns both file and folder names
   def resource_names
     titles = []
     resources_table = frm(1).table(:class=>"listHier lines centerLines")
     1.upto(resources_table.rows.size-1) do |x|
-      titles << resources_table[x][2].text
+      if resources_table[x][2].link.exist?
+        titles << resources_table[x][2].text
+      else
+        titles << ""
+      end
     end
     return titles
   end
-    
   
+  def access_level(filename)
+    index = resource_names.index(filename)
+    frm(1).table(:class=>"listHier lines centerLines")[index+1][6].text
+  end
+
   in_frame(:index=>1) do |frame|
     button(:remove, :value=>"Remove", :frame=>frame)
     button(:move, :value=>"Move", :frame=>frame)
@@ -2362,7 +2574,7 @@ class ResourcesUploadFiles
   # Note that the file_to_upload method can be used
   # multiple times, but it assumes
   # that the add_another_file method is used
-  # before it, every time but the first time.
+  # before it, every time except before the first time.
   
   @@filex=0
   
@@ -2373,6 +2585,7 @@ class ResourcesUploadFiles
   
   def upload_files_now
     frm(1).button(:value=>"Upload Files Now").click
+    @@filex=0
     Resources.new(@browser)
   end
   
@@ -2384,6 +2597,39 @@ class ResourcesUploadFiles
   end
 
 end
+
+class EditFileDetails
+  
+  include PageObject
+  include ToolsMenu
+  
+  def update    
+    frm(1).button(:value=>"Update").click
+    Resources.new(@browser)
+  end
+
+  in_frame(:index=>1) do |frame|
+    text_field(:title, :id=>"displayName_0", :frame=>frame)
+    text_area(:description, :id=>"description_0", :frame=>frame)
+    radio_button(:publicly_viewable, :id=>"access_mode_public_0", :frame=>frame)
+  end
+end
+
+class CreateFolders #FIXME - Need to add functions for adding multiple folders
+  
+  include PageObject
+  include ToolsMenu
+  
+  def create_folders_now
+    frm(1).button(:value=>"Create Folders Now").click
+    Resources.new(@browser)
+  end
+
+  in_frame(:index=>1) do |frame|
+    text_field(:folder_name, :id=>"content_0", :frame=>frame)
+  end
+end
+
 
 #================
 # Administrative Search Pages
