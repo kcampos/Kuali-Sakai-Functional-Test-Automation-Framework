@@ -186,6 +186,12 @@ module ToolsMenu
   end
   
   link(:my_sites, :text=>"My Sites")
+  
+  def my_workspace
+    @browser.link(:text=>"My Workspace").click
+    MyWorkspace.new(@browser)
+  end
+  
   link(:news, :text=>"News")
   link(:online, :text=>"On-Line")
   link(:oauth_providers, :text=>"Oauth Providers")
