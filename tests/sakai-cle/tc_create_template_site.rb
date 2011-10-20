@@ -81,7 +81,7 @@ class CreateSiteTemplate < Test::Unit::TestCase
     
     # Add Resources
     resources = assignments_page.resources
-    upload = resources.upload_files
+    upload = resources.upload_files_to_folder(@template_site_name + " Resources")
     upload.file_to_upload="documents/resources.doc" #FIXME
     upload.add_another_file
     upload.file_to_upload="documents/sample.pdf" #FIXME
@@ -122,16 +122,17 @@ class CreateSiteTemplate < Test::Unit::TestCase
     # Add more types of stuff...
     
     # Go back to Site Setup page
-    admin_workspace = syllabus.administration_workspace
+    my_workspace = syllabus.my_workspace
     
-    site_setup = admin_workspace.site_setup
-    
+    site_setup = my_workspace.site_setup
+
     # Add a new Site
     new_site = site_setup.new
-    
+
     # Select to create site from Template
     new_site.select_create_site_from_template
-    new_site.select_template=/#{@template_site_name}/
+
+    new_site.select_template=/#{Regexp.escape(@template_site_name)}/
     new_site.select_term="FALL 2011" #FIXME
     new_site.check_copy_users
     new_site.check_copy_content

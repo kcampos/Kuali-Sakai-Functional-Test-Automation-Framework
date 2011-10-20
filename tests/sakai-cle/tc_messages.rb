@@ -83,7 +83,7 @@ class TestMessages < Test::Unit::TestCase
     
     personal_message = messages.compose_message
     
-    personal_message.send_to="Bob, Billy"
+    personal_message.send_to="Billy, Bob"
     personal_message.subject="Personal Message"
     personal_message.message_text="This is a personal message"
     
@@ -279,16 +279,6 @@ class TestMessages < Test::Unit::TestCase
     # TEST CASE: Ensure the personal message does not appear
     assert_equal received.messages.include?("Personal Message"), false
 
-
-    @selenium.click "//span[@class='unreadMsg']"
-    # 
-    begin
-        assert @selenium.is_element_present("link=resources.JPG")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.click "//img[@alt='Reset']"
-    # 
     @sakai.logout
     workspace = @sakai.login(@student3, @spassword3)
     
@@ -308,35 +298,39 @@ class TestMessages < Test::Unit::TestCase
     
     # TEST CASE: Verify the message can be read
     assert_equal "This is a personal message", frm.div(:class=>"textPanel").text #FIXME
+    assert frm.link(:text, "resources.JPG").exist?
     
-    begin
-        assert @selenium.is_element_present("link=resources.doc")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.click "link=Messages"
-    # 
-    @selenium.click "link=New Folder"
-    # 
-    @selenium.type "pvtMsgFolderAdd:title", "Test Folder"
-    @selenium.click "pvtMsgFolderAdd:_id11"
+    frm.link(:text, "Messages").click #FIXME
+    
+    messages = Messages.new(@browser)
+    
+    new_folder = messages.new_folder
+    new_folder.title="Test Folder"
+    
+    messages = new_folder.add
+
     # TEST CASE: Ensure Folder appears in the list
     assert messages.folder.include? "Test Folder"
     
-    @selenium.click "link=Folder Settings"
-    # 
-    @selenium.click "pvtMsgFolderSettings:_id7"
-    # 
-    @selenium.type "pvtMsgFolderAdd:title", "Test Sub Folder"
-    @selenium.click "pvtMsgFolderAdd:_id11"
+    folder_settings = messages.folder_settings "Test Folder"
+    
+    add_folder = folder_settings.add
+    add_folder.title="Another Test Folder"
+    
+    messages = add_folder.add
     
     # TEST CASE: Ensure folder appears in the list
+    assert messages.folder.include? "Another Test Folder"
     
-    begin
-        assert @selenium.is_element_present("link=Test Sub Folder")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
+    received = messages.received
+    received.check_message "Everyone Message"
+    
+    move = received.move
+    
+    move.select "Test Folder"
+    
+    messages = move.move_messages
+    
     @selenium.click "link=Received"
     # 
     @selenium.click "//input[contains(@name,'prefs_pvt_form:pvtmsgs:')]"

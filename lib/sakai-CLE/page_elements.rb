@@ -1202,7 +1202,7 @@ class AssignmentsList
     titles = []
     a_table = @browser.frame(:index=>1).table(:class=>"listHier lines nolines")
     1.upto(a_table.rows.size-1) do |x|
-      titles << assignments_table[x][1].h4(:index=>0).text
+      titles << a_table[x][1].h4(:index=>0).text
     end
     return titles
   end
@@ -2652,6 +2652,10 @@ class MoveMessageTo
     Messages.new(@browser)
   end
 
+  def select_folder(foldername)
+    frm(1).radio_button(:text=>foldername).set 
+  end
+
   in_frame(:index=>1) do |frame|
     radio_button(:received, :name=>"pvtMsgMove:_id16:0:privateForums:0:_id19", :frame=>frame)
     radio_button(:sent, :name=>"pvtMsgMove:_id16:0:privateForums:1:_id19", :frame=>frame)
@@ -2921,6 +2925,40 @@ class MessageDeleteConfirmation
 
 end
 
+# The page for creating a new folder for Messages
+class MessagesNewFolder
+  
+  include PageObject
+  include ToolsMenu
+  
+  def add
+    frm(1).button(:value=>"Add").click
+    Messages.new(@browser)
+  end
+
+  in_frame(:index=>1) do |frame|
+    text_field(:folder_title, :id=>"pvtMsgFolderAdd:title", :frame=>frame)
+  end
+end
+
+# The page for editing a Message Folder's settings
+class MessageFolderSettings
+  
+  include PageObject
+  include ToolsMenu
+
+  def rename_folder
+    frm(1).button(:value=>"Rename Folder").click
+    RenameMessageFolder.new(@browser)
+  end
+
+  def add
+    frm(1).button(:value=>"Add").click
+    MessagesNewFolder.new(@browser)
+  end
+
+end
+
 #================
 # Overview-type Pages
 #================
@@ -3031,9 +3069,11 @@ class Resources
   include PageObject
   include ToolsMenu
   
-  # This method will need to be improved to allow
-  # for Resources pages that contain multiple
-  # folders
+  # Clicks the Add Menu for the specified
+  # folder, then selects the Upload Files
+  # command in the menu that appears.
+  #
+  # It then instantiates the ResourcesUploadFiles class.
   def upload_files_to_folder(folder_name)
     index = folder_names.index(folder_name)
     frm(1).link(:text=>"Start Add Menu", :index=>index).fire_event("onfocus")
@@ -3912,54 +3952,53 @@ class SiteSetup
   include PageObject
   include ToolsMenu
   
-  # Site list contents are not defined as objects here,
-  # as they will always have the potential to be different
-  
   # Method for clicking the "New" link on the Site Setup page.
   def new
-    frm(0).link(:text=>"New").click
+    @browser.div(:id=>"siteTitle").text=="My Workspace" ? x = 0 : x = 1
+    frm(x).div(:class=>"portletBody").link(:text=>"New").click
     SiteType.new(@browser)
   end
   
-  # Note that this method (and the following)
-  # presumes that the site search
-  # will be successful and that only one site will
-  # be returned. It will need additional coding if
-  # there may be future situations where this won't always
-  # be true.
+  # Searches for the specified site, then
+  # selects the specified Site's checkbox.
+  # Then clicks the Edit button and instantiates
+  # The SiteSetupEdit class.
   def edit(site_name)
-    frm(0).text_field(:id, "search").value=Regexp.escape(site_name)
-    frm(0).button(:value=>"Search").click
-    frm(0).div(:class=>"portletBody").checkbox(:name=>"selectedMembers").set
-    frm(0).link(:text, "Edit").click
+    @browser.div(:id=>"siteTitle").text=="My Workspace" ? x = 0 : x = 1
+    frm(x).text_field(:id, "search").value=Regexp.escape(site_name)
+    frm(x).button(:value=>"Search").click
+    frm(x).div(:class=>"portletBody").checkbox(:name=>"selectedMembers").set
+    frm(x).div(:class=>"portletBody").link(:text, "Edit").click
     SiteSetupEdit.new(@browser)
   end
 
   def search(site_name)
-    frm(0).text_field(:id, "search").set site_name
-    frm(0).button(:value, "Search").click
+    @browser.div(:id=>"siteTitle").text=="My Workspace" ? x = 0 : x = 1
+    frm(x).text_field(:id, "search").set site_name
+    frm(x).button(:value, "Search").click
     SiteSetup.new(@browser)
   end
 
   def delete(site_name)
-    frm(0).text_field(:id, "Search").value=site_name
-    frm(0).button(:value=>"Search").click
-    frm(0).checkbox(:name=>"selectedMembers").set
-    frm(0).link(:text, "Delete").click
+    @browser.div(:id=>"siteTitle").text=="My Workspace" ? x = 0 : x = 1
+    frm(x).text_field(:id, "Search").value=site_name
+    frm(x).button(:value=>"Search").click
+    frm(x).checkbox(:name=>"selectedMembers").set
+    frm(x).div(:class=>"portletBody").link(:text, "Delete").click
     DeleteSite.new(@browser)
   end
   
   def site_titles
+    @browser.div(:id=>"siteTitle").text=="My Workspace" ? x = 0 : x = 1
     titles = []
-    sites_table = frm(0).table(:id=>"siteList")
+    sites_table = frm(x).table(:id=>"siteList")
     1.upto(sites_table.rows.size-1) do |x|
       titles << sites_table[x][1].text
     end
     return titles
   end
   
-  in_frame(:index=>0) do |frame|
-    link(:delete, :text=>"Delete", :frame=>frame)
+  in_frame(:index=>0) do |frame| #FIXME!
     select_list(:view, :id=>"view", :frame=>frame)
     button(:clear_search, :value=>"Clear Search", :frame=>frame)
     select_list(:select_page_size, :id=>"selectPageSize", :frame=>frame)
