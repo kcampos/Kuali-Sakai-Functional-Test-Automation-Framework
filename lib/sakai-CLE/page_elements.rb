@@ -2494,6 +2494,11 @@ class Messages
     MessagesDraftList.new(@browser)
   end
 
+  def open_folder(foldername)
+    frm(1).link(:text=>foldername).click
+    FolderList.new(@browser)
+  end
+
   def new_folder
     frm(1).link(:text=>"New Folder").click
     MessagesNewFolder.new(@browser)
@@ -2532,7 +2537,7 @@ class Messages
   
   def folder_settings(foldername)
     index = folders.index(foldername)
-    frm(1).table(:class=>"msgForum:_id23:0:privateForums").link(:text=>"Folder Settings", :index=>index-4).click
+    frm(1).table(:class=>"hierItemBlockWrapper").link(:text=>"Folder Settings", :index=>index-4).click
     MessageFolderSettings.new(@browser)
   end
   
@@ -2581,7 +2586,7 @@ class MessagesReceivedList
   # Clicks on the specified message subject
   # then instantiates the MessageView class.
   def open_message(subject)
-    frm(1).link(:text, "#{Regexp.escape(subject)}").click
+    frm(1).link(:text, /#{Regexp.escape(subject)}/).click
     MessageView.new(@browser)
   end
   
@@ -2601,8 +2606,17 @@ class MessagesReceivedList
   # Will throw an error if the specified
   # subject is not present.
   def check_message(subject)
-    index=messages.index(subject)
-    frm(1).checkbox(:name=>/prefs_pvt_form/, :index=>index).set 
+    index=subjects.index(subject)
+    frm(1).checkbox(:name=>"prefs_pvt_form:pvtmsgs:#{index}:_id122").set 
+  end
+  
+  # Clicks the Messages link in the
+  # Breadcrumb bar at the top of the
+  # page, then instantiates the Messages
+  # class
+  def messages
+    frm(1).link(:text=>"Messages").click
+    Messages.new(@browser)
   end
 
   # Clicks the "Mark Read" link, then
@@ -2615,11 +2629,11 @@ class MessagesReceivedList
 
   # Creates an array consisting of the
   # message subject lines.
-  def messages
+  def subjects
     titles = []
     messages = frm(1).table(:id=>"prefs_pvt_form:pvtmsgs")
     1.upto(messages.rows.size-1) do |x|
-      titles << messages[x][2].text
+      titles << messages.row(:index=>x).a.title
     end
     return titles
   end
@@ -2640,6 +2654,89 @@ class MessagesReceivedList
   end
 end
 
+# Page for the Contents of a Custom Folder for Messages
+class FolderList #FIXME
+  
+  include PageObject
+  include ToolsMenu
+  
+  def compose_message
+    frm(1).link(:text=>"Compose Message").click
+    ComposeMessage.new(@browser)
+  end
+  
+  # Clicks on the specified message subject
+  # then instantiates the MessageView class.
+  def open_message(subject)
+    frm(1).link(:text, /#{Regexp.escape(subject)}/).click
+    MessageView.new(@browser)
+  end
+  
+  # Grabs the text from the message
+  # box that appears after doing some
+  # action.
+  #
+  # Use this method to simplify writing
+  # Test::Unit asserts
+  def alert_message_text
+    frm(1).span(:class=>"success").text
+  end
+
+  # Checks the checkbox for the specified
+  # message in the list.
+  #
+  # Will throw an error if the specified
+  # subject is not present.
+  def check_message(subject)
+    index=subjects.index(subject)
+    frm(1).checkbox(:name=>"prefs_pvt_form:pvtmsgs:#{index}:_id122").set 
+  end
+  
+  # Clicks the Messages link in the
+  # Breadcrumb bar at the top of the
+  # page, then instantiates the Messages
+  # class
+  def messages
+    frm(1).link(:text=>"Messages").click
+    Messages.new(@browser)
+  end
+
+  # Clicks the "Mark Read" link, then
+  # reinstantiates the class because
+  # the page partially refreshes.
+  def mark_read
+    frm(1).link(:text=>"Mark Read").click
+    MessagesReceivedList.new(@browser)
+  end
+
+  # Creates an array consisting of the
+  # message subject lines.
+  def subjects
+    titles = []
+    messages = frm(1).table(:id=>"prefs_pvt_form:pvtmsgs")
+    1.upto(messages.rows.size-1) do |x|
+      titles << messages.row(:index=>x).a.title
+    end
+    return titles
+  end
+
+  def unread_messages
+    # FIXME
+  end
+
+  def move
+    frm(1).link(:text, "Move").click
+    MoveMessageTo.new(@browser)
+  end
+
+  in_frame(:index=>1) do |frame|
+    select_list(:view, :id=>"prefs_pvt_form:viewlist", :frame=>frame)
+    link(:check_all, :text=>"Check All", :frame=>frame)
+    link(:delete, :text=>"Delete", :frame=>frame)
+  end
+end
+
+
 # Page that appears when you want to move a message
 # from one folder to another.
 class MoveMessageTo
@@ -2652,8 +2749,12 @@ class MoveMessageTo
     Messages.new(@browser)
   end
 
-  def select_folder(foldername)
-    frm(1).radio_button(:text=>foldername).set 
+  # Method for selecting any custom folders
+  # present on the screen--and *only* the custom
+  # folders. Count begins with "1" for the first custom
+  # folder listed.
+  def select_custom_folder_num(num)
+    frm(1).radio(:index=>num.to_i+3).set 
   end
 
   in_frame(:index=>1) do |frame|
@@ -2688,13 +2789,23 @@ class MessagesDeletedList
 
   # Creates an array consisting of the
   # message subject lines.
-  def messages
+  def subjects
     titles = []
     messages = frm(1).table(:id=>"prefs_pvt_form:pvtmsgs")
     1.upto(messages.rows.size-1) do |x|
       titles << messages[x][2].text
     end
     return titles
+  end
+
+  # Checks the checkbox for the specified
+  # message in the list.
+  #
+  # Will throw an error if the specified
+  # subject is not present.
+  def check_message(subject)
+    index=subjects.index(subject)
+    frm(1).checkbox(:name=>"prefs_pvt_form:pvtmsgs:#{index}:_id122").set 
   end
 
   def move
@@ -2750,8 +2861,13 @@ class MessageView
   end
   
   def forward
-    frm(1).button(:value=>"Forward").click
+    frm(1).button(:value=>"Forward ").click
     ForwardMessage.new(@browser)
+  end
+
+  def received
+    frm(1).link(:text=>"Received").click
+    MessagesReceivedList.new(@browser)
   end
 
 end
@@ -2802,7 +2918,13 @@ class ReplyToMessage
   
   def send
     frm(1).button(:value=>"Send ").click
-    Messages.new(@browser)
+    # Need logic here to ensure the
+    # right class gets called...
+    if frm(1).div(:class=>/breadCrumb/).text=~ /Messages.\/.Received/
+      MessagesReceivedList.new(@browser)
+    else #FIXME
+      Messages.new(@browser)
+    end
   end
   
   def message_text=(text)
@@ -2881,9 +3003,9 @@ class MessagesAttachment
   def continue
     frm(1).button(:value=>"Continue").click
     # Logic for determining which class to call...
-    if frm(1).div(:class=>"breadCrumb").text =~ /Messages \/ Compose/
+    if frm(1).div(:class=>/breadCrumb/).text =~ /Messages \/ Compose/
       ComposeMessage.new(@browser)
-    elsif frm(1).div(:class=>"breadCrumb").text =~ /Reply to Message/
+    elsif frm(1).div(:class=>/breadCrumb/).text =~ /Reply to Message/
       ReplyToMessage.new(@browser)
     end
     
@@ -2893,8 +3015,24 @@ class MessagesAttachment
     frm(1).file_field(:id=>"upload").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + filename)
   end
 
-  def attach_copy(filename)
-    # FIXME
+  def attach_a_copy(filename)
+    index=file_names.index(filename)
+    frm(1).link(:text=>/Attach a copy/, :index=>index).click
+  end
+
+  # This method returns an array of the file names currently listed
+  # on the Add Attachment page.
+  # 
+  # It excludes folder names.
+  def file_names
+    names = []
+    resources_table = frm(1).table(:class=>"listHier lines")
+    1.upto(resources_table.rows.size-1) do |x|
+      if resources_table[x][0].h4.exist? && resources_table[x][0].a(:index=>0).title=~/File Type/
+        names << resources_table[x][0].text
+      end
+    end
+    return names
   end
 
   in_frame(:index=>1) do |frame|
@@ -2911,7 +3049,7 @@ class MessageDeleteConfirmation
   include ToolsMenu
   
   def alert_message_text
-    frm(1).span(:class=>"success").text
+    frm(1).span(:class=>"alertMessage").text
   end
   
   def delete_messages
@@ -2937,7 +3075,7 @@ class MessagesNewFolder
   end
 
   in_frame(:index=>1) do |frame|
-    text_field(:folder_title, :id=>"pvtMsgFolderAdd:title", :frame=>frame)
+    text_field(:title, :id=>"pvtMsgFolderAdd:title", :frame=>frame)
   end
 end
 
@@ -2957,7 +3095,25 @@ class MessageFolderSettings
     MessagesNewFolder.new(@browser)
   end
 
+  def delete
+    frm(1).button(:value=>"Delete").click
+    FolderDeleteConfirm.new(@browser)
+  end
+
 end
+
+# Page that confirms you want to delete the custom messages folder.
+class FolderDeleteConfirm
+  
+  include PageObject
+  include ToolsMenu
+  
+  def delete
+    frm(1).button(:value=>"Delete").click
+    Messages.new(@browser)
+  end
+end
+
 
 #================
 # Overview-type Pages
