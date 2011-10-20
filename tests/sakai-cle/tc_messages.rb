@@ -46,7 +46,7 @@ class TestMessages < Test::Unit::TestCase
     def frm
       @browser.frame(:index=>1)
     end
-    
+ 
     # Log in to Sakai
     workspace = @sakai.login(@instructor, @ipassword)
     
@@ -89,7 +89,7 @@ class TestMessages < Test::Unit::TestCase
     
     attach = personal_message.add_attachments
     
-    frm.table(:class=>"listHier lines").link(:text=>/resources.JPG/).click #FIXME
+    attach.attach_a_copy "resources.JPG" 
     
     personal_message = attach.continue
     
@@ -127,49 +127,54 @@ class TestMessages < Test::Unit::TestCase
     assert frm.image(:alt, "Has attachment(s)").exist?
     
     @sakai.logout
+
     workspace = @sakai.login(@student, @spassword)
-    
+    home = workspace.open_my_site_by_id(@site_id)
     messages = home.messages
-    
+ 
     received = messages.received
     
     # TEST CASE: Verify we are on the Messages Received page
     assert_equal "Messages / Received", frm.div(:class=>"breadCrumb specialLink").text, "Received Messages page did not load"
     # TEST CASE: Verify the list of messages is as expected
-    assert frm.link(:text, "Access Message").exist?
-    assert frm.link(:text, "Everyone Message").exist?
-    assert_equal frm.link(:text, "Maintain Message").exist?, false
-    assert_equal frm.link(:Text, "Personal Message").exist?, false
+    assert received.subjects.include? "Access Message"
+    assert received.subjects.include? "Everyone Message"
+    assert_equal received.subjects.include?("Maintain Message"), false
+    assert_equal received.subjects.include?("Personal Message"), false
     
-    frm.link(:text, "Access Message").click #FIXME
+    view = received.open_message "Access Message"
     
     # TEST CASE: Verify the student can read the message text
     assert_equal "This message is for participants only.", frm.div(:class=>"textPanel").text #FIXME
     
-    frm.link(:text, "Received").click #FIXME
-    frm.link(:text, "Everyone Message").click #FIXME
+    received = view.received
+    
+    view = received.open_message "Everyone Message"
     
     # TEST CASE: Verify the student can read the message
     assert_equal "This message is for everyone.", frm.div(:class=>"textPanel").text #FIXME
     
-    frm.button(:value=>"Reply").click # FIXME
+    reply = view.reply
     
-    reply = ReplyToMessage.new(@browser)
     reply.message_text="Reply to access message"
     
-    messages = reply.send
+    received = reply.send
+    
+    received.reset #FIXME
+    
+    messages = Messages.new(@browser) #FIXME
     
     sent = messages.sent
     
     # TEST CASE: Sent box has the newly sent message in it
-    assert_equal "Re: Access Message", frm.link(:text, "Re: Access Message")
-    
+    assert_equal "Re: Everyone Message", frm.link(:text, "Re: Everyone Message").text
+
     frm.link(:text, "Messages").click #FIXME
-    
     messages = Messages.new(@browser)
-    
+
     received = messages.received
-    received.check_message "Access message"
+    received.check_message "Access Message"
+
     received.delete
     
     # TEST CASE: Verify successful deletion
@@ -181,26 +186,24 @@ class TestMessages < Test::Unit::TestCase
     move.select_deleted
     
     messages = move.move_messages
-    
+ 
     received = messages.received
     
     # TEST CASE: Verify messages are no longer present.
-    assert_equal received.messages.include?("Access Message"), false
-    assert_equal received.messages.include?("Everyone Message"), false
+    assert_equal received.subjects.include?("Access Message"), false
+    assert_equal received.subjects.include?("Everyone Message"), false
     
-    frm.link(:text, "Messages").click #FIXME
-    frm.link(:text, "Deleted").click
-    
-    deleted = MessagesDeletedList.new(@browser)
+    messages = received.messages
+    deleted = messages.deleted
     
     # TEST CASE: Verify expected messages appear here
-    assert delete.messages.include? "Access Message"
-    assert delete.messages.include? "Everyone Message"
+    assert deleted.subjects.include? "Access Message"
+    assert deleted.subjects.include? "Everyone Message"
     
-    delete.check_message "Access Message"
-    delete.check_message "Everyone Message"
+    deleted.check_message "Access Message"
+    deleted.check_message "Everyone Message"
     
-    confirm = delete.delete
+    confirm = deleted.delete
     
     # TEST CASE: Verify the deletion confirmation message
     assert_equal confirm.alert_message_text, "Alert: Are you sure you want to permanently delete the following message(s)?"
@@ -211,9 +214,9 @@ class TestMessages < Test::Unit::TestCase
     assert_equal delete.alert_message_text, "The message(s) you selected have been successfully deleted."
     
     # TEST CASE: Verify messages are gone from the list
-    assert_equal delete.messages.include?("Access Message"), false
-    assert_equal delete.messages.include?("Everyone Message"), false
-    
+    assert_equal delete.subjects.include?("Access Message"), false
+    assert_equal delete.subjects.include?("Everyone Message"), false
+
     @sakai.logout
     workspace = @sakai.login(@instructor2, @ipassword2)
     home = workspace.open_my_site_by_id(@site_id)
@@ -226,9 +229,9 @@ class TestMessages < Test::Unit::TestCase
     received = messages.received
     
     # TEST CASE: Expected messages are present in the list
-    assert received.messages.include?("Access Message")
-    assert received.messages.include?("Everyone Message")
-    assert received.messages.include?("Maintain Message")
+    assert received.subjects.include?("Access Message")
+    assert received.subjects.include?("Everyone Message")
+    assert received.subjects.include?("Maintain Message")
     
     received.check_message "Access Message"
     received.check_message "Everyone Message"
@@ -240,8 +243,9 @@ class TestMessages < Test::Unit::TestCase
     
     # TEST CASE: Verify the count of unread messages has updated
     assert_equal messages.unread_messages_in_folder("Received"), "1"
-    
+
     @sakai.logout
+
     workspace = @sakai.login(@instructor, @ipassword)
     
     home = workspace.open_my_site_by_id(@site_id)
@@ -251,12 +255,12 @@ class TestMessages < Test::Unit::TestCase
     received = messages.received
     
     # TEST CASE: Verify expected message is there
-    assert received.messages.include? "Re: Access Message"
-    assert received.messages.include? "Everyone Message"
-    assert received.messages.include? "Maintain Message"
+    assert received.subjects.include? "Re: Access Message"
+    assert received.subjects.include? "Everyone Message"
+    assert received.subjects.include? "Maintain Message"
 
     view = received.open_message "Re: Access Message"
-    
+
     forward = view.forward
     
     forward.select_forward_recipients="SuperNinja, Anand"
@@ -265,6 +269,7 @@ class TestMessages < Test::Unit::TestCase
     received = forward.send 
     
     @sakai.logout
+ 
     workspace = @sakai.login(@student2, @spassword2)
     home = workspace.open_my_site_by_id(@site_id)
     
@@ -273,25 +278,26 @@ class TestMessages < Test::Unit::TestCase
     received = messages.received
     
     # TEST CASE: Verify presence of expected messages
-    assert received.messages.include? "FW: Re: Access Message"
-    assert received.messages.include? "Everyone Message"
-    assert received.messages.include? "Access Message"
+    assert received.subjects.include? "FW: Re: Access Message"
+    assert received.subjects.include? "Everyone Message"
+    assert received.subjects.include? "Access Message"
     # TEST CASE: Ensure the personal message does not appear
-    assert_equal received.messages.include?("Personal Message"), false
+    assert_equal received.subjects.include?("Personal Message"), false
 
     @sakai.logout
+
     workspace = @sakai.login(@student3, @spassword3)
     
     home = workspace.open_my_site_by_id(@site_id)
     
     messages = home.messages
-    
+
     received = messages.received
     
     # TEST CASE: Ensure the personal message appears
-    assert received.messages.include? "Personal Message"
-    assert received.messages.include? "Everyone Message"
-    assert received.messages.include? "Access Message"
+    assert received.subjects.include? "Personal Message"
+    assert received.subjects.include? "Everyone Message"
+    assert received.subjects.include? "Access Message"
     assert frm.image(:alt, "Has attachment(s)").exist?
     
     view_message = received.open_message "Personal Message"
@@ -310,7 +316,7 @@ class TestMessages < Test::Unit::TestCase
     messages = new_folder.add
 
     # TEST CASE: Ensure Folder appears in the list
-    assert messages.folder.include? "Test Folder"
+    assert messages.folders.include? "Test Folder"
     
     folder_settings = messages.folder_settings "Test Folder"
     
@@ -320,48 +326,38 @@ class TestMessages < Test::Unit::TestCase
     messages = add_folder.add
     
     # TEST CASE: Ensure folder appears in the list
-    assert messages.folder.include? "Another Test Folder"
-    
+    assert messages.folders.include? "Another Test Folder"
+
     received = messages.received
     received.check_message "Everyone Message"
     
     move = received.move
     
-    move.select "Test Folder"
+    move.select_custom_folder_num(1)
     
     messages = move.move_messages
     
-    @selenium.click "link=Received"
-    # 
-    @selenium.click "//input[contains(@name,'prefs_pvt_form:pvtmsgs:')]"
-    @selenium.click "prefs_pvt_form:moveCheckedToFolder"
-    # 
-    @selenium.click "//label[contains(text(),'Test Sub Folder')]/input"
-    # 
-    @selenium.click "//input[@name='pvtMsgMove:_id24']"
-    # 
-    begin
-        assert @selenium.is_element_present("//a[contains(text(),'Test Sub Folder')]/../span[contains(text(),' - 1 unread')]")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.click "link=Folder Settings"
-    # 
-    @selenium.click "pvtMsgFolderSettings:_id8"
-    # 
-    @selenium.click "pvtMsgFolderDelete:_id8"
-    # 
-    begin
-        assert !@selenium.is_element_present("link=Test Folder")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("link=Test Sub Folder")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
+    received = messages.received
+    received.check_message "Access Message"
     
+    move = received.move
+    move.select_custom_folder_num(2)
+    
+    messages = move.move_messages
+    
+    # TEST CASE: Verify message counts for the folders are updated
+    assert_equal messages.total_messages_in_folder("Test Folder"), "1"
+    assert_equal messages.total_messages_in_folder("Another Test Folder"), "1"
+    
+    test_folder_settings = messages.folder_settings "Test Folder"
+    
+    confirm = test_folder_settings.delete
+    
+    messages = confirm.delete
+    
+    # TEST CASE: Confirm the folder was deleted
+    assert_equal messages.folders.include?("Test Folder"), false
+    assert messages.folders.include?("Another Test Folder")
     
   end
   
