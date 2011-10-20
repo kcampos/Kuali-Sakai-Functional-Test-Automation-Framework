@@ -10,7 +10,7 @@ gems.each { |gem| require gem }
 files = [ "/../../config/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-CLE/page_elements.rb", "/../../lib/sakai-CLE/app_functions.rb" ]
 files.each { |file| require File.dirname(__FILE__) + file }
 
-class }}ClassName{{ < Test::Unit::TestCase
+class TestImportLesson < Test::Unit::TestCase
   
   include Utilities
 
@@ -22,10 +22,12 @@ class }}ClassName{{ < Test::Unit::TestCase
     # This test case uses the logins of several users
     @instructor = @config.directory['person4']['id']
     @ipassword = @config.directory['person4']['password']
+    @student = @config.directory["person6"]["id"]
+    @spassword = @config.directory["person6"]["password"]
     @site_name = @config.directory['site1']['name']
     @site_id = @config.directory['site1']['id']
     @sakai = SakaiCLE.new(@browser)
-    @zip_file = ""
+    @zip_file = "zips/Melete1.zip"
     
   end
   
@@ -34,7 +36,7 @@ class }}ClassName{{ < Test::Unit::TestCase
     @browser.close
   end
   
-  def test_))casename((
+  def test_import_lesson
     
     # some code to simplify writing steps in this test case
     def frm
@@ -42,22 +44,24 @@ class }}ClassName{{ < Test::Unit::TestCase
     end
     
     # Log in to Sakai
-    @sakai.login(@instructor, @ipassword)
+    workspace = @sakai.login(@instructor, @ipassword)
     
-    # Replace 'C:\TestNG rSmart\cle_test_suite\tests\TestingData' with the correct path to the TestingData dir you checked out with the cle_test_suite project
-    @selenium.type "eid", "instructor2"
-    @selenium.type "pw", "password"
-    @selenium.click "//input[@value='submit']"
-    @selenium.wait_for_page_to_load "30000"
-    @selenium.click "//a[contains(@title,'1 2 3')]"
-    @selenium.wait_for_page_to_load "30000"
-    @selenium.click "//a[@class='icon-sakai-melete']"
-    @selenium.wait_for_page_to_load "30000"
-    @selenium.click "listauthmodulesform:top:manageItem"
-    @selenium.wait_for_page_to_load "30000"
-    @selenium.click "ManageModuleForm:import"
-    @selenium.wait_for_page_to_load "30000"
+    # Go to the test site
+    home = workspace.open_my_site_by_id(@site_id)
+    
+    # Go to Lessons
+    lessons = home.lessons
+    
+    # Go to the Manage page
+    manage = lessons.manage
+    
+    # Go to the import/export page
+    import = manage.import_export
+    
     # File Attach
+    import.upload_IMS @zip_file
+    
+    
     @selenium.type "impfile", "/Users/corey/TestNG/trunk/tests/TestingData/Melete1.zip"
     @selenium.click "importexportform:importModuleImg"
     @selenium.wait_for_page_to_load "30000"

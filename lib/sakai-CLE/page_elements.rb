@@ -25,7 +25,7 @@ require  File.dirname(__FILE__) + '/app_functions.rb'
 # Aliases Pages
 #================
 
-# The Aliases page - "icon-sakai-aliases"
+# The Aliases page - "icon-sakai-aliases", found in the Administration Workspace
 class Aliases
   
   include PageObject
@@ -190,6 +190,11 @@ class AssessmentsList
   include PageObject
   include ToolsMenu
   
+  # This method reads the type of assessment selected for creation,
+  # then clicks the Create button and instantiates the proper class.
+  #
+  # If the assessment is going to be made in the builder, then
+  # Edit Assessment is called. If from Markup text...
   def create
     builder_or_text = frm(1).radio(:value=>"1", :name=>"authorIndexForm:_id29").set?
     
@@ -203,11 +208,15 @@ class AssessmentsList
     
   end
   
+  # Clicks the Question Pools link, then instantiates
+  # the QuestionPoolsList class.
   def question_pools
     frm(1).link(:text=>"Question Pools").click
     QuestionPoolsList.new(@browser)
   end
   
+  # Collects the titles of the Assessments listed as "Pending"
+  # then returns them as an Array.
   def pending_assessment_titles
     titles =[]
     pending_table = @browser.frame(:index=>1).table(:class=>"authorIndexForm:coreAssessments")
@@ -217,6 +226,8 @@ class AssessmentsList
     return titles
   end
   
+  # Collects the titles of the Assessments listed as "Published"
+  # then returns them as an Array.
   def published_assessment_titles
     titles =[]
     published_table = @browser.frame(:index=>1).div(:class=>"tier2", :index=>2).table(:class=>"listHier")
@@ -2053,6 +2064,11 @@ class Lessons
     end
   end
   
+  def manage
+    frm(1).link(:text=>"Manage").click
+    LessonManage.new(@browser)
+  end
+  
   # Clicks on the link that matches the supplied
   # name value, then instantiates the
   # AddEditLesson, or ViewLesson class, depending
@@ -2137,6 +2153,11 @@ class LessonManage
     LessonManageSort.new(@browser)
   end
 
+  def import_export
+    frm(1).link(:text=>"Import/Export").click
+    LessonImportExport.new(@browser)
+  end
+
 end
 
 # The Sorting Modules and Sections page in Lessons
@@ -2161,6 +2182,29 @@ class LessonManageSort
   end
 end
 
+# The Import/Export page in Manage Lessons for a Site
+class LessonImportExport
+  
+  include PageObject
+  include ToolsMenu
+
+  # Uploads the file specified - meaning that it enters
+  # the target file information, then clicks the import
+  # button.
+  # 
+  # Note that it pulls the file from the
+  # data folder.
+  # 
+  # The method also runs a Test::Unit assert
+  # to verify the "successful upload" message appears.
+  def upload_IMS(file_name)
+    frm(1).file_field(:name, "impfile").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + file_name)
+    frm(1).link(:id=>"importexportform:importModule").click
+    frm(1).table(:id=>"AutoNumber1").div(:text=>"Processing...").wait_while_present
+    assert_equal(frm(1).span(:class=>"BlueClass").text, "Imported the package successfully. Modules are created at the end of existing modules.", "Import failed")
+  end
+
+end
 
 # The User preference options page for Lessons.
 #
@@ -2413,6 +2457,471 @@ end
 
 
 #================
+# Messages Pages
+#================
+
+# The Messages page for a Site
+class Messages
+
+  include PageObject
+  include ToolsMenu
+  
+  # Clicks the Compose Message button,
+  # then instantiates the
+  # ComposeMessage class.
+  def compose_message
+    frm(1).link(:text=>"Compose Message").click
+    ComposeMessage.new(@browser)
+  end
+  
+  def received 
+    frm(1).link(:text=>"Received").click
+    MessagesReceivedList.new(@browser)
+  end
+
+  def sent
+    frm(1).link(:text=>"Sent").click
+    MessagesSentList.new(@browser)
+  end
+  
+  def deleted
+    frm(1).link(:text=>"Deleted").click
+    MessagesDeletedList.new(@browser)
+  end
+  
+  def draft
+    frm(1).link(:text=>"Draft").click
+    MessagesDraftList.new(@browser)
+  end
+
+  def new_folder
+    frm(1).link(:text=>"New Folder").click
+    MessagesNewFolder.new(@browser)
+  end
+  
+  def settings
+    frm(1).link(:text=>"Settings").click
+    MessagesSettings.new(@browser)
+  end
+  
+  # Gets the count of messages
+  # in the specified folder
+  # and returns it as a string
+  def total_messages_in_folder(folder_name)
+    index=folders.index(folder_name)
+    frm(1).table(:id=>"msgForum:_id23:0:privateForums").row(:index=>index).span(:class=>"textPanelFooter", :index=>0).text =~ /\d+/
+    return $~.to_s
+  end
+  
+  # Gets the count of unread messages
+  # in the specified folder and returns it
+  # as a string
+  def unread_messages_in_folder(folder_name)
+    index=folders.index(folder_name)
+    frm(1).table(:id=>"msgForum:_id23:0:privateForums").row(:index=>index).span(:class=>"textPanelFooter", :index=>1).text =~ /\d+/
+    return $~.to_s
+  end
+  
+  # Gets all the folder names
+  def folders
+    links = frm(1).table(:class=>"hierItemBlockWrapper").links.find_all { |link| link.title != /Folder Settings/ }
+    folders = []
+    links.each { |link| folders << link.text }
+    return folders
+  end
+  
+  def folder_settings(foldername)
+    index = folders.index(foldername)
+    frm(1).table(:class=>"msgForum:_id23:0:privateForums").link(:text=>"Folder Settings", :index=>index-4).click
+    MessageFolderSettings.new(@browser)
+  end
+  
+end
+
+# The page showing the user's Sent Messages.
+class MessagesSentList
+  
+  include PageObject
+  include ToolsMenu
+  
+  # Clicks the Compose Message button,
+  # then instantiates the
+  # ComposeMessage class.
+  def compose_message
+    frm(1).link(:text=>"Compose Message").click
+    ComposeMessage.new(@browser)
+  end
+  
+  # Grabs the text from the message
+  # box that appears after doing some
+  # action.
+  #
+  # Use this method to simplify writing
+  # Test::Unit asserts
+  def alert_message_text
+    frm(1).span(:class=>"success").text
+  end
+  
+  in_frame(:index=>1) do |frame|
+    link(:check_all, :text=>"Check All", :frame=>frame)
+  end
+end
+
+# The page showing the list of received messages.
+class MessagesReceivedList
+  
+  include PageObject
+  include ToolsMenu
+  
+  def compose_message
+    frm(1).link(:text=>"Compose Message").click
+    ComposeMessage.new(@browser)
+  end
+  
+  # Clicks on the specified message subject
+  # then instantiates the MessageView class.
+  def open_message(subject)
+    frm(1).link(:text, "#{Regexp.escape(subject)}").click
+    MessageView.new(@browser)
+  end
+  
+  # Grabs the text from the message
+  # box that appears after doing some
+  # action.
+  #
+  # Use this method to simplify writing
+  # Test::Unit asserts
+  def alert_message_text
+    frm(1).span(:class=>"success").text
+  end
+
+  # Checks the checkbox for the specified
+  # message in the list.
+  #
+  # Will throw an error if the specified
+  # subject is not present.
+  def check_message(subject)
+    index=messages.index(subject)
+    frm(1).checkbox(:name=>/prefs_pvt_form/, :index=>index).set 
+  end
+
+  # Clicks the "Mark Read" link, then
+  # reinstantiates the class because
+  # the page partially refreshes.
+  def mark_read
+    frm(1).link(:text=>"Mark Read").click
+    MessagesReceivedList.new(@browser)
+  end
+
+  # Creates an array consisting of the
+  # message subject lines.
+  def messages
+    titles = []
+    messages = frm(1).table(:id=>"prefs_pvt_form:pvtmsgs")
+    1.upto(messages.rows.size-1) do |x|
+      titles << messages[x][2].text
+    end
+    return titles
+  end
+
+  def unread_messages
+    # FIXME
+  end
+
+  def move
+    frm(1).link(:text, "Move").click
+    MoveMessageTo.new(@browser)
+  end
+
+  in_frame(:index=>1) do |frame|
+    select_list(:view, :id=>"prefs_pvt_form:viewlist", :frame=>frame)
+    link(:check_all, :text=>"Check All", :frame=>frame)
+    link(:delete, :text=>"Delete", :frame=>frame)
+  end
+end
+
+# Page that appears when you want to move a message
+# from one folder to another.
+class MoveMessageTo
+  
+  include PageObject
+  include ToolsMenu
+  
+  def move_messages
+    frm(1).button(:value=>"Move Messages").click
+    Messages.new(@browser)
+  end
+
+  in_frame(:index=>1) do |frame|
+    radio_button(:received, :name=>"pvtMsgMove:_id16:0:privateForums:0:_id19", :frame=>frame)
+    radio_button(:sent, :name=>"pvtMsgMove:_id16:0:privateForums:1:_id19", :frame=>frame)
+    radio_button(:deleted, :name=>"pvtMsgMove:_id16:0:privateForums:2:_id19", :frame=>frame)
+    radio_button(:draft, :name=>"pvtMsgMove:_id16:0:privateForums:3:_id19", :frame=>frame)
+  end
+end
+
+
+# The page showing the list of deleted messages.
+class MessagesDeletedList
+  
+  include PageObject
+  include ToolsMenu
+  
+  def compose_message
+    frm(1).link(:text=>"Compose Message").click
+    ComposeMessage.new(@browser)
+  end
+
+  # Grabs the text from the message
+  # box that appears after doing some
+  # action.
+  #
+  # Use this method to simplify writing
+  # Test::Unit asserts
+  def alert_message_text
+    frm(1).span(:class=>"success").text
+  end
+
+  # Creates an array consisting of the
+  # message subject lines.
+  def messages
+    titles = []
+    messages = frm(1).table(:id=>"prefs_pvt_form:pvtmsgs")
+    1.upto(messages.rows.size-1) do |x|
+      titles << messages[x][2].text
+    end
+    return titles
+  end
+
+  def move
+    frm(1).link(:text, "Move").click
+    MoveMessageTo.new(@browser)
+  end
+  
+  def delete
+    frm(1).link(:text=>"Delete").click
+    MessageDeleteConfirmation.new(@browser)
+  end
+
+  in_frame(:index=>1) do |frame|
+    link(:check_all, :text=>"Check All", :frame=>frame)
+  end
+end
+
+# The page showing the list of Draft messages.
+class MessagesDraftList
+  
+  include PageObject
+  include ToolsMenu
+  
+  def compose_message
+    frm(1).link(:text=>"Compose Message").click
+    ComposeMessage.new(@browser)
+  end
+
+  # Grabs the text from the message
+  # box that appears after doing some
+  # action.
+  #
+  # Use this method to simplify writing
+  # Test::Unit asserts
+  def alert_message_text
+    frm(1).span(:class=>"success").text
+  end
+
+  in_frame(:index=>1) do |frame|
+    link(:check_all, :text=>"Check All", :frame=>frame)
+  end
+end
+
+# The Page where you are reading a Message.
+class MessageView
+  
+  include PageObject
+  include ToolsMenu
+  
+  def reply
+    frm(1).button(:value=>"Reply").click
+    ReplyToMessage.new(@browser)
+  end
+  
+  def forward
+    frm(1).button(:value=>"Forward").click
+    ForwardMessage.new(@browser)
+  end
+
+end
+
+# The page for composing a message
+class ComposeMessage
+  
+  include PageObject
+  include ToolsMenu
+  
+  def send
+    frm(1).button(:value=>"Send ").click
+    Messages.new(@browser)
+  end
+  
+  def message_text=(text)
+    frm(1).frame(:id, "compose:pvt_message_body_inputRichText___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(text)
+  end
+
+  def add_attachments
+    frm(1).button(:value=>"Add attachments").click
+    MessagesAttachment.new(@browser)
+  end
+  
+  def preview
+    frm(1).button(:value=>"Preview").click
+    MessagesPreview.new(@browser)
+  end
+  
+  def save_draft
+    frm(1).button(:value=>"Save Draft").click
+    xxxxxxxxx.new(@browser) #FIXME
+  end
+
+  in_frame(:index=>1) do |frame|
+    select_list(:send_to, :id=>"compose:list1", :frame=>frame)
+    checkbox(:send_cc, :id=>"compose:send_email_out", :frame=>frame)
+    text_field(:subject, :id=>"compose:subject", :frame=>frame)
+    
+  end
+end
+
+# The page for composing a message
+class ReplyToMessage
+  
+  include PageObject
+  include ToolsMenu
+  
+  def send
+    frm(1).button(:value=>"Send ").click
+    Messages.new(@browser)
+  end
+  
+  def message_text=(text)
+    frm(1).frame(:id, "pvtMsgReply:df_compose_body_inputRichText___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(:home)
+    frm(1).frame(:id, "pvtMsgReply:df_compose_body_inputRichText___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(text)
+  end
+
+  def add_attachments
+    frm(1).button(:value=>"Add attachments").click
+    MessagesAttachment.new(@browser)
+  end
+  
+  def preview
+    frm(1).button(:value=>"Preview").click
+    MessagesPreview.new(@browser)
+  end
+  
+  def save_draft
+    frm(1).button(:value=>"Save Draft").click
+    xxxxxxxxx.new(@browser) #FIXME
+  end
+
+  in_frame(:index=>1) do |frame|
+    select_list(:select_additional_recipients, :id=>"compose:list1", :frame=>frame)
+    checkbox(:send_cc, :id=>"compose:send_email_out", :frame=>frame)
+    text_field(:subject, :id=>"compose:subject", :frame=>frame)
+    
+  end
+end
+
+# The page for composing a message
+class ForwardMessage
+  
+  include PageObject
+  include ToolsMenu
+  
+  def send
+    frm(1).button(:value=>"Send ").click 
+    MessagesReceivedList.new(@browser) #FIXME!
+  end
+  
+  def message_text=(text)
+    frm(1).frame(:id, "pvtMsgForward:df_compose_body_inputRichText___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(:home)
+    frm(1).frame(:id, "pvtMsgForward:df_compose_body_inputRichText___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(text)
+  end
+
+  def add_attachments
+    frm(1).button(:value=>"Add attachments").click
+    MessagesAttachment.new(@browser)
+  end
+  
+  def preview
+    frm(1).button(:value=>"Preview").click
+    MessagesPreview.new(@browser)
+  end
+  
+  def save_draft
+    frm(1).button(:value=>"Save Draft").click
+    xxxxxxxxx.new(@browser) #FIXME
+  end
+
+  in_frame(:index=>1) do |frame|
+    select_list(:select_forward_recipients, :id=>"pvtMsgForward:list1", :frame=>frame)
+    checkbox(:send_cc, :id=>"compose:send_email_out", :frame=>frame)
+    text_field(:subject, :id=>"compose:subject", :frame=>frame)
+    
+  end
+end
+
+# The attachment page for Messages
+class MessagesAttachment
+  
+  include PageObject
+  include ToolsMenu
+  
+  def continue
+    frm(1).button(:value=>"Continue").click
+    # Logic for determining which class to call...
+    if frm(1).div(:class=>"breadCrumb").text =~ /Messages \/ Compose/
+      ComposeMessage.new(@browser)
+    elsif frm(1).div(:class=>"breadCrumb").text =~ /Reply to Message/
+      ReplyToMessage.new(@browser)
+    end
+    
+  end
+  
+  def upload_file(filename)
+    frm(1).file_field(:id=>"upload").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + filename)
+  end
+
+  def attach_copy(filename)
+    # FIXME
+  end
+
+  in_frame(:index=>1) do |frame|
+    text_field(:url, :id=>"url", :frame=>frame)
+  end
+end
+
+# The page that appears when you select to
+# Delete a message that is already inside
+# the Deleted folder.
+class MessageDeleteConfirmation
+  
+  include PageObject
+  include ToolsMenu
+  
+  def alert_message_text
+    frm(1).span(:class=>"success").text
+  end
+  
+  def delete_messages
+    frm(1).button(:value=>"Delete Message(s)").click
+    MessagesDeletedList.new(@browser)
+  end
+
+  #FIXME
+  # Want eventually to have a method that will return
+  # an array of Message subjects
+
+end
+
+#================
 # Overview-type Pages
 #================
 
@@ -2487,7 +2996,6 @@ class MyWorkspace
     button(:first, :name=>"eventSubmit_doList_first", :frame=>frame)
   end
 end
-
 
 
 #================
@@ -3487,6 +3995,10 @@ class SiteType
   include PageObject
   include ToolsMenu
   
+  # Clicks the "course site" radio button
+  # and sets an instance variable so that
+  # the appropriate version of the Continue
+  # button is clicked later.
   def select_course_site
     frm(0).radio(:id, "course").set
     @site_type = 1

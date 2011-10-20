@@ -13,7 +13,9 @@ class SakaiCLE
     @browser = browser
   end
   
-  # Log in
+  # Logs in to Sakai using the
+  # specified credentials. Then it
+  # instantiates the MyWorkspace class.
   def login(username, password)
     frame = @browser.frame(:id, "ifrm")
     frame.text_field(:id, "eid").set username
@@ -22,13 +24,15 @@ class SakaiCLE
     MyWorkspace.new(@browser)
   end
   
-  # Log out
+  # Clicks the "(Logout)" link in the upper right of the page.
   def logout
     @browser.link(:text, "Logout").click
   end
   
-  # Format a date string Sakai-style.
+  # Formats a date string Sakai-style.
   # Useful for verifying creation dates and such.
+  #
+  # Supplied variable must of of the Time class.
   def make_date(time_object)
     month = time_object.strftime("%b ")
     day = time_object.strftime("%d").to_i
@@ -47,11 +51,14 @@ end
 
 # ToolsMenu contains all possible links that could
 # be found in the menu along the left side of the Sakai pages.
+#
+# This includes both the Administration Workspace and the
+# Menus that appear when in the context of a particular Site.
 module ToolsMenu
   
   include PageObject
   
-  # Opens "My Sites" box and then clicks on the link
+  # Opens the "My Sites" menu box and then clicks on the link
   # that matches the specified id.
   #
   # Errors out if nothing matches.
@@ -73,16 +80,38 @@ module ToolsMenu
     Home.new(@browser)
   end
   
-  link(:account, :text=>"Account")
-  link(:aliases, :text=>"Aliases")
+  # Clicks the "Account" link in the Adminstration Workspace
+  # then instantiates the Account class.
+  #
+  # Throws an error if the link is not present.
+  def account
+    @browser.link(:text=>"Account").click
+    Account.new(@browser)
+  end
   
+  # Clicks the "Aliases" link in the Administration Workspace
+  # menu, then instantiates the Aliases class.
+  def aliases
+    @browser.link(:text=>"Aliases").click
+    Aliases.new(@browser)
+  end
+  
+  # Clicks the link for the Administration Workspace, then
+  # instantiates the MyWorkspace class.
   def administration_workspace
     @browser.link(:text, "Administration Workspace").click
     MyWorkspace.new(@browser)
   end
   
-  link(:announcements, :class => 'icon-sakai-announcements')
+  # Clicks the Announcements link then instantiates
+  # the Announcements class.
+  def announcements
+    @browser.link(:class=>'icon-sakai-announcements').click
+    Announcements.new(@browser)
+  end
   
+  # Clicks the Assignments link, then instantiates
+  # the Assignments class.
   def assignments
     @browser.link(:class=>"icon-sakai-assignment-grades").click
     AssignmentsList.new(@browser)
@@ -91,6 +120,8 @@ module ToolsMenu
   link(:basic_lti, :text=>"Basic LTI")
   link(:blogs, :text=>"Blogs")
   
+  # Clicks the Calendar link, then instantiates
+  # the Calendar class.
   def calendar
     @browser.link(:text=>"Calendar").click
     Calendar.new(@browser)
@@ -108,6 +139,8 @@ module ToolsMenu
   link(:evaluation_system, :text=>"Evaluation System")
   link(:feedback, :text=>"Feedback")
   
+  # Clicks the Forums link, then instantiates
+  # the forums class.
   def forums
     @browser.link(:text=>"Forums").click
     Forums.new(@browser)
@@ -117,16 +150,22 @@ module ToolsMenu
   link(:gradebook2, :text=>"Gradebook2")
   link(:help, :text=>"Help")
   
+  # Clicks the Home link, then instantiates the
+  # Home class.
   def home
     @browser.link(:text, "Home").click
     Home.new(@browser)
   end
   
+  # Clicks the Job Scheduler link, then
+  # instantiates the Job Scheduler class.
   def job_scheduler
     @browser.link(:text=>"Job Scheduler").click
     JobScheduler.new(@browser)
   end
   
+  # Clicks the Lessons link, then instantiates
+  # the Lessons class.
   def lessons
     @browser.link(:text=>"Lessons").click
     Lessons.new(@browser)
@@ -139,7 +178,13 @@ module ToolsMenu
   link(:media_gallery, :text=>"Media Gallery")
   link(:membership, :text=>"Membership")
   link(:memory, :text=>"Memory")
-  link(:messages, :text=>"Messages")
+  
+  # Clicks the Messages link, then instantiates the Messages class.
+  def messages
+    @browser.link(:text=>"Messages").click
+    Messages.new(@browser)
+  end
+  
   link(:my_sites, :text=>"My Sites")
   link(:news, :text=>"News")
   link(:online, :text=>"On-Line")
@@ -153,14 +198,9 @@ module ToolsMenu
   link(:profile, :text=>"Profile")
   link(:realms, :text=>"Realms")
   
+  # Clicks the Resources link, then instantiates
+  # the Resources class.
   def resources
-    # Will eventually need logic here
-    # to determine whether to load the class for
-    # the Resources page in a particular site or the page
-    # while in the Admin workspace.
-    
-    # For now, though, this only works to go to
-    # the page within a given Site.
     @browser.link(:text, "Resources").click
     Resources.new(@browser)
   end
@@ -171,11 +211,15 @@ module ToolsMenu
   link(:sections, :text=>"Sections")
   link(:site_archive, :text=>"Site Archive")
   
+  # Clicks the Site Editor link, then instantiates
+  # the Site Editor class.
   def site_editor
     @browser.link(:text=>"Site Editor").click
     SiteEditor.new(@browser)
   end
   
+  # Clicks the Site Setup link, then instantiates
+  # The SiteSetup class.
   def site_setup
     @browser.link(:text=>"Site Setup").click
     SiteSetup.new(@browser)
@@ -183,6 +227,8 @@ module ToolsMenu
   
   link(:site_statistics, :text=>"Site Statistics")
   
+  # Clicks the Sites link, then instantiates
+  # the Sites class.
   def sites
     @browser.link(:class=>"icon-sakai-sites").click
     Sites.new(@browser)
@@ -191,11 +237,15 @@ module ToolsMenu
   link(:skin_manager, :text=>"Skin Manager")
   link(:super_user, :text=>"Super User")
   
+  # Clicks the Syllabus link, then instantiates
+  # the Syllabus class.
   def syllabus
     @browser.link(:text=>"Syllabus").click
     Syllabus.new(@browser)
   end
   
+  # Clicks the Tests & Quizzes link, then
+  # instantiates the AssessmentsList class.
   def tests_and_quizzes
     # Need this logic to determine whether user
     # is a student or instructor/admin
@@ -222,11 +272,14 @@ module ToolsMenu
 end
 
 # This is a module containing methods that are
-# common to all the question pages
+# common to all the question pages inside the
+# Assessment section of a Site.
 module QuestionHelpers
   
   include PageObject
   
+  # Saves the question by clicking the Save button, then makes the determination
+  # whether to instantiate the EditAssessment class, or the EditQuestionPool class.
   def save
     
     quiz = frm(1).div(:class=>"portletBody").div(:index=>0).text
