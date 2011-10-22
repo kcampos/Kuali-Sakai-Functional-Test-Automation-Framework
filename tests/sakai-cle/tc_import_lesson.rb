@@ -27,7 +27,7 @@ class TestImportLesson < Test::Unit::TestCase
     @site_name = @config.directory['site1']['name']
     @site_id = @config.directory['site1']['id']
     @sakai = SakaiCLE.new(@browser)
-    @zip_file = "zips/Melete1.zip"
+    @zip_file = "zips/Melete2.zip"
     
   end
   
@@ -61,12 +61,7 @@ class TestImportLesson < Test::Unit::TestCase
     # File Attach
     import.upload_IMS @zip_file
     
-    
-    @selenium.type "impfile", "/Users/corey/TestNG/trunk/tests/TestingData/Melete1.zip"
-    @selenium.click "importexportform:importModuleImg"
-    @selenium.wait_for_page_to_load "30000"
-    @selenium.click "importexportform:top:viewItem"
-    @selenium.wait_for_page_to_load "30000"
+    sleep 30
     begin
         assert @selenium.is_element_present("link=Getting Started")
     rescue Test::Unit::AssertionFailedError

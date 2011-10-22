@@ -121,7 +121,7 @@ class TestCreatingCourseSite < Test::Unit::TestCase
     course_site.continue
     
     # TEST CASE: Check that an invalid email address is not allowed
-    assert @browser.text.include?("Alert: #{address} is an invalid email address."), "Should have given an alert about the invalid Email."
+    assert_equal course_site.alert_box_text, "Alert: #{address} is an invalid email address. The Email id must be made up of alpha numeric characters or any of !\#$&*+-=?^_`{|}~. (no spaces).", "Should have given an alert about the invalid Email."
     
     # Blank out the email field
     course_site.site_contact_email=""

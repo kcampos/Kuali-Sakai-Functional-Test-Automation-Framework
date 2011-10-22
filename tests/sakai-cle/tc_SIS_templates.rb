@@ -48,9 +48,13 @@ class TestSISTemplates < Test::Unit::TestCase
     # Click New
     site_type = site_setup.new
     
-    # Select Course Site and the academic term
+    # Get the academic term value...
     site_type.select_course_site
-    site_type.academic_term="FALL 2011" #FIXME
+    term = site_type.academic_term_element.text
+    
+    site_type.select_template_site
+    site_type.select_template=/Template/
+    site_type.select_term=term
     
     section_info = site_type.continue
     
@@ -58,28 +62,18 @@ class TestSISTemplates < Test::Unit::TestCase
     section_info.course="101"
     section_info.section="100"
     section_info.authorizers_username="admin"
-    # 
-    @selenium.click "all"
-    @selenium.click "Continue"
-    # 
-    @selenium.type "emailId", "tst100"
-    @selenium.type "//input[@value='http://']", "http://www.rsmart.com"
-    @selenium.click "Continue"
-    # 
-    @selenium.click "publishunpublish"
-    @selenium.click "eventSubmit_doUpdate_site_access"
-    # 
-    @selenium.click "addSite"
-    # 
-    @selenium.click "link=Sites"
-    # 
-    @selenium.type "search", "tst"
-    @selenium.click "//a[contains(text(),'Search')]"
-    # 
-    site1 = @selenium.get_eval("this.page().findElement(\"//td/a\")")
-    @selenium.type "search_user", site1
-    @selenium.click "//td[@headers='Id']/a"
-    # 
+    
+    site_setup = section_info.done
+    
+    sites = site_setup.sites
+    
+    sites.search_field="tst"
+    sites.search_button
+    
+    tst_101 = sites.click_top_item
+    
+    sleep 20
+    
     @selenium.click "link=Save As"
     # 
     @selenium.type "id", "template.course"

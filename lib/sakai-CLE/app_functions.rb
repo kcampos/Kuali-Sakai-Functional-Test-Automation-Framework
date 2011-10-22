@@ -5,6 +5,7 @@
 # This file contains custom methods used throughout the Sakai test scripts
 
 require 'watir-webdriver'
+require 'page-object'
 require File.dirname(__FILE__) + '/page_elements.rb'
 
 class SakaiCLE
@@ -131,7 +132,14 @@ module ToolsMenu
   link(:chat_room, :text=>"Chat Room")
   link(:configuration_viewer, :text=>"Configuration Viewer")
   link(:customizer, :text=>"Customizer")
-  link(:discussion_forums, :text=>"Discussion Forums")
+  
+  # Clicks the "Discussion Forums" link in the menu,
+  # then instantiates the JForum page class.
+  def discussion_forums
+    @browser.link(:class=>"icon-sakai-jforum-tool").click
+    JForums.new(@browser)
+  end
+  
   link(:drop_box, :text=>"Drop Box")
   link(:email, :text=>"Email")
   link(:email_archive, :text=>"Email Archive")
@@ -213,7 +221,16 @@ module ToolsMenu
   
   link(:roster, :text=>"Roster")
   link(:rsmart_support, :text=>"rSmart Support")
-  link(:search, :text=>"Search")
+  
+  # Because "Search" is used in many pages,
+  # The Search button found in the Site Management
+  # Menu must be given the more explicit name
+  # 
+  def site_management_search
+    @browser.link(:class=>"icon-sakai-search").click
+    
+  end
+  
   link(:sections, :text=>"Sections")
   link(:site_archive, :text=>"Site Archive")
   

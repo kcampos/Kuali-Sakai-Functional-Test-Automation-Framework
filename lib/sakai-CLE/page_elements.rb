@@ -18,7 +18,7 @@
 # copying when you create a new class.
 
 require 'page-object'
-require 'cgi'
+#require 'cgi'
 require  File.dirname(__FILE__) + '/app_functions.rb'
 
 #================
@@ -194,7 +194,7 @@ class AssessmentsList
   # then clicks the Create button and instantiates the proper class.
   #
   # If the assessment is going to be made in the builder, then
-  # Edit Assessment is called. If from Markup text...
+  # EditAssessment is called. If from Markup text...
   def create
     builder_or_text = frm(1).radio(:value=>"1", :name=>"authorIndexForm:_id29").set?
     
@@ -237,6 +237,8 @@ class AssessmentsList
     return titles
   end
   
+  # Grabs the table with the inactive titles and returns the list
+  # in an array object.
   def inactive_assessment_titles
     titles =[]
     inactive_table = @browser.frame(:index=>1).div(:class=>"tier2", :index=>2).table(:class=>"authorIndexForm:inactivePublishedAssessments")
@@ -246,6 +248,8 @@ class AssessmentsList
     return titles
   end
   
+  # Opens the selected test for scoring
+  # then instantiates the AssessmentTotalScores class.
   def score_test(test_title)
     test_names = get_published_titles
     index_value = test_names.index(test_title)
@@ -274,22 +278,28 @@ class PreviewOverview
   include PageObject
   include ToolsMenu
   
+  # Scrapes the value of the due date from the page.
   def due_date
     frm(1).div(:class=>"tier2").table(:index=>0)[0][0].text
   end
   
+  # Scrapes the value of the time limit from the page.
   def time_limit
     frm(1).div(:class=>"tier2").table(:index=>0)[3][0].text
   end
   
+  # Scrapes the submission limit from the page.
   def submission_limit
     frm(1).div(:class=>"tier2").table(:index=>0)[6][0].text
   end
   
+  # Scrapes the Feedback policy from the page.
   def feedback
     frm(1).div(:class=>"tier2").table(:index=>0)[9][0].text
   end
   
+  # Clicks the Done button, then instantiates
+  # the EditAssessment class.
   def done
     frm(1).button(:name=>"takeAssessmentForm:_id5").click
     EditAssessment.new(@browser)
@@ -308,18 +318,23 @@ class AssessmentSettings
   include PageObject
   include ToolsMenu
   
+  # Scrapes the Assessment Type from the page
   def assessment_type_title
     frm(1).div(:class=>"tier2").table(:index=>0)[0][1].text
   end
   
+  # Scrapes the Assessment Author information from the page
   def assessment_type_author
     frm(1).div(:class=>"tier2").table(:index=>0)[1][1].text
   end
   
+  # Scrapes the Assessment Type Description from the page.
   def assessment_type_description
     frm(1).div(:class=>"tier2").table(:index=>0)[2][1].text
   end
   
+  # Clicks the Save Settings and Publish button
+  # then instantiates the PublishAssessment class.
   def save_and_publish
     frm(1).button(:value=>"Save Settings and Publish").click
     PublishAssessment.new(@browser)
@@ -403,7 +418,7 @@ class AssessmentTotalScores
   include PageObject
   include ToolsMenu
   
-  # This method gets the user ids listed in the
+  # Gets the user ids listed in the
   # scores table.
   def student_ids
     ids = []
@@ -413,7 +428,7 @@ class AssessmentTotalScores
     return ids
   end
   
-  # Method for adding a comment to a particular student's comment box.
+  # Adds a comment to the specified student's comment box.
   def comment_for_student(student_id, comment)
     available_ids = student_ids
     index_val = available_ids.index(student_id)
@@ -422,14 +437,18 @@ class AssessmentTotalScores
     
   end
   
+  # Clicks the Update button, then instantiates
+  # the AssessmentTotalScores class.
   def update
     frm(1).button(:value=>"Update").click
     AssessmentTotalScores.new(@browser)
   end
   
+  # Clicks the Assessments link on the page
+  # then instantiates the AssessmentsList class.
   def assessments
     frm(1).link(:text=>"Assessments").click
-    AssessmentsList
+    AssessmentsList.new(@browser)
   end
 
 end
@@ -441,6 +460,14 @@ class EditAssessment
   include PageObject
   include ToolsMenu
   
+  # Allows insertion of a question at a specified
+  # point in the Assessment. Must include the
+  # part number, the question number, and the type of
+  # question. Question Type must match the Type
+  # value in the drop down.
+  #
+  # The method will instantiate the page class
+  # based on the selected question type.
   def insert_question_after(part_num, question_num, qtype)
     if question_num.to_i == 0
       @browser.frame(:index=>1).select(:id=>"assesssmentForm:parts:#{part_num.to_i - 1}:changeQType").select(qtype)
@@ -465,27 +492,38 @@ class EditAssessment
     
   end
   
+  # Allows removal of question by part number and question number.
   def remove_question(part_num, question_num)
     @browser.frame(:index=>1).link(:id=>"assesssmentForm:parts:#{part_num.to_i-1}:parts:#{question_num.to_i-1}:deleteitem").click
   end
   
+  # Allows editing of a question by specifying its part number
+  # and question number.
   def edit_question(part_num, question_num)
     @browser.frame(:index=>1).link(:id=>"assesssmentForm:parts:#{part_num.to_i-1}:parts:#{question_num.to_i-1}:modify").click
   end
   
+  # Allows copying an Assessment part to a Pool.
   def copy_part_to_pool(part_num)
     @browser.frame(:index=>1).link(:id=>"assesssmentForm:parts:#{part_num.to_i-1}:copyToPool").click
   end
   
+  # Allows removing a specified
+  # Assessment part number.
   def remove_part(part_num)
     @browser.frame(:index=>1).link(:xpath, "//a[contains(@onclick, 'assesssmentForm:parts:#{part_num.to_i-1}:copyToPool')]").click
   end
   
+  # Clicks the Add Part button, then
+  # instantiates the AddEditAssessmentPart page class.
   def add_part
     frm(1).link(:text=>"Add Part").click
     AddEditAssessmentPart.new(@browser)
   end
   
+  # Selects the desired question type from the
+  # drop down list, then instantiates the appropriate
+  # page class.
   def select_question_type(qtype)
     @browser.frame(:index=>1).select(:id=>"assesssmentForm:changeQType").select(qtype)
 
@@ -506,26 +544,36 @@ class EditAssessment
     
   end
   
+  # Clicks the Preview button,
+  # then instantiates the PreviewOverview page class.
   def preview
     frm(1).link(:text=>"Preview").click
     PreviewOverview.new(@browser)
   end
   
+  # Clicks the Settings link, then
+  # instantiates the AssessmentSettings page class.
   def settings
     frm(1).link(:text=>"Settings").click
     AssessmentSettings.new(@browser)
   end
   
+  # Clicks the Publish button, then
+  # instantiates the PublishAssessment page class.
   def publish
     frm(1).link(:text=>"Publish").click
     PublishAssessment.new(@browser)
   end
   
+  # Clicks the Question Pools button, then
+  # instantiates the QuestionPoolsList page class.
   def question_pools
     frm(1).link(:text=>"Question Pools").click
     QuestionPoolsList.new(@browser)
   end
   
+  # Allows retrieval of a specified question's
+  # text, by part and question number.
   def get_question_text(part_number, question_number)
     frm(1).table(:id=>"assesssmentForm:parts:#{part_number.to_i-1}:parts").div(:class=>"tier3", :index=>question_number.to_i-1).text
   end
@@ -1665,6 +1713,413 @@ end
 
 
 #================
+# Discussion Forums Pages
+#================
+
+# This module includes page objects that are common to
+# all pages in the JForums.
+module JForumsResources
+  
+  def discussion_home
+    frm(1).link(:id=>"backtosite").click
+    JForums.new(@browser)
+  end
+  
+  def search
+    frm(1).link(:id=>"search", :class=>"mainmenu").click
+    DiscussionSearch.new(@browser)
+  end
+  
+  def my_bookmarks
+    frm(1).link(:class=>"mainmenu", :text=>"My Bookmarks").click
+    MyBookmarks.new(@browser)
+  end
+  
+  def my_profile
+    frm(1).link(:id=>"myprofile").click
+    DiscussionsMyProfile.new(@browser)
+  end
+  
+  def member_listing
+    frm(1).link(:text=>"Member Listing", :id=>"latest", :class=>"mainmenu").click
+    DiscussionMemberListing.new(@browser)
+  end
+  
+  def private_messages
+    frm(1).link(:id=>"privatemessages", :class=>"mainmenu").click
+    PrivateMessages.new(@browser)
+  end
+  
+  def manage
+    frm(1).link(:id=>"adminpanel", :text=>"Manage").click
+    ManageDiscussions.new(@browser)
+  end
+  
+  
+end
+
+# The topmost page in Discussion Forums
+class JForums
+  
+  include PageObject
+  include ToolsMenu
+  include JForumsResources
+
+  # Clicks on the supplied forum name
+  # Then instantiates the DiscussionForum class.
+  def open_forum(forum_name)
+    frm(1).link(:text=>forum_name).click
+    DiscussionForum.new(@browser)
+  end
+  
+  def open_topic(topic_title)
+    frm(1).link(:text=>topic_title).click
+    ViewTopic.new(@browser)
+  end
+
+  in_frame(:index=>1) do |frame|
+    
+  end
+end
+
+# The page of a particular Discussion Forum, show the list
+# of Topics in the forum.
+class DiscussionForum
+  
+  include PageObject
+  include ToolsMenu
+  include JForumsResources
+  
+  # Clicks the New Topic button,
+  # then instantiates the NewTopic class
+  def new_topic
+    frm(1).image(:alt=>"New Topic").fire_event("onclick")
+    NewTopic.new(@browser)
+  end
+  
+  def open_topic(topic_title)
+    frm(1).link(:href=>/posts.list/, :text=>topic_title).click
+    ViewTopic.new(@browser)
+  end
+  
+  in_frame(:index=>1) do |frame|
+    
+  end
+end
+
+class DiscussionSearch
+  
+  include PageObject
+  include ToolsMenu
+  include JForumsResources
+
+  # Clicks the Search button on the page,
+  # then instantiates the JForums class.
+  def click_search
+    frm(1).button(:value=>"Search").click
+    JForums.new(@browser)
+  end
+
+  in_frame(:index=>1) do |frame|
+    text_field(:keywords, :name=>"search_keywords", :frame=>frame)
+  end
+end
+
+class ManageDiscussions
+  
+  include PageObject
+  include ToolsMenu
+  
+  def manage_forums
+    frm(1).link(:text=>"Manage Forums").click
+    ManageForums.new(@browser)
+  end
+
+  # Creates an array of forum titles
+  # which can be used for verification
+  def forum_titles
+    forum_titles = []
+    forum_links = frm(1).links.find_all { |link| link.id=="forumEdit"}
+    forum_links.each { |link| forum_titles << link.text }
+    return forum_titles
+  end
+
+  in_frame(:index=>1) do |frame|
+    
+  end
+end
+
+class ManageForums
+  
+  include PageObject
+  include ToolsMenu
+  
+  def add
+    frm(1).button(:value=>"Add").click
+    ManageForums.new(@browser)
+  end
+  
+  def update
+    frm(1).button(:value=>"Update").click
+    ManageDiscussions.new(@browser)
+  end
+
+  in_frame(:index=>1) do |frame|
+    text_field(:forum_name, :name=>"forum_name", :frame=>frame)
+    select_list(:category, :id=>"categories_id", :frame=>frame)
+    text_area(:description, :name=>"description", :frame=>frame)
+  end
+end
+
+
+class MyBookmarks
+  
+  include PageObject
+  include ToolsMenu
+  include JForumsResources
+
+
+end
+
+# The page for adding a new discussion topic.
+class NewTopic
+  
+  include PageObject
+  include ToolsMenu
+  include JForumsResources
+  
+  def message_text=(text)
+    frm(1).frame(:id, "message___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(:home)
+    frm(1).frame(:id, "message___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(text)
+  end
+  
+  def submit
+    frm(1).button(:value=>"Submit").click
+    ViewTopic.new(@browser)
+  end 
+  
+  def preview
+    frm(1).button(:value=>"Preview").click
+    PreviewDiscussionTopic.new(@browser)
+  end
+  
+  # Enters the specified filename in the file field.
+  def filename1(filename)
+    frm(1).file_field(:name=>"file_0").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + filename)
+  end
+
+  # Enters the specified filename in the file field.
+  #
+  # Note that the file should be inside the data/sakai-cle folder.
+  # The file or folder name used for the filename variable
+  # should not include a preceding / character.
+  def filename2(filename)
+    frm(1).file_field(:name=>"file_1").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + filename)
+  end
+
+  in_frame(:index=>1) do |frame|
+    text_field(:subject, :id=>"subject", :frame=>frame)
+    button(:attach_files, :value=>"Attach Files", :frame=>frame)
+    button(:add_another_file, :value=>"Add another file", :frame=>frame)
+  end
+end
+
+# Viewing a Topic/Message
+class ViewTopic
+  
+  include PageObject
+  include ToolsMenu
+  include JForumsResources
+  
+  # Gets the text of the Topic title.
+  # Useful for verification.
+  def topic_name
+    frm(1).link(:id=>"top", :class=>"maintitle").text
+  end
+  
+  # Gets the message text for the specified message (not zero-based).
+  # Useful for verification.
+  def message_text(message_number)
+    frm(1).span(:class=>"postbody", :index=>message_number.to_i-1).text
+  end
+  
+  def post_reply
+    frm(1).image(:alt=>"Post Reply").fire_event("onclick")
+    NewTopic.new(@browser)
+  end
+  
+  # Clicks the Quick Reply button
+  # and does not instantiate any page classes.
+  def quick_reply 
+    frm(1).image(:alt=>"Quick Reply").fire_event("onclick")
+  end
+  
+  # Clicks the submit button underneath the Quick Reply box,
+  # then re-instantiates the class, due to the page update.
+  def submit
+    frm(1).button(:value=>"Submit").click
+    ViewTopic.new(@browser)
+  end
+  
+  in_frame(:index=>1) do |frame|
+    text_area(:reply_text, :name=>"quickmessage", :frame=>frame)
+  end
+  
+end
+
+# The Profile page for Discussion Forums
+class DiscussionsMyProfile
+  
+  include PageObject
+  include ToolsMenu
+  include JForumsResources
+  
+  def submit
+    frm(1).button(:value=>"Submit").click
+    DiscussionsMyProfile.new(@browser)
+  end
+  
+  # Gets the text at the top of the table.
+  # Useful for verification.
+  def header_text
+    frm(1).table(:class=>"forumline").span(:class=>"gens").text
+  end
+  
+  # Enters the specified filename in the file field.
+  #
+  # Note that the file should be inside the data/sakai-cle folder.
+  # The file or folder name used for the filename variable
+  # should not include a preceding / character.
+  def avatar=(filename)
+    frm(1).file_field(:name=>"avatar").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + filename)
+  end
+  
+  in_frame(:index=>1) do |frame|
+    text_field(:icq_uin, :name=>"icq", :frame=>frame)
+    text_field(:aim, :name=>"aim", :frame=>frame)
+    text_field(:web_site, :name=>"website", :frame=>frame)
+    text_field(:occupation, :name=>"occupation", :frame=>frame)
+    radio_button(:view_email) { |page| page.radio_button_element(:name=>"viewemail", :index=>0, :frame=>frame) }
+  end
+end
+
+# The List of Members of a Site's Discussion Forums
+class DiscussionMemberListing
+  
+  include PageObject
+  include ToolsMenu
+  include JForumsResources
+
+  # Checks if the specified Member name appears
+  # in the member listing.
+  def name_present?(name)
+    member_links = frm(1).links.find_all { |link| link.href=~/user.profile/ }
+    member_names = []
+    member_links.each { |link| member_names << link.text }
+    member_names.include?(name)
+  end
+
+end
+
+# The page where users go to read their private messages in the Discussion
+# Forums.
+class PrivateMessages
+  
+  include PageObject
+  include ToolsMenu
+  include JForumsResources
+
+  def new_pm
+    frm(1).image(:alt=>"New PM").fire_event("onclick")
+    NewPrivateMessage.new(@browser)
+  end
+  
+  def open_message(title)
+    frm(1).link(:class=>"topictitle", :text=>title).click
+    ViewPM.new(@browser)
+  end
+  
+  # Collects all subject text strings of the listed
+  # private messages and returns them in an Array.
+  def pm_subjects
+    anchor_objects = frm(1).links.find_all { |link| link.href=~/pm.read.+page/ }
+    subjects = []
+    anchor_objects.each { |link| subjects << link.text }
+    return subjects 
+  end
+  
+end
+
+class ViewPM
+  
+  include PageObject
+  include ToolsMenu
+  
+  def reply_quote
+    frm(1).image(:alt=>"Reply Quote").fire_event("onclick")
+    NewPrivateMessage.new(@browser)
+  end
+
+end
+
+# New Private Message page in Discussion Forums.
+class NewPrivateMessage
+  
+  include PageObject
+  include ToolsMenu
+  include JForumsResources
+
+  def message_body=(text)
+    frm(1).frame(:id, "message___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(:home)
+    frm(1).frame(:id, "message___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(text)
+  end
+  
+  def submit
+    frm(1).button(:value=>"Submit").click
+    Information.new(@browser)
+  end
+  
+  # Enters the specified filename in the file field.
+  def filename1(filename)
+    frm(1).file_field(:name=>"file_0").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + filename)
+  end
+
+  # Enters the specified filename in the file field.
+  #
+  # Note that the file should be inside the data/sakai-cle folder.
+  # The file or folder name used for the filename variable
+  # should not include a preceding / character.
+  def filename2(filename)
+    frm(1).file_field(:name=>"file_1").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + filename)
+  end
+
+  in_frame(:index=>1) do |frame|
+    select_list(:to_user, :name=>"toUsername", :frame=>frame)
+    text_field(:subject, :id=>"subject", :frame=>frame)
+    button(:attach_files, :value=>"Attach Files", :frame=>frame)
+    button(:add_another_file, :value=>"Add another file", :frame=>frame)
+  end
+  
+end
+
+# The page that appears when you've done something in discussions, like
+# sent a Private Message.
+class Information
+  
+  include PageObject
+  include ToolsMenu
+  include JForumsResources
+
+  # Gets the information message on the page.
+  # Useful for verification.
+  def information_text
+    frm(1).table(:class=>"forumline").span(:class=>"gen").text
+  end
+
+end
+
+
+#================
 # Forum Pages - NOT "Discussion Forums"
 #================
 
@@ -1673,6 +2128,7 @@ class Forums
   
   include PageObject
   include ToolsMenu
+
   
   def new_forum
     frm(1).link(:text=>"New Forum").click
@@ -1805,6 +2261,7 @@ class ViewForumThread
     
   end
 end
+
 
 class ComposeForumMessage
   
@@ -4190,52 +4647,45 @@ class SiteType
   include PageObject
   include ToolsMenu
   
-  # Clicks the "course site" radio button
-  # and sets an instance variable so that
-  # the appropriate version of the Continue
-  # button is clicked later.
-  def select_course_site
-    frm(0).radio(:id, "course").set
-    @site_type = 1
-  end
-  
-  def select_project_site
-    frm(0).radio(:id, "project").set
-    @site_type = 2
-  end
-  
-  def select_portfolio_site
-    frm(0).radio(:id, "portfolio").set
-    @site_type = 3
-  end
-  
-  def select_create_site_from_template
-    frm(0).radio(:id, "copy").set
-    @site_type = 4
-  end
-  
-  # The page's Continue button
-  def continue
-    # Logic for the type of site selected...
-    #FIXME!!!
-    case(@site_type)
-    when 1
-      frm(0).button(:id=>"submitBuildOwn").click
-      CourseSectionInfo.new(@browser)
-    when 2
-      frm(0).button(:id=>"submitFromTemplateCourse").click
-      # Add page class here
-    when 3
-      frm(0).button(:id=>"submitBuildOwn").click
-      # Add page class here
-    when 4
-      frm(0).button(:id=>"submitFromTemplateCourse").click
-      CourseSectionInfo.new(@browser)
+  # The page's Continue button. Button gets
+  # clicked and then the appropriate class
+  # gets instantiated, based on the page that
+  # appears.
+  def continue #FIXME
+    if frm(0).button(:id, "submitBuildOwn").enabled?
+      frm(0).button(:id, "submitBuildOwn").click
+    elsif frm(0).button(:id, "submitFromTemplateCourse").enabled?
+      frm(0).button(:id, "submitFromTemplateCourse").click
+    elsif frm(0).button(:id, "submitFromTemplate").enabled?
+      frm(0).button(:id, "submitFromTemplate").click
+=begin
+    elsif frm(0).button(:value=>"Continue", :index=>0).enabled?
+      frm(0).button(:value=>"Continue", :index=>0).fire_event("onclick")
+    elsif frm(0).button(:value=>"Continue", :index=>1).enabled?
+      frm(0).button(:value=>"Continue", :index=>1).fire_event("onclick")
+    elsif frm(0).button(:value=>"Continue", :index=>2).enabled?
+      frm(0).button(:value=>"Continue", :index=>2).fire_event("onclick")
+    else
+      frm(0).button(:value=>"Continue", :index=>2).fire_event("onclick")
+=end
     end
     
+    if frm(0).div(:class=>"portletBody").h3.text=="Course/Section Information"
+      CourseSectionInfo.new(@browser)
+    elsif frm(0).div(:class=>"portletBody").h3.text=="Project Site Information"
+      ProjectSiteInfo.new(@browser)
+    elsif frm(0).div(:class=>"portletBody").h3.text=="Portfolio Site Information"
+      PortfolioSiteInfo.new(@browser)
+    else
+      puts "Something is wrong on Saturn 3"
+    end
   end
   
   in_frame(:index=>0) do |frame|
+    radio_button(:course_site, :id=>"course", :frame=>frame)
+    radio_button(:project_site, :id=>"project", :frame=>frame)
+    radio_button(:portfolio_site, :id=>"portfolio", :frame=>frame)
+    radio_button(:template_site, :id=>"copy", :frame=>frame)
     select_list(:academic_term, :id=>"selectTerm", :frame=>frame)
     select_list(:select_template, :id=>"templateSiteId", :frame=>frame)
     select_list(:select_term, :id=>"selectTermTemplate", :frame=>frame)
@@ -4380,6 +4830,10 @@ class CourseSiteInfo
   def continue
     frm(0).button(:value=>"Continue").click
     EditSiteTools.new(@browser)
+  end
+  
+  def alert_box_text
+    frm(0).div(:class=>"portletBody").div(:class=>"alertMessage").text
   end
   
   # The WYSIWYG FCKEditor on this page will have to be
