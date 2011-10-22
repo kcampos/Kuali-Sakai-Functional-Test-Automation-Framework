@@ -42,7 +42,7 @@ class TestMasterProjectSite < Test::Unit::TestCase
     # Go to the Sites page
     home = Home.new(@browser)
     sites_page = home.sites
-=begin    
+    
     # Create a new site
     new_site = sites_page.new_site
     
@@ -57,7 +57,7 @@ class TestMasterProjectSite < Test::Unit::TestCase
     new_site.select_public_view_yes
     
     sites_page = new_site.save
-=end    
+ 
     edit_site = sites_page.edit_site_id(@master_project_site_id)
     
     pages = edit_site.pages
