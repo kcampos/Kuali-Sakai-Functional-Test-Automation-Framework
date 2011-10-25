@@ -361,7 +361,7 @@ class ResourcesUploadFiles
     Resources.new(@browser)
   end
   
-  in_frame(:index=>1) do |frame|
+  in_frame(:index=>1) do |frame| # FIXME
     # Interactive page objects that do no navigation
     # or page refreshes go here.
     link(:add_another_file, :text=>"Add Another File", :frame=>frame)
@@ -380,7 +380,7 @@ class EditFileDetails
     Resources.new(@browser)
   end
 
-  in_frame(:index=>1) do |frame|
+  in_frame(:index=>1) do |frame| # FIXME
     text_field(:title, :id=>"displayName_0", :frame=>frame)
     text_area(:description, :id=>"description_0", :frame=>frame)
     radio_button(:publicly_viewable, :id=>"access_mode_public_0", :frame=>frame)
@@ -401,7 +401,7 @@ class CreateFolders #FIXME - Need to add functions for adding multiple folders
     Resources.new(@browser)
   end
 
-  in_frame(:index=>1) do |frame|
+  in_frame(:index=>1) do |frame| # FIXME
     text_field(:folder_name, :id=>"content_0", :frame=>frame)
   end
 end
