@@ -16,6 +16,138 @@
 require  File.dirname(__FILE__) + '/app_functions.rb'
 
 #================
+# Announcements Pages
+#================
+
+# The topmost page for the Announcements tool
+class Announcements
+  
+  include PageObject
+  include ToolsMenu
+  
+  in_frame(:index=>0) do |frame|
+    link(:add, :text=>"Add", :frame=>frame)
+    link(:merge, :text=>"Merge", :frame=>frame)
+    link(:options, :text=>"Options", :frame=>frame)
+    link(:permissions, :text=>"Permissions", :frame=>frame)
+    select_list(:view, :id=>"view", :frame=>frame)
+    
+  end
+
+end
+
+# Adding a new Announcement
+class AnnouncementsAdd
+  
+  include PageObject
+  include ToolsMenu
+  
+  in_frame(:index=>0) do |frame|
+    
+    # Going to define the WYSIWYG text editor at some later time
+    
+    text_field(:title, :id=>"subject", :frame=>frame)
+    radio_button(:show, :id=>"hidden_false", :frame=>frame)
+    radio_button(:hide, :id=>"hidden_true", :frame=>frame)
+    radio_button(:specify_dates, :id=>"hidden_specify", :frame=>frame)
+    button(:add_attachments, :name=>"attach", :frame=>frame)
+    button(:add_announcement, :name=>"post", :frame=>frame)
+    button(:preview, :name=>"preview", :frame=>frame)
+    button(:clear, :name=>"cancel", :frame=>frame)
+    
+  end
+
+end
+
+# Page for merging announcements from other sites
+class AnnouncementsMerge
+  
+  include PageObject
+  include ToolsMenu
+  
+  in_frame(:index=>0) do |frame|
+    # This page can have an arbitrary number of site checkboxes.
+    # Only the first 5 are defined here.
+    # The rest will have to be called explicitly in any
+    # test case that needs to access those elements
+    checkbox(:site1, :id=>"site1", :frame=>frame)
+    checkbox(:site2, :id=>"site2", :frame=>frame)
+    checkbox(:site3, :id=>"site3", :frame=>frame)
+    checkbox(:site4, :id=>"site4", :frame=>frame)
+    checkbox(:site5, :id=>"site5", :frame=>frame)
+    button(:save, :name=>"eventSubmit_doUpdate", :frame=>frame)
+    button(:clear, :name=>"eventSubmit_doCancel", :frame=>frame)
+  end
+
+end
+
+# Page for setting up options for announcements
+class AnnouncementsOptions
+  
+  include PageObject
+  include ToolsMenu
+=begin  
+  in_frame(:index=>$frame_index) do |frame|
+    (:, :=>"", :frame=>frame)
+    (:, :=>"", :frame=>frame)
+    (:, :=>"", :frame=>frame)
+    (:, :=>"", :frame=>frame)
+    (:, :=>"", :frame=>frame)
+    
+  end
+=end
+end
+
+# Page containing permissions options for announcements
+class AnnouncementsPermissions
+  
+  include PageObject
+  include ToolsMenu
+=begin  
+  in_frame(:index=>$frame_index) do |frame|
+    (:, :=>"", :frame=>frame)
+    (:, :=>"", :frame=>frame)
+    (:, :=>"", :frame=>frame)
+    (:, :=>"", :frame=>frame)
+    (:, :=>"", :frame=>frame)
+    
+  end
+=end
+end
+
+
+#================
+# Calendar Pages
+#================
+
+# Top page of the Calendar
+# For now it includes all views, though that probably
+# means it will have to be re-instantiated every time
+# a new view is selected.
+class Calendar
+  
+  include PageObject
+  include ToolsMenu
+  
+  in_frame(:index=>0) do |frame| #FIXME!
+    select_list(:view, :id=>"view", :frame=>frame)
+    select_list(:show_events, :id=>"timeFilterOption", :frame=>frame)
+    select_list(:start_month, :id=>"customStartMonth", :frame=>frame)
+    select_list(:start_day, :id=>"customStartDay", :frame=>frame)
+    select_list(:start_year, :id=>"customStartYear", :frame=>frame)
+    select_list(:end_month, :id=>"customEndMonth", :frame=>frame)
+    select_list(:end_day, :id=>"customEndDay", :frame=>frame)
+    select_list(:end_year, :id=>"customEndYear", :frame=>frame)
+    button(:filter_events, :name=>"eventSubmit_doCustomdate", :frame=>frame)
+    button(:go_to_today, :name=>"eventSubmit_doToday", :frame=>frame)
+    
+  end
+
+end
+
+
+
+#================
 # Overview-type Pages
 #================
 
