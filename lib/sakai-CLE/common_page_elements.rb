@@ -13,7 +13,7 @@
 #
 # Author :: Abe Heward (aheward@rsmart.com)
 
-require  File.dirname(__FILE__) + '/app_functions.rb'
+#require File.dirname(__FILE__) + '/app_functions.rb'
 
 #================
 # Announcements Pages

@@ -7,7 +7,7 @@
 
 gems = ["test/unit", "watir-webdriver"]
 gems.each { |gem| require gem }
-files = [ "/../../config/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-CLE/page_elements.rb", "/../../lib/sakai-CLE/app_functions.rb" ]
+files = [ "/../../config/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-CLE/app_functions.rb", "/../../lib/sakai-CLE/admin_page_elements.rb", "/../../lib/sakai-CLE/site_page_elements.rb", "/../../lib/sakai-CLE/common_page_elements.rb" ]
 files.each { |file| require File.dirname(__FILE__) + file }
 
 class TestBuildPortfolioTemplate < Test::Unit::TestCase
@@ -34,11 +34,6 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
   end
   
   def test_build_portfolio_template
-    
-    # some code to simplify writing steps in this test case
-    def frm
-      @browser.frame(:index=>$frame_index)
-    end
     
     # Log in to Sakai
     workspace = @sakai.login(@instructor, @ipassword)

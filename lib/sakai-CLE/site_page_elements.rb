@@ -20,8 +20,8 @@
 # Also, see the bottom of this script for a Page Class template for
 # copying when you create a new class.
 
-require 'page-object'
-require  File.dirname(__FILE__) + '/app_functions.rb'
+#require 'page-object'
+#require  File.dirname(__FILE__) + '/app_functions.rb'
 
 #================
 # Assessments pages - "Samigo", a.k.a., "Tests & Quizzes"
