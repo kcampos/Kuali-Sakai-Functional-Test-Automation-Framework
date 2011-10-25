@@ -6,12 +6,10 @@
 #
 # Author: Abe Heward (aheward@rSmart.com)
 
-require "test/unit"
-require 'watir-webdriver'
-require File.dirname(__FILE__) + "/../../config/config.rb"
-require File.dirname(__FILE__) + "/../../lib/utilities.rb"
-require File.dirname(__FILE__) + "/../../lib/sakai-CLE/page_elements.rb"
-require File.dirname(__FILE__) + "/../../lib/sakai-CLE/app_functions.rb"
+gems = ["test/unit", "watir-webdriver"]
+gems.each { |gem| require gem }
+files = [ "/../../config/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-CLE/app_functions.rb", "/../../lib/sakai-CLE/admin_page_elements.rb", "/../../lib/sakai-CLE/site_page_elements.rb", "/../../lib/sakai-CLE/common_page_elements.rb" ]
+files.each { |file| require File.dirname(__FILE__) + file }
 
 class TestCreateAssignments < Test::Unit::TestCase
   
@@ -51,11 +49,6 @@ class TestCreateAssignments < Test::Unit::TestCase
 
     # Go to test site.
     home = my_workspace.open_my_site_by_id(@site_id)
-    
-    # Define the frame for ease of code writing (and reading)
-    def frm
-      @browser.frame(:index=>$frame_index)
-    end
 
     # Go to assignments page
     assignments = home.assignments

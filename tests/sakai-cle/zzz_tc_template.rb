@@ -7,7 +7,7 @@
 
 gems = ["test/unit", "watir-webdriver"]
 gems.each { |gem| require gem }
-files = [ "/../../config/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-CLE/page_elements.rb", "/../../lib/sakai-CLE/app_functions.rb" ]
+files = [ "/../../config/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-CLE/app_functions.rb" ]
 files.each { |file| require File.dirname(__FILE__) + file }
 
 class }}ClassName{{ < Test::Unit::TestCase

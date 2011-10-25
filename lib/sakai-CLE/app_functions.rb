@@ -4,11 +4,8 @@
 #
 # This file contains custom methods used throughout the Sakai test scripts
 
-require 'watir-webdriver'
+#require 'watir-webdriver'
 require 'page-object'
-require File.dirname(__FILE__) + '/site_page_elements.rb'
-require File.dirname(__FILE__) + '/admin_page_elements.rb'
-require File.dirname(__FILE__) + '/common_page_elements.rb'
 
 class SakaiCLE
   
@@ -46,7 +43,6 @@ class SakaiCLE
   end
   
 end
-
 
 #================
 # Page Navigation Objects

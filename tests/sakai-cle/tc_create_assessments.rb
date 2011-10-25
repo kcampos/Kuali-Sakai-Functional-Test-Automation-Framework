@@ -5,12 +5,10 @@
 #
 # Author: Abe Heward (aheward@rSmart.com)
 
-require "test/unit"
-require 'watir-webdriver'
-require File.dirname(__FILE__) + "/../../config/config.rb"
-require File.dirname(__FILE__) + "/../../lib/utilities.rb"
-require File.dirname(__FILE__) + "/../../lib/sakai-CLE/page_elements.rb"
-require File.dirname(__FILE__) + "/../../lib/sakai-CLE/app_functions.rb"
+gems = ["test/unit", "watir-webdriver"]
+gems.each { |gem| require gem }
+files = [ "/../../config/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-CLE/app_functions.rb", "/../../lib/sakai-CLE/admin_page_elements.rb", "/../../lib/sakai-CLE/site_page_elements.rb", "/../../lib/sakai-CLE/common_page_elements.rb" ]
+files.each { |file| require File.dirname(__FILE__) + file }
 
 class TestCreateNewAssessments < Test::Unit::TestCase
   
@@ -78,7 +76,7 @@ class TestCreateNewAssessments < Test::Unit::TestCase
     quiz = question1.save
     
     # TEST CASE: Verify the question appears on the Edit Assessment page
-    assert @browser.frame(:index=>$frame_index).select(:id=>"assesssmentForm:parts:0:parts:0:number").exist?
+    assert @browser.frame(:index=>1).select(:id=>"assesssmentForm:parts:0:parts:0:number").exist?
     assert quiz.get_question_text(1, 1) =~ /Who was the first US president/
     
     # Add a True/False question
@@ -90,7 +88,7 @@ class TestCreateNewAssessments < Test::Unit::TestCase
     quiz = question2.save
     
     # TEST CASE: Verify the question appears
-    assert @browser.frame(:index=>$frame_index).select(:id=>"assesssmentForm:parts:0:parts:1:number").exist?
+    assert @browser.frame(:index=>1).select(:id=>"assesssmentForm:parts:0:parts:1:number").exist?
     
     # Select fill-in-the-blank question type
     question3 = quiz.select_question_type "Fill in the Blank"
@@ -171,7 +169,7 @@ class TestCreateNewAssessments < Test::Unit::TestCase
     quiz = part.save
     
     # TEST CASE: Verify part 2 appears
-    assert @browser.frame(:index=>$frame_index).select(:id=>"assesssmentForm:parts:1:number").exist?
+    assert @browser.frame(:index=>1).select(:id=>"assesssmentForm:parts:1:number").exist?
     
     # Add questions to Part 2
     question10 = quiz.insert_question_after(2, 0, "Fill in the Blank")
@@ -228,7 +226,7 @@ class TestCreateNewAssessments < Test::Unit::TestCase
     pools_list = new_pool.save
     
     # TEST CASE: the new pool saved properly
-    assert @browser.frame(:index=>$frame_index).link(:text=>pool_title).exist?
+    assert @browser.frame(:index=>1).link(:text=>pool_title).exist?
     
     # Open the Pool to add questions
     pool = pools_list.edit_pool(pool_title)
@@ -248,7 +246,7 @@ class TestCreateNewAssessments < Test::Unit::TestCase
     pool = mc_question.save
     
     # TEST CASE: The new question saved properly
-    assert @browser.frame(:index=>$frame_index).link(:text=>"How many licks does it take to get to the center of a Tootsie Roll Pop?").exist?
+    assert @browser.frame(:index=>1).link(:text=>"How many licks does it take to get to the center of a Tootsie Roll Pop?").exist?
     
     # Add a True/False question
     select_qt = pool.add_question
@@ -269,7 +267,7 @@ class TestCreateNewAssessments < Test::Unit::TestCase
     pools_list = import_page.import
 
     # TEST CASE: Verify import worked
-    assert @browser.frame(:index=>$frame_index).span(:text=>"Exam 1").exist?
+    assert @browser.frame(:index=>1).span(:text=>"Exam 1").exist?
     
     # Go to the Assessments page
     assessments = pools_list.assessments
@@ -296,7 +294,7 @@ class TestCreateNewAssessments < Test::Unit::TestCase
     quiz2 = mcq.save
     
     # TEST CASE: Verify question saved...
-    assert @browser.frame(:index=>$frame_index).select(:id=>"assesssmentForm:parts:0:parts:0:number").exist?
+    assert @browser.frame(:index=>1).select(:id=>"assesssmentForm:parts:0:parts:0:number").exist?
     assert(quiz2.get_question_text(1, 1) =~ /^Who was the first US President/, quiz2.get_question_text(1, 1))
     
     # Add a True/False question

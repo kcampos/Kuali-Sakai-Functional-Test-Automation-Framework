@@ -7,7 +7,7 @@
 
 gems = ["test/unit", "watir-webdriver"]
 gems.each { |gem| require gem }
-files = [ "/../../config/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-CLE/page_elements.rb", "/../../lib/sakai-CLE/app_functions.rb" ]
+files = [ "/../../config/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-CLE/app_functions.rb", "/../../lib/sakai-CLE/admin_page_elements.rb", "/../../lib/sakai-CLE/site_page_elements.rb", "/../../lib/sakai-CLE/common_page_elements.rb" ]
 files.each { |file| require File.dirname(__FILE__) + file }
 
 class TestMasterPortfolioSite < Test::Unit::TestCase
@@ -43,7 +43,7 @@ class TestMasterPortfolioSite < Test::Unit::TestCase
     home = Home.new(@browser)
  
     sites_page = home.sites
-#=begin    
+   
     # Make a new Portfolio Site
     new_site = sites_page.new_site
     
@@ -56,7 +56,7 @@ class TestMasterPortfolioSite < Test::Unit::TestCase
     new_site.select_public_view_yes
     
     sites_page = new_site.save
-#=end   
+ 
     sites_page.search_site_id=@master_portfolio_site_id
     sites_page.search_site_id_button
     

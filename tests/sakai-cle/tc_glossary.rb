@@ -6,14 +6,12 @@
 #
 # Author: Abe Heward (aheward@rSmart.com)
 
-require "test/unit"
-require 'watir-webdriver'
-require File.dirname(__FILE__) + "/../../config/config.rb"
-require File.dirname(__FILE__) + "/../../lib/utilities.rb"
-require File.dirname(__FILE__) + "/../../lib/sakai-CLE/page_elements.rb"
-require File.dirname(__FILE__) + "/../../lib/sakai-CLE/app_functions.rb"
+gems = ["test/unit", "watir-webdriver"]
+gems.each { |gem| require gem }
+files = [ "/../../config/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-CLE/app_functions.rb", "/../../lib/sakai-CLE/admin_page_elements.rb", "/../../lib/sakai-CLE/site_page_elements.rb", "/../../lib/sakai-CLE/common_page_elements.rb" ]
+files.each { |file| require File.dirname(__FILE__) + file }
 
-class }}name{{ < Test::Unit::TestCase
+class TestGlossary < Test::Unit::TestCase
   
   include Utilities
 
@@ -36,7 +34,7 @@ class }}name{{ < Test::Unit::TestCase
     assert_equal [], @verification_errors
   end
   
-  def test_))casename((
+  def test_glossary
     
     # Log in to Sakai
     @sakai.login(@user_name, @password)

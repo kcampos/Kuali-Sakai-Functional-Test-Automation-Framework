@@ -5,12 +5,10 @@
 #
 # Author: Abe Heward (aheward@rSmart.com)
 
-require "test/unit"
-require 'watir-webdriver'
-require File.dirname(__FILE__) + "/../../config/config.rb"
-require File.dirname(__FILE__) + "/../../lib/utilities.rb"
-require File.dirname(__FILE__) + "/../../lib/sakai-CLE/page_elements.rb"
-require File.dirname(__FILE__) + "/../../lib/sakai-CLE/app_functions.rb"
+gems = ["test/unit", "watir-webdriver"]
+gems.each { |gem| require gem }
+files = [ "/../../config/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-CLE/app_functions.rb", "/../../lib/sakai-CLE/admin_page_elements.rb", "/../../lib/sakai-CLE/site_page_elements.rb", "/../../lib/sakai-CLE/common_page_elements.rb" ]
+files.each { |file| require File.dirname(__FILE__) + file }
 
 class TestCreatingCourseSite < Test::Unit::TestCase
   
@@ -189,7 +187,10 @@ class TestCreatingCourseSite < Test::Unit::TestCase
     creation_date = @sakai.make_date(Time.now)
     
     #Sort the list of sites so the newest site appears at the top
-    2.times { @browser.frame(:index=>0).link(:href, /criterion=created%20on&panel=Main&sakai_action=doSort_sites/).click }
+    2.times {
+      @browser.frame(:index=>0).link(:href, /criterion=created%20on&panel=Main&sakai_action=doSort_sites/).click
+      sleep 0.5 # Need this due to a bug in selenium-webdriver: http://code.google.com/p/selenium/issues/detail?id=2099
+      }
     
     link_text = @browser.frame(:index=>0).link(:href=>/xsl-portal.site/, :index=>0).text
     
