@@ -1023,8 +1023,8 @@ class AssignmentAdd
     checkbox(:add_due_date, :id=>"new_assignment_check_add_due_date", :frame=>frame)
     checkbox(:add_open_announcement, :id=>"new_assignment_check_auto_announce", :frame=>frame)
     checkbox(:add_honor_pledge, :id=>"new_assignment_check_add_honor_pledge", :frame=>frame)
-    radio_button(:do_not_add_assignment, :id=>"no",:name=>"new_assignment_add_to_gradebook", :frame=>frame)
-    radio_button(:add_assignment, :id=>"add", :name=>"new_assignment_add_to_gradebook", :frame=>frame)
+    radio_button(:do_not_add_to_gradebook, :id=>"no",:name=>"new_assignment_add_to_gradebook", :frame=>frame)
+    radio_button(:add_to_gradebook, :id=>"add", :name=>"new_assignment_add_to_gradebook", :frame=>frame)
     radio_button(:do_not_send_notifications, :id=>"notsendnotif", :frame=>frame)
     radio_button(:send_notifications, :id=>"sendnotif", :frame=>frame)
     radio_button(:send_summary_email, :id=>"sendnotifsummary", :frame=>frame)
@@ -1104,6 +1104,18 @@ class AssignmentsList
   def edit_assignment_id(id)
     frm.link(:href=>/#{Regexp.escape(id)}/).click
     AssignmentAdd.new(@browser)
+  end
+  
+  def edit_assignment(assignment_name)
+    index = assignments_titles.index(assignment_name)
+    frm.link(:text=>"Edit", :index=>index).click
+    AssignmentAdd.new(@browser)
+  end
+  
+  def duplicate_assignment(assignment_name)
+    index = assignments_titles.index(assignment_name)
+    frm.link(:text=>"Duplicate", :index=>index).click
+    AssignmentsList.new(@browser)
   end
   
   def get_assignment_id(assignment_name)
@@ -2283,6 +2295,7 @@ class Gradebook
   include ToolsMenu
 
   def items_titles
+    titles = []
     items_table = frm.table(:class=>"listHier lines nolines")
     1.upto(items_table.rows.size-1) do |x|
       titles << items_table.row(:index=>x).a(:index=>0).text
@@ -2291,8 +2304,6 @@ class Gradebook
   end
   
 end
-
-
 
 
 #================

@@ -67,10 +67,10 @@ class TestConditionalRelease < Test::Unit::TestCase
     assignment2.student_submissions="Inline only"
     assignment2.grade_scale="Points"
     assignment2.max_points="25"
-    assignment2.allow_resubmission
-    assignment2.add_to_gradebook
-    assigment2.instructions=instruction_text
-    assignment2.add_due_date
+    assignment2.check_allow_resubmission
+    assignment2.select_add_to_gradebook
+    assignment2.instructions=instruction_text
+    assignment2.check_add_due_date
     
     assignments = assignment2.post
     
@@ -107,6 +107,8 @@ class TestConditionalRelease < Test::Unit::TestCase
     file_details.item_condition="grade is greater than or equal to:"
     file_details.assignment_grade="20"
     file_details.update
+    
+    # Shouldn't there be a test of this conditional, now?
     
   end
   

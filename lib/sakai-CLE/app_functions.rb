@@ -154,7 +154,7 @@ module ToolsMenu
     Forums.new(@browser)
   end
   
-  def name
+  def gradebook
     @browser.link(:text=>"Gradebook").click
     Gradebook.new(@browser)
   end
