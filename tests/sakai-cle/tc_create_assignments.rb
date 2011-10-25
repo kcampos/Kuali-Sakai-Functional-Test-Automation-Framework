@@ -54,7 +54,7 @@ class TestCreateAssignments < Test::Unit::TestCase
     
     # Define the frame for ease of code writing (and reading)
     def frm
-      @browser.frame(:index=>1)
+      @browser.frame(:index=>$frame_index)
     end
 
     # Go to assignments page

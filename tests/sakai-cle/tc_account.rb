@@ -18,8 +18,6 @@ class UserAccountUpdate < Test::Unit::TestCase
   include Utilities
 
   def setup
-    @verification_errors = []
-    
     # Get the test configuration data
     config = AutoConfig.new
     @browser = config.browser
@@ -33,7 +31,6 @@ class UserAccountUpdate < Test::Unit::TestCase
   def teardown
     # Close the browser window
     @browser.close
-    assert_equal [], @verification_errors
   end
   
   def test_user_update
@@ -120,12 +117,6 @@ class UserAccountUpdate < Test::Unit::TestCase
     edit_account.verify_new_password="password"
     edit_account.update_details
     
-  end
-  
-  def verify(&blk)
-    yield
-  rescue Test::Unit::AssertionFailedError => ex
-    @verification_errors << ex
   end
   
 end

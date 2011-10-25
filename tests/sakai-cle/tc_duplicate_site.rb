@@ -37,7 +37,7 @@ class TestDuplicateSite < Test::Unit::TestCase
     
     # some code to simplify writing steps in this test case
     def frm
-      @browser.frame(:index=>1)
+      @browser.frame(:index=>$frame_index)
     end
     
     # Log in to Sakai
