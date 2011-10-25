@@ -50,7 +50,7 @@ class TestSubmitAssessment < Test::Unit::TestCase
     # Defining the frame code for ease of
     # step writing...
     def frm
-      @browser.frame(:index=>1)
+      @browser.frame(:index=>$frame_index)
     end
     
     # Go to Tests & Quizzes

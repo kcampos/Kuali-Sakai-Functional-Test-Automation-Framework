@@ -155,12 +155,12 @@ class TestDiscussionForums < Test::Unit::TestCase
     topic_page = new_message.post_message
 
     # TEST CASE: Verify message posted
-    assert @browser.frame(:index=>1).table(:id=>"msgForum:messagesInHierDataTable").text.include? "Thread for Topic 1"
+    assert @browser.frame(:index=>$frame_index).table(:id=>"msgForum:messagesInHierDataTable").text.include? "Thread for Topic 1"
    
     message = topic_page.open_message "Thread for Topic 1"
     
     # TEST CASE: Verify user can read the text
-    assert @browser.frame(:index=>1).table(:id=>"msgForum:expandedThreadedMessages").text.include? msg_text
+    assert @browser.frame(:index=>$frame_index).table(:id=>"msgForum:expandedThreadedMessages").text.include? msg_text
     
     @sakai.logout
     
@@ -182,7 +182,7 @@ class TestDiscussionForums < Test::Unit::TestCase
     topic = forums.open_topic "Topic 1"
 
     # TEST CASE: Verify the post new thread link is available
-    assert @browser.frame(:index=>1).table(:class=>/topicBloc/).link(:text=>"Post New Thread").exist?
+    assert @browser.frame(:index=>$frame_index).table(:class=>/topicBloc/).link(:text=>"Post New Thread").exist?
     
     @sakai.logout
    
@@ -205,7 +205,7 @@ class TestDiscussionForums < Test::Unit::TestCase
     message = topic_page.open_message "Thread for Topic 1"
     
     # TEST CASE: Verify user can read the text
-    assert @browser.frame(:index=>1).table(:id=>"msgForum:expandedThreadedMessages").text.include? msg_text
+    assert @browser.frame(:index=>$frame_index).table(:id=>"msgForum:expandedThreadedMessages").text.include? msg_text
     
     compose = message.reply_to_thread
     
@@ -226,7 +226,7 @@ class TestDiscussionForums < Test::Unit::TestCase
     topic_page = compose.post_message
     
     # TEST CASE: Verify the message appears in the thread list
-    assert @browser.frame(:index=>1).div(:class=>"portletBody").link(:text=>"Re: Thread for Topic 1").exist?
+    assert @browser.frame(:index=>$frame_index).div(:class=>"portletBody").link(:text=>"Re: Thread for Topic 1").exist?
     
     topic_page.reset
 
@@ -281,7 +281,7 @@ class TestDiscussionForums < Test::Unit::TestCase
     topic_page = compose_new.post_message
     
     # TEST CASE: Student in group 2 can post a new thread in the Group 2 topic
-    assert @browser.frame(:index=>1).table(:id=>"msgForum:messagesInHierDataTable").text.include? "Thread for Topic for Group 2"
+    assert @browser.frame(:index=>$frame_index).table(:id=>"msgForum:messagesInHierDataTable").text.include? "Thread for Topic for Group 2"
     
     # Log out and log back in as the instructor, to change the permissions
     # of a topic...
@@ -310,9 +310,9 @@ class TestDiscussionForums < Test::Unit::TestCase
     
     # TEST CASE: Verify student in group 1 can see but not edit Group 2 thread items.
     assert topic_page.thread_titles.include? "Thread for Topic for Group 2"
-    assert_equal @browser.frame(:index=>1).table(:class=>/topicBloc/).link(:text=>"Post New Thread").exist?, false
-    assert_equal @browser.frame(:index=>1).table(:class=>/topicBloc/).link(:text=>"Topic Settings").exist?, false
-    assert_equal @browser.frame(:index=>1).table(:class=>/topicBloc/).link(:text=>"Delete").exist?, false
+    assert_equal @browser.frame(:index=>$frame_index).table(:class=>/topicBloc/).link(:text=>"Post New Thread").exist?, false
+    assert_equal @browser.frame(:index=>$frame_index).table(:class=>/topicBloc/).link(:text=>"Topic Settings").exist?, false
+    assert_equal @browser.frame(:index=>$frame_index).table(:class=>/topicBloc/).link(:text=>"Delete").exist?, false
     
     @sakai.logout
     
@@ -326,9 +326,9 @@ class TestDiscussionForums < Test::Unit::TestCase
     
     # Verify student in group 2's permissions have not changed
     assert topic_page.thread_titles.include? "Thread for Topic for Group 2"
-    assert @browser.frame(:index=>1).table(:class=>/topicBloc/).link(:text=>"Post New Thread").exist?
-    assert_equal @browser.frame(:index=>1).table(:class=>/topicBloc/).link(:text=>"Topic Settings").exist?, false
-    assert_equal @browser.frame(:index=>1).table(:class=>/topicBloc/).link(:text=>"Delete").exist?, false
+    assert @browser.frame(:index=>$frame_index).table(:class=>/topicBloc/).link(:text=>"Post New Thread").exist?
+    assert_equal @browser.frame(:index=>$frame_index).table(:class=>/topicBloc/).link(:text=>"Topic Settings").exist?, false
+    assert_equal @browser.frame(:index=>$frame_index).table(:class=>/topicBloc/).link(:text=>"Delete").exist?, false
     
     #FIXME ADD TEST CASE for saving a group in DRAFT mode
     #FIXME ADD TEST CASE for clicking to view full descriptions and attachments

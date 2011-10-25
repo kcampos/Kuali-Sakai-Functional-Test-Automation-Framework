@@ -87,7 +87,7 @@ class Announcements
   include PageObject
   include ToolsMenu
   
-  in_frame(:index=>0) do |frame|
+  in_frame(:index=>$frame_index) do |frame|
     link(:add, :text=>"Add", :frame=>frame)
     link(:merge, :text=>"Merge", :frame=>frame)
     link(:options, :text=>"Options", :frame=>frame)
@@ -104,7 +104,7 @@ class AnnouncementsAdd
   include PageObject
   include ToolsMenu
   
-  in_frame(:index=>0) do |frame|
+  in_frame(:index=>$frame_index) do |frame|
     
     # Going to define the WYSIWYG text editor at some later time
     
@@ -127,7 +127,7 @@ class AnnouncementsMerge
   include PageObject
   include ToolsMenu
   
-  in_frame(:index=>0) do |frame|
+  in_frame(:index=>$frame_index) do |frame|
     # This page can have an arbitrary number of site checkboxes.
     # Only the first 5 are defined here.
     # The rest will have to be called explicitly in any
@@ -149,7 +149,7 @@ class AnnouncementsOptions
   include PageObject
   include ToolsMenu
 =begin  
-  in_frame(:index=>0) do |frame|
+  in_frame(:index=>$frame_index) do |frame|
     (:, :=>"", :frame=>frame)
     (:, :=>"", :frame=>frame)
     (:, :=>"", :frame=>frame)
@@ -166,7 +166,7 @@ class AnnouncementsPermissions
   include PageObject
   include ToolsMenu
 =begin  
-  in_frame(:index=>0) do |frame|
+  in_frame(:index=>$frame_index) do |frame|
     (:, :=>"", :frame=>frame)
     (:, :=>"", :frame=>frame)
     (:, :=>"", :frame=>frame)
@@ -196,9 +196,9 @@ class AssessmentsList
   # If the assessment is going to be made in the builder, then
   # EditAssessment is called. If from Markup text...
   def create
-    builder_or_text = frm(1).radio(:value=>"1", :name=>"authorIndexForm:_id29").set?
+    builder_or_text = frm.radio(:value=>"1", :name=>"authorIndexForm:_id29").set?
     
-    frm(1).button(:value=>"Create").click
+    frm.button(:value=>"Create").click
     
     if builder_or_text == true
       EditAssessment.new(@browser)
@@ -211,7 +211,7 @@ class AssessmentsList
   # Clicks the Question Pools link, then instantiates
   # the QuestionPoolsList class.
   def question_pools
-    frm(1).link(:text=>"Question Pools").click
+    frm.link(:text=>"Question Pools").click
     QuestionPoolsList.new(@browser)
   end
   
@@ -237,8 +237,6 @@ class AssessmentsList
     return titles
   end
   
-  # Grabs the table with the inactive titles and returns the list
-  # in an array object.
   def inactive_assessment_titles
     titles =[]
     inactive_table = @browser.frame(:index=>1).div(:class=>"tier2", :index=>2).table(:class=>"authorIndexForm:inactivePublishedAssessments")
@@ -253,7 +251,7 @@ class AssessmentsList
   def score_test(test_title)
     test_names = get_published_titles
     index_value = test_names.index(test_title)
-    frm(1).link(:id=>"authorIndexForm:_id88:#{index_value}:authorIndexToScore1").click
+    frm.link(:id=>"authorIndexForm:_id88:#{index_value}:authorIndexToScore1").click
     AssessmentTotalScores.new(@browser)
   end
   
@@ -261,7 +259,7 @@ class AssessmentsList
     link(:assessment_types, :text=>"Assessment Types", :frame=>frame)
     text_field(:title, :id=>"authorIndexForm:title", :frame=>frame)
     radio_button(:create_using_builder) { |page| page.radio_button_element(:name=>"authorIndexForm:_id29", index=>0, :frame=>frame) }
-    radio_button(:create_using_text) { |page| page.radio_button_element(:name=>"authorIndexForm:_id29", :index=>1, :frame=>frame) }
+    radio_button(:create_using_text) { |page| page.radio_button_element(:name=>"authorIndexForm:_id29", :index=>$frame_index, :frame=>frame) }
     select_list(:select_assessment_type, :id=>"authorIndexForm:assessmentTemplate", :frame=>frame)
     button(:import, :id=>"authorIndexForm:import", :frame=>frame)
     #(:, :=>"", :frame=>frame)
@@ -280,28 +278,28 @@ class PreviewOverview
   
   # Scrapes the value of the due date from the page.
   def due_date
-    frm(1).div(:class=>"tier2").table(:index=>0)[0][0].text
+    frm.div(:class=>"tier2").table(:index=>0)[0][0].text
   end
   
   # Scrapes the value of the time limit from the page.
   def time_limit
-    frm(1).div(:class=>"tier2").table(:index=>0)[3][0].text
+    frm.div(:class=>"tier2").table(:index=>0)[3][0].text
   end
   
   # Scrapes the submission limit from the page.
   def submission_limit
-    frm(1).div(:class=>"tier2").table(:index=>0)[6][0].text
+    frm.div(:class=>"tier2").table(:index=>0)[6][0].text
   end
   
   # Scrapes the Feedback policy from the page.
   def feedback
-    frm(1).div(:class=>"tier2").table(:index=>0)[9][0].text
+    frm.div(:class=>"tier2").table(:index=>0)[9][0].text
   end
   
   # Clicks the Done button, then instantiates
   # the EditAssessment class.
   def done
-    frm(1).button(:name=>"takeAssessmentForm:_id5").click
+    frm.button(:name=>"takeAssessmentForm:_id5").click
     EditAssessment.new(@browser)
   end
   
@@ -320,23 +318,23 @@ class AssessmentSettings
   
   # Scrapes the Assessment Type from the page
   def assessment_type_title
-    frm(1).div(:class=>"tier2").table(:index=>0)[0][1].text
+    frm.div(:class=>"tier2").table(:index=>0)[0][1].text
   end
   
   # Scrapes the Assessment Author information from the page
   def assessment_type_author
-    frm(1).div(:class=>"tier2").table(:index=>0)[1][1].text
+    frm.div(:class=>"tier2").table(:index=>$frame_index)[1][1].text
   end
   
   # Scrapes the Assessment Type Description from the page.
   def assessment_type_description
-    frm(1).div(:class=>"tier2").table(:index=>0)[2][1].text
+    frm.div(:class=>"tier2").table(:index=>0)[2][1].text
   end
   
   # Clicks the Save Settings and Publish button
   # then instantiates the PublishAssessment class.
   def save_and_publish
-    frm(1).button(:value=>"Save Settings and Publish").click
+    frm.button(:value=>"Save Settings and Publish").click
     PublishAssessment.new(@browser)
   end  
   
@@ -350,39 +348,39 @@ class AssessmentSettings
     text_field(:available_date, :id=>"assessmentSettingsAction:startDate", :frame=>frame)
     text_field(:due_date, :id=>"assessmentSettingsAction:endDate", :frame=>frame)
     text_field(:retract_date, :id=>"assessmentSettingsAction:retractDate", :frame=>frame)
-    radio_button(:released_to_anonymous) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:_id117", :index=>0, :frame=>frame) }
-    radio_button(:released_to_site) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:_id117", :index=>1, :frame=>frame) }
+    radio_button(:released_to_anonymous) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:_id117", :index=>$frame_index, :frame=>frame) }
+    radio_button(:released_to_site) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:_id117", :index=>$frame_index, :frame=>frame) }
     text_area(:specified_ips, :name=>"assessmentSettingsAction:_id132", :frame=>frame)
     text_field(:secondary_id, :id=>"assessmentSettingsAction:username", :frame=>frame)
     text_field(:secondary_pw, :id=>"assessmentSettingsAction:password", :frame=>frame)
     checkbox(:timed_assessment, :id=>"assessmentSettingsAction:selTimeAssess", :frame=>frame)
     select_list(:limit_hour, :id=>"assessmentSettingsAction:timedHours", :frame=>frame)
     select_list(:limit_mins, :id=>"assessmentSettingsAction:timedMinutes", :frame=>frame)
-    radio_button(:linear_access) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:itemNavigation", :index=>0, :frame=>frame) }
-    radio_button(:random_access) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:itemNavigation", :index=>1, :frame=>frame) }
-    radio_button(:question_per_page) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:assessmentFormat", :index=>0, :frame=>frame) }
-    radio_button(:part_per_page) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:assessmentFormat", :index=>1, :frame=>frame) }
+    radio_button(:linear_access) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:itemNavigation", :index=>$frame_index, :frame=>frame) }
+    radio_button(:random_access) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:itemNavigation", :index=>$frame_index, :frame=>frame) }
+    radio_button(:question_per_page) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:assessmentFormat", :index=>$frame_index, :frame=>frame) }
+    radio_button(:part_per_page) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:assessmentFormat", :index=>$frame_index, :frame=>frame) }
     radio_button(:assessment_per_page) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:assessmentFormat", :index=>2, :frame=>frame) }
-    radio_button(:continuous_numbering) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:itemNumbering", :index=>0, :frame=>frame) }
-    radio_button(:restart_per_part) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:itemNumbering", :index=>1, :frame=>frame) }
+    radio_button(:continuous_numbering) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:itemNumbering", :index=>$frame_index, :frame=>frame) }
+    radio_button(:restart_per_part) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:itemNumbering", :index=>$frame_index, :frame=>frame) }
     checkbox(:add_mark_for_review, :id=>"assessmentSettingsAction:markForReview1", :frame=>frame)
-    radio_button(:unlimited_submissions) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:unlimitedSubmissions", :index=>0, :frame=>frame) }
-    radio_button(:only_x_submissions) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:unlimitedSubmissions", :index=>1, :frame=>frame) }
+    radio_button(:unlimited_submissions) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:unlimitedSubmissions", :index=>$frame_index, :frame=>frame) }
+    radio_button(:only_x_submissions) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:unlimitedSubmissions", :index=>$frame_index, :frame=>frame) }
     text_field(:allowed_submissions, :id=>"assessmentSettingsAction:submissions_Allowed", :frame=>frame)
-    radio_button(:late_submissions_not_accepted) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:lateHandling", :index=>0, :frame=>frame) }
-    radio_button(:late_submissions_accepted) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:lateHandling", :index=>1, :frame=>frame) }
+    radio_button(:late_submissions_not_accepted) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:lateHandling", :index=>$frame_index, :frame=>frame) }
+    radio_button(:late_submissions_accepted) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:lateHandling", :index=>$frame_index, :frame=>frame) }
     text_area(:submission_message, :id=>"assessmentSettingsAction:_id245_textinput", :frame=>frame)
     text_field(:final_page_url, :id=>"assessmentSettingsAction:finalPageUrl", :frame=>frame)
-    radio_button(:question_level_feedback) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:feedbackAuthoring", :index=>0, :frame=>frame) }
-    radio_button(:selection_level_feedback) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:feedbackAuthoring", :index=>1, :frame=>frame) }
+    radio_button(:question_level_feedback) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:feedbackAuthoring", :index=>$frame_index, :frame=>frame) }
+    radio_button(:selection_level_feedback) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:feedbackAuthoring", :index=>$frame_index, :frame=>frame) }
     radio_button(:both_feedback_levels) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:feedbackAuthoring", :index=>2, :frame=>frame) }
-    radio_button(:immediate_feedback) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:feedbackDelivery", :index=>0, :frame=>frame) }
-    radio_button(:feedback_on_submission) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:feedbackDelivery", :index=>1, :frame=>frame) }
+    radio_button(:immediate_feedback) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:feedbackDelivery", :index=>$frame_index, :frame=>frame) }
+    radio_button(:feedback_on_submission) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:feedbackDelivery", :index=>$frame_index, :frame=>frame) }
     radio_button(:no_feedback) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:feedbackDelivery", :index=>2, :frame=>frame) }
     radio_button(:feedback_on_date) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:feedbackDelivery", :index=>3, :frame=>frame) }
     text_field(:feedback_date, :id=>"assessmentSettingsAction:feedbackDate", :frame=>frame)
-    radio_button(:only_release_scores) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:feedbackComponentOption", :index=>0, :frame=>frame) }
-    radio_button(:release_questions_and) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:feedbackComponentOption", :index=>1, :frame=>frame) }
+    radio_button(:only_release_scores) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:feedbackComponentOption", :index=>$frame_index, :frame=>frame) }
+    radio_button(:release_questions_and) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:feedbackComponentOption", :index=>$frame_index, :frame=>frame) }
     checkbox(:release_student_response, :id=>"assessmentSettingsAction:feedbackCheckbox1", :frame=>frame)
     checkbox(:release_correct_response, :id=>"assessmentSettingsAction:feedbackCheckbox3", :frame=>frame)
     checkbox(:release_students_assessment_scores, :id=>"assessmentSettingsAction:feedbackCheckbox5", :frame=>frame)
@@ -391,15 +389,15 @@ class AssessmentSettings
     checkbox(:release_selection_level_feedback, :id=>"assessmentSettingsAction:feedbackCheckbox4", :frame=>frame)
     checkbox(:release_graders_comments, :id=>"assessmentSettingsAction:feedbackCheckbox6", :frame=>frame)
     checkbox(:release_statistics, :id=>"assessmentSettingsAction:feedbackCheckbox8", :frame=>frame)
-    radio_button(:student_ids_seen) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:anonymousGrading1", :index=>0, :frame=>frame) }
-    radio_button(:anonymous_grading) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:anonymousGrading1", :index=>1, :frame=>frame) }
-    #radio_button(:no_gradebook_options) { |page| page.radio_button_element( :name=>"", :index=>0, :frame=>frame) }
-    #radio_button(:grades_sent_to_gradebook) { |page| page.radio_button_element( :name=>"", :index=>0, :frame=>frame) }
-    #radio_button(:record_highest_score) { |page| page.radio_button_element( :name=>"", :index=>0, :frame=>frame) }
-    #radio_button(:record_last_score) { |page| page.radio_button_element( :name=>"", :index=>0, :frame=>frame) }
-    #radio_button(:background_color) { |page| page.radio_button_element( :name=>"", :index=>0, :frame=>frame) }
+    radio_button(:student_ids_seen) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:anonymousGrading1", :index=>$frame_index, :frame=>frame) }
+    radio_button(:anonymous_grading) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:anonymousGrading1", :index=>$frame_index, :frame=>frame) }
+    #radio_button(:no_gradebook_options) { |page| page.radio_button_element( :name=>"", :index=>$frame_index, :frame=>frame) }
+    #radio_button(:grades_sent_to_gradebook) { |page| page.radio_button_element( :name=>"", :index=>$frame_index, :frame=>frame) }
+    #radio_button(:record_highest_score) { |page| page.radio_button_element( :name=>"", :index=>$frame_index, :frame=>frame) }
+    #radio_button(:record_last_score) { |page| page.radio_button_element( :name=>"", :index=>$frame_index, :frame=>frame) }
+    #radio_button(:background_color) { |page| page.radio_button_element( :name=>"", :index=>$frame_index, :frame=>frame) }
     #text_field(:color_value, :id=>"", :frame=>frame)
-    #radio_button(:background_image) { |page| page.radio_button_element( :name=>"", :index=>0, :frame=>frame) }
+    #radio_button(:background_image) { |page| page.radio_button_element( :name=>"", :index=>$frame_index, :frame=>frame) }
     #text_field(:image_name, :=>"", :frame=>frame)
     #text_field(:keywords, :=>"", :frame=>frame)
     #text_field(:objectives, :=>"", :frame=>frame)
@@ -422,7 +420,7 @@ class AssessmentTotalScores
   # scores table.
   def student_ids
     ids = []
-    scores_table = frm(1).table(:id=>"editTotalResults:totalScoreTable").to_a
+    scores_table = frm.table(:id=>"editTotalResults:totalScoreTable").to_a
     scores_table.delete_at(0)
     scores_table.each { |row| ids << row[1] }
     return ids
@@ -433,21 +431,21 @@ class AssessmentTotalScores
     available_ids = student_ids
     index_val = available_ids.index(student_id)
     
-    frm(1).text_field(:name=>"editTotalResults:totalScoreTable:#{index_val}:_id345").value=comment
+    frm.text_field(:name=>"editTotalResults:totalScoreTable:#{index_val}:_id345").value=comment
     
   end
   
   # Clicks the Update button, then instantiates
   # the AssessmentTotalScores class.
   def update
-    frm(1).button(:value=>"Update").click
+    frm.button(:value=>"Update").click
     AssessmentTotalScores.new(@browser)
   end
   
   # Clicks the Assessments link on the page
   # then instantiates the AssessmentsList class.
   def assessments
-    frm(1).link(:text=>"Assessments").click
+    frm.link(:text=>"Assessments").click
     AssessmentsList.new(@browser)
   end
 
@@ -470,9 +468,9 @@ class EditAssessment
   # based on the selected question type.
   def insert_question_after(part_num, question_num, qtype)
     if question_num.to_i == 0
-      @browser.frame(:index=>1).select(:id=>"assesssmentForm:parts:#{part_num.to_i - 1}:changeQType").select(qtype)
+      frm.select(:id=>"assesssmentForm:parts:#{part_num.to_i - 1}:changeQType").select(qtype)
     else
-      @browser.frame(:index=>1).select(:id=>"assesssmentForm:parts:#{part_num.to_i - 1}:parts:#{question_num.to_i - 1}:changeQType").select(qtype)
+      frm.select(:id=>"assesssmentForm:parts:#{part_num.to_i - 1}:parts:#{question_num.to_i - 1}:changeQType").select(qtype)
     end
     
     page = case(qtype)
@@ -494,30 +492,30 @@ class EditAssessment
   
   # Allows removal of question by part number and question number.
   def remove_question(part_num, question_num)
-    @browser.frame(:index=>1).link(:id=>"assesssmentForm:parts:#{part_num.to_i-1}:parts:#{question_num.to_i-1}:deleteitem").click
+    frm.link(:id=>"assesssmentForm:parts:#{part_num.to_i-1}:parts:#{question_num.to_i-1}:deleteitem").click
   end
   
   # Allows editing of a question by specifying its part number
   # and question number.
   def edit_question(part_num, question_num)
-    @browser.frame(:index=>1).link(:id=>"assesssmentForm:parts:#{part_num.to_i-1}:parts:#{question_num.to_i-1}:modify").click
+    frm.link(:id=>"assesssmentForm:parts:#{part_num.to_i-1}:parts:#{question_num.to_i-1}:modify").click
   end
   
   # Allows copying an Assessment part to a Pool.
   def copy_part_to_pool(part_num)
-    @browser.frame(:index=>1).link(:id=>"assesssmentForm:parts:#{part_num.to_i-1}:copyToPool").click
+    frm.link(:id=>"assesssmentForm:parts:#{part_num.to_i-1}:copyToPool").click
   end
   
   # Allows removing a specified
   # Assessment part number.
   def remove_part(part_num)
-    @browser.frame(:index=>1).link(:xpath, "//a[contains(@onclick, 'assesssmentForm:parts:#{part_num.to_i-1}:copyToPool')]").click
+    frm.link(:xpath, "//a[contains(@onclick, 'assesssmentForm:parts:#{part_num.to_i-1}:copyToPool')]").click
   end
   
   # Clicks the Add Part button, then
   # instantiates the AddEditAssessmentPart page class.
   def add_part
-    frm(1).link(:text=>"Add Part").click
+    frm.link(:text=>"Add Part").click
     AddEditAssessmentPart.new(@browser)
   end
   
@@ -525,7 +523,7 @@ class EditAssessment
   # drop down list, then instantiates the appropriate
   # page class.
   def select_question_type(qtype)
-    @browser.frame(:index=>1).select(:id=>"assesssmentForm:changeQType").select(qtype)
+    frm.select(:id=>"assesssmentForm:changeQType").select(qtype)
 
     page = case(qtype)
     when "Multiple Choice" then MultipleChoice.new(@browser)
@@ -547,35 +545,35 @@ class EditAssessment
   # Clicks the Preview button,
   # then instantiates the PreviewOverview page class.
   def preview
-    frm(1).link(:text=>"Preview").click
+    frm.link(:text=>"Preview").click
     PreviewOverview.new(@browser)
   end
   
   # Clicks the Settings link, then
   # instantiates the AssessmentSettings page class.
   def settings
-    frm(1).link(:text=>"Settings").click
+    frm.link(:text=>"Settings").click
     AssessmentSettings.new(@browser)
   end
   
   # Clicks the Publish button, then
   # instantiates the PublishAssessment page class.
   def publish
-    frm(1).link(:text=>"Publish").click
+    frm.link(:text=>"Publish").click
     PublishAssessment.new(@browser)
   end
   
   # Clicks the Question Pools button, then
   # instantiates the QuestionPoolsList page class.
   def question_pools
-    frm(1).link(:text=>"Question Pools").click
+    frm.link(:text=>"Question Pools").click
     QuestionPoolsList.new(@browser)
   end
   
   # Allows retrieval of a specified question's
   # text, by part and question number.
   def get_question_text(part_number, question_number)
-    frm(1).table(:id=>"assesssmentForm:parts:#{part_number.to_i-1}:parts").div(:class=>"tier3", :index=>question_number.to_i-1).text
+    frm.table(:id=>"assesssmentForm:parts:#{part_number.to_i-1}:parts").div(:class=>"tier3", :index=>question_number.to_i-1).text
   end
   
   in_frame(:index=>1) do |frame|
@@ -594,7 +592,7 @@ class AddEditAssessmentPart
   include ToolsMenu
   
   def save
-    @browser.frame(:index=>1).button(:name=>"modifyPartForm:_id89").click
+    frm.button(:name=>"modifyPartForm:_id89").click
     EditAssessment.new(@browser)    
   end
   
@@ -628,7 +626,7 @@ class PublishAssessment
   include ToolsMenu
   
   def publish
-    @browser.frame(:index=>1).button(:value=>"Publish").click
+    frm.button(:value=>"Publish").click
     AssessmentsList.new(@browser)
   end
   
@@ -1721,37 +1719,37 @@ end
 module JForumsResources
   
   def discussion_home
-    frm(1).link(:id=>"backtosite").click
+    frm.link(:id=>"backtosite").click
     JForums.new(@browser)
   end
   
   def search
-    frm(1).link(:id=>"search", :class=>"mainmenu").click
+    frm.link(:id=>"search", :class=>"mainmenu").click
     DiscussionSearch.new(@browser)
   end
   
   def my_bookmarks
-    frm(1).link(:class=>"mainmenu", :text=>"My Bookmarks").click
+    frm.link(:class=>"mainmenu", :text=>"My Bookmarks").click
     MyBookmarks.new(@browser)
   end
   
   def my_profile
-    frm(1).link(:id=>"myprofile").click
+    frm.link(:id=>"myprofile").click
     DiscussionsMyProfile.new(@browser)
   end
   
   def member_listing
-    frm(1).link(:text=>"Member Listing", :id=>"latest", :class=>"mainmenu").click
+    frm.link(:text=>"Member Listing", :id=>"latest", :class=>"mainmenu").click
     DiscussionMemberListing.new(@browser)
   end
   
   def private_messages
-    frm(1).link(:id=>"privatemessages", :class=>"mainmenu").click
+    frm.link(:id=>"privatemessages", :class=>"mainmenu").click
     PrivateMessages.new(@browser)
   end
   
   def manage
-    frm(1).link(:id=>"adminpanel", :text=>"Manage").click
+    frm.link(:id=>"adminpanel", :text=>"Manage").click
     ManageDiscussions.new(@browser)
   end
   
@@ -1768,18 +1766,15 @@ class JForums
   # Clicks on the supplied forum name
   # Then instantiates the DiscussionForum class.
   def open_forum(forum_name)
-    frm(1).link(:text=>forum_name).click
+    frm.link(:text=>forum_name).click
     DiscussionForum.new(@browser)
   end
   
   def open_topic(topic_title)
-    frm(1).link(:text=>topic_title).click
+    frm.link(:text=>topic_title).click
     ViewTopic.new(@browser)
   end
 
-  in_frame(:index=>1) do |frame|
-    
-  end
 end
 
 # The page of a particular Discussion Forum, show the list
@@ -1793,18 +1788,15 @@ class DiscussionForum
   # Clicks the New Topic button,
   # then instantiates the NewTopic class
   def new_topic
-    frm(1).image(:alt=>"New Topic").fire_event("onclick")
+    frm.image(:alt=>"New Topic").fire_event("onclick")
     NewTopic.new(@browser)
   end
   
   def open_topic(topic_title)
-    frm(1).link(:href=>/posts.list/, :text=>topic_title).click
+    frm.link(:href=>/posts.list/, :text=>topic_title).click
     ViewTopic.new(@browser)
   end
   
-  in_frame(:index=>1) do |frame|
-    
-  end
 end
 
 class DiscussionSearch
@@ -1816,7 +1808,7 @@ class DiscussionSearch
   # Clicks the Search button on the page,
   # then instantiates the JForums class.
   def click_search
-    frm(1).button(:value=>"Search").click
+    frm.button(:value=>"Search").click
     JForums.new(@browser)
   end
 
@@ -1831,7 +1823,7 @@ class ManageDiscussions
   include ToolsMenu
   
   def manage_forums
-    frm(1).link(:text=>"Manage Forums").click
+    frm.link(:text=>"Manage Forums").click
     ManageForums.new(@browser)
   end
 
@@ -1839,7 +1831,7 @@ class ManageDiscussions
   # which can be used for verification
   def forum_titles
     forum_titles = []
-    forum_links = frm(1).links.find_all { |link| link.id=="forumEdit"}
+    forum_links = frm.links.find_all { |link| link.id=="forumEdit"}
     forum_links.each { |link| forum_titles << link.text }
     return forum_titles
   end
@@ -1855,12 +1847,12 @@ class ManageForums
   include ToolsMenu
   
   def add
-    frm(1).button(:value=>"Add").click
+    frm.button(:value=>"Add").click
     ManageForums.new(@browser)
   end
   
   def update
-    frm(1).button(:value=>"Update").click
+    frm.button(:value=>"Update").click
     ManageDiscussions.new(@browser)
   end
 
@@ -1889,23 +1881,23 @@ class NewTopic
   include JForumsResources
   
   def message_text=(text)
-    frm(1).frame(:id, "message___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(:home)
-    frm(1).frame(:id, "message___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(text)
+    frm.frame(:id, "message___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(:home)
+    frm.frame(:id, "message___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(text)
   end
   
   def submit
-    frm(1).button(:value=>"Submit").click
+    frm.button(:value=>"Submit").click
     ViewTopic.new(@browser)
   end 
   
   def preview
-    frm(1).button(:value=>"Preview").click
+    frm.button(:value=>"Preview").click
     PreviewDiscussionTopic.new(@browser)
   end
   
   # Enters the specified filename in the file field.
   def filename1(filename)
-    frm(1).file_field(:name=>"file_0").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + filename)
+    frm.file_field(:name=>"file_0").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + filename)
   end
 
   # Enters the specified filename in the file field.
@@ -1914,7 +1906,7 @@ class NewTopic
   # The file or folder name used for the filename variable
   # should not include a preceding / character.
   def filename2(filename)
-    frm(1).file_field(:name=>"file_1").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + filename)
+    frm.file_field(:name=>"file_1").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + filename)
   end
 
   in_frame(:index=>1) do |frame|
@@ -1934,30 +1926,30 @@ class ViewTopic
   # Gets the text of the Topic title.
   # Useful for verification.
   def topic_name
-    frm(1).link(:id=>"top", :class=>"maintitle").text
+    frm.link(:id=>"top", :class=>"maintitle").text
   end
   
   # Gets the message text for the specified message (not zero-based).
   # Useful for verification.
   def message_text(message_number)
-    frm(1).span(:class=>"postbody", :index=>message_number.to_i-1).text
+    frm.span(:class=>"postbody", :index=>message_number.to_i-1).text
   end
   
   def post_reply
-    frm(1).image(:alt=>"Post Reply").fire_event("onclick")
+    frm.image(:alt=>"Post Reply").fire_event("onclick")
     NewTopic.new(@browser)
   end
   
   # Clicks the Quick Reply button
   # and does not instantiate any page classes.
   def quick_reply 
-    frm(1).image(:alt=>"Quick Reply").fire_event("onclick")
+    frm.image(:alt=>"Quick Reply").fire_event("onclick")
   end
   
   # Clicks the submit button underneath the Quick Reply box,
   # then re-instantiates the class, due to the page update.
   def submit
-    frm(1).button(:value=>"Submit").click
+    frm.button(:value=>"Submit").click
     ViewTopic.new(@browser)
   end
   
@@ -1975,14 +1967,14 @@ class DiscussionsMyProfile
   include JForumsResources
   
   def submit
-    frm(1).button(:value=>"Submit").click
+    frm.button(:value=>"Submit").click
     DiscussionsMyProfile.new(@browser)
   end
   
   # Gets the text at the top of the table.
   # Useful for verification.
   def header_text
-    frm(1).table(:class=>"forumline").span(:class=>"gens").text
+    frm.table(:class=>"forumline").span(:class=>"gens").text
   end
   
   # Enters the specified filename in the file field.
@@ -1991,7 +1983,7 @@ class DiscussionsMyProfile
   # The file or folder name used for the filename variable
   # should not include a preceding / character.
   def avatar=(filename)
-    frm(1).file_field(:name=>"avatar").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + filename)
+    frm.file_field(:name=>"avatar").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + filename)
   end
   
   in_frame(:index=>1) do |frame|
@@ -1999,7 +1991,7 @@ class DiscussionsMyProfile
     text_field(:aim, :name=>"aim", :frame=>frame)
     text_field(:web_site, :name=>"website", :frame=>frame)
     text_field(:occupation, :name=>"occupation", :frame=>frame)
-    radio_button(:view_email) { |page| page.radio_button_element(:name=>"viewemail", :index=>0, :frame=>frame) }
+    radio_button(:view_email) { |page| page.radio_button_element(:name=>"viewemail", :index=>$frame_index, :frame=>frame) }
   end
 end
 
@@ -2013,7 +2005,7 @@ class DiscussionMemberListing
   # Checks if the specified Member name appears
   # in the member listing.
   def name_present?(name)
-    member_links = frm(1).links.find_all { |link| link.href=~/user.profile/ }
+    member_links = frm.links.find_all { |link| link.href=~/user.profile/ }
     member_names = []
     member_links.each { |link| member_names << link.text }
     member_names.include?(name)
@@ -2030,19 +2022,19 @@ class PrivateMessages
   include JForumsResources
 
   def new_pm
-    frm(1).image(:alt=>"New PM").fire_event("onclick")
+    frm.image(:alt=>"New PM").fire_event("onclick")
     NewPrivateMessage.new(@browser)
   end
   
   def open_message(title)
-    frm(1).link(:class=>"topictitle", :text=>title).click
+    frm.link(:class=>"topictitle", :text=>title).click
     ViewPM.new(@browser)
   end
   
   # Collects all subject text strings of the listed
   # private messages and returns them in an Array.
   def pm_subjects
-    anchor_objects = frm(1).links.find_all { |link| link.href=~/pm.read.+page/ }
+    anchor_objects = frm.links.find_all { |link| link.href=~/pm.read.+page/ }
     subjects = []
     anchor_objects.each { |link| subjects << link.text }
     return subjects 
@@ -2056,7 +2048,7 @@ class ViewPM
   include ToolsMenu
   
   def reply_quote
-    frm(1).image(:alt=>"Reply Quote").fire_event("onclick")
+    frm.image(:alt=>"Reply Quote").fire_event("onclick")
     NewPrivateMessage.new(@browser)
   end
 
@@ -2070,18 +2062,18 @@ class NewPrivateMessage
   include JForumsResources
 
   def message_body=(text)
-    frm(1).frame(:id, "message___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(:home)
-    frm(1).frame(:id, "message___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(text)
+    frm.frame(:id, "message___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(:home)
+    frm.frame(:id, "message___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(text)
   end
   
   def submit
-    frm(1).button(:value=>"Submit").click
+    frm.button(:value=>"Submit").click
     Information.new(@browser)
   end
   
   # Enters the specified filename in the file field.
   def filename1(filename)
-    frm(1).file_field(:name=>"file_0").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + filename)
+    frm.file_field(:name=>"file_0").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + filename)
   end
 
   # Enters the specified filename in the file field.
@@ -2090,7 +2082,7 @@ class NewPrivateMessage
   # The file or folder name used for the filename variable
   # should not include a preceding / character.
   def filename2(filename)
-    frm(1).file_field(:name=>"file_1").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + filename)
+    frm.file_field(:name=>"file_1").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + filename)
   end
 
   in_frame(:index=>1) do |frame|
@@ -2113,7 +2105,7 @@ class Information
   # Gets the information message on the page.
   # Useful for verification.
   def information_text
-    frm(1).table(:class=>"forumline").span(:class=>"gen").text
+    frm.table(:class=>"forumline").span(:class=>"gen").text
   end
 
 end
@@ -2131,81 +2123,78 @@ class Forums
 
   
   def new_forum
-    frm(1).link(:text=>"New Forum").click
+    frm.link(:text=>"New Forum").click
     EditForum.new(@browser)
   end
 
   def new_topic_for_forum(name)
     index = forum_titles.index(name)
-    frm(1).link(:text=>"New Topic", :index=>index).click
+    frm.link(:text=>"New Topic", :index=>index).click
     AddEditTopic.new(@browser)
   end
 
   def organize
-    frm(1).link(:text=>"Organize").click
+    frm.link(:text=>"Organize").click
     OrganizeForums.new(@browser)
   end
 
   def template_settings
-    frm(1).link(:text=>"Template Settings").click
+    frm.link(:text=>"Template Settings").click
     ForumTemplateSettings.new(@browser)
   end
 
   def forums_table
-    @browser.frame(:index=>1).div(:class=>"portletBody").table(:id=>"msgForum:forums")
+    frm.div(:class=>"portletBody").table(:id=>"msgForum:forums")
   end
 
   def forum_titles
     titles = []
-    title_links = frm(1).div(:class=>"portletBody").links.find_all { |link| link.class_name=="title" && link.id=="" }
+    title_links = frm.div(:class=>"portletBody").links.find_all { |link| link.class_name=="title" && link.id=="" }
     title_links.each { |link| titles << link.text }
     return titles
   end
   
   def topic_titles
     titles = []
-    title_links = frm(1).div(:class=>"portletBody").links.find_all { |link| link.class_name == "title" && link.id != "" }
+    title_links = frm.div(:class=>"portletBody").links.find_all { |link| link.class_name == "title" && link.id != "" }
     title_links.each { |link| titles << link.text }
     return titles
   end
   
   def forum_settings(name)
     index = forum_titles.index(name)
-    frm(1).link(:text=>"Forum Settings", :index=>index).click
+    frm.link(:text=>"Forum Settings", :index=>index).click
     EditForum.new(@browser)
   end
   
   def topic_settings(name)
     index = topic_titles.index(name)
-    frm(1).link(:text=>"Topic Settings", :index=>index).click
+    frm.link(:text=>"Topic Settings", :index=>index).click
     AddEditTopic.new(@browser)
   end
   
   def delete_forum(name)
     index = forum_titles.index(name)
-    frm(1).link(:id=>/msgForum:forums:\d+:delete/,:text=>"Delete", :index=>index).click
+    frm.link(:id=>/msgForum:forums:\d+:delete/,:text=>"Delete", :index=>index).click
     EditForum.new(@browser)
   end
   
   def delete_topic(name)
     index = topic_titles.index(name)
-    frm(1).link(:id=>/topics:\d+:delete_confirm/, :text=>"Delete", :index=>index).click
+    frm.link(:id=>/topics:\d+:delete_confirm/, :text=>"Delete", :index=>index).click
     AddEditTopic.new(@browser)
   end
   
   def open_forum(forum_title)
-    frm(1).link(:text=>forum_title).click
+    frm.link(:text=>forum_title).click
     # New Class def goes here.
   end
   
   def open_topic(topic_title)
-    frm(1).link(:text=>topic_title).click
+    frm.link(:text=>topic_title).click
     TopicPage.new(@browser)
   end
   
-  in_frame(:index=>1) do |frame|
-    #(:, =>"", :frame=>frame)
-  end
 end
 
 class TopicPage
@@ -2214,13 +2203,13 @@ class TopicPage
   include ToolsMenu
   
   def post_new_thread
-    frm(1).link(:text=>"Post New Thread").click
+    frm.link(:text=>"Post New Thread").click
     ComposeForumMessage.new(@browser)
   end
   
   def thread_titles
     titles = []
-    message_table = frm(1).table(:id=>"msgForum:messagesInHierDataTable")
+    message_table = frm.table(:id=>"msgForum:messagesInHierDataTable")
     1.upto(message_table.rows.size-1) do |x|
       titles << message_table[x][1].span(:class=>"firstChild").link(:index=>0).text
     end
@@ -2228,18 +2217,15 @@ class TopicPage
   end
   
   def open_message(message_title)
-    frm(1).div(:class=>"portletBody").link(:text=>message_title).click
+    frm.div(:class=>"portletBody").link(:text=>message_title).click
     ViewForumThread.new(@browser)
   end
   
   def display_entire_message
-    frm(1).link(:text=>"Display Entire Message").click
+    frm.link(:text=>"Display Entire Message").click
     TopicPage.new(@browser)
   end
   
-  in_frame(:index=>1) do |frame|
-    
-  end
 end
 
 class ViewForumThread
@@ -2248,18 +2234,15 @@ class ViewForumThread
   include ToolsMenu
   
   def reply_to_thread
-    frm(1).link(:text=>"Reply to Thread").click
+    frm.link(:text=>"Reply to Thread").click
     ComposeForumMessage.new(@browser)
   end
   
   def reply_to_message(index)
-    frm(1).link(:text=>"Reply", :index=>(index.to_i - 1)).click
+    frm.link(:text=>"Reply", :index=>(index.to_i - 1)).click
     ComposeForumMessage.new(@browser)
   end
-  
-  in_frame(:index=>1) do |frame|
-    
-  end
+
 end
 
 
@@ -2269,13 +2252,13 @@ class ComposeForumMessage
   include ToolsMenu
   
   def post_message
-    frm(1).button(:text=>"Post Message").click
+    frm.button(:text=>"Post Message").click
     # Not sure if we need logic here...
     TopicPage.new(@browser)
   end
   
   def editor
-    frm(1).frame(:id, "dfCompose:df_compose_body_inputRichText___Frame").td(:id, "xEditingArea").frame(:index=>0)
+    frm.frame(:id, "dfCompose:df_compose_body_inputRichText___Frame").td(:id, "xEditingArea").frame(:index=>0)
   end
   
   def message=(text)
@@ -2291,11 +2274,11 @@ class ComposeForumMessage
   end
   
   def cancel
-    frm(1).button(:value=>"Cancel").click
+    frm.button(:value=>"Cancel").click
     # Logic for picking the correct page class
-    if frm(1).link(:text=>"Reply to Thread")
+    if frm.link(:text=>"Reply to Thread")
       ViewForumThread.new(@browser)
-    elsif frm(1).link(:text=>"Post New Thread").click
+    elsif frm.link(:text=>"Post New Thread").click
       TopicPage.new(@browser)
     end 
   end
@@ -2311,36 +2294,34 @@ class ForumTemplateSettings
   include ToolsMenu
   
   def page_title
-    frm(1).div(:class=>"portletBody").h3(:index=>0).text
+    frm.div(:class=>"portletBody").h3(:index=>0).text
   end
   
   def save
-    frm(1).button(:value=>"Save").click
+    frm.button(:value=>"Save").click
     Forums.new(@browser)
   end
   
   def cancel
-    frm(1).button(:value=>"Cancel").click
+    frm.button(:value=>"Cancel").click
     Forums.new(@browser)
   end
 =begin
     def site_role=(role)
-    frm(1).select(:id=>"revise:role").select(role)
-    0.upto(frm(1).select(:id=>"revise:role").length - 1) do |x|
-      if frm(1).div(:class=>"portletBody").table(:class=>"permissionPanel jsfFormTable lines nolines", :index=>x).visible?
+    frm.select(:id=>"revise:role").select(role)
+    0.upto(frm.select(:id=>"revise:role").length - 1) do |x|
+      if frm.div(:class=>"portletBody").table(:class=>"permissionPanel jsfFormTable lines nolines", :index=>x).visible?
         @@table_index = x
         
         def permission_level=(value)
-          frm(1).select(:id=>"revise:perm:#{@@table_index}:level").select(value)
+          frm.select(:id=>"revise:perm:#{@@table_index}:level").select(value)
         end
         
       end
     end
   end
 =end  
-  in_frame(:index=>1) do |frame|
-    #radio_button(:name, :id=>"id", :frame=>frame)
-  end
+
 end
 
 class OrganizeForums
@@ -2349,18 +2330,18 @@ class OrganizeForums
   include ToolsMenu
   
   def save
-    frm(1).button(:value=>"Save").click
+    frm.button(:value=>"Save").click
     Forums.new(@browser)
   end
   
   # These are set to so that the user
   # does not have to start the list at zero...
   def forum(index)
-    frm(1).select(:id, "revise:forums:#{index.to_i - 1}:forumIndex")
+    frm.select(:id, "revise:forums:#{index.to_i - 1}:forumIndex")
   end
   
   def topic(forumindex, topicindex)
-    frm(1).select(:id, "revise:forums:#{forumindex.to_i - 1}:topics:#{topicindex.to_i - 1}:topicIndex")
+    frm.select(:id, "revise:forums:#{forumindex.to_i - 1}:topics:#{topicindex.to_i - 1}:topicIndex")
   end
   
 end
@@ -2372,17 +2353,17 @@ class EditForum
   include ToolsMenu
   
   def save
-    frm(1).button(:value=>"Save").click
+    frm.button(:value=>"Save").click
     Forums.new(@browser)
   end
   
   def save_and_add
-    frm(1).button(:value=>"Save Settings & Add Topic").click
+    frm.button(:value=>"Save Settings & Add Topic").click
     AddEditTopic.new(@browser)
   end
   
   def editor
-    frm(1).div(:class=>"portletBody").frame(:id, "revise:df_compose_description_inputRichText___Frame").td(:id, "xEditingArea").frame(:index=>0)
+    frm.div(:class=>"portletBody").frame(:id, "revise:df_compose_description_inputRichText___Frame").td(:id, "xEditingArea").frame(:index=>0)
   end
   
   def description=(text)
@@ -2390,7 +2371,7 @@ class EditForum
   end
   
   def add_attachments
-    frm(1).button(:value=>/attachments/).click
+    frm.button(:value=>/attachments/).click
     ForumsAddAttachments.new(@browser)
   end
   
@@ -2407,10 +2388,10 @@ class ForumsAddAttachments
   include ToolsMenu
   
   def continue
-    frm(1).button(:value=>"Continue").click
+    frm.button(:value=>"Continue").click
     sleep 2 #FIXME
-    frm(1).div(:class=>"portletBody").h3(:index=>0).wait_until_present
-    title = frm(1).div(:class=>"portletBody").h3(:index=>0).text
+    frm.div(:class=>"portletBody").h3(:index=>0).wait_until_present
+    title = frm.div(:class=>"portletBody").h3(:index=>0).text
     # Need logic because new page will be different
     if title=="Topic Settings"
       AddEditTopic.new(@browser)
@@ -2420,12 +2401,9 @@ class ForumsAddAttachments
   end
   
   def upload_file=(file_name)
-    frm(1).file_field(:id, "upload").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + file_name)
+    frm.file_field(:id, "upload").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + file_name)
   end
-  
-  in_frame(:index=>1) do |frame|
-    #(:, =>"", :frame=>frame)
-  end
+
 end
 
 class AddEditTopic
@@ -2436,7 +2414,7 @@ class AddEditTopic
   @@table_index=0
   
   def editor
-    frm(1).div(:class=>"portletBody").frame(:id, "revise:topic_description_inputRichText___Frame").td(:id, "xEditingArea").frame(:index=>0)
+    frm.div(:class=>"portletBody").frame(:id, "revise:topic_description_inputRichText___Frame").td(:id, "xEditingArea").frame(:index=>0)
   end
   
   def description=(text)
@@ -2444,30 +2422,30 @@ class AddEditTopic
   end
   
   def save
-    frm(1).button(:value=>"Save").click
+    frm.button(:value=>"Save").click
     Forums.new(@browser)
   end
   
   def add_attachments
-    frm(1).button(:value=>/Add.+ttachment/).click
+    frm.button(:value=>/Add.+ttachment/).click
     ForumsAddAttachments.new(@browser)
   end
   
   def roles
     roles=[]
-    options = frm(1).select(:id=>"revise:role").options.to_a
+    options = frm.select(:id=>"revise:role").options.to_a
     options.each { |option| roles << option.text }
     return roles
   end
   
   def site_role=(role)
-    frm(1).select(:id=>"revise:role").select(role)
-    0.upto(frm(1).select(:id=>"revise:role").length - 1) do |x|
-      if frm(1).div(:class=>"portletBody").table(:class=>"permissionPanel jsfFormTable lines nolines", :index=>x).visible?
+    frm.select(:id=>"revise:role").select(role)
+    0.upto(frm.select(:id=>"revise:role").length - 1) do |x|
+      if frm.div(:class=>"portletBody").table(:class=>"permissionPanel jsfFormTable lines nolines", :index=>x).visible?
         @@table_index = x
         
         def permission_level=(value)
-          frm(1).select(:id=>"revise:perm:#{@@table_index}:level").select(value)
+          frm.select(:id=>"revise:perm:#{@@table_index}:level").select(value)
         end
         
       end
@@ -2479,6 +2457,30 @@ class AddEditTopic
     text_area(:short_description, :id=>"revise:topic_shortDescription", :frame=>frame)
   end
 end
+
+
+#================
+# Gradebook Pages
+#================
+
+# The topmost page in a Site's Gradebook
+class Gradebook
+  
+  include PageObject
+  include ToolsMenu
+
+  def items_titles
+    items_table = frm.table(:class=>"listHier lines nolines")
+    1.upto(items_table.rows.size-1) do |x|
+      titles << items_table.row(:index=>x).a(:index=>0).text
+    end
+    return titles
+  end
+  
+end
+
+
+
 
 #================
 # Lesson Pages
@@ -2501,20 +2503,20 @@ class Lessons
   # Assumes the Add Module link is present
   # and will error out if it is not.
   def add_module
-    frm(1).link(:text=>"Add Module").click
+    frm.link(:text=>"Add Module").click
     AddEditModule.new(@browser)
   end
   
   # Clicks on the Preferences link on the Lessons page,
   # then instantiates the LessonPreferences class.
   def preferences
-    frm(1).link(:text=>"Preferences").click
+    frm.link(:text=>"Preferences").click
     LessonPreferences.new(@browser)
   end
   
   def view
-    frm(1).link(:text=>"View").click
-    if frm(1).div(:class=>"meletePortletToolBarMessage").text=="Viewing student side..."
+    frm.link(:text=>"View").click
+    if frm.div(:class=>"meletePortletToolBarMessage").text=="Viewing student side..."
       ViewModuleList.new(@browser)
     else
       #FIXME
@@ -2522,7 +2524,7 @@ class Lessons
   end
   
   def manage
-    frm(1).link(:text=>"Manage").click
+    frm.link(:text=>"Manage").click
     LessonManage.new(@browser)
   end
   
@@ -2534,8 +2536,8 @@ class Lessons
   # Will error out if there is no
   # matching link in the list.
   def open_lesson(name)
-    frm(1).link(:text=>name).click
-    if frm(1).div(:class=>"meletePortletToolBarMessage").text=="Editing module..."
+    frm.link(:text=>name).click
+    if frm.div(:class=>"meletePortletToolBarMessage").text=="Editing module..."
       AddEditModule.new(@browser)
     else
       ViewModule.new(@browser)
@@ -2562,12 +2564,12 @@ class ViewModuleList
   include ToolsMenu
   
   def open_lesson(name)
-    frm(1).link(:text=>name).click
+    frm.link(:text=>name).click
     LessonStudentSide.new(@browser)
   end
   
   def open_section(name)
-    frm(1).link(:text=>name).click
+    frm.link(:text=>name).click
     SectionStudentSide.new(@browser)
   end
   
@@ -2588,7 +2590,7 @@ class SectionStudentSide
   include ToolsMenu
   
   def manage
-    frm(1).link(:text=>"Manage").click
+    frm.link(:text=>"Manage").click
     LessonManage.new(@browser)
   end
   
@@ -2601,17 +2603,17 @@ class LessonManage
   include ToolsMenu
   
   def manage_content
-    frm(1).link(:text=>"Manage Content").click
+    frm.link(:text=>"Manage Content").click
     LessonManageContent.new(@browser)
   end
   
   def sort
-    frm(1).link(:text=>"Sort").click
+    frm.link(:text=>"Sort").click
     LessonManageSort.new(@browser)
   end
 
   def import_export
-    frm(1).link(:text=>"Import/Export").click
+    frm.link(:text=>"Import/Export").click
     LessonImportExport.new(@browser)
   end
 
@@ -2624,8 +2626,8 @@ class LessonManageSort
   include ToolsMenu
 
   def view
-    frm(1).link(:text=>"View").click
-    if frm(1).div(:class=>"meletePortletToolBarMessage").text=="Viewing student side..."
+    frm.link(:text=>"View").click
+    if frm.div(:class=>"meletePortletToolBarMessage").text=="Viewing student side..."
       ViewModuleList.new(@browser)
     else
       #FIXME
@@ -2655,10 +2657,10 @@ class LessonImportExport
   # The method also runs a Test::Unit assert
   # to verify the "successful upload" message appears.
   def upload_IMS(file_name)
-    frm(1).file_field(:name, "impfile").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + file_name)
-    frm(1).link(:id=>"importexportform:importModule").click
-    frm(1).table(:id=>"AutoNumber1").div(:text=>"Processing...").wait_while_present
-    assert_equal(frm(1).span(:class=>"BlueClass").text, "Imported the package successfully. Modules are created at the end of existing modules.", "Import failed")
+    frm.file_field(:name, "impfile").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + file_name)
+    frm.link(:id=>"importexportform:importModule").click
+    frm.table(:id=>"AutoNumber1").div(:text=>"Processing...").wait_while_present
+    assert_equal(frm.span(:class=>"BlueClass").text, "Imported the package successfully. Modules are created at the end of existing modules.", "Import failed")
   end
 
 end
@@ -2676,13 +2678,13 @@ class LessonPreferences
   
   # Clicks the Set button
   def set
-    frm(1).link(:id=>"UserPreferenceForm:SetButton").click
+    frm.link(:id=>"UserPreferenceForm:SetButton").click
   end
   
   # Clicks the View button
   # then instantiates the Lessons class.
   def view
-    frm(1).link(:text=>"View").click
+    frm.link(:text=>"View").click
     Lessons.new(@browser)
   end
   
@@ -2701,12 +2703,12 @@ class AddEditModule
   # Clicks the Add button for the Lesson Module
   # then instantiates the ConfirmModule class.
   def add
-    frm(1).link(:id=>/ModuleForm:submitsave/).click
+    frm.link(:id=>/ModuleForm:submitsave/).click
     ConfirmModule.new(@browser)
   end
 
   def add_content_sections
-    frm(1).link(:id=>/ModuleForm:sectionButton/).click
+    frm.link(:id=>/ModuleForm:sectionButton/).click
     AddEditSection.new(@browser)
   end
 
@@ -2728,20 +2730,17 @@ class ConfirmModule
   # Clicks the Add Content Sections button and
   # instantiates the AddEditSection class.
   def add_content_sections
-    frm(1).link(:id=>/ModuleConfirmForm:sectionButton/).click
+    frm.link(:id=>/ModuleConfirmForm:sectionButton/).click
     AddEditSection.new(@browser)
   end
   
   # Clicks the Return to Modules button, then
   # instantiates the AddEditModule class.
   def return_to_modules
-    frm(1).link(:id=>"AddModuleConfirmForm:returnModImg").click
+    frm.link(:id=>"AddModuleConfirmForm:returnModImg").click
     AddEditModule.new(@browser)
   end
 
-  in_frame(:index=>1) do |frame|
-    
-  end
 end
 
 class AddEditSection
@@ -2752,14 +2751,14 @@ class AddEditSection
   # Clicks the Add button on the page
   # then instantiates the ConfirmSectionAdd class.
   def add
-    frm(1).link(:id=>/SectionForm:submitsave/).click
+    frm.link(:id=>/SectionForm:submitsave/).click
     ConfirmSectionAdd.new(@browser)
   end
 
   # Pointer to the Edit Text box of the FCKEditor
   # on the page.
   def content_editor
-    frm(1).frame(:id, "AddSectionForm:fckEditorView:otherMeletecontentEditor_inputRichText___Frame").td(:id, "xEditingArea").frame(:index=>0)
+    frm.frame(:id, "AddSectionForm:fckEditorView:otherMeletecontentEditor_inputRichText___Frame").td(:id, "xEditingArea").frame(:index=>0)
   end
 
   def add_content=(text)
@@ -2767,12 +2766,12 @@ class AddEditSection
   end
 
   def clear_content
-    frm(1).frame(:id, "AddSectionForm:fckEditorView:otherMeletecontentEditor_inputRichText___Frame").div(:title=>"Select All").fire_event("onclick")
+    frm.frame(:id, "AddSectionForm:fckEditorView:otherMeletecontentEditor_inputRichText___Frame").div(:title=>"Select All").fire_event("onclick")
     content_editor.send_keys :backspace
   end
 
   def select_url
-    frm(1).link(:id=>"AddSectionForm:ContentLinkView:serverViewButton").click
+    frm.link(:id=>"AddSectionForm:ContentLinkView:serverViewButton").click
     SelectingContent.new(@browser)
   end
   
@@ -2782,7 +2781,7 @@ class AddEditSection
   # It assumes that the Content Type selection box has
   # already been updated to "Upload or link to a file in Resources".
   def select_or_upload_file
-    frm(1).link(:id=>"AddSectionForm:ResourceHelperLinkView:serverViewButton").click
+    frm.link(:id=>"AddSectionForm:ResourceHelperLinkView:serverViewButton").click
     LessonAddAttachment.new(@browser)
   end
   
@@ -2803,20 +2802,17 @@ class ConfirmSectionAdd
   # Clicks the Add Another Section button
   # then instantiates the AddSection class.
   def add_another_section
-    frm(1).link(:id=>/SectionConfirmForm:saveAddAnotherbutton/).click
+    frm.link(:id=>/SectionConfirmForm:saveAddAnotherbutton/).click
     AddEditSection.new(@browser)
   end
   
   # Clicks the Finish button
   # then instantiates the Lessons class.
   def finish
-    frm(1).link(:id=>/Form:FinishButton/).click
+    frm.link(:id=>/Form:FinishButton/).click
     Lessons.new(@browser)
   end
 
-  in_frame(:index=>1) do |frame|
-    
-  end
 end
 
 class SelectingContent
@@ -2825,7 +2821,7 @@ class SelectingContent
   include ToolsMenu
   
   def continue
-    frm(1).link(:id=>"ServerViewForm:addButton").click
+    frm.link(:id=>"ServerViewForm:addButton").click
     AddEditSection.new(@browser)
   end
 
@@ -2846,7 +2842,7 @@ class LessonAddAttachment
   # Note that it assumes the Continue button is present
   # and available.
   def continue
-    frm(1).button(:value=>"Continue").click
+    frm.button(:value=>"Continue").click
     AddEditSection.new(@browser)
   end
   
@@ -2858,7 +2854,7 @@ class LessonAddAttachment
   # in the list.
   def select_file(filename)
     index = file_names.index(filename)
-    frm(1).link(:text=>"Select", :index=>index).click
+    frm.link(:text=>"Select", :index=>index).click
   end
   
   # Returns an array of the file names currently listed
@@ -2867,7 +2863,7 @@ class LessonAddAttachment
   # It excludes folder names.
   def file_names
     names = []
-    table = frm(1).table(:class=>"listHier lines")
+    table = frm.table(:class=>"listHier lines")
     anchors = table.links.find_all { |link| link.text != "" && link.title =~/File Type/ }
     anchors.each { |anchor| names << anchor.text }
     return names
@@ -2878,7 +2874,7 @@ class LessonAddAttachment
   # This method returns folder names only
   def folder_names
     names = []
-    resources_table = frm(1).table(:class=>"listHier lines")
+    resources_table = frm.table(:class=>"listHier lines")
     1.upto(resources_table.rows.size-1) do |x|
       if resources_table[x][2].h3.exist? && resources_table[x][2].a.title=~/folder/
         names << resources_table[x][2].text
@@ -2896,7 +2892,7 @@ class LessonAddAttachment
   # able to find the correct row.
   def resource_names
     titles = []
-    resources_table = frm(1).table(:class=>"listHier lines")
+    resources_table = frm.table(:class=>"listHier lines")
     1.upto(resources_table.rows.size-1) do |x|
       if resources_table[x][2].link.exist?
         titles << resources_table[x][2].text
@@ -2907,9 +2903,7 @@ class LessonAddAttachment
     return titles
   end
 =end  
-  in_frame(:index=>1) do |frame|
-    
-  end
+
 end
 
 
@@ -2927,42 +2921,42 @@ class Messages
   # then instantiates the
   # ComposeMessage class.
   def compose_message
-    frm(1).link(:text=>"Compose Message").click
+    frm.link(:text=>"Compose Message").click
     ComposeMessage.new(@browser)
   end
   
   def received 
-    frm(1).link(:text=>"Received").click
+    frm.link(:text=>"Received").click
     MessagesReceivedList.new(@browser)
   end
 
   def sent
-    frm(1).link(:text=>"Sent").click
+    frm.link(:text=>"Sent").click
     MessagesSentList.new(@browser)
   end
   
   def deleted
-    frm(1).link(:text=>"Deleted").click
+    frm.link(:text=>"Deleted").click
     MessagesDeletedList.new(@browser)
   end
   
   def draft
-    frm(1).link(:text=>"Draft").click
+    frm.link(:text=>"Draft").click
     MessagesDraftList.new(@browser)
   end
 
   def open_folder(foldername)
-    frm(1).link(:text=>foldername).click
+    frm.link(:text=>foldername).click
     FolderList.new(@browser)
   end
 
   def new_folder
-    frm(1).link(:text=>"New Folder").click
+    frm.link(:text=>"New Folder").click
     MessagesNewFolder.new(@browser)
   end
   
   def settings
-    frm(1).link(:text=>"Settings").click
+    frm.link(:text=>"Settings").click
     MessagesSettings.new(@browser)
   end
   
@@ -2971,7 +2965,7 @@ class Messages
   # and returns it as a string
   def total_messages_in_folder(folder_name)
     index=folders.index(folder_name)
-    frm(1).table(:id=>"msgForum:_id23:0:privateForums").row(:index=>index).span(:class=>"textPanelFooter", :index=>0).text =~ /\d+/
+    frm.table(:id=>"msgForum:_id23:0:privateForums").row(:index=>index).span(:class=>"textPanelFooter", :index=>0).text =~ /\d+/
     return $~.to_s
   end
   
@@ -2980,13 +2974,13 @@ class Messages
   # as a string
   def unread_messages_in_folder(folder_name)
     index=folders.index(folder_name)
-    frm(1).table(:id=>"msgForum:_id23:0:privateForums").row(:index=>index).span(:class=>"textPanelFooter", :index=>1).text =~ /\d+/
+    frm.table(:id=>"msgForum:_id23:0:privateForums").row(:index=>index).span(:class=>"textPanelFooter", :index=>0).text =~ /\d+/
     return $~.to_s
   end
   
   # Gets all the folder names
   def folders
-    links = frm(1).table(:class=>"hierItemBlockWrapper").links.find_all { |link| link.title != /Folder Settings/ }
+    links = frm.table(:class=>"hierItemBlockWrapper").links.find_all { |link| link.title != /Folder Settings/ }
     folders = []
     links.each { |link| folders << link.text }
     return folders
@@ -2994,7 +2988,7 @@ class Messages
   
   def folder_settings(foldername)
     index = folders.index(foldername)
-    frm(1).table(:class=>"hierItemBlockWrapper").link(:text=>"Folder Settings", :index=>index-4).click
+    frm.table(:class=>"hierItemBlockWrapper").link(:text=>"Folder Settings", :index=>index-4).click
     MessageFolderSettings.new(@browser)
   end
   
@@ -3010,7 +3004,7 @@ class MessagesSentList
   # then instantiates the
   # ComposeMessage class.
   def compose_message
-    frm(1).link(:text=>"Compose Message").click
+    frm.link(:text=>"Compose Message").click
     ComposeMessage.new(@browser)
   end
   
@@ -3021,7 +3015,7 @@ class MessagesSentList
   # Use this method to simplify writing
   # Test::Unit asserts
   def alert_message_text
-    frm(1).span(:class=>"success").text
+    frm.span(:class=>"success").text
   end
   
   in_frame(:index=>1) do |frame|
@@ -3036,14 +3030,14 @@ class MessagesReceivedList
   include ToolsMenu
   
   def compose_message
-    frm(1).link(:text=>"Compose Message").click
+    frm.link(:text=>"Compose Message").click
     ComposeMessage.new(@browser)
   end
   
   # Clicks on the specified message subject
   # then instantiates the MessageView class.
   def open_message(subject)
-    frm(1).link(:text, /#{Regexp.escape(subject)}/).click
+    frm.link(:text, /#{Regexp.escape(subject)}/).click
     MessageView.new(@browser)
   end
   
@@ -3054,7 +3048,7 @@ class MessagesReceivedList
   # Use this method to simplify writing
   # Test::Unit asserts
   def alert_message_text
-    frm(1).span(:class=>"success").text
+    frm.span(:class=>"success").text
   end
 
   # Checks the checkbox for the specified
@@ -3064,7 +3058,7 @@ class MessagesReceivedList
   # subject is not present.
   def check_message(subject)
     index=subjects.index(subject)
-    frm(1).checkbox(:name=>"prefs_pvt_form:pvtmsgs:#{index}:_id122").set 
+    frm.checkbox(:name=>"prefs_pvt_form:pvtmsgs:#{index}:_id122").set 
   end
   
   # Clicks the Messages link in the
@@ -3072,7 +3066,7 @@ class MessagesReceivedList
   # page, then instantiates the Messages
   # class
   def messages
-    frm(1).link(:text=>"Messages").click
+    frm.link(:text=>"Messages").click
     Messages.new(@browser)
   end
 
@@ -3080,7 +3074,7 @@ class MessagesReceivedList
   # reinstantiates the class because
   # the page partially refreshes.
   def mark_read
-    frm(1).link(:text=>"Mark Read").click
+    frm.link(:text=>"Mark Read").click
     MessagesReceivedList.new(@browser)
   end
 
@@ -3088,7 +3082,7 @@ class MessagesReceivedList
   # message subject lines.
   def subjects
     titles = []
-    messages = frm(1).table(:id=>"prefs_pvt_form:pvtmsgs")
+    messages = frm.table(:id=>"prefs_pvt_form:pvtmsgs")
     1.upto(messages.rows.size-1) do |x|
       titles << messages.row(:index=>x).a.title
     end
@@ -3100,7 +3094,7 @@ class MessagesReceivedList
   end
 
   def move
-    frm(1).link(:text, "Move").click
+    frm.link(:text, "Move").click
     MoveMessageTo.new(@browser)
   end
 
@@ -3118,14 +3112,14 @@ class FolderList #FIXME
   include ToolsMenu
   
   def compose_message
-    frm(1).link(:text=>"Compose Message").click
+    frm.link(:text=>"Compose Message").click
     ComposeMessage.new(@browser)
   end
   
   # Clicks on the specified message subject
   # then instantiates the MessageView class.
   def open_message(subject)
-    frm(1).link(:text, /#{Regexp.escape(subject)}/).click
+    frm.link(:text, /#{Regexp.escape(subject)}/).click
     MessageView.new(@browser)
   end
   
@@ -3136,7 +3130,7 @@ class FolderList #FIXME
   # Use this method to simplify writing
   # Test::Unit asserts
   def alert_message_text
-    frm(1).span(:class=>"success").text
+    frm.span(:class=>"success").text
   end
 
   # Checks the checkbox for the specified
@@ -3146,7 +3140,7 @@ class FolderList #FIXME
   # subject is not present.
   def check_message(subject)
     index=subjects.index(subject)
-    frm(1).checkbox(:name=>"prefs_pvt_form:pvtmsgs:#{index}:_id122").set 
+    frm.checkbox(:name=>"prefs_pvt_form:pvtmsgs:#{index}:_id122").set 
   end
   
   # Clicks the Messages link in the
@@ -3154,7 +3148,7 @@ class FolderList #FIXME
   # page, then instantiates the Messages
   # class
   def messages
-    frm(1).link(:text=>"Messages").click
+    frm.link(:text=>"Messages").click
     Messages.new(@browser)
   end
 
@@ -3162,7 +3156,7 @@ class FolderList #FIXME
   # reinstantiates the class because
   # the page partially refreshes.
   def mark_read
-    frm(1).link(:text=>"Mark Read").click
+    frm.link(:text=>"Mark Read").click
     MessagesReceivedList.new(@browser)
   end
 
@@ -3170,7 +3164,7 @@ class FolderList #FIXME
   # message subject lines.
   def subjects
     titles = []
-    messages = frm(1).table(:id=>"prefs_pvt_form:pvtmsgs")
+    messages = frm.table(:id=>"prefs_pvt_form:pvtmsgs")
     1.upto(messages.rows.size-1) do |x|
       titles << messages.row(:index=>x).a.title
     end
@@ -3182,7 +3176,7 @@ class FolderList #FIXME
   end
 
   def move
-    frm(1).link(:text, "Move").click
+    frm.link(:text, "Move").click
     MoveMessageTo.new(@browser)
   end
 
@@ -3202,7 +3196,7 @@ class MoveMessageTo
   include ToolsMenu
   
   def move_messages
-    frm(1).button(:value=>"Move Messages").click
+    frm.button(:value=>"Move Messages").click
     Messages.new(@browser)
   end
 
@@ -3211,7 +3205,7 @@ class MoveMessageTo
   # folders. Count begins with "1" for the first custom
   # folder listed.
   def select_custom_folder_num(num)
-    frm(1).radio(:index=>num.to_i+3).set 
+    frm.radio(:index=>num.to_i+3).set 
   end
 
   in_frame(:index=>1) do |frame|
@@ -3230,7 +3224,7 @@ class MessagesDeletedList
   include ToolsMenu
   
   def compose_message
-    frm(1).link(:text=>"Compose Message").click
+    frm.link(:text=>"Compose Message").click
     ComposeMessage.new(@browser)
   end
 
@@ -3241,14 +3235,14 @@ class MessagesDeletedList
   # Use this method to simplify writing
   # Test::Unit asserts
   def alert_message_text
-    frm(1).span(:class=>"success").text
+    frm.span(:class=>"success").text
   end
 
   # Creates an array consisting of the
   # message subject lines.
   def subjects
     titles = []
-    messages = frm(1).table(:id=>"prefs_pvt_form:pvtmsgs")
+    messages = frm.table(:id=>"prefs_pvt_form:pvtmsgs")
     1.upto(messages.rows.size-1) do |x|
       titles << messages[x][2].text
     end
@@ -3262,16 +3256,16 @@ class MessagesDeletedList
   # subject is not present.
   def check_message(subject)
     index=subjects.index(subject)
-    frm(1).checkbox(:name=>"prefs_pvt_form:pvtmsgs:#{index}:_id122").set 
+    frm.checkbox(:name=>"prefs_pvt_form:pvtmsgs:#{index}:_id122").set 
   end
 
   def move
-    frm(1).link(:text, "Move").click
+    frm.link(:text, "Move").click
     MoveMessageTo.new(@browser)
   end
   
   def delete
-    frm(1).link(:text=>"Delete").click
+    frm.link(:text=>"Delete").click
     MessageDeleteConfirmation.new(@browser)
   end
 
@@ -3287,7 +3281,7 @@ class MessagesDraftList
   include ToolsMenu
   
   def compose_message
-    frm(1).link(:text=>"Compose Message").click
+    frm.link(:text=>"Compose Message").click
     ComposeMessage.new(@browser)
   end
 
@@ -3298,7 +3292,7 @@ class MessagesDraftList
   # Use this method to simplify writing
   # Test::Unit asserts
   def alert_message_text
-    frm(1).span(:class=>"success").text
+    frm.span(:class=>"success").text
   end
 
   in_frame(:index=>1) do |frame|
@@ -3313,17 +3307,17 @@ class MessageView
   include ToolsMenu
   
   def reply
-    frm(1).button(:value=>"Reply").click
+    frm.button(:value=>"Reply").click
     ReplyToMessage.new(@browser)
   end
   
   def forward
-    frm(1).button(:value=>"Forward ").click
+    frm.button(:value=>"Forward ").click
     ForwardMessage.new(@browser)
   end
 
   def received
-    frm(1).link(:text=>"Received").click
+    frm.link(:text=>"Received").click
     MessagesReceivedList.new(@browser)
   end
 
@@ -3336,26 +3330,26 @@ class ComposeMessage
   include ToolsMenu
   
   def send
-    frm(1).button(:value=>"Send ").click
+    frm.button(:value=>"Send ").click
     Messages.new(@browser)
   end
   
   def message_text=(text)
-    frm(1).frame(:id, "compose:pvt_message_body_inputRichText___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(text)
+    frm.frame(:id, "compose:pvt_message_body_inputRichText___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(text)
   end
 
   def add_attachments
-    frm(1).button(:value=>"Add attachments").click
+    frm.button(:value=>"Add attachments").click
     MessagesAttachment.new(@browser)
   end
   
   def preview
-    frm(1).button(:value=>"Preview").click
+    frm.button(:value=>"Preview").click
     MessagesPreview.new(@browser)
   end
   
   def save_draft
-    frm(1).button(:value=>"Save Draft").click
+    frm.button(:value=>"Save Draft").click
     xxxxxxxxx.new(@browser) #FIXME
   end
 
@@ -3374,10 +3368,10 @@ class ReplyToMessage
   include ToolsMenu
   
   def send
-    frm(1).button(:value=>"Send ").click
+    frm.button(:value=>"Send ").click
     # Need logic here to ensure the
     # right class gets called...
-    if frm(1).div(:class=>/breadCrumb/).text=~ /Messages.\/.Received/
+    if frm.div(:class=>/breadCrumb/).text=~ /Messages.\/.Received/
       MessagesReceivedList.new(@browser)
     else #FIXME
       Messages.new(@browser)
@@ -3385,22 +3379,22 @@ class ReplyToMessage
   end
   
   def message_text=(text)
-    frm(1).frame(:id, "pvtMsgReply:df_compose_body_inputRichText___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(:home)
-    frm(1).frame(:id, "pvtMsgReply:df_compose_body_inputRichText___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(text)
+    frm.frame(:id, "pvtMsgReply:df_compose_body_inputRichText___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(:home)
+    frm.frame(:id, "pvtMsgReply:df_compose_body_inputRichText___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(text)
   end
 
   def add_attachments
-    frm(1).button(:value=>"Add attachments").click
+    frm.button(:value=>"Add attachments").click
     MessagesAttachment.new(@browser)
   end
   
   def preview
-    frm(1).button(:value=>"Preview").click
+    frm.button(:value=>"Preview").click
     MessagesPreview.new(@browser)
   end
   
   def save_draft
-    frm(1).button(:value=>"Save Draft").click
+    frm.button(:value=>"Save Draft").click
     xxxxxxxxx.new(@browser) #FIXME
   end
 
@@ -3419,27 +3413,27 @@ class ForwardMessage
   include ToolsMenu
   
   def send
-    frm(1).button(:value=>"Send ").click 
+    frm.button(:value=>"Send ").click 
     MessagesReceivedList.new(@browser) #FIXME!
   end
   
   def message_text=(text)
-    frm(1).frame(:id, "pvtMsgForward:df_compose_body_inputRichText___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(:home)
-    frm(1).frame(:id, "pvtMsgForward:df_compose_body_inputRichText___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(text)
+    frm.frame(:id, "pvtMsgForward:df_compose_body_inputRichText___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(:home)
+    frm.frame(:id, "pvtMsgForward:df_compose_body_inputRichText___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(text)
   end
 
   def add_attachments
-    frm(1).button(:value=>"Add attachments").click
+    frm.button(:value=>"Add attachments").click
     MessagesAttachment.new(@browser)
   end
   
   def preview
-    frm(1).button(:value=>"Preview").click
+    frm.button(:value=>"Preview").click
     MessagesPreview.new(@browser)
   end
   
   def save_draft
-    frm(1).button(:value=>"Save Draft").click
+    frm.button(:value=>"Save Draft").click
     xxxxxxxxx.new(@browser) #FIXME
   end
 
@@ -3458,23 +3452,23 @@ class MessagesAttachment
   include ToolsMenu
   
   def continue
-    frm(1).button(:value=>"Continue").click
+    frm.button(:value=>"Continue").click
     # Logic for determining which class to call...
-    if frm(1).div(:class=>/breadCrumb/).text =~ /Messages \/ Compose/
+    if frm.div(:class=>/breadCrumb/).text =~ /Messages \/ Compose/
       ComposeMessage.new(@browser)
-    elsif frm(1).div(:class=>/breadCrumb/).text =~ /Reply to Message/
+    elsif frm.div(:class=>/breadCrumb/).text =~ /Reply to Message/
       ReplyToMessage.new(@browser)
     end
     
   end
   
   def upload_file(filename)
-    frm(1).file_field(:id=>"upload").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + filename)
+    frm.file_field(:id=>"upload").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + filename)
   end
 
   def attach_a_copy(filename)
     index=file_names.index(filename)
-    frm(1).link(:text=>/Attach a copy/, :index=>index).click
+    frm.link(:text=>/Attach a copy/, :index=>index).click
   end
 
   # This method returns an array of the file names currently listed
@@ -3483,7 +3477,7 @@ class MessagesAttachment
   # It excludes folder names.
   def file_names
     names = []
-    resources_table = frm(1).table(:class=>"listHier lines")
+    resources_table = frm.table(:class=>"listHier lines")
     1.upto(resources_table.rows.size-1) do |x|
       if resources_table[x][0].h4.exist? && resources_table[x][0].a(:index=>0).title=~/File Type/
         names << resources_table[x][0].text
@@ -3506,11 +3500,11 @@ class MessageDeleteConfirmation
   include ToolsMenu
   
   def alert_message_text
-    frm(1).span(:class=>"alertMessage").text
+    frm.span(:class=>"alertMessage").text
   end
   
   def delete_messages
-    frm(1).button(:value=>"Delete Message(s)").click
+    frm.button(:value=>"Delete Message(s)").click
     MessagesDeletedList.new(@browser)
   end
 
@@ -3527,7 +3521,7 @@ class MessagesNewFolder
   include ToolsMenu
   
   def add
-    frm(1).button(:value=>"Add").click
+    frm.button(:value=>"Add").click
     Messages.new(@browser)
   end
 
@@ -3543,17 +3537,17 @@ class MessageFolderSettings
   include ToolsMenu
 
   def rename_folder
-    frm(1).button(:value=>"Rename Folder").click
+    frm.button(:value=>"Rename Folder").click
     RenameMessageFolder.new(@browser)
   end
 
   def add
-    frm(1).button(:value=>"Add").click
+    frm.button(:value=>"Add").click
     MessagesNewFolder.new(@browser)
   end
 
   def delete
-    frm(1).button(:value=>"Delete").click
+    frm.button(:value=>"Delete").click
     FolderDeleteConfirm.new(@browser)
   end
 
@@ -3566,7 +3560,7 @@ class FolderDeleteConfirm
   include ToolsMenu
   
   def delete
-    frm(1).button(:value=>"Delete").click
+    frm.button(:value=>"Delete").click
     Messages.new(@browser)
   end
 end
@@ -3604,6 +3598,10 @@ class Home
     link(:new_in_forums, :text=>"New Messages", :frame=>frame)
   end
   
+  # The Home class should be instantiated whenever the user
+  # context is a given Site or the Administration Workspace.
+  # In that context, the frame index is 1.
+  $frame_index=1
   
 end
 
@@ -3646,6 +3644,13 @@ class MyWorkspace
     button(:previous, :name=>"eventSubmit_doList_prev", :frame=>frame)
     button(:first, :name=>"eventSubmit_doList_first", :frame=>frame)
   end
+  
+  # The MyWorkspace class should ONLY be instantiated when
+  # the user context is NOT a given site or Administration Workspace.
+  # Otherwise the frame index will not be 0, and page objects
+  # will not be found by Webdriver.
+  $frame_index=0
+  
 end
 
 
@@ -3689,37 +3694,40 @@ class Resources
   # It then instantiates the ResourcesUploadFiles class.
   def upload_files_to_folder(folder_name)
     index = folder_names.index(folder_name)
-    frm(1).link(:text=>"Start Add Menu", :index=>index).fire_event("onfocus")
-    frm(1).link(:text, "Upload Files").click
+    frm.link(:text=>"Start Add Menu", :index=>index).fire_event("onfocus")
+    frm.link(:text=>"Upload Files", :index=>index).click
     ResourcesUploadFiles.new(@browser)
   end
   
   def open_folder(name)
-    frm(1).link(:text=>name).click
+    frm.link(:text=>name).click
     Resources.new(@browser)
   end
   
+  # Clicks the Create Folders menu item in the
+  # Add menu of the specified folder, then
+  # instantiates the CreateFolders class.
   def create_subfolders_in(folder_name)
     index = folder_names.index(folder_name)
-    frm(1).link(:text=>"Start Add Menu", :index=>index).fire_event("onfocus")
-    frm(1).link(:text, "Create Folders").click
+    frm.link(:text=>"Start Add Menu", :index=>index).fire_event("onfocus")
+    frm.link(:text=>"Create Folders", :index=>index).click
     CreateFolders.new(@browser)
   end
   
   def edit_details(name)
     menus = resource_names.compact
     index=menus.index(name)
-    frm(1).li(:text=>/Action/, :class=>"menuOpen", :index=>index).fire_event("onclick")
-    frm(1).link(:text=>"Edit Details", :index=>index).click
+    frm.li(:text=>/Action/, :class=>"menuOpen", :index=>index).fire_event("onclick")
+    frm.link(:text=>"Edit Details", :index=>index).click
     EditFileDetails.new(@browser)
   end
  
   # This method returns folder names only
   def folder_names
     names = []
-    resources_table = frm(1).table(:class=>"listHier lines centerLines")
+    resources_table = frm.table(:class=>"listHier lines centerLines")
     1.upto(resources_table.rows.size-1) do |x|
-      if resources_table[x][2].h3.exist? && resources_table[x][2].a.title=="Folder"
+      if (resources_table[x][2].h3.exist? || resources_table[x][2].h4.exist?) && resources_table[x][2].a.title=="Folder"
         names << resources_table[x][2].text
       end
     end
@@ -3732,7 +3740,7 @@ class Resources
   # It excludes folder names.
   def file_names
     names = []
-    resources_table = frm(1).table(:class=>"listHier lines centerLines")
+    resources_table = frm.table(:class=>"listHier lines centerLines")
     1.upto(resources_table.rows.size-1) do |x|
       if resources_table[x][2].h4.exist? && resources_table[x][2].a(:index=>1).title=="Unknown"
         names << resources_table[x][2].text
@@ -3750,7 +3758,7 @@ class Resources
   # able to find the correct row.
   def resource_names
     titles = []
-    resources_table = frm(1).table(:class=>"listHier lines centerLines")
+    resources_table = frm.table(:class=>"listHier lines centerLines")
     1.upto(resources_table.rows.size-1) do |x|
       if resources_table[x][2].link.exist?
         titles << resources_table[x][2].text
@@ -3763,7 +3771,7 @@ class Resources
 
   def access_level(filename)
     index = resource_names.index(filename)
-    frm(1).table(:class=>"listHier lines centerLines")[index+1][6].text
+    frm.table(:class=>"listHier lines centerLines")[index+1][6].text
   end
 
   in_frame(:index=>1) do |frame|
@@ -3786,12 +3794,12 @@ class ResourcesUploadFiles
   # that the add_another_file method is used
   # before it, every time except before the first time.
   def file_to_upload=(file_name)
-    frm(1).file_field(:id, "content_#{@@filex}").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + file_name)
+    frm.file_field(:id, "content_#{@@filex}").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + file_name)
     @@filex+=1
   end
   
   def upload_files_now
-    frm(1).button(:value=>"Upload Files Now").click
+    frm.button(:value=>"Upload Files Now").click
     @@filex=0
     Resources.new(@browser)
   end
@@ -3811,7 +3819,7 @@ class EditFileDetails
   include ToolsMenu
   
   def update    
-    frm(1).button(:value=>"Update").click
+    frm.button(:value=>"Update").click
     Resources.new(@browser)
   end
 
@@ -3819,6 +3827,10 @@ class EditFileDetails
     text_field(:title, :id=>"displayName_0", :frame=>frame)
     text_area(:description, :id=>"description_0", :frame=>frame)
     radio_button(:publicly_viewable, :id=>"access_mode_public_0", :frame=>frame)
+    checkbox(:show_only_if_condition, :id=>"cbCondition_0", :frame=>frame)
+    select_list(:gradebook_item, :id=>"selectResource_0", :frame=>frame)
+    select_list(:item_condition, :id=>"selectCondition_0", :frame=>frame)
+    text_field(:assignment_grade, :id=>"assignment_grade_0", :frame=>frame)
   end
 end
 
@@ -3828,7 +3840,7 @@ class CreateFolders #FIXME - Need to add functions for adding multiple folders
   include ToolsMenu
   
   def create_folders_now
-    frm(1).button(:value=>"Create Folders Now").click
+    frm.button(:value=>"Create Folders Now").click
     Resources.new(@browser)
   end
 
@@ -4030,20 +4042,20 @@ class Sites
   # listed. Useful when you've run a search and
   # you're certain you've got the result you want
   def click_top_item
-    frm(0).link(:href, /#{Regexp.escape("&panel=Main&sakai_action=doEdit")}/).click
+    frm.link(:href, /#{Regexp.escape("&panel=Main&sakai_action=doEdit")}/).click
     EditSiteInfo.new(@browser)
   end
   
   # Use this method when you know the target site ID
   def edit_site_id(id)
-    frm(0).text_field(:id=>"search_site").value=id
-    frm(0).link(:text=>"Site ID").click
-    frm(0).link(:text, id).click
+    frm.text_field(:id=>"search_site").value=id
+    frm.link(:text=>"Site ID").click
+    frm.link(:text, id).click
     EditSiteInfo.new(@browser)
   end
   
   def new_site
-    frm(0).link(:text, "New Site").click
+    frm.link(:text, "New Site").click
     EditSiteInfo.new(@browser)
   end
   
@@ -4075,17 +4087,17 @@ class EditSiteInfo
   include ToolsMenu
   
   def remove_site
-    frm(0).link(:text, "Remove Site").click
+    frm.link(:text, "Remove Site").click
     RemoveSite.new(@browser)
   end
   
   def save
-    frm(0).button(:value=>"Save").click
+    frm.button(:value=>"Save").click
     Sites.new(@browser)
   end
   
   def save_as
-    frm(0).link(:text, "Save As").click
+    frm.link(:text, "Save As").click
     SiteSaveAs.new(@browser)
   end
   
@@ -4099,12 +4111,12 @@ class EditSiteInfo
   end
   
   def properties
-    frm(0).button(:value=>"Properties").click
+    frm.button(:value=>"Properties").click
     AddEditSiteProperties.new(@browser)
   end
   
   def pages
-    frm(0).button(:value=>"Pages").click
+    frm.button(:value=>"Pages").click
     AddEditPages.new(@browser)
   end
   
@@ -4129,14 +4141,8 @@ class AddEditPages
   include ToolsMenu
   
   def new_page
-    frm(0).link(:text=>"New Page").click
+    frm.link(:text=>"New Page").click
     NewPage.new(@browser)
-  end
-  
-  in_frame(:index=>0) do |frame|
-    # Interactive page objects that do no navigation
-    # or page refreshes go here.
-    # (:, :=>"", :frame=>frame)
   end
 
 end
@@ -4148,7 +4154,7 @@ class NewPage
   include ToolsMenu
   
   def tools
-    frm(0).button(:value=>"Tools").click
+    frm.button(:value=>"Tools").click
     AddEditTools.new(@browser)
   end
   
@@ -4167,20 +4173,13 @@ class AddEditTools
   include ToolsMenu
   
   def new_tool
-    frm(0).link(:text=>"New Tool").click
+    frm.link(:text=>"New Tool").click
     NewTool.new(@browser)
   end
   
   def save
-    frm(0).button(:value=>"Save").click
+    frm.button(:value=>"Save").click
     AddEditPages.new(@browser)
-  end
-  
-  in_frame(:index=>0) do |frame|
-    # Interactive page objects that do no navigation
-    # or page refreshes go here.
-    #(:, :=>"", :frame=>frame)
-    
   end
 
 end
@@ -4192,7 +4191,7 @@ class NewTool
   include ToolsMenu
   
   def done
-    frm(0).button(:value=>"Done").click
+    frm.button(:value=>"Done").click
     AddEditTools.new(@browser)
   end
   
@@ -4213,7 +4212,7 @@ class RemoveSite
   include ToolsMenu
   
   def remove
-    frm(0).button(:value=>"Remove").click
+    frm.button(:value=>"Remove").click
     Sites.new(@browser)
   end
   
@@ -4226,7 +4225,7 @@ class SiteSaveAs
   include ToolsMenu
   
   def save
-    frm(0).button(:value, "Save").click
+    frm.button(:value, "Save").click
     Sites.new(@browser)
   end
   
@@ -4242,17 +4241,17 @@ class AddEditSiteProperties
   include ToolsMenu
   
   def new_property
-    frm(0).button(:value=>"New Property").click
+    frm.button(:value=>"New Property").click
     #Class.new(@browser)
   end
   
   def done
-    frm(0).button(:value=>"Done").click
+    frm.button(:value=>"Done").click
     EditSiteInfo.new(@browser)
   end
   
   def save
-    frm(0).button(:value=>"Save").click
+    frm.button(:value=>"Save").click
     Sites.new(@browser)
   end
   
@@ -4275,7 +4274,7 @@ class SiteEditor
   include ToolsMenu
   
   def manage_groups
-    frm(1).link(:text=>"Manage Groups").click
+    frm.link(:text=>"Manage Groups").click
     Groups.new(@browser)
   end
   
@@ -4301,7 +4300,7 @@ class Groups
   include ToolsMenu
   
   def create_new_group
-    frm(1).link(:text=>"Create New Group").click
+    frm.link(:text=>"Create New Group").click
     CreateNewGroup.new(@browser)
   end
   
@@ -4319,7 +4318,7 @@ class CreateNewGroup
   include ToolsMenu
   
   def add
-    frm(1).button(:id=>"save").click
+    frm.button(:id=>"save").click
     Groups.new(@browser)
   end
   
@@ -4434,7 +4433,7 @@ class SiteSetupEdit
   include ToolsMenu
   
   def edit_tools
-    frm(0).link(:text=>"Edit Tools").click
+    frm.link(:text=>"Edit Tools").click
     EditSiteTools.new(@browser)
   end
   
@@ -4471,15 +4470,15 @@ class EditSiteTools
   include ToolsMenu
   
   def continue
-    frm(0).button(:value=>"Continue").click
+    frm.button(:value=>"Continue").click
     # Logic for determining the new page class...
-    if frm(0).div(:class=>"portletBody").text =~ /^Add Multiple Tool/
+    if frm.div(:class=>"portletBody").text =~ /^Add Multiple Tool/
       AddMultipleTools.new(@browser)
-    elsif frm(0).div(:class=>"portletBody").text =~ /^Confirming site tools edits for/
+    elsif frm.div(:class=>"portletBody").text =~ /^Confirming site tools edits for/
       ConfirmSiteToolsEdits.new(@browser)
     else
       puts "Something is wrong"
-      puts frm(0).div(:class=>"portletBody").text
+      puts frm.div(:class=>"portletBody").text
     end
   end
   
@@ -4553,7 +4552,7 @@ class ConfirmSiteToolsEdits
   include ToolsMenu
   
   def finish
-    frm(0).button(:value=>"Finish").click
+    frm.button(:value=>"Finish").click
     SiteSetupEdit.new(@browser)
   end
   
@@ -4567,8 +4566,8 @@ class SiteSetup
   
   # Method for clicking the "New" link on the Site Setup page.
   def new
-    @browser.div(:id=>"siteTitle").text=="My Workspace" ? x = 0 : x = 1
-    frm(x).div(:class=>"portletBody").link(:text=>"New").click
+    @browser.div(:id=>"siteTitle").text=="My Workspace" ? $frame_index = 0 : $frame_index = 1
+    frm.div(:class=>"portletBody").link(:text=>"New").click
     SiteType.new(@browser)
   end
   
@@ -4577,34 +4576,34 @@ class SiteSetup
   # Then clicks the Edit button and instantiates
   # The SiteSetupEdit class.
   def edit(site_name)
-    @browser.div(:id=>"siteTitle").text=="My Workspace" ? x = 0 : x = 1
-    frm(x).text_field(:id, "search").value=Regexp.escape(site_name)
-    frm(x).button(:value=>"Search").click
-    frm(x).div(:class=>"portletBody").checkbox(:name=>"selectedMembers").set
-    frm(x).div(:class=>"portletBody").link(:text, "Edit").click
+    @browser.div(:id=>"siteTitle").text=="My Workspace" ? $frame_index = 0 : $frame_index = 1
+    frm.text_field(:id, "search").value=Regexp.escape(site_name)
+    frm.button(:value=>"Search").click
+    frm.div(:class=>"portletBody").checkbox(:name=>"selectedMembers").set
+    frm.div(:class=>"portletBody").link(:text, "Edit").click
     SiteSetupEdit.new(@browser)
   end
 
   def search(site_name)
-    @browser.div(:id=>"siteTitle").text=="My Workspace" ? x = 0 : x = 1
-    frm(x).text_field(:id, "search").set site_name
-    frm(x).button(:value, "Search").click
+    @browser.div(:id=>"siteTitle").text=="My Workspace" ? $frame_index = 0 : $frame_index = 1
+    frm.text_field(:id, "search").set site_name
+    frm.button(:value, "Search").click
     SiteSetup.new(@browser)
   end
 
   def delete(site_name)
-    @browser.div(:id=>"siteTitle").text=="My Workspace" ? x = 0 : x = 1
-    frm(x).text_field(:id, "Search").value=site_name
-    frm(x).button(:value=>"Search").click
-    frm(x).checkbox(:name=>"selectedMembers").set
-    frm(x).div(:class=>"portletBody").link(:text, "Delete").click
+    @browser.div(:id=>"siteTitle").text=="My Workspace" ? $frame_index = 0 : $frame_index = 1
+    frm.text_field(:id, "Search").value=site_name
+    frm.button(:value=>"Search").click
+    frm.checkbox(:name=>"selectedMembers").set
+    frm.div(:class=>"portletBody").link(:text, "Delete").click
     DeleteSite.new(@browser)
   end
   
   def site_titles
-    @browser.div(:id=>"siteTitle").text=="My Workspace" ? x = 0 : x = 1
+    @browser.div(:id=>"siteTitle").text=="My Workspace" ? $frame_index = 0 : $frame_index = 1
     titles = []
-    sites_table = frm(x).table(:id=>"siteList")
+    sites_table = frm.table(:id=>"siteList")
     1.upto(sites_table.rows.size-1) do |x|
       titles << sites_table[x][1].text
     end
@@ -4631,12 +4630,12 @@ class DeleteSite
   include ToolsMenu
   
   def remove
-    frm(0).button(:value=>"Remove").click
+    frm.button(:value=>"Remove").click
     SiteSetup.new(@browser)
   end
   
   def cancel
-    frm(0).button(:value=>"Cancel").click
+    frm.button(:value=>"Cancel").click
     SiteSetup.new(@browser)
   end
   
@@ -4652,29 +4651,29 @@ class SiteType
   # gets instantiated, based on the page that
   # appears.
   def continue #FIXME
-    if frm(0).button(:id, "submitBuildOwn").enabled?
-      frm(0).button(:id, "submitBuildOwn").click
-    elsif frm(0).button(:id, "submitFromTemplateCourse").enabled?
-      frm(0).button(:id, "submitFromTemplateCourse").click
-    elsif frm(0).button(:id, "submitFromTemplate").enabled?
-      frm(0).button(:id, "submitFromTemplate").click
+    if frm.button(:id, "submitBuildOwn").enabled?
+      frm.button(:id, "submitBuildOwn").click
+    elsif frm.button(:id, "submitFromTemplateCourse").enabled?
+      frm.button(:id, "submitFromTemplateCourse").click
+    elsif frm.button(:id, "submitFromTemplate").enabled?
+      frm.button(:id, "submitFromTemplate").click
 =begin
-    elsif frm(0).button(:value=>"Continue", :index=>0).enabled?
-      frm(0).button(:value=>"Continue", :index=>0).fire_event("onclick")
-    elsif frm(0).button(:value=>"Continue", :index=>1).enabled?
-      frm(0).button(:value=>"Continue", :index=>1).fire_event("onclick")
-    elsif frm(0).button(:value=>"Continue", :index=>2).enabled?
-      frm(0).button(:value=>"Continue", :index=>2).fire_event("onclick")
+    elsif frm.button(:value=>"Continue", :index=>$frame_index).enabled?
+      frm.button(:value=>"Continue", :index=>$frame_index).fire_event("onclick")
+    elsif frm.button(:value=>"Continue", :index=>$frame_index).enabled?
+      frm.button(:value=>"Continue", :index=>$frame_index).fire_event("onclick")
+    elsif frm.button(:value=>"Continue", :index=>2).enabled?
+      frm.button(:value=>"Continue", :index=>2).fire_event("onclick")
     else
-      frm(0).button(:value=>"Continue", :index=>2).fire_event("onclick")
+      frm.button(:value=>"Continue", :index=>2).fire_event("onclick")
 =end
     end
     
-    if frm(0).div(:class=>"portletBody").h3.text=="Course/Section Information"
+    if frm.div(:class=>"portletBody").h3.text=="Course/Section Information"
       CourseSectionInfo.new(@browser)
-    elsif frm(0).div(:class=>"portletBody").h3.text=="Project Site Information"
+    elsif frm.div(:class=>"portletBody").h3.text=="Project Site Information"
       ProjectSiteInfo.new(@browser)
-    elsif frm(0).div(:class=>"portletBody").h3.text=="Portfolio Site Information"
+    elsif frm.div(:class=>"portletBody").h3.text=="Portfolio Site Information"
       PortfolioSiteInfo.new(@browser)
     else
       puts "Something is wrong on Saturn 3"
@@ -4705,11 +4704,11 @@ class AddMultipleTools
   include ToolsMenu
   
   def continue
-    frm(0).button(:value=>"Continue").click
+    frm.button(:value=>"Continue").click
     # Logic to determine the new page class
-    if frm(0).div(:class=>"portletBody").text =~ /Course Site Access/
+    if frm.div(:class=>"portletBody").text =~ /Course Site Access/
       CourseSiteAccess.new(@browser)
-    elsif frm(0).div(:class=>"portletBody").text =~ /^Confirming site tools edits/
+    elsif frm.div(:class=>"portletBody").text =~ /^Confirming site tools edits/
       ConfirmSiteToolsEdits.new(@browser)
     else
       puts "There's another path to define"
@@ -4749,7 +4748,7 @@ class CourseSectionInfo
   include ToolsMenu
   
   def continue
-    frm(0).button(:value=>"Continue").click
+    frm.button(:value=>"Continue").click
     CourseSiteInfo.new(@browser)
   end
   
@@ -4757,7 +4756,7 @@ class CourseSectionInfo
   # use this method ONLY if the Done button is
   # present on the page.
   def done
-    frm(0).button(:value=>"Done").click
+    frm.button(:value=>"Done").click
     SiteSetup.new(@browser)
   end
   
@@ -4791,7 +4790,7 @@ class CourseSiteAccess
   include ToolsMenu
   
   def continue
-    frm(0).button(:value=>"Continue").click
+    frm.button(:value=>"Continue").click
     ConfirmCourseSiteSetup.new(@browser)
   end
   
@@ -4814,7 +4813,7 @@ class ConfirmCourseSiteSetup
   include ToolsMenu
   
   def request_site
-    frm(0).button(:value=>"Request Site").click
+    frm.button(:value=>"Request Site").click
     SiteSetup.new(@browser)
   end
   
@@ -4828,12 +4827,12 @@ class CourseSiteInfo
   include ToolsMenu
   
   def continue
-    frm(0).button(:value=>"Continue").click
+    frm.button(:value=>"Continue").click
     EditSiteTools.new(@browser)
   end
   
   def alert_box_text
-    frm(0).div(:class=>"portletBody").div(:class=>"alertMessage").text
+    frm.div(:class=>"portletBody").div(:class=>"alertMessage").text
   end
   
   # The WYSIWYG FCKEditor on this page will have to be
@@ -4868,21 +4867,21 @@ class Syllabus
   # only when there are no syllabus items
   # on the page at all.
   def create_edit
-    frm(1).link(:text=>"Create/Edit").click
+    frm.link(:text=>"Create/Edit").click
     sleep 0.2
-    frm(1).link(:text=>"Add").click
+    frm.link(:text=>"Add").click
     sleep 0.2
     AddEditSyllabusItem.new(@browser)
   end
   
   def add
-    frm(1).link(:text=>"Add").click
+    frm.link(:text=>"Add").click
     AddEditSyllabusItem.new(@browser)
   end
   
   def check_title(title)
     index=syllabus_titles.index(title)
-    frm(1).checkbox(:index=>index).set
+    frm.checkbox(:index=>index).set
   end
   
   def move_title_up(title)
@@ -4894,18 +4893,18 @@ class Syllabus
   end
   
   def update
-    frm(1).button(:value=>"Update").click
+    frm.button(:value=>"Update").click
     DeleteSyllabusItems.new(@browser)
   end
   
   def open_item(title)
-    frm(1).link(:text=>title).click
+    frm.link(:text=>title).click
     Class.new(@browser)
   end
   
   def syllabus_titles
     titles = []
-    s_table = frm(1).table(:class=>"listHier lines nolines")
+    s_table = frm.table(:class=>"listHier lines nolines")
     1.upto(s_table.rows.size-1) do |x|
       titles << s_table[x][1].text
     end
@@ -4920,15 +4919,15 @@ class AddEditSyllabusItem
   include ToolsMenu
   
   def post
-    frm(1).button(:value=>"Post").click
+    frm.button(:value=>"Post").click
     Syllabus.new(@browser)
   end
   
   def editor
-    if frm(1).div(:class=>"portletBody").h3(:index=>0).text=="Add syllabus..."
-      frm(1).frame(:id, "_id4:_id19_textarea___Frame").td(:id, "xEditingArea").frame(:index=>0)
-    elsif frm(1).div(:class=>"portletBody").h3(:index=>0).text=="Edit Syllabus Item"
-      frm(1).frame(:id, "_id3:_id18_textarea___Frame").td(:id, "xEditingArea").frame(:index=>0)
+    if frm.div(:class=>"portletBody").h3(:index=>0).text=="Add syllabus..."
+      frm.frame(:id, "_id4:_id19_textarea___Frame").td(:id, "xEditingArea").frame(:index=>0)
+    elsif frm.div(:class=>"portletBody").h3(:index=>0).text=="Edit Syllabus Item"
+      frm.frame(:id, "_id3:_id18_textarea___Frame").td(:id, "xEditingArea").frame(:index=>0)
     end
   end
   
@@ -4938,7 +4937,7 @@ class AddEditSyllabusItem
   
   
   def post
-    frm(1).button(:value=>"Post").click
+    frm.button(:value=>"Post").click
     Syllabus.new(@browser)
   end
   
@@ -4954,7 +4953,7 @@ class DeleteSyllabusItems
   include ToolsMenu
   
   def delete
-    frm(1).button(:value=>"Delete").click
+    frm.button(:value=>"Delete").click
     CreateEditSyllabus.new(@browser)
   end
   
@@ -4987,17 +4986,17 @@ end
 
 # A Non-Admin User's Account page
 # Accessible via the "Account" link in "MY SETTINGS"
+#
+# IMPORTANT: this class does not use PageObject or the ToolsMenu!!
+# So, the only available method to navigate away from this page is
+# Home. Otherwise, you'll have to call the navigation link
+# Explicitly in the test case itself.
+#
+# Objects and methods used in this class must be explicitly
+# defined using Watir and Ruby code.
+#
+# Do NOT use the PageObject syntax in this class.
 class UserAccount
-  
-  # IMPORTANT: this class does not use PageObject or the ToolsMenu!!
-  # So, the only available method to navigate away from this page is
-  # Home. Otherwise, you'll have to call the navigation link
-  # Explicitly in the test case itself.
-  #
-  # Objects and methods used in this class must be explicitly
-  # defined using Watir and Ruby code.
-  #
-  # Do NOT use the PageObject syntax in this class.
   
   def initialize(browser)
     @browser = browser
@@ -5048,8 +5047,6 @@ class UserAccount
   end
 
 end
-
-
 
 #================
 # Users Pages - From Administration Workspace
@@ -5161,13 +5158,10 @@ class JobScheduler
   include ToolsMenu
   
   def jobs
-    frm(0).link(:text=>"Jobs").click
+    frm.link(:text=>"Jobs").click
     JobList.new(@browser)
   end
   
-  in_frame(:index=>0) do |frame|
-  
-  end
 end
 
 # The list of Jobs (click the Jobs button on Job Scheduler)
@@ -5177,18 +5171,15 @@ class JobList
   include ToolsMenu
   
   def new_job
-    frm(0).link(:text=>"New Job").click
+    frm.link(:text=>"New Job").click
     CreateNewJob.new(@browser)
   end
   
   def triggers
-    frm(0).link(:text=>"Triggers(0)").click
+    frm.link(:text=>"Triggers(0)").click
     EditTriggers.new(@browser)
   end
   
-  in_frame(:index=>0) do |frame|
-    #(:, =>"", :frame=>frame)
-  end
 end
 
 # The Create New Job page
@@ -5198,7 +5189,7 @@ class CreateNewJob
   include ToolsMenu
   
   def post
-    frm(0).button(:value=>"Post").click
+    frm.button(:value=>"Post").click
     JobList.new(@browser)
   end
   
@@ -5215,7 +5206,7 @@ class EditTriggers
   include ToolsMenu
   
   def run_job_now
-    frm(0).div(:class=>"portletBody").link(:text=>"Jobs").click
+    frm.div(:class=>"portletBody").link(:text=>"Jobs").click
     RunJobConfirmation.new(@browser)
   end
   
@@ -5231,7 +5222,7 @@ class RunJobConfirmation
   include ToolsMenu
   
   def run_now
-    frm(0).button(:value=>"Run Now").click
+    frm.button(:value=>"Run Now").click
     JobList.new(@browser)
   end
   

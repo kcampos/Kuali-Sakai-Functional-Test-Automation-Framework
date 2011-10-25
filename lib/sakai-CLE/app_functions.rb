@@ -66,6 +66,7 @@ module ToolsMenu
   def open_my_site_by_id(id)
     @browser.link(:text, "My Sites").click
     @browser.link(:href, /#{id}/).click
+    $frame_index=1
     Home.new(@browser)
   end
   
@@ -78,6 +79,7 @@ module ToolsMenu
     short_name = name[0..20]
     @browser.link(:text, "My Sites").click
     @browser.link(:text, /#{Regexp.escape(short_name)}/).click
+    $frame_index=1
     Home.new(@browser)
   end
   
@@ -154,7 +156,11 @@ module ToolsMenu
     Forums.new(@browser)
   end
   
-  link(:gradebook, :text=>"Gradebook")
+  def name
+    @browser.link(:text=>"Gradebook").click
+    Gradebook.new(@browser)
+  end
+  
   link(:gradebook2, :text=>"Gradebook2")
   link(:help, :text=>"Help")
   
@@ -288,8 +294,8 @@ module ToolsMenu
   
   # Shortcut method so you don't have to type out
   # the whole string: @browser.frame(:index=>index)
-  def frm(index)
-    @browser.frame(:index=>index)
+  def frm
+    @browser.frame(:index=>$frame_index)
   end
   
 end
@@ -305,10 +311,10 @@ module QuestionHelpers
   # whether to instantiate the EditAssessment class, or the EditQuestionPool class.
   def save
     
-    quiz = frm(1).div(:class=>"portletBody").div(:index=>0).text
-    pool = frm(1).div(:class=>"portletBody").div(:index=>1).text
+    quiz = frm.div(:class=>"portletBody").div(:index=>0).text
+    pool = frm.div(:class=>"portletBody").div(:index=>1).text
     
-    frm(1).button(:value=>"Save").click
+    frm.button(:value=>"Save").click
     
     if quiz =~ /^Assessments/
       EditAssessment.new(@browser)
@@ -322,7 +328,7 @@ module QuestionHelpers
     
   end
   
-  in_frame(:index=>1) do |frame|
+  in_frame(:index=>$frame_index) do |frame|
     link(:assessments, :text=>"Assessments", :frame=>frame)
     link(:assessment_types, :text=>"Assessment Types", :frame=>frame)
     link(:question_pools, :text=>"Question Pools", :frame=>frame)
