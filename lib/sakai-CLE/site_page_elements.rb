@@ -1,12 +1,15 @@
-# Navigation links in Sakai
+# Navigation links in Sakai's site pages
 # 
 # == Synopsis
 #
-# Defines all objects in Sakai Pages. Uses the PageObject gem
-# to create methods to interact with those objects.
+# Defines all objects in Sakai Pages that are found in the
+# context of a Course or Portfolio Site. No classes in this
+# script should refer to pages that appear in the context of
+# "My Workspace", even though, as in the case of Resources,
+# Announcements, and Help, the page may exist in both contexts.
 #
 # Author :: Abe Heward (aheward@rsmart.com)
-
+#
 # Page-object is the gem that parses each of the listed objects.
 # For an introduction to the tool, written by the author, visit:
 # http://www.cheezyworld.com/2011/07/29/introducing-page-object-gem/
@@ -18,76 +21,19 @@
 # copying when you create a new class.
 
 require 'page-object'
-#require 'cgi'
 require  File.dirname(__FILE__) + '/app_functions.rb'
-
-#================
-# Aliases Pages
-#================
-
-# The Aliases page - "icon-sakai-aliases", found in the Administration Workspace
-class Aliases
-  
-  include PageObject
-  include ToolsMenu
-  
-  in_frame(:index=>0) do |frame|
-    link(:new_alias, :text=>"New Alias", :frame=>frame)
-    text_field(:search_field, :id=>"search", :frame=>frame)
-    link(:search_button, :text=>"Search", :frame=>frame)
-    select_list(:select_page_size, :id=>"selectPageSize", :frame=>frame)
-    button(:next, :name=>"eventSubmit_doList_next", :frame=>frame)
-    button(:last, :name=>"eventSubmit_doList_last", :frame=>frame)
-    button(:previous, :name=>"eventSubmit_doList_prev", :frame=>frame)
-    button(:first, :name=>"eventSubmit_doList_first", :frame=>frame)
-  end
-
-end
-
-# The Page that appears when you create a New Alias
-class AliasesCreate
-  
-  include PageObject
-  include ToolsMenu
-  
-  in_frame(:index=>0) do |frame|
-    text_field(:alias_name, :id=>"id", :frame=>frame)
-    text_field(:target, :id=>"target", :frame=>frame)
-    button(:save, :name=>"eventSubmit_doSave", :frame=>frame)
-    button(:cancel, :name=>"eventSubmit_doCancel", :frame=>frame)
-    
-  end
-
-end
-
-# Page for editing an existing Alias record
-class EditAlias
-  
-  include PageObject
-  include ToolsMenu
-  
-  in_frame(:index=>0) do |frame|
-    link(:remove_alias, :text=>"Remove Alias", :frame=>frame)
-    text_field(:target, :id=>"target", :frame=>frame)
-    button(:save, :name=>"eventSubmit_doSave", :frame=>frame)
-    button(:cancel, :name=>"eventSubmit_doCancel", :frame=>frame)
-    
-  end
-
-end
-
 
 #================
 # Announcements Pages
 #================
 
-# The topmost page for the Announcements tool
-class Announcements
+# The topmost page for the Announcements tool in a Site
+class AnnouncementsSite
   
   include PageObject
   include ToolsMenu
   
-  in_frame(:index=>$frame_index) do |frame|
+  in_frame(:index=>1) do |frame|
     link(:add, :text=>"Add", :frame=>frame)
     link(:merge, :text=>"Merge", :frame=>frame)
     link(:options, :text=>"Options", :frame=>frame)
@@ -98,13 +44,13 @@ class Announcements
 
 end
 
-# Adding a new Announcement
-class AnnouncementsAdd
+# Adding a new Announcement to a Site
+class AnnouncementsSiteAdd
   
   include PageObject
   include ToolsMenu
   
-  in_frame(:index=>$frame_index) do |frame|
+  in_frame(:index=>1) do |frame|
     
     # Going to define the WYSIWYG text editor at some later time
     
@@ -122,12 +68,12 @@ class AnnouncementsAdd
 end
 
 # Page for merging announcements from other sites
-class AnnouncementsMerge
+class AnnouncementsSiteMerge
   
   include PageObject
   include ToolsMenu
   
-  in_frame(:index=>$frame_index) do |frame|
+  in_frame(:index=>1) do |frame|
     # This page can have an arbitrary number of site checkboxes.
     # Only the first 5 are defined here.
     # The rest will have to be called explicitly in any
@@ -144,7 +90,7 @@ class AnnouncementsMerge
 end
 
 # Page for setting up options for announcements
-class AnnouncementsOptions
+class AnnouncementsSiteOptions
   
   include PageObject
   include ToolsMenu
@@ -161,7 +107,7 @@ class AnnouncementsOptions
 end
 
 # Page containing permissions options for announcements
-class AnnouncementsPermissions
+class AnnouncementsSitePermissions
   
   include PageObject
   include ToolsMenu
@@ -176,7 +122,6 @@ class AnnouncementsPermissions
   end
 =end
 end
-
 
 
 #================
@@ -906,7 +851,6 @@ class EditAssessmentType
 
 end
 
-
 # The Page that appears when adding a new question pool
 class AddQuestionPool
   
@@ -914,7 +858,7 @@ class AddQuestionPool
   include ToolsMenu
   
   def save
-    frm(1).button(:id=>"questionpool:submit").click
+    frm.button(:id=>"questionpool:submit").click
     QuestionPoolsList.new(@browser)
   end
   
@@ -938,12 +882,12 @@ class EditQuestionPool
   include ToolsMenu
   
   def add_question
-    frm(1).link(:id=>"editform:addQlink").click
+    frm.link(:id=>"editform:addQlink").click
     SelectQuestionType.new(@browser)
   end
   
   def question_pools
-    frm(1).link(:text=>"Question Pools").click
+    frm.link(:text=>"Question Pools").click
     QuestionPoolsList.new(@browser)
   end
   
@@ -968,22 +912,22 @@ class QuestionPoolsList
   include ToolsMenu
   
   def edit_pool(name)
-    frm(1).span(:text=>name).fire_event("onclick")
+    frm.span(:text=>name).fire_event("onclick")
     EditQuestionPool.new(@browser)
   end
   
   def add_new_pool
-    frm(1).link(:text=>"Add New Pool").click
+    frm.link(:text=>"Add New Pool").click
     AddQuestionPool.new(@browser)
   end
   
   def import
-    frm(1).link(:text=>"Import").click
+    frm.link(:text=>"Import").click
     PoolImport.new(@browser)
   end
   
   def assessments
-    frm(1).link(:text=>"Assessments").click
+    frm.link(:text=>"Assessments").click
     AssessmentsList.new(@browser)
   end
   
@@ -1001,11 +945,11 @@ class PoolImport
   include ToolsMenu
   
   def choose_file=(filename)
-    frm(1).file_field(:name=>"importPoolForm:_id6.upload").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + file_name)
+    frm.file_field(:name=>"importPoolForm:_id6.upload").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + file_name)
   end
   
   def import
-    frm(1).button(:value=>"Import").click
+    frm.button(:value=>"Import").click
     QuestionPoolsList.new(@browser)
   end
   
@@ -1072,9 +1016,9 @@ class TakeAssessmentList
   
   def take_assessment(name)
     begin
-      frm(1).link(:text=>name).click
+      frm.link(:text=>name).click
     rescue Watir::Exception::UnknownObjectException
-      frm(1).link(:text=>CGI::escapeHTML(name)).click
+      frm.link(:text=>CGI::escapeHTML(name)).click
     end
     BeginAssessment.new(@browser)
   end
@@ -1098,7 +1042,7 @@ class BeginAssessment
   include ToolsMenu
   
   def begin_assessment
-    frm(1).button(:value=>"Begin Assessment").click
+    frm.button(:value=>"Begin Assessment").click
   end
   
   def cancel
@@ -1121,23 +1065,23 @@ class AssignmentAdd
   # It will need special handling in the test case itself.
   
   def post
-    frm(1).button(:value=>"Post").click
+    frm.button(:value=>"Post").click
     AssignmentsList.new(@browser)
   end
   
   def save_draft
-    frm(1).button(:name=>"save").click
+    frm.button(:name=>"save").click
     AssignmentsList.new(@browser)
   end
    
   # The alert_text object on the Add/Edit Assignments page
   def alert_text
-    frm(1).div(:class=>"portletBody").div(:class=>"alertMessage").text
+    frm.div(:class=>"portletBody").div(:class=>"alertMessage").text
   end
     
   # A method to insert text into the rich text editor
   def instructions=(instructions)
-    frm(1).frame(:id, "new_assignment_instructions___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(instructions)
+    frm.frame(:id, "new_assignment_instructions___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(instructions)
   end
   
   in_frame(:index=>1) do |frame|
@@ -1254,27 +1198,27 @@ class AssignmentsList
   end
   
   def add
-    frm(1).link(:text=>"Add").click
+    frm.link(:text=>"Add").click
     AssignmentAdd.new(@browser)
   end
   
   def edit_assignment_id(id)
-    frm(1).link(:href=>/#{Regexp.escape(id)}/).click
+    frm.link(:href=>/#{Regexp.escape(id)}/).click
     AssignmentAdd.new(@browser)
   end
   
   def get_assignment_id(assignment_name)
-    frm(1).link(:text=>/#{Regexp.escape(assignment_name)}/).href =~ /(?<=\/a\/\S{36}\/).+(?=&pan)/
+    frm.link(:text=>/#{Regexp.escape(assignment_name)}/).href =~ /(?<=\/a\/\S{36}\/).+(?=&pan)/
     return $~.to_s
   end
   
   def permissions
-    frm(1).link(:text=>"Permissions").click
+    frm.link(:text=>"Permissions").click
     AssignmentsPermissions.new(@browser)
   end
   
   def check_assignment(id) #FIXME to use name instead of id.
-    frm(1).checkbox(:value, /#{id}/).set
+    frm.checkbox(:value, /#{id}/).set
   end
   
   in_frame(:index=>1) do |frame|
@@ -1306,7 +1250,7 @@ class AssignmentsOptions
   include PageObject
   include ToolsMenu
   
-  in_frame(:index=>0) do |frame|
+  in_frame(:index=>1) do |frame|
     radio_button(:default, :id=>"submission_list_option_default", :frame=>frame)
     radio_button(:only_show_filtered_submissions, :id=>"submission_list_option_searchonly", :frame=>frame)
     button(:update, :name=>"eventSubmit_doUpdate_options", :frame=>frame)
@@ -1387,55 +1331,55 @@ class AssignmentsPreview
   include ToolsMenu
   
   def created_by
-    @browser.frame(:index=>1).table(:class=>"itemSummary")[0][1].text
+    frm.table(:class=>"itemSummary")[0][1].text
   end
   
   def modified
-    @browser.frame(:index=>1).table(:class=>"itemSummary")[1][1].text
+    frm.table(:class=>"itemSummary")[1][1].text
   end
   
   def open
-    @browser.frame(:index=>1).table(:class=>"itemSummary")[2][1].text
+    frm.table(:class=>"itemSummary")[2][1].text
   end
   
   def due
-    @browser.frame(:index=>1).table(:class=>"itemSummary")[3][1].text
+    frm.table(:class=>"itemSummary")[3][1].text
   end
   
   def accept_until
-    @browser.frame(:index=>1).table(:class=>"itemSummary")[4][1].text
+    frm.table(:class=>"itemSummary")[4][1].text
   end
   
   def student_submissions
-    @browser.frame(:index=>1).table(:class=>"itemSummary")[5][1].text
+    frm.table(:class=>"itemSummary")[5][1].text
   end
   
   def grade_scale
-    @browser.frame(:index=>1).table(:class=>"itemSummary")[6][1].text
+    frm.table(:class=>"itemSummary")[6][1].text
   end
   
   def add_due_date
-    @browser.frame(:index=>1).table(:class=>"itemSummary")[7][1].text
+    frm.table(:class=>"itemSummary")[7][1].text
   end
   
   def announce_open_date
-    @browser.frame(:index=>1).table(:class=>"itemSummary")[8][1].text
+    frm.table(:class=>"itemSummary")[8][1].text
   end
   
   def honor_pledge
-    @browser.frame(:index=>1).table(:class=>"itemSummary")[9][1].text
+    frm.table(:class=>"itemSummary")[9][1].text
   end
   
   def add_to_gradebook
-    @browser.frame(:index=>1).table(:class=>"itemSummary")[10][1].text
+    frm.table(:class=>"itemSummary")[10][1].text
   end
   
   def assignment_instructions
-    @browser.frame(:index=>1).div(:class=>"textPanel").text
+    frm.div(:class=>"textPanel").text
   end
   
   def post
-    frm(1).button(:name=>"post").click
+    frm.button(:name=>"post").click
     AssignmentsList.new(@browser)
   end
   
@@ -1489,36 +1433,36 @@ class AssignmentStudent
   include ToolsMenu
   
   def title
-    @browser.frame(:index=>1).table(:class=>"itemSummary")[0][1].text
+    frm.table(:class=>"itemSummary")[0][1].text
   end
   
   def due
-    @browser.frame(:index=>1).table(:class=>"itemSummary")[0][2].text
+    frm.table(:class=>"itemSummary")[0][2].text
   end
   
   def status
-    @browser.frame(:index=>1).table(:class=>"itemSummary")[0][3].text
+    frm.table(:class=>"itemSummary")[0][3].text
   end
   
   def grade_scale
-    @browser.frame(:index=>1).table(:class=>"itemSummary")[0][4].text
+    frm.table(:class=>"itemSummary")[0][4].text
   end
   
   def modified
-    @browser.frame(:index=>1).table(:class=>"itemSummary")[0][5].text
+    frm.table(:class=>"itemSummary")[0][5].text
   end
   
   def add_assignment_text(text)
-    @browser.frame(:index=>1).frame(:id, "Assignment.view_submission_text___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(text)
+    frm.frame(:id, "Assignment.view_submission_text___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(text)
   end
   
   def remove_assignment_text
-    @browser.frame(:index=>1).frame(:id, "Assignment.view_submission_text___Frame").div(:title=>"Select All").fire_event("onclick")
-    @browser.frame(:index=>1).frame(:id, "Assignment.view_submission_text___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys :backspace
+    frm.frame(:id, "Assignment.view_submission_text___Frame").div(:title=>"Select All").fire_event("onclick")
+    frm.frame(:id, "Assignment.view_submission_text___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys :backspace
   end
   
   def file_field #FIXME
-    @browser.frame(:index=>1).file_field(:id=>"clonableUpload")
+    frm.file_field(:id=>"clonableUpload")
   end
   
   in_frame(:index=>1) do |frame|
@@ -1541,15 +1485,15 @@ class AssignmentSubmissionList
   include ToolsMenu
   
   def show_resubmission_settings
-    @browser.frame(:index=>1).image(:src, "/library/image/sakai/expand.gif?panel=Main").click
+    frm.image(:src, "/library/image/sakai/expand.gif?panel=Main").click
   end
   
   def show_assignment_details
-    @browser.frame(:index=>1).image(:src, "/library/image/sakai/expand.gif").click
+    frm.image(:src, "/library/image/sakai/expand.gif").click
   end
   
   def student_table
-    table = @browser.frame(:index=>1).table(:class=>"listHier lines nolines").to_a
+    table = frm.table(:class=>"listHier lines nolines").to_a
   end
   
   in_frame(:index=>1) do |frame|
@@ -1599,11 +1543,11 @@ class AssignmentSubmission
   include ToolsMenu
   
   def student_assignment_text
-    @browser.frame(:index, 1).frame(:id, "grade_submission_feedback_text___Frame").td(:id, "xEditingArea").frame(:index=>0)
+    frm.frame(:id, "grade_submission_feedback_text___Frame").td(:id, "xEditingArea").frame(:index=>0)
   end
   
   def set_instructor_comments(text)
-    @browser.frame(:index, 1).frame(:id, "grade_submission_feedback_comment___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(text)
+    frm.frame(:id, "grade_submission_feedback_comment___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(text)
   end
   
   in_frame(:index=>1) do |frame|
@@ -1642,7 +1586,7 @@ class GradeReport
   include PageObject
   include ToolsMenu
   
-  in_frame(:index=>0) do |frame|
+  in_frame(:index=>1) do |frame|
     #(:, :=>"", :frame=>frame)
     #(:, :=>"", :frame=>frame)
     #(:, :=>"", :frame=>frame)
@@ -1659,7 +1603,7 @@ class StudentView
   include PageObject
   include ToolsMenu
   
-  in_frame(:index=>0) do |frame|
+  in_frame(:index=>1) do |frame|
     link(:add, :text=>"Add", :frame=>frame)
     link(:grade_report, :text=>"Grade Report", :frame=>frame)
     link(:assignment_list, :text=>"Assignment List", :frame=>frame)

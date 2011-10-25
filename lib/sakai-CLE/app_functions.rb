@@ -8,6 +8,7 @@ require 'watir-webdriver'
 require 'page-object'
 require File.dirname(__FILE__) + '/site_page_elements.rb'
 require File.dirname(__FILE__) + '/admin_page_elements.rb'
+require File.dirname(__FILE__) + '/common_page_elements.rb'
 
 class SakaiCLE
   
