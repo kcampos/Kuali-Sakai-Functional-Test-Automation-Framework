@@ -6,7 +6,8 @@
 
 require 'watir-webdriver'
 require 'page-object'
-require File.dirname(__FILE__) + '/page_elements.rb'
+require File.dirname(__FILE__) + '/site_page_elements.rb'
+require File.dirname(__FILE__) + '/admin_page_elements.rb'
 
 class SakaiCLE
   
@@ -203,6 +204,7 @@ module ToolsMenu
   
   def my_workspace
     @browser.link(:text=>"My Workspace").click
+    $frame_index=0
     MyWorkspace.new(@browser)
   end
   
@@ -328,7 +330,7 @@ module QuestionHelpers
     
   end
   
-  in_frame(:index=>$frame_index) do |frame|
+  in_frame(:index=>1) do |frame|
     link(:assessments, :text=>"Assessments", :frame=>frame)
     link(:assessment_types, :text=>"Assessment Types", :frame=>frame)
     link(:question_pools, :text=>"Question Pools", :frame=>frame)

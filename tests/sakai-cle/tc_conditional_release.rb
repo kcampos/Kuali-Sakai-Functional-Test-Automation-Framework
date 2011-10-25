@@ -43,7 +43,7 @@ class TestConditionalRelease < Test::Unit::TestCase
     home = workspace.open_my_site_by_id(@site_id)
     
     assignments = home.assignments
-    puts "test " + $frame_index.to_s
+
     assignment1 = assignments.add
     assignment1.title="CR Assignment 1"
     assignment1.open_hour=last_hour
