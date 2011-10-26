@@ -147,6 +147,13 @@ module ToolsMenu
   link(:evaluation_system, :text=>"Evaluation System")
   link(:feedback, :text=>"Feedback")
   
+  # Clicks the Forms link that is found in menus for
+  # Portfolio sites.
+  def forms
+    @browser.link(:text=>"Forms", :class=>"icon-sakai-metaobj").click
+    Forms.new(@browser)
+  end
+  
   # Clicks the Forums link, then instantiates
   # the forums class.
   def forums
@@ -264,6 +271,11 @@ module ToolsMenu
   
   link(:skin_manager, :text=>"Skin Manager")
   link(:super_user, :text=>"Super User")
+  
+  def styles
+    @browser.link(:text=>"Styles").click
+    Styles.new(@browser)
+  end
   
   # Clicks the Syllabus link, then instantiates
   # the Syllabus class.

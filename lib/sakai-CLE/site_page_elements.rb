@@ -1937,6 +1937,108 @@ end
 
 
 #================
+# Forms Pages - Portfolio Site
+#================
+
+class Forms
+  
+  include PageObject
+  include ToolsMenu
+  
+  def add
+    frm.link(:text=>"Add").click
+    AddForm.new(@browser)
+  end
+  
+  def publish(form_name)
+    frm.table(:class=>"listHier lines nolines").tr(:text, /#{Regexp.escape(form_name)}/).link(:text=>"Publish").click
+    PublishForm.new(@browser)
+  end
+
+  in_frame(:index=>1) do |frame|
+    
+  end
+  
+end
+
+class AddForm
+  
+  include PageObject
+  include ToolsMenu
+  
+  def select_schema_file
+    frm.link(:text=>"Select Schema File").click
+    SelectSchemaFile.new(@browser)
+  end
+
+  def instruction=(text)
+    frm.frame(:id, "instruction___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(text)
+  end
+
+  def add_form
+    frm.button(:value=>"Add Form").click
+    Forms.new(@browser)
+  end
+
+  in_frame(:index=>1) do |frame|
+    text_field(:name, :id=>"description-id", :frame=>frame)
+    
+  end
+end
+
+class SelectSchemaFile
+  
+  include PageObject
+  include ToolsMenu
+  
+  def show_other_sites
+    frm.link(:title=>"Show other sites").click
+    SelectSchemaFile.new(@browser)
+  end
+  
+  def open_folder(name)
+    frm.link(:text=>name).click
+    SelectSchemaFile.new(@browser)
+  end
+
+  def select_file(filename)
+    index = file_names.index(filename)
+    frm.table(:class=>"listHier lines").tr(:text, /#{Regexp.escape(filename)}/).link(:text=>"Select").click
+    SelectSchemaFile.new(@browser)
+  end
+
+  def file_names #FIXME
+    names = []
+    resources_table = frm.table(:class=>"listHier lines")
+    1.upto(resources_table.rows.size-1) do |x|
+      if resources_table[x][0].link.exist? && resources_table[x][0].a(:index=>0).title=~/File Type/
+        names << resources_table[x][0].text
+      end
+    end
+    return names
+  end
+  
+  def continue
+    frm.button(:value=>"Continue").click
+    AddForm.new(@browser)
+  end
+
+end
+
+class PublishForm
+  
+  include PageObject
+  include ToolsMenu
+  
+  def yes
+    frm.button(:value=>"Yes").click
+    Forms.new(@browser)
+  end
+  
+end
+
+
+#================
 # Forum Pages - NOT "Discussion Forums"
 #================
 
@@ -2732,6 +2834,121 @@ end
 
 
 #================
+# Matrix Pages for a Portfolio Site
+#================
+
+class Matrices
+  
+  include PageObject
+  include ToolsMenu
+  
+  def add
+    frm.link(:text=>"Add").click
+    AddEditMatrix.new(@browser)
+  end
+  
+  def edit(matrixname)
+    frm.table(:class=>"listHier lines nolines").tr(:text=>/#{Regexp.escape(matrixname)}/).link(:text=>"Edit").click
+    EditMatrixCells.new(@browser)
+  end
+
+  in_frame(:index=>1) do |frame|
+    
+  end
+end
+
+class AddEditMatrix
+  
+  include PageObject
+  include ToolsMenu
+  
+  def create_matrix
+    frm.button(:value=>"Create Matrix").click
+    Matrices.new(@browser)
+  end
+
+  def select_style
+    frm.link(:text=>"Select Style").click
+    SelectMatrixStyle.new(@browser)
+  end
+  
+  def add_column
+    frm.link(:text=>"Add Column").click
+    AddEditColumn.new(@browser)
+  end
+  
+  def add_row
+    frm.link(:text=>"Add Row").click
+    AddEditRow.new(@browser)
+  end
+  
+  in_frame(:index=>1) do |frame|
+    text_field(:title, :id=>"title-id", :frame=>frame)
+  end
+end
+
+class SelectMatrixStyle
+  
+  include PageObject
+  include ToolsMenu
+  
+  def go_back
+    frm.button(:value=>"Go Back").click
+    AddEditMatrix.new(@browser)
+  end
+
+  def select_style(stylename)
+    frm.table(:class=>"listHier lines nolines").tr(:text=>/#{Regexp.escape(stylename)}/).link(:text=>"Select").click
+    AddEditMatrix.new(@browser)
+  end
+  
+end
+
+class AddEditColumn
+  
+  include PageObject
+  include ToolsMenu
+  
+  def update
+    frm.button(:value=>"Update").click
+    AddEditMatrix.new(@browser)
+  end
+
+  in_frame(:index=>1) do |frame|
+    text_field(:name, :name=>"description", :frame=>frame)
+  end
+end
+
+class AddEditRow
+  
+  include PageObject
+  include ToolsMenu
+  
+  def update
+    frm.button(:value=>"Update").click
+    AddEditMatrix.new(@browser)
+  end
+
+  in_frame(:index=>1) do |frame|
+    text_field(:name, :name=>"description", :frame=>frame)
+    text_field(:background_color, :id=>"color-id", :frame=>frame)
+    text_field(:font_color, :id=>"textColor-id", :frame=>frame)
+  end
+end
+
+class EditMatrixCells
+  
+  include PageObject
+  include ToolsMenu
+  
+  def edit(column, row)
+    frm.div(:class=>"portletBody").table(:index=>0).tr(:index=>row).td(:index=>column).fire_event("onclick")
+  end
+
+end
+
+
+#================
 # Messages Pages
 #================
 
@@ -3462,6 +3679,109 @@ class CreateNewGroup
     button(:cancel, :id=>"cancel", :frame=>frame)
   end
 end
+
+
+#================
+# Styles pages in a Portfolio Site
+#================
+
+class Styles
+  
+  include PageObject
+  include ToolsMenu
+  
+  def add
+    frm.link(:text=>"Add").click
+    AddStyle.new(@browser)
+  end
+
+  in_frame(:index=>1) do |frame|
+    
+  end
+end
+
+class AddStyle
+  
+  include PageObject
+  include ToolsMenu
+  
+  def add_style
+    frm.button(:value=>"Add Style").click
+    Styles.new(@browser)
+  end
+  
+  def select_file
+    frm.link(:text=>"Select File").click
+    StylesAddAttachment.new(@browser)
+  end
+
+  in_frame(:index=>1) do |frame|
+    text_field(:name, :id=>"name-id", :frame=>frame)
+    text_area(:description, :id=>"descriptionTextArea", :frame=>frame)
+    
+  end
+end
+
+class StylesAddAttachment
+  
+  include PageObject
+  include ToolsMenu
+  
+  def show_other_sites
+    frm.link(:title=>"Show other sites").click
+    StylesAddAttachment.new(@browser)
+  end
+  
+  def continue
+    frm.button(:value=>"Continue").click
+    AddStyle.new(@browser)
+  end
+  
+  def open_folder(foldername)
+    frm.link(:text=>foldername).click 
+    #StylesAddAttachment.new(@browser) # Test this!
+  end
+  
+  def select_file(filename)
+    frm.table(:class=>"listHier lines").tr(:text=>/#{Regexp.escape(filename)}/).link(:text=>"Select").click
+    #StylesAddAttachment.new(@browser) # Test this!
+  end
+  
+  def upload_files_to_folder(foldername)
+    frm.table(:class=>"listHier lines").tr(:text=>/#{Regexp.escape(foldername)}/).li(:class=>"menuOpen").fire_event("onclick")
+    frm.table(:class=>"listHier lines").tr(:text=>/#{Regexp.escape(foldername)}/).link(:text=>"Upload Files").click
+    StylesUploadFiles.new(@browser)
+  end
+
+end
+
+class StylesUploadFiles
+  
+  include ToolsMenu
+  
+  @@filex=0
+  
+  # Note that the file_to_upload method can be used
+  # multiple times, but it assumes
+  # that the add_another_file method is used
+  # before it, every time except before the first time.
+  def file_to_upload=(file_name)
+    frm.file_field(:id, "content_#{@@filex}").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + file_name)
+    @@filex+=1
+  end
+  
+  def upload_files_now
+    frm.button(:value=>"Upload Files Now").click
+    @@filex=0
+    StylesAddAttachment.new(@browser)
+  end
+  
+  def add_another_file
+    frm.link(:text=>"Add Another File").click
+  end
+  
+end
+
 
 
 #================
