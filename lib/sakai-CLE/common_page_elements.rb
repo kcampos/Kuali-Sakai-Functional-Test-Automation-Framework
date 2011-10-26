@@ -240,8 +240,7 @@ end
 
 # Resources page for a given Site, in the Course Tools menu
 class Resources
-  
-  include PageObject
+
   include ToolsMenu
   
   # Clicks the Add Menu for the specified
@@ -279,7 +278,7 @@ class Resources
     EditFileDetails.new(@browser)
   end
  
-  # This method returns folder names only
+  # This method returns folder names only #FIXME - headers will not always be the same
   def folder_names
     names = []
     resources_table = frm.table(:class=>"listHier lines centerLines")
@@ -295,7 +294,7 @@ class Resources
   # on the Resources page.
   # 
   # It excludes folder names.
-  def file_names
+  def file_names #FIXME - headers will not always be the same
     names = []
     resources_table = frm.table(:class=>"listHier lines centerLines")
     1.upto(resources_table.rows.size-1) do |x|
@@ -331,9 +330,12 @@ class Resources
     frm.table(:class=>"listHier lines centerLines")[index+1][6].text
   end
 
-  in_frame(:index=>1) do |frame|
-    button(:remove, :value=>"Remove", :frame=>frame)
-    button(:move, :value=>"Move", :frame=>frame)
+  def remove
+    frm.button(:value=>"Remove").click
+  end
+  
+  def move
+    frm.button(:value=>"Move").click
   end
 
 end
@@ -341,7 +343,6 @@ end
 # New class template. For quick class creation...
 class ResourcesUploadFiles
   
-  include PageObject
   include ToolsMenu
   
   @@filex=0
@@ -361,39 +362,52 @@ class ResourcesUploadFiles
     Resources.new(@browser)
   end
   
-  in_frame(:index=>1) do |frame| # FIXME
-    # Interactive page objects that do no navigation
-    # or page refreshes go here.
-    link(:add_another_file, :text=>"Add Another File", :frame=>frame)
-    
+  def add_another_file
+    frm.link(:text=>"Add Another File").click
   end
-
+  
 end
 
 class EditFileDetails
   
-  include PageObject
   include ToolsMenu
   
   def update    
     frm.button(:value=>"Update").click
     Resources.new(@browser)
   end
-
-  in_frame(:index=>1) do |frame| # FIXME
-    text_field(:title, :id=>"displayName_0", :frame=>frame)
-    text_area(:description, :id=>"description_0", :frame=>frame)
-    radio_button(:publicly_viewable, :id=>"access_mode_public_0", :frame=>frame)
-    checkbox(:show_only_if_condition, :id=>"cbCondition_0", :frame=>frame)
-    select_list(:gradebook_item, :id=>"selectResource_0", :frame=>frame)
-    select_list(:item_condition, :id=>"selectCondition_0", :frame=>frame)
-    text_field(:assignment_grade, :id=>"assignment_grade_0", :frame=>frame)
+  
+  def title=(title)
+    frm.text_field(:id=>"displayName_0").set(title)
+  end
+  
+  def description=(description)
+    frm.text_field(:id=>"description_0").set(description)
+  end
+  
+  def select_publicly_viewable
+    frm.radio(:id=>"access_mode_public_0").set
+  end
+  
+  def check_show_only_if_condition
+    frm.checkbox(:id=>"cbCondition_0")
+  end
+  
+  def gradebook_item=(item)
+    frm.select(:id=>"selectResource_0").select(item)
+  end
+  
+  def item_condition=(condition)
+    frm.select(:id=>"selectCondition_0").select(condition)
+  end
+  
+  def assignment_grade=(grade)
+    frm.text_field(:id=>"assignment_grade_0").set(grade)
   end
 end
 
 class CreateFolders #FIXME - Need to add functions for adding multiple folders
   
-  include PageObject
   include ToolsMenu
   
   def create_folders_now
@@ -401,9 +415,10 @@ class CreateFolders #FIXME - Need to add functions for adding multiple folders
     Resources.new(@browser)
   end
 
-  in_frame(:index=>1) do |frame| # FIXME
-    text_field(:folder_name, :id=>"content_0", :frame=>frame)
+  def folder_name=(name)
+    frm.text_field(:id=>"content_0").set(name)
   end
+
 end
 
 
