@@ -22,6 +22,10 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     # This test case uses the logins of several users
     @instructor = @config.directory['person3']['id']
     @ipassword = @config.directory['person3']['password']
+    @instructor2 = @config.directory['person4']['id']
+    @ipassword2 = @config.directory['person4']['password']
+    @student = @config.directory["person1"]["id"]
+    @spassword = @config.directory["person1"]["password"]
     @site_name = @config.directory['site1']['name']
     @site_id = @config.directory['site1']['id']
     @sakai = SakaiCLE.new(@browser)
@@ -34,39 +38,32 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
   end
   
   def test_build_portfolio_template
-    
+
     # Log in to Sakai
     workspace = @sakai.login(@instructor, @ipassword)
-    
+
     resources = workspace.resources
-=begin    
+
     # Add Files to Repository...
     create_folder = resources.create_subfolders_in "My Workspace"
     create_folder.folder_name="data"
     
     resources = create_folder.create_folders_now
-    
-    upload_files = resources.upload_files_to_folder "data"
-    
+
     files = [
       "documents/evaluation.xsd",
       "documents/feedback.xsd",
       "documents/genEducation.xsd",
-      "documents/reflection.xsd"
+      "documents/reflection.xsd",
     ]
 
-    files.each do |file|
-      upload_files.file_to_upload=file
-      upload_files.add_another_file
-    end
-    
-    resources = upload_files.upload_files_now
-=end 
+    resources = resources.upload_multiple_files_to_folder("data", files)
+
     home = resources.open_my_site_by_name "Portfolio Site"
-    
+
     # Build four Matrix Forms...
     forms = home.forms
-=begin
+
     add_form = forms.add
     
     select_schema = add_form.select_schema_file
@@ -134,9 +131,9 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     forms = publish.yes
     publish = forms.publish "Reflection for Matrix"
     forms = publish.yes
-=end  
+
     styles = forms.styles
-=begin
+
     # Add Style to site...
     add_style = styles.add
     
@@ -148,15 +145,17 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     upload.file_to_upload="documents/wacky2.css"
     
     attach = upload.upload_files_now
-    
+    attach.open_folder "data"
+    attach.select_file "wacky2.css"
+
     add_style = attach.continue
     add_style.name="Wacky Style"
     add_style.description="Style for general use."
     
     styles = add_style.add_style
-=end
-    matrices = style.matrices
-    
+
+    matrices = styles.matrices
+
     add_matrix = matrices.add
     add_matrix.title="General Education"
     
@@ -217,310 +216,956 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     row5.font_color="#000000"
     
     add_matrix = row5.update
-    matrices = add_matrix.create_matrix
+
+    edit_cells = add_matrix.save_changes
     
-    #
-    @selenium.click "link=Edit"
-    #
-    #  ////////////////////////////////////////////////  Start edit cell //////////////////////////////////////
-    @selenium.click "//table[@summary='Matrix Scaffolding (click on a cell to edit)']/tbody/tr[2]/td[1]"
-    #
-    @selenium.click "defaultReflectionForm"
-    @selenium.select "reflectionDevice-id", "label=Reflection for Matrix (123Port)"
-    @selenium.click "defaultFeedbackForm"
-    @selenium.select "reviewDevice-id", "label=Feedback for Matrix (123Port)"
-    @selenium.click "defaultEvaluationForm"
-    @selenium.select "evaluationDevice-id", "label=Evaluation (123Port)"
-    @selenium.click "defaultEvaluators"
-    @selenium.click "//a[contains(text(),'Evaluators')]"
-    #
-    @selenium.click "mainForm:save_button"
-    #
-    @selenium.click "saveAction"
-    #
-    #  ######################################################################### 
-    @selenium.click "//table[@summary='Matrix Scaffolding (click on a cell to edit)']/tbody/tr[2]/td[2]"
-    #
-    @selenium.click "defaultReflectionForm"
-    @selenium.select "reflectionDevice-id", "label=Reflection for Matrix (123Port)"
-    @selenium.click "defaultFeedbackForm"
-    @selenium.select "reviewDevice-id", "label=Feedback for Matrix (123Port)"
-    @selenium.click "defaultEvaluationForm"
-    @selenium.select "evaluationDevice-id", "label=Evaluation (123Port)"
-    @selenium.click "defaultEvaluators"
-    @selenium.click "//a[contains(text(),'Evaluators')]"
-    #
-    @selenium.click "mainForm:save_button"
-    #
-    @selenium.click "saveAction"
-    #
-    #  ######################################################################### 
-    @selenium.click "//table[@summary='Matrix Scaffolding (click on a cell to edit)']/tbody/tr[2]/td[3]"
-    #
-    @selenium.click "defaultReflectionForm"
-    @selenium.select "reflectionDevice-id", "label=Reflection for Matrix (123Port)"
-    @selenium.click "defaultFeedbackForm"
-    @selenium.select "reviewDevice-id", "label=Feedback for Matrix (123Port)"
-    @selenium.click "defaultEvaluationForm"
-    @selenium.select "evaluationDevice-id", "label=Evaluation (123Port)"
-    @selenium.click "defaultEvaluators"
-    @selenium.click "//a[contains(text(),'Evaluators')]"
-    #
-    @selenium.click "mainForm:save_button"
-    #
-    @selenium.click "saveAction"
-    #
-    #  ######################################################################### 
-    @selenium.click "//table[@summary='Matrix Scaffolding (click on a cell to edit)']/tbody/tr[3]/td[1]"
-    #
-    @selenium.click "defaultReflectionForm"
-    @selenium.select "reflectionDevice-id", "label=Reflection for Matrix (123Port)"
-    @selenium.click "defaultFeedbackForm"
-    @selenium.select "reviewDevice-id", "label=Feedback for Matrix (123Port)"
-    @selenium.click "defaultEvaluationForm"
-    @selenium.select "evaluationDevice-id", "label=Evaluation (123Port)"
-    @selenium.click "defaultEvaluators"
-    @selenium.click "//a[contains(text(),'Evaluators')]"
-    #
-    @selenium.click "mainForm:save_button"
-    #
-    @selenium.click "saveAction"
-    #
-    #  ######################################################################### 
-    @selenium.click "//table[@summary='Matrix Scaffolding (click on a cell to edit)']/tbody/tr[3]/td[2]"
-    #
-    @selenium.click "defaultReflectionForm"
-    @selenium.select "reflectionDevice-id", "label=Reflection for Matrix (123Port)"
-    @selenium.click "defaultFeedbackForm"
-    @selenium.select "reviewDevice-id", "label=Feedback for Matrix (123Port)"
-    @selenium.click "defaultEvaluationForm"
-    @selenium.select "evaluationDevice-id", "label=Evaluation (123Port)"
-    @selenium.click "defaultEvaluators"
-    @selenium.click "//a[contains(text(),'Evaluators')]"
-    #
-    @selenium.click "mainForm:save_button"
-    #
-    @selenium.click "saveAction"
-    #
-    #  ######################################################################### 
-    @selenium.click "//table[@summary='Matrix Scaffolding (click on a cell to edit)']/tbody/tr[3]/td[3]"
-    #
-    @selenium.click "defaultReflectionForm"
-    @selenium.select "reflectionDevice-id", "label=Reflection for Matrix (123Port)"
-    @selenium.click "defaultFeedbackForm"
-    @selenium.select "reviewDevice-id", "label=Feedback for Matrix (123Port)"
-    @selenium.click "defaultEvaluationForm"
-    @selenium.select "evaluationDevice-id", "label=Evaluation (123Port)"
-    @selenium.click "defaultEvaluators"
-    @selenium.click "//a[contains(text(),'Evaluators')]"
-    #
-    @selenium.click "mainForm:save_button"
-    #
-    @selenium.click "saveAction"
-    #
-    #  ######################################################################### 
-    @selenium.click "//table[@summary='Matrix Scaffolding (click on a cell to edit)']/tbody/tr[4]/td[1]"
-    #
-    @selenium.click "defaultReflectionForm"
-    @selenium.select "reflectionDevice-id", "label=Reflection for Matrix (123Port)"
-    @selenium.click "defaultFeedbackForm"
-    @selenium.select "reviewDevice-id", "label=Feedback for Matrix (123Port)"
-    @selenium.click "defaultEvaluationForm"
-    @selenium.select "evaluationDevice-id", "label=Evaluation (123Port)"
-    @selenium.click "defaultEvaluators"
-    @selenium.click "//a[contains(text(),'Evaluators')]"
-    #
-    @selenium.click "mainForm:save_button"
-    #
-    @selenium.click "saveAction"
-    #
-    #  ######################################################################### 
-    @selenium.click "//table[@summary='Matrix Scaffolding (click on a cell to edit)']/tbody/tr[4]/td[2]"
-    #
-    @selenium.click "defaultReflectionForm"
-    @selenium.select "reflectionDevice-id", "label=Reflection for Matrix (123Port)"
-    @selenium.click "defaultFeedbackForm"
-    @selenium.select "reviewDevice-id", "label=Feedback for Matrix (123Port)"
-    @selenium.click "defaultEvaluationForm"
-    @selenium.select "evaluationDevice-id", "label=Evaluation (123Port)"
-    @selenium.click "defaultEvaluators"
-    @selenium.click "//a[contains(text(),'Evaluators')]"
-    #
-    @selenium.click "mainForm:save_button"
-    #
-    @selenium.click "saveAction"
-    #
-    #  ######################################################################### 
-    @selenium.click "//table[@summary='Matrix Scaffolding (click on a cell to edit)']/tbody/tr[4]/td[3]"
-    #
-    @selenium.click "defaultReflectionForm"
-    @selenium.select "reflectionDevice-id", "label=Reflection for Matrix (123Port)"
-    @selenium.click "defaultFeedbackForm"
-    @selenium.select "reviewDevice-id", "label=Feedback for Matrix (123Port)"
-    @selenium.click "defaultEvaluationForm"
-    @selenium.select "evaluationDevice-id", "label=Evaluation (123Port)"
-    @selenium.click "defaultEvaluators"
-    @selenium.click "//a[contains(text(),'Evaluators')]"
-    #
-    @selenium.click "mainForm:save_button"
-    #
-    @selenium.click "saveAction"
-    #
-    #  ######################################################################### 
-    @selenium.click "//table[@summary='Matrix Scaffolding (click on a cell to edit)']/tbody/tr[5]/td[1]"
-    #
-    @selenium.click "defaultReflectionForm"
-    @selenium.select "reflectionDevice-id", "label=Reflection for Matrix (123Port)"
-    @selenium.click "defaultFeedbackForm"
-    @selenium.select "reviewDevice-id", "label=Feedback for Matrix (123Port)"
-    @selenium.click "defaultEvaluationForm"
-    @selenium.select "evaluationDevice-id", "label=Evaluation (123Port)"
-    @selenium.click "defaultEvaluators"
-    @selenium.click "//a[contains(text(),'Evaluators')]"
-    #
-    @selenium.click "mainForm:save_button"
-    #
-    @selenium.click "saveAction"
-    #
-    #  ######################################################################### 
-    @selenium.click "//table[@summary='Matrix Scaffolding (click on a cell to edit)']/tbody/tr[5]/td[2]"
-    #
-    @selenium.click "defaultReflectionForm"
-    @selenium.select "reflectionDevice-id", "label=Reflection for Matrix (123Port)"
-    @selenium.click "defaultFeedbackForm"
-    @selenium.select "reviewDevice-id", "label=Feedback for Matrix (123Port)"
-    @selenium.click "defaultEvaluationForm"
-    @selenium.select "evaluationDevice-id", "label=Evaluation (123Port)"
-    @selenium.click "defaultEvaluators"
-    @selenium.click "//a[contains(text(),'Evaluators')]"
-    #
-    @selenium.click "mainForm:save_button"
-    #
-    @selenium.click "saveAction"
-    #
-    #  ######################################################################### 
-    @selenium.click "//table[@summary='Matrix Scaffolding (click on a cell to edit)']/tbody/tr[5]/td[3]"
-    #
-    @selenium.click "defaultReflectionForm"
-    @selenium.select "reflectionDevice-id", "label=Reflection for Matrix (123Port)"
-    @selenium.click "defaultFeedbackForm"
-    @selenium.select "reviewDevice-id", "label=Feedback for Matrix (123Port)"
-    @selenium.click "defaultEvaluationForm"
-    @selenium.select "evaluationDevice-id", "label=Evaluation (123Port)"
-    @selenium.click "defaultEvaluators"
-    @selenium.click "//a[contains(text(),'Evaluators')]"
-    #
-    @selenium.click "mainForm:save_button"
-    #
-    @selenium.click "saveAction"
-    #
-    #  ######################################################################### 
-    @selenium.click "//table[@summary='Matrix Scaffolding (click on a cell to edit)']/tbody/tr[6]/td[1]"
-    #
-    @selenium.click "defaultReflectionForm"
-    @selenium.select "reflectionDevice-id", "label=Reflection for Matrix (123Port)"
-    @selenium.click "defaultFeedbackForm"
-    @selenium.select "reviewDevice-id", "label=Feedback for Matrix (123Port)"
-    @selenium.click "defaultEvaluationForm"
-    @selenium.select "evaluationDevice-id", "label=Evaluation (123Port)"
-    @selenium.click "defaultEvaluators"
-    @selenium.click "//a[contains(text(),'Evaluators')]"
-    #
-    @selenium.click "mainForm:save_button"
-    #
-    @selenium.click "saveAction"
-    #
-    #  ######################################################################### 
-    @selenium.click "//table[@summary='Matrix Scaffolding (click on a cell to edit)']/tbody/tr[6]/td[2]"
-    #
-    @selenium.click "defaultReflectionForm"
-    @selenium.select "reflectionDevice-id", "label=Reflection for Matrix (123Port)"
-    @selenium.click "defaultFeedbackForm"
-    @selenium.select "reviewDevice-id", "label=Feedback for Matrix (123Port)"
-    @selenium.click "defaultEvaluationForm"
-    @selenium.select "evaluationDevice-id", "label=Evaluation (123Port)"
-    @selenium.click "defaultEvaluators"
-    @selenium.click "//a[contains(text(),'Evaluators')]"
-    #
-    @selenium.click "mainForm:save_button"
-    #
-    @selenium.click "saveAction"
-    #
-    #  ######################################################################### 
-    @selenium.click "//table[@summary='Matrix Scaffolding (click on a cell to edit)']/tbody/tr[6]/td[3]"
-    #
-    @selenium.click "defaultReflectionForm"
-    @selenium.select "reflectionDevice-id", "label=Reflection for Matrix (123Port)"
-    @selenium.click "defaultFeedbackForm"
-    @selenium.select "reviewDevice-id", "label=Feedback for Matrix (123Port)"
-    @selenium.click "defaultEvaluationForm"
-    @selenium.select "evaluationDevice-id", "label=Evaluation (123Port)"
-    @selenium.click "defaultEvaluators"
-    @selenium.click "//a[contains(text(),'Evaluators')]"
-    #
-    @selenium.click "mainForm:save_button"
-    #
-    @selenium.click "saveAction"
-    #
-    #  ######################################################################### 
-    @selenium.click "//table[@summary='Matrix Scaffolding (click on a cell to edit)']/tbody/tr[7]/td[1]"
-    #
-    @selenium.click "defaultReflectionForm"
-    @selenium.select "reflectionDevice-id", "label=Reflection for Matrix (123Port)"
-    @selenium.click "defaultFeedbackForm"
-    @selenium.select "reviewDevice-id", "label=Feedback for Matrix (123Port)"
-    @selenium.click "defaultEvaluationForm"
-    @selenium.select "evaluationDevice-id", "label=Evaluation (123Port)"
-    @selenium.click "defaultEvaluators"
-    @selenium.click "//a[contains(text(),'Evaluators')]"
-    #
-    @selenium.click "mainForm:save_button"
-    #
-    @selenium.click "saveAction"
-    #
-    #  ######################################################################### 
-    @selenium.click "//table[@summary='Matrix Scaffolding (click on a cell to edit)']/tbody/tr[7]/td[2]"
-    #
-    @selenium.click "defaultReflectionForm"
-    @selenium.select "reflectionDevice-id", "label=Reflection for Matrix (123Port)"
-    @selenium.click "defaultFeedbackForm"
-    @selenium.select "reviewDevice-id", "label=Feedback for Matrix (123Port)"
-    @selenium.click "defaultEvaluationForm"
-    @selenium.select "evaluationDevice-id", "label=Evaluation (123Port)"
-    @selenium.click "defaultEvaluators"
-    @selenium.click "//a[contains(text(),'Evaluators')]"
-    #
-    @selenium.click "mainForm:save_button"
-    #
-    @selenium.click "saveAction"
-    #
-    #  ######################################################################### 
-    @selenium.click "//table[@summary='Matrix Scaffolding (click on a cell to edit)']/tbody/tr[7]/td[3]"
-    #
-    @selenium.click "defaultReflectionForm"
-    @selenium.select "reflectionDevice-id", "label=Reflection for Matrix (123Port)"
-    @selenium.click "defaultFeedbackForm"
-    @selenium.select "reviewDevice-id", "label=Feedback for Matrix (123Port)"
-    @selenium.click "defaultEvaluationForm"
-    @selenium.select "evaluationDevice-id", "label=Evaluation (123Port)"
-    @selenium.click "defaultEvaluators"
-    @selenium.click "//a[contains(text(),'Evaluators')]"
-    #
-    @selenium.click "mainForm:save_button"
-    #
-    @selenium.click "saveAction"
-    #
-    #  ######################################################################### 
-    @selenium.click "//img[@alt='Reset']"
-    #
-    @selenium.click "link=Preview"
-    #
-    @selenium.click "link=Publish"
-    #
-    @selenium.click "continue"
-    #
-    @selenium.click "link=Logout"
-    #
+    edit = edit_cells.edit(1, 1)
     
+    # TEST CASE: Verify the title is correct
+    assert_equal edit.title_element.value, "Row: Written Communication; Column: Level 1"
+    
+    edit.uncheck_use_default_reflection_form
+    edit.reflection=/Reflection for Matrix/
+    edit.uncheck_use_default_feedback_form
+    edit.feedback=/Feedback for Matrix/
+    edit.uncheck_use_default_evaluation_form
+    edit.evaluation=/Evaluation/
+    edit.uncheck_use_default_evaluators
+    
+    select_eval = edit.select_evaluators
+    select_eval.users="Instructor, Joe"
+    select_eval.add_users
+    
+    edit = select_eval.save
+    
+    edit_cells = edit.save_changes
+    
+    edit = edit_cells.edit(1, 2)
+    
+    # TEST CASE: Verify the title is correct
+    assert_equal edit.title_element.value, "Row: Written Communication; Column: Level 2"
+    
+    edit.uncheck_use_default_reflection_form
+    edit.reflection=/Reflection for Matrix/
+    edit.uncheck_use_default_feedback_form
+    edit.feedback=/Feedback for Matrix/
+    edit.uncheck_use_default_evaluation_form
+    edit.evaluation=/Evaluation/
+    edit.uncheck_use_default_evaluators
+    
+    select_eval = edit.select_evaluators
+    select_eval.users="Instructor, Joe"
+    select_eval.add_users
+    select_eval.users="Instructor, Joanne"
+    select_eval.add_users
+    
+    edit = select_eval.save
+    
+    edit_cells = edit.save_changes
+    
+    edit = edit_cells.edit(1, 3)
+    
+    # TEST CASE: Verify the title is correct
+    assert_equal edit.title_element.value, "Row: Written Communication; Column: Level 3"
+    
+    edit.uncheck_use_default_reflection_form
+    edit.reflection=/Reflection for Matrix/
+    edit.uncheck_use_default_feedback_form
+    edit.feedback=/Feedback for Matrix/
+    edit.uncheck_use_default_evaluation_form
+    edit.evaluation=/Evaluation/
+    edit.uncheck_use_default_evaluators
+    
+    select_eval = edit.select_evaluators
+    select_eval.users="Instructor, Joe"
+    select_eval.add_users
+    select_eval.roles="Organizer"
+    select_eval.add_roles
+    
+    edit = select_eval.save
+    
+    edit_cells = edit.save_changes
+    
+    edit = edit_cells.edit(2, 1)
+    
+    # TEST CASE: Verify the title is correct
+    assert_equal edit.title_element.value, "Row: Critical Thinking; Column: Level 1"
+    
+    edit.uncheck_use_default_reflection_form
+    edit.reflection=/Reflection for Matrix/
+    edit.uncheck_use_default_feedback_form
+    edit.feedback=/Feedback for Matrix/
+    edit.uncheck_use_default_evaluation_form
+    edit.evaluation=/Evaluation/
+    edit.uncheck_use_default_evaluators
+    
+    select_eval = edit.select_evaluators
+    select_eval.users="Instructor, Joe"
+    select_eval.add_users
+    select_eval.roles="Participant"
+    select_eval.add_roles
+    
+    edit = select_eval.save
+    
+    edit_cells = edit.save_changes
+    
+    edit = edit_cells.edit(2, 2)
+    
+    # TEST CASE: Verify the title is correct
+    assert_equal edit.title_element.value, "Row: Critical Thinking; Column: Level 2"
+    
+    edit.uncheck_use_default_reflection_form
+    edit.reflection=/Reflection for Matrix/
+    edit.uncheck_use_default_feedback_form
+    edit.feedback=/Feedback for Matrix/
+    edit.uncheck_use_default_evaluation_form
+    edit.evaluation=/Evaluation/
+    edit.uncheck_use_default_evaluators
+    
+    select_eval = edit.select_evaluators
+    select_eval.users="Instructor, Joe"
+    select_eval.add_users
+    select_eval.roles="Evaluator"
+    select_eval.add_roles
+    
+    edit = select_eval.save
+    
+    edit_cells = edit.save_changes
+    
+    edit = edit_cells.edit(2, 3)
+    
+    # TEST CASE: Verify the title is correct
+    assert_equal edit.title_element.value, "Row: Critical Thinking; Column: Level 3"
+    
+    edit.uncheck_use_default_reflection_form
+    edit.reflection=/Reflection for Matrix/
+    edit.uncheck_use_default_feedback_form
+    edit.feedback=/Feedback for Matrix/
+    edit.uncheck_use_default_evaluation_form
+    edit.evaluation=/Evaluation/
+    edit.uncheck_use_default_evaluators
+    
+    select_eval = edit.select_evaluators
+    select_eval.users="Instructor, Joe"
+    select_eval.add_users
+    select_eval.roles="Guest"
+    select_eval.add_roles
+    
+    edit = select_eval.save
+    
+    edit_cells = edit.save_changes
+    
+    edit = edit_cells.edit(3, 1)
+    
+    # TEST CASE: Verify the title is correct
+    assert_equal edit.title_element.value, "Row: Information Retrieval and Technology; Column: Level 1"
+    
+    edit.uncheck_use_default_reflection_form
+    edit.reflection=/Reflection for Matrix/
+    edit.uncheck_use_default_feedback_form
+    edit.feedback=/Feedback for Matrix/
+    edit.uncheck_use_default_evaluation_form
+    edit.evaluation=/Evaluation/
+    edit.uncheck_use_default_evaluators
+    
+    select_eval = edit.select_evaluators
+    select_eval.users="Instructor, Joe"
+    select_eval.add_users
+    
+    edit = select_eval.save
+    
+    edit_cells = edit.save_changes
+    
+    edit = edit_cells.edit(3, 2)
+    
+    # TEST CASE: Verify the title is correct
+    assert_equal edit.title_element.value, "Row: Information Retrieval and Technology; Column: Level 2"
+    
+    edit.uncheck_use_default_reflection_form
+    edit.reflection=/Reflection for Matrix/
+    edit.uncheck_use_default_feedback_form
+    edit.feedback=/Feedback for Matrix/
+    edit.uncheck_use_default_evaluation_form
+    edit.evaluation=/Evaluation/
+    edit.uncheck_use_default_evaluators
+    
+    select_eval = edit.select_evaluators
+    select_eval.users="Instructor, Joe"
+    select_eval.add_users
+    
+    edit = select_eval.save
+    
+    edit_cells = edit.save_changes
+    
+    edit = edit_cells.edit(3, 3)
+    
+    # TEST CASE: Verify the title is correct
+    assert_equal edit.title_element.value, "Row: Information Retrieval and Technology; Column: Level 3"
+    
+    edit.uncheck_use_default_reflection_form
+    edit.reflection=/Reflection for Matrix/
+    edit.uncheck_use_default_feedback_form
+    edit.feedback=/Feedback for Matrix/
+    edit.uncheck_use_default_evaluation_form
+    edit.evaluation=/Evaluation/
+    edit.uncheck_use_default_evaluators
+    
+    select_eval = edit.select_evaluators
+    select_eval.users="Instructor, Joe"
+    select_eval.add_users
+    
+    edit = select_eval.save
+    
+    edit_cells = edit.save_changes
+    
+    edit = edit_cells.edit(4, 1)
+    
+    # TEST CASE: Verify the title is correct
+    assert_equal edit.title_element.value, "Row: Quantitative Reasoning; Column: Level 1"
+    
+    edit.uncheck_use_default_reflection_form
+    edit.reflection=/Reflection for Matrix/
+    edit.uncheck_use_default_feedback_form
+    edit.feedback=/Feedback for Matrix/
+    edit.uncheck_use_default_evaluation_form
+    edit.evaluation=/Evaluation/
+    edit.uncheck_use_default_evaluators
+    
+    select_eval = edit.select_evaluators
+    select_eval.users="Instructor, Joe"
+    select_eval.add_users
+    
+    edit = select_eval.save
+    
+    edit_cells = edit.save_changes
+    
+    edit = edit_cells.edit(4, 2)
+    
+    # TEST CASE: Verify the title is correct
+    assert_equal edit.title_element.value, "Row: Quantitative Reasoning; Column: Level 2"
+    
+    edit.uncheck_use_default_reflection_form
+    edit.reflection=/Reflection for Matrix/
+    edit.uncheck_use_default_feedback_form
+    edit.feedback=/Feedback for Matrix/
+    edit.uncheck_use_default_evaluation_form
+    edit.evaluation=/Evaluation/
+    edit.uncheck_use_default_evaluators
+    
+    select_eval = edit.select_evaluators
+    select_eval.users="Instructor, Joe"
+    select_eval.add_users
+    
+    edit = select_eval.save
+    
+    edit_cells = edit.save_changes
+    
+    edit = edit_cells.edit(4, 3)
+    
+    # TEST CASE: Verify the title is correct
+    assert_equal edit.title_element.value, "Row: Quantitative Reasoning; Column: Level 3"
+    
+    edit.uncheck_use_default_reflection_form
+    edit.reflection=/Reflection for Matrix/
+    edit.uncheck_use_default_feedback_form
+    edit.feedback=/Feedback for Matrix/
+    edit.uncheck_use_default_evaluation_form
+    edit.evaluation=/Evaluation/
+    edit.uncheck_use_default_evaluators
+    
+    select_eval = edit.select_evaluators
+    select_eval.users="Instructor, Joe"
+    select_eval.add_users
+    
+    edit = select_eval.save
+    
+    edit_cells = edit.save_changes
+    
+    edit = edit_cells.edit(5, 1)
+    
+    # TEST CASE: Verify the title is correct
+    assert_equal edit.title_element.value, "Row: Oral Communication; Column: Level 1"
+    
+    edit.uncheck_use_default_reflection_form
+    edit.reflection=/Reflection for Matrix/
+    edit.uncheck_use_default_feedback_form
+    edit.feedback=/Feedback for Matrix/
+    edit.uncheck_use_default_evaluation_form
+    edit.evaluation=/Evaluation/
+    edit.uncheck_use_default_evaluators
+    
+    select_eval = edit.select_evaluators
+    select_eval.users="Instructor, Joe"
+    select_eval.add_users
+    
+    edit = select_eval.save
+    
+    edit_cells = edit.save_changes
+    
+    edit = edit_cells.edit(5, 2)
+    
+    # TEST CASE: Verify the title is correct
+    assert_equal edit.title_element.value, "Row: Oral Communication; Column: Level 2"
+    
+    edit.uncheck_use_default_reflection_form
+    edit.reflection=/Reflection for Matrix/
+    edit.uncheck_use_default_feedback_form
+    edit.feedback=/Feedback for Matrix/
+    edit.uncheck_use_default_evaluation_form
+    edit.evaluation=/Evaluation/
+    edit.uncheck_use_default_evaluators
+    
+    select_eval = edit.select_evaluators
+    select_eval.users="Instructor, Joe"
+    select_eval.add_users
+    
+    edit = select_eval.save
+    
+    edit_cells = edit.save_changes
+    
+    edit = edit_cells.edit(5, 3)
+    
+    # TEST CASE: Verify the title is correct
+    assert_equal edit.title_element.value, "Row: Oral Communication; Column: Level 3"
+    
+    edit.uncheck_use_default_reflection_form
+    edit.reflection=/Reflection for Matrix/
+    edit.uncheck_use_default_feedback_form
+    edit.feedback=/Feedback for Matrix/
+    edit.uncheck_use_default_evaluation_form
+    edit.evaluation=/Evaluation/
+    edit.uncheck_use_default_evaluators
+    
+    select_eval = edit.select_evaluators
+    select_eval.users="Instructor, Joe"
+    select_eval.add_users
+    
+    edit = select_eval.save
+    
+    edit_cells = edit.save_changes
+    
+    edit = edit_cells.edit(6, 1)
+    
+    # TEST CASE: Verify the title is correct
+    assert_equal edit.title_element.value, "Row: Understanding Self and Community; Column: Level 1"
+    
+    edit.uncheck_use_default_reflection_form
+    edit.reflection=/Reflection for Matrix/
+    edit.uncheck_use_default_feedback_form
+    edit.feedback=/Feedback for Matrix/
+    edit.uncheck_use_default_evaluation_form
+    edit.evaluation=/Evaluation/
+    edit.uncheck_use_default_evaluators
+    
+    select_eval = edit.select_evaluators
+    select_eval.users="Instructor, Joe"
+    select_eval.add_users
+    
+    edit = select_eval.save
+    
+    edit_cells = edit.save_changes
+    
+    edit = edit_cells.edit(6, 2)
+    
+    # TEST CASE: Verify the title is correct
+    assert_equal edit.title_element.value, "Row: Understanding Self and Community; Column: Level 2"
+    
+    edit.uncheck_use_default_reflection_form
+    edit.reflection=/Reflection for Matrix/
+    edit.uncheck_use_default_feedback_form
+    edit.feedback=/Feedback for Matrix/
+    edit.uncheck_use_default_evaluation_form
+    edit.evaluation=/Evaluation/
+    edit.uncheck_use_default_evaluators
+    
+    select_eval = edit.select_evaluators
+    select_eval.users="Instructor, Joe"
+    select_eval.add_users
+    
+    edit = select_eval.save
+    
+    edit_cells = edit.save_changes
+    
+    edit = edit_cells.edit(6, 3)
+    
+    # TEST CASE: Verify the title is correct
+    assert_equal edit.title_element.value, "Row: Understanding Self and Community; Column: Level 3"
+    
+    edit.uncheck_use_default_reflection_form
+    edit.reflection=/Reflection for Matrix/
+    edit.uncheck_use_default_feedback_form
+    edit.feedback=/Feedback for Matrix/
+    edit.uncheck_use_default_evaluation_form
+    edit.evaluation=/Evaluation/
+    edit.uncheck_use_default_evaluators
+    
+    select_eval = edit.select_evaluators
+    select_eval.users="Instructor, Joe"
+    select_eval.add_users
+    
+    edit = select_eval.save
+    
+    edit_cells = edit.save_changes
+    
+    matrices = edit_cells.return_to_list
+    
+    matrices.preview "General Education"
+    confirm = matrices.publish "General Education"
+    matrices = confirm.continue
+
+    glossary = matrices.glossary
+
+    new_term = glossary.add
+    new_term.term="Critical Thinking"
+    new_term.short_description="Critical thinking, an analytical and creative process, is essential to every content area and discipline. It is an integral part of information retrieval and technology, oral communication, quantitative reasoning, and written communication."
+    new_term.long_description="Critical thinking, an analytical and creative process, is essential to every content area and discipline. It is an integral part of information retrieval and technology, oral communication, quantitative reasoning, and written communication. \n1. Identify and state problems, issues, arguments, and questions contained in a body of information. \n2. Identify and analyze assumptions and underlying points of view relating to an issue or problem. \n3. Formulate research questions that require descriptive and explanatory analyses. \n4. Recognize and understand multiple modes of inquiry, including investigative methods based on observation and analysis. \n5. Evaluate a problem, distinguishing between relevant and irrelevant facts, opinions, assumptions, issues, values, and biases through the use of appropriate evidence. \n6. Apply problem-solving techniques and skills, including the rules of logic and logical sequence.\n7. Synthesize information from various sources, drawing appropriate conclusions. \n8. Communicate clearly and concisely the methods and results of logical reasoning. \n9. Reflect upon and evaluate their thought processes, value systems, and world views in comparison to those of others."
+    
+    glossary = new_term.add_term
+    
+    new_term = glossary.add
+    new_term.term="Information Retrieval and Technology"
+    new_term.short_description="Information retrieval and technology are integral parts of every content area and discipline."
+    new_term.long_description="Information retrieval and technology are integral parts of every content area and discipline. \n1. Use print and electronic information technology ethically and responsibly. \n2. Demonstrate knowledge of basic vocabulary, concepts, and operations of information retrieval and technology. \n3. Recognize, identify, and define an information need. \n4. Access and retrieve information through print and electronic media, evaluating the accuracy and authenticity of that information. \n5. Create, manage, organize, and communicate information through electronic media. \n6. Recognize changing technologies and make informed choices about their appropriateness and use."
+    
+    glossary = new_term.add_term
+    
+    new_term = glossary.add
+    new_term.term="Level 1"
+    new_term.short_description="Contribute at least two examples of coursework from a completed, required foundation course, and define and discuss the relevance of your works to at least one of the standards that are listed in the glossary for this cell."
+    new_term.long_description="Contribute at least two examples of coursework from a completed, required foundation course, and define and discuss the relevance of your works to at least one of the standards that are listed in the glossary for this cell."
+    
+    glossary = new_term.add_term
+    
+    new_term = glossary.add
+    new_term.term="Level 2"
+    new_term.short_description="Contribute at least two examples of coursework from two or more additional, completed courses, and define and discuss the relevance of your works to at least three of the standards that are listed in glossary for this cell."
+    new_term.long_description="Contribute at least two examples of coursework from two or more additional, completed courses, and define and discuss the relevance of your works to at least three of the standards that are listed in glossary for this cell."
+    
+    glossary = new_term.add_term
+    
+    new_term = glossary.add
+    new_term.term="Level 3"
+    new_term.short_description="Contribute at least four works from your courses, and define and discuss the relevance of your works to all the standards that are listed in the glossary for this cell."
+    new_term.long_description="Contribute at least four works from your courses, and define and discuss the relevance of your works to all the standards that are listed in the glossary for this cell."
+    
+    glossary = new_term.add_term
+    
+    new_term = glossary.add
+    new_term.term="Oral Communication"
+    new_term.short_description="Oral communication is an integral part of every content area and discipline."
+    new_term.long_description="Oral communication is an integral part of every content area and discipline. \n1. Identify and analyze the audience and purpose of any intended communication. \n2. Gather, evaluate, select, and organize information for the communication. \n3. Use language, techniques, and strategies appropriate to the audience and occasion. \n4. Speak clearly and confidently, using the voice, volume, tone, and articulation appropriate to the audience and occasion. \n5. Summarize, analyze, and evaluate oral communications and ask coherent questions as needed.\n6. Use competent oral expression to initiate and sustain discussions."
+    
+    glossary = new_term.add_term
+    
+    new_term = glossary.add
+    new_term.term="Quantitative Reasoning"
+    new_term.short_description="Quantitative reasoning can have applications in all content areas and disciplines."
+    new_term.long_description="Quantitative reasoning can have applications in all content areas and disciplines. \n1. Apply numeric, graphic, and symbolic skills and other forms of quantitative reasoning accurately and appropriately. \n2. Demonstrate mastery of mathematical concepts, skills, and applications, using technology when appropriate. \n3. Communicate clearly and concisely the methods and results of quantitative problem solving.\n4. Formulate and test hypotheses using numerical experimentation. \n5. Define quantitative issues and problems, gather relevant information, analyze that information, and present results. \n6. Assess the validity of statistical conclusions."
+    
+    glossary = new_term.add_term
+    
+    new_term = glossary.add
+    new_term.term="Understanding Self and Community"
+    new_term.short_description="This institution emphasizes an understanding of one's self and one's relationship to the community, the region, and the world."
+    new_term.long_description="This institution emphasizes an understanding of one's self and one's relationship to the community, the region, and the world. \n1. Demonstrate an awareness of the relationship between the environment and one's own fundamental physiological and psychological processes. \n2. Examine critically and appreciate the values and beliefs of one's own culture and those of other cultures separated in time or space from one's own. \n3. Communicate effectively and acknowledge opposing viewpoints. \n4. Use the study of a second language as a window to cultural understanding. \n5. Demonstrate an understanding of ethical, civic and social issues relevant to Hawai'i's and the world's past, present and future."
+    
+    glossary = new_term.add_term
+    
+    new_term = glossary.add
+    new_term.term="Written Communication"
+    new_term.short_description="Written communication is an integral part of every content area and discipline."
+    new_term.long_description="Written communication is an integral part of every content area and discipline. Use writing to discover and articulate ideas. \n1. Identify and analyze the audience and purpose for any intended communication. \n2. Choose language, style, and organization appropriate to particular purposes and audiences. \n3. Gather information and document sources appropriately. \n4. Express a main idea as a thesis, hypothesis, or other appropriate statement. \n5. Develop a main idea clearly and concisely with appropriate content. \n6. Demonstrate mastery of the conventions of writing, including grammar, spelling, and mechanics. \n7. Demonstrate proficiency in revision and editing. \n8. Develop a personal voice in written communication."
+
+    glossary = new_term.add_term
+
+    resources = glossary.resources
+    resources = resources.show_other_sites
+    
+    resources.open_folder "My Workspace"
+
+    files_to_upload = ["images/banner.gif", "documents/GenEdscript.js", "documents/GenEdmatrixpres.xsl",
+                       "documents/GenEdstyle.css", "zips/Contact Information (Site Two) Form.zip",
+                       "zips/Portfolio Properties (Site Two) Form.zip" ]
+    
+    resources = resources.upload_multiple_files_to_folder("data", files_to_upload)
+
+    forms = resources.forms
+
+    import = forms.import
+
+    attach = import.select_file
+    attach.show_other_sites
+    attach.open_folder "My Workspace"
+    attach.open_folder "data"
+    attach.select_file "Contact Information (Site Two) Form.zip"
+    
+    import = attach.continue
+    
+    forms = import.import
+    
+    publish = forms.publish "Contact Information (Portfolio Site)"
+    
+    forms = publish.yes
+    
+    import = forms.import
+
+    attach = import.select_file
+    attach.show_other_sites
+    attach.open_folder "My Workspace"
+    attach.open_folder "data"
+    attach.select_file "Portfolio Properties (Site Two) Form.zip"
+    
+    import = attach.continue
+
+    forms = import.import
+
+    publish = forms.publish "Portfolio Properties (Portfolio Site)"
+    
+    forms = publish.yes
+
+    port_temp = forms.portfolio_templates
+
+    add_template = port_temp.add
+    add_template.name="General Education Matrix Template"
+    add_template.description="Use this template to build a presentation of the works and reflections you have provided for a selected level of the General Education assessment matrix."
+    
+    build = add_template.continue
+    
+    attach = build.select_file
+    
+    attach.show_other_sites
+    attach.open_folder "My Workspace"
+    
+    upload = attach.upload_files_to_folder "data"
+    upload.file_to_upload="documents/GenEdmatrixpres.xsl"
+
+    attach = upload.upload_files_now
+    attach.open_folder "data"
+    attach.select_file "GenEdmatrixpres.xsl"
+
+    build = attach.continue
+    build.outline_options_form_type= /Portfolio Properties/
+    
+    content = build.continue
+    content.type="Matrix"
+    content.name="GenEdmatrix"
+    content.title="Matrix"
+    content.description="Select a matrix to build the presentation on."
+    content.add_to_list
+    content.type=/Contact Information/
+    content.name="contactInformation"
+    content.title="Contact information"
+    content.description="Select the contact information to be displayed in the presentation."
+    content.add_to_list
+    content.type="Uploaded File"
+    content.name="introImg"
+    content.title="Introduction image"
+    content.description="Select an image to introduce your presentation on the Introduction page (optional)."
+    content.check_image
+    content.add_to_list
+    # 
+    content.type="Uploaded File"
+    content.name="criterion1Img"
+    content.title="Written Communication image"
+    content.description="Select an image to represent the Written Communication standards (optional)."
+    content.check_image
+    content.add_to_list
+    # 
+    content.type="Uploaded File"
+    content.name="criterion2Img"
+    content.title="Critical Thinking image"
+    content.description="Select an image to represent the Critical Thinking standards (optional)."
+    content.check_image
+    content.add_to_list
+    # 
+    content.type="Uploaded File"
+    content.title="Information Retrieval and Technology image"
+    content.name="criterion3Img"
+    content.check_image
+    content.description="Select an image to represent the Information Retrieval and Technology standards (optional)."
+    content.add_to_list
+    # 
+    content.type="Uploaded File"
+    content.title="Quantitative Reasoning image"
+    content.name="criterion4Img"
+    content.description="Select an image to represent the Quantitative Reasoning standards (optional)."
+    content.check_image
+    content.add_to_list
+    # 
+    content.type="Uploaded File"
+    content.title="Oral Communication image"
+    content.name="criterion5Img"
+    content.description="Select an image to represent the Oral Communication standards (optional)."
+    content.check_image
+    content.add_to_list
+    # 
+    content.type="Uploaded File"
+    content.name="criterion6Img"
+    content.title="Understanding Self and Community image"
+    content.description="Select an image to represent the Understanding Self and Community standards (optional)."
+    content.check_image
+    content.add_to_list
+    
+    supporting_files = content.continue
+    supporting_files.name="KCCbanner"
+
+    attach = supporting_files.select_file
+    attach.show_other_sites
+    # 
+    attach.open_folder "My Workspace"
+    attach.open_folder "data"
+    attach.select_file "banner.gif"
+    
+    supporting_files = attach.continue
+    supporting_files.add_to_list
+    supporting_files.name="JavascriptFile"
+    
+    attach = supporting_files.select_file
+    attach.show_other_sites
+    attach.open_folder "My Workspace"
+    attach.open_folder "data"
+    attach.select_file "GenEdscript.js"
+    
+    supporting_files = attach.continue
+    supporting_files.add_to_list
+    supporting_files.name="CascadingStyleSheet"
+    
+    attach = supporting_files.select_file
+    attach.show_other_sites
+    attach.open_folder "My Workspace"
+    attach.open_folder "data"
+    attach.select_file "GenEdstyle.css"
+    supporting_files = attach.continue
+    supporting_files.add_to_list
+    
+    port_temp = supporting_files.finish
+    port_temp.publish "General Education Matrix Template"
+
+    assignments = port_temp.assignments
+
+    add_assignment = assignments.add
+    add_assignment.title="Assignment 1"
+    
+    preview = add_assignment.preview
+    
+    assignments = preview.post
+  
+    # TEST CASE: Verify assignment appears in list
+    assert assignments.assignments_titles.include?("Assignment 1")
+    
+    add_asgn2 = assignments.add
+    add_asgn2.instructions="Nullam urna elit; placerat convallis, posuere nec, semper id, diam. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Duis dignissim pulvinar nisl. Nunc interdum vulputate eros. In nec nibh! Suspendisse potenti. Maecenas at felis. Donec velit diam, mattis ut, venenatis vehicula, accumsan et, orci. Sed leo. Curabitur odio quam, accumsan eu, molestie eu, fringilla sagittis, pede. Mauris luctus mi id ligula. Proin elementum volutpat leo. Cras aliquet commodo elit. Praesent auctor consectetuer risus!\n\nDuis euismod felis nec nunc. Ut lectus felis, malesuada consequat, hendrerit at; vestibulum et, enim. Ut nec nulla sed eros bibendum vulputate. Sed tincidunt diam eget lacus. Nulla nisl? Nam condimentum mattis dui! Aenean varius purus eget sem? Nullam odio. Donec condimentum mauris. Cras volutpat tristique lacus. Sed id dui. Mauris purus purus, tristique sed, ornare convallis, consequat a, ipsum. Donec fringilla, metus quis mollis lobortis, magna tellus malesuada augue; laoreet auctor velit lorem vitae neque. Duis augue sem, vehicula sit amet, vulputate vitae, viverra quis; dolor. Donec quis eros vel massa euismod dignissim! Aliquam quam. Nam non dolor."
+    add_asgn2.title="Assignment 2"
+    add_asgn2.open_hour=last_hour
+    add_asgn2.open_meridian="AM"
+    add_asgn2.student_submissions="Inline only"
+    add_asgn2.grade_scale="Letter grade"
+    add_asgn2.check_add_due_date
+    
+    assignments = add_asgn2.post
+    
+    # TEST CASE: Verify assignment appears in list
+    assert assignments.assignments_titles.include?("Assignment 2")
+    
+    calendar = assignments.calendar
+    calendar.view="List of Events"
+    calendar.show="All events"
+    
+    # TEST CASE: Event appears in list as expected
+    assert calendar.events_list.include?("Due Assignment 2")
+    
+    assignments = calendar.assignments
+
+    add_assgn3 = assignments.add
+    add_assgn3.instructions="Fusce mollis massa nec nisi. Aliquam turpis libero, consequat quis, fringilla eget, fermentum ut, velit? Integer velit nisl, placerat non, fringilla at, pellentesque ut, odio? Cras magna ligula, tincidunt ac, iaculis in, hendrerit eu, justo. Vivamus porta. Suspendisse lorem! Donec nec libero in leo lobortis consectetuer. Vivamus quis enim? Proin viverra condimentum purus. Sed commodo.\n\nCurabitur eget velit. Curabitur eleifend libero et nisi aliquet facilisis. Integer ultricies commodo purus. Praesent velit. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Phasellus pretium. Suspendisse gravida diam. Nulla justo nulla, facilisis ut, sagittis ut, fermentum ac, elit. Morbi accumsan. Maecenas id tellus. Fusce ornare ullamcorper felis. Etiam fringilla. Maecenas in nunc nec sem sollicitudin condimentum? Nullam metus nunc, varius sit amet, consectetuer sed, vestibulum quis, est. Quisque in sapien a justo elementum iaculis?"
+    add_assgn3.title="Assignment 3"
+    add_assgn3.open_hour=last_hour
+    add_assgn3.open_meridian="AM"
+    add_assgn3.student_submissions="Attachments only"
+    add_assgn3.grade_scale="Points"
+    add_assgn3.max_points="100"
+    add_assgn3.check_add_open_announcement
+    
+    attach = add_assgn3.add_attachments
+    attach = attach.upload_local_file "documents/resources.doc"
+
+    add_assgn3 = attach.continue
+    
+    assignments = add_assgn3.save_draft
+    
+    # TEST CASE: Assignment saved in draft mode
+    assert assignments.assignments_titles.include?("Draft - Assignment 3")
+    
+    permissions = assignments.permissions
+    permissions.uncheck_organizers_share_drafts
+    
+    assignments = permissions.save
+    
+    site_home = assignments.home
+    
+    # TEST CASE: Verify assignment announcement does not appear
+    assert_equal false, site_home.announcements_list.include?("Assignment: Open Date for 'Assignment 3'")
+    
+    assignments = site_home.assignments
+
+    add_assgn4 = assignments.add
+    add_assgn4.title="Assignment 4"
+    add_assgn4.due_year=last_year
+    add_assgn4.accept_year=last_year
+    add_assgn4.post
+    
+    add_assgn4 = AssignmentAdd.new(@browser) # FIXME
+    
+    # TEST CASE: Verify alert message appears
+    assert_equal add_assgn4.alert_text, "Alert: Assignment due date set to be in the past. Please make a correction or click on the original button again to proceed.\n\nAssignment due date should be set after the open date.\n\nAccept submissions deadline should be set after the open date.\n\nThis assignment has no instructions. Please make a correction or click the original button to proceed."
+
+    add_assgn4.instructions="Integer pulvinar facilisis purus. Quisque placerat! Maecenas risus. Nam vitae lacus. Quisque euismod imperdiet ipsum. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nam vitae nulla! Duis tincidunt. Nulla id felis. Duis accumsan, est ut volutpat mollis, tellus lorem venenatis justo, eu accumsan lorem neque sit amet ante. Sed dictum. Donec nulla mi, lacinia nec; viverra nec, commodo sed, justo. Praesent fermentum vehicula dui. Sed molestie eleifend leo. Nulla et risus! Nullam ut lacus. Etiam faucibus; eros sit amet tempus consectetuer, urna est hendrerit mi, eget molestie sapien lorem non tellus. In vitae nisl. Vivamus ac lectus id pede viverra placerat.<br /><br />Morbi nec dui eget pede dapibus mollis. Mauris nisl. Donec tempor blandit diam. In hac habitasse platea dictumst. Sed vulputate ornare urna. Nulla sed."
+    add_assgn4.due_year=current_year
+    add_assgn4.accept_year=current_year
+    add_assgn4.grade_scale="Pass"
+    
+    preview = add_assgn4.preview
+    preview.show_student_view
+    
+    assignments = preview.post
+    
+    # TEST CASE: Verify assignment 4 appears in the list
+    assert assignments.assignments_titles.include?("Assignment 4")
+
+    @sakai.logout
+    workspace = @sakai.login(@instructor2, @ipassword2)
+    
+    home = workspace.open_my_site_by_name "Portfolio Site"
+
+    assignments = home.assignments
+
+    # TEST CASE: Verify assignments appear as expected.
+    assert assignments.assignments_titles.include?("Assignment 1")
+    assert assignments.assignments_titles.include?("Assignment 2")
+    assert assignments.assignments_titles.include?("Assignment 4")
+    assert_equal false, assignments.assignments_titles.include?("Draft - Assignment 3")
+
+    permissions = assignments.permissions
+    permissions.check_evaluators_share_drafts
+    permissions.check_organizers_share_drafts
+    
+    assignments = permissions.save
+    
+    # TEST CASE: Verify the draft shows in the list
+    assert assignments.assignments_titles.include?("Draft - Assignment 3")
+    
+    assignment3 = assignments.edit_assignment("Draft - Assignment 3")
+    assignment3.post
+    
+    # TEST CASE: Verify the list has updated properly
+    assert_equal false, assignments.assignments_titles.include?("Draft - Assignment 3")
+    assert assignments.assignments_titles.include?("Assignment 3")
+
+    home = assignments.home
+
+    # TEST CASE: Verify the announcement appears as expected
+    assert home.announcements_list.include?("Assignment: Open Date for 'Assignment 3'")
+
+    assignments = home.assignments
+    
+    add_assgn5 = assignments.add
+    add_assgn5.instructions="Integer pulvinar facilisis purus. Quisque placerat! Maecenas risus. Nam vitae lacus. Quisque euismod imperdiet ipsum. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nam vitae nulla! Duis tincidunt. Nulla id felis. Duis accumsan, est ut volutpat mollis, tellus lorem venenatis justo, eu accumsan lorem neque sit amet ante. Sed dictum. Donec nulla mi, lacinia nec; viverra nec, commodo sed, justo. Praesent fermentum vehicula dui. Sed molestie eleifend leo. Nulla et risus! Nullam ut lacus. Etiam faucibus; eros sit amet tempus consectetuer, urna est hendrerit mi, eget molestie sapien lorem non tellus. In vitae nisl. Vivamus ac lectus id pede viverra placerat.\n\nMorbi nec dui eget pede dapibus mollis. Mauris nisl. Donec tempor blandit diam. In hac habitasse platea dictumst. Sed vulputate ornare urna. Nulla sed."
+    add_assgn5.title="Assignment 5"
+    add_assgn5.grade_scale="Checkmark"
+    
+    attach = add_assgn5.add_attachments
+    attach.upload_local_file "documents/resources.txt"
+    
+    add_assgn5 = attach.continue
+    
+    assignments = add_assgn5.save_draft
+    
+    # TEST CASE: Verify list shows draft
+    assert assignments.assignments_titles.include?("Draft - Assignment 5")
+
+    @sakai.logout
+
+    workspace = @sakai.login(@instructor, @ipassword)
+    
+    home = workspace.open_my_site_by_name "Portfolio Site"
+
+    # TEST CASE: Verify Announcements does not include Assignment 5
+    assert_equal false, home.announcements_list.include?("Assignment: Open Date for Assignment 5")
+
+    assignments = home.assignments
+
+    # TEST CASE: Verify list shows expected Assignments
+    assert assignments.assignments_titles.include?("Assignment 1")
+    assert assignments.assignments_titles.include?("Assignment 2")
+    assert assignments.assignments_titles.include?("Assignment 3")
+    assert assignments.assignments_titles.include?("Assignment 4")
+    assert assignments.assignments_titles.include?("Draft - Assignment 5")
+
+    assignment1 = assignments.edit_assignment "Assignment 1"
+    assignment1.instructions="Phasellus molestie. Sed in pede. Sed augue. Vestibulum lacus lectus, pulvinar nec, condimentum eu, sodales et, risus. Aenean dolor nisl, tristique at, vulputate nec, blandit in, mi. Fusce elementum ante. Maecenas rhoncus tincidunt sem. Sed leo dolor, faucibus hendrerit, tincidunt nec, elementum in, arcu. Donec et nulla. Vestibulum mauris nunc, consectetuer at, ultricies a, rutrum at, felis. Integer a nulla. Aliquam tincidunt nunc. Curabitur non purus. Nulla vel augue ac magna porttitor pretium.\n\nAenean fringilla enim. Vivamus nisi. Integer eleifend pharetra elit. Nulla scelerisque accumsan lectus. Morbi accumsan dui non velit. Suspendisse consequat mauris vitae neque. Etiam sit amet urna ut eros feugiat imperdiet? Nunc ut dolor. Nulla laoreet, nisi quis egestas condimentum, sapien nulla rutrum quam, quis auctor lorem justo at lectus. Integer in lacus eu nunc molestie pharetra. Curabitur dictum justo non eros. Nullam pellentesque ante rutrum mauris."
+    assignment1.grade_scale="Letter grade"
+    
+    assignments = assignment1.post
+    assignments = assignments.delete_assignment "Assignment 1"
+
+    # TEST CASE: Verify assignnment 1 is deleted but the others remain
+    assert_equal false, assignments.assignments_titles.include?("Assignment 1")
+    assert assignments.assignments_titles.include?("Assignment 2")
+    assert assignments.assignments_titles.include?("Assignment 3")
+    assert assignments.assignments_titles.include?("Assignment 4")
+    assert assignments.assignments_titles.include?("Draft - Assignment 5")
+
+    assignments = assignments.duplicate_assignment "Assignment 2"
+
+    # TEST CASE: Verify duplication
+    assert assignments.assignments_titles.include?("Draft - Assignment 2 - Copy")
+
+    assignment1 = assignments.edit_assignment "Draft - Assignment 2 - Copy"
+    assignment1.title="Assignment 1"
+
+    assignments = assignment1.post
+  
+    # TEST CASE: Verify assignments list
+    assert assignments.assignments_titles.include?("Assignment 1")
+    assert assignments.assignments_titles.include?("Assignment 2")
+    assert assignments.assignments_titles.include?("Assignment 3")
+    assert assignments.assignments_titles.include?("Assignment 4")
+    assert assignments.assignments_titles.include?("Draft - Assignment 5")
+
+    reorder = assignments.reorder
+    reorder.sort_by_title
+    
+    assignments = reorder.save
+    
+    # TEST CASE: Verify the reorder happened
+    assert_equal assignments.assignment_list[0], "Assignment 1"
+
+    @sakai.logout
+
+    workspace = @sakai.login(@student, @spassword)
+
+    home = workspace.open_my_site_by_name "Portfolio Site"
+
+    assignments = home.assignments
+
+    assignment1 = assignments.open_assignment "Assignment 1"
+    assignment1.assignment_text="Etiam nec tellus. Nulla semper volutpat ipsum. Cras lectus magna, convallis eget, molestie ac, pharetra vel, lorem. Etiam massa velit, vulputate ut, malesuada aliquet, pretium vitae, arcu. In ipsum libero, porttitor ac, viverra eu, feugiat et, tortor. Donec vel turpis ac tortor malesuada sollicitudin! Ut et lectus. Mauris sodales. Fusce ultrices euismod metus. Aliquam eu felis eget diam malesuada bibendum. Nunc a orci in augue condimentum blandit. Proin at dolor. Donec velit. Donec ullamcorper eros a ligula. Sed ullamcorper risus nec nisl. Nunc vel justo ut risus interdum faucibus. Sed dictum tempus ipsum! In neque dolor, auctor vel, accumsan pulvinar, feugiat sit amet, urna. Aenean sagittis luctus felis.\n\nAenean elementum pretium urna. Nullam eleifend congue nulla. Suspendisse potenti. Nullam posuere elit. Sed tellus. In facilisis. Nulla aliquet, turpis nec dictum euismod, nisl dui gravida leo, et volutpat odio eros sagittis sapien. Aliquam at purus? Nunc nibh diam; imperdiet ut, sodales ut, venenatis a, leo? Suspendisse pede. Maecenas congue risus et leo! Praesent urna purus, lobortis at; dapibus nec, dictum id, elit. Vivamus gravida odio non tellus. Aliquam non nulla."
+    assignment1.preview
+    
+    confirm = assignment1.save_draft
+    
+    assignments = confirm.back_to_list
+
+    # TEST CASE: assignment shows a draft status
+    assert_equal assignments.status_of("Assignment 1"), "Draft - In progress"
+
+    assignment1 = assignments.open_assignment "Assignment 1"
+    
+    confirm = assignment1.submit
+    
+    assignments = confirm.back_to_list
+
+    # TEST CASE: Verify assignment submission
+    assert_not_equal false, assignments.status_of("Assignment 1")=~/Submitted/
+    
+    assignment3 = assignments.open_assignment "Assignment 3"
+    assignment3.select_file "documents/Lorem.txt"
+    
+    confirm = assignment3.submit
+
+    assignments = confirm.back_to_list
+    
+    # TEST CASE: Verify assignment has submitted status
+    assert_not_equal false, assignments.status_of("Assignment 3")=~/Submitted/
+
+    @sakai.logout
+
+    workspace = @sakai.login(@instructor, @ipassword)
+    
+    home = workspace.open_my_site_by_name "Portfolio Site"
+    
+    assignments = home.assignments
+    
+    submissions_list = assignments.grade "Assignment 1"
+    
+    grade_assignment = submissions_list.grade "Cheeks, Sandra (student01)"
+    sleep 4 #FIXME
+    grade_assignment.instructor_comments="Great job!"
+    grade_assignment.remove_assignment_text
+    grade_assignment.assignment_text="Etiam nec tellus. Nulla semper volutpat ipsum. {{test text}} Cras lectus magna, convallis eget, molestie ac, pharetra vel, lorem. Etiam massa velit, vulputate ut, malesuada aliquet, pretium vitae, arcu. In ipsum libero, porttitor ac, viverra eu, feugiat et, tortor. Donec vel turpis ac tortor malesuada sollicitudin! Ut et lectus. Mauris sodales. Fusce ultrices euismod metus. Aliquam eu felis eget diam malesuada bibendum. Nunc a orci in augue condimentum blandit. Proin at dolor. Donec velit. Donec ullamcorper eros a ligula. Sed ullamcorper risus nec nisl. Nunc vel justo ut risus interdum faucibus. Sed dictum tempus ipsum! In neque dolor, auctor vel, accumsan pulvinar, feugiat sit amet, urna. Aenean sagittis luctus felis.\n\nAenean elementum pretium urna. Nullam eleifend congue nulla. Suspendisse potenti. Nullam posuere elit. Sed tellus. In facilisis. Nulla aliquet, turpis nec dictum euismod, nisl dui gravida leo, et volutpat odio eros sagittis sapien. Aliquam at purus? Nunc nibh diam; imperdiet ut, sodales ut, venenatis a, leo? Suspendisse pede. Maecenas congue risus et leo! Praesent urna purus, lobortis at; dapibus nec, dictum id, elit. Vivamus gravida odio non tellus. Aliquam non nulla."
+    
+    attach = grade_assignment.add_attachments
+
+    attach.url="http://www.rsmart.com"
+    attach.add
+
+    grade_assignment = attach.continue
+    grade_assignment.select_default_grade="B+"
+    grade_assignment.save_and_dont_release
+    
+    submissions_list = grade_assignment.return_to_list
+    submissions_list.release_grades
+    
+    grade_assignment = submissions_list.grade "Cheeks, Sandra (student01)"
+    grade_assignment.check_allow_resubmission
+    grade_assignment.return_to_list
+    
+    @sakai.logout
+
+    workspace = @sakai.login(@student, @spassword)
+    
+    home = workspace.open_my_site_by_name "Portfolio Site"
+    
+    assignments = home.assignments
+  
+    assignment_1 = assignments.open_assignment "Assignment 1"
+    
+    # TEST CASE: Verify attached URL
+    assert @browser.frame(:index=>1).link(:text=>"http://www.rsmart.com").exist?
+    
+    assignment_1.remove_assignment_text
+    assignment_1.assignment_text="Etiam nec tellus. Nulla semper volutpat ipsum. Cras lectus magna, convallis eget, molestie ac, pharetra vel, lorem. Etiam massa velit, vulputate ut, malesuada aliquet, pretium vitae, arcu. In ipsum libero, porttitor ac, viverra eu, feugiat et, tortor. Donec vel turpis ac tortor malesuada sollicitudin! Ut et lectus. Mauris sodales. Fusce ultrices euismod metus. Aliquam eu felis eget diam malesuada bibendum. Nunc a orci in augue condimentum blandit. Proin at dolor. Donec velit. Donec ullamcorper eros a ligula. Sed ullamcorper risus nec nisl. Nunc vel justo ut risus interdum faucibus. Sed dictum tempus ipsum! In neque dolor, auctor vel, accumsan pulvinar, feugiat sit amet, urna. Aenean sagittis luctus felis.\n\nAenean elementum pretium urna. Nullam eleifend congue nulla. Suspendisse potenti. Nullam posuere elit. Sed tellus. In facilisis. Nulla aliquet, turpis nec dictum euismod, nisl dui gravida leo, et volutpat odio eros sagittis sapien. Aliquam at purus? Nunc nibh diam; imperdiet ut, sodales ut, venenatis a, leo? Suspendisse pede. Maecenas congue risus et leo! Praesent urna purus, lobortis at; dapibus nec, dictum id, elit. Vivamus gravida odio non tellus. Aliquam non nulla.\n\nRev2 Text"
+    
+    confirm = assignment_1.resubmit
+    
+    assignments = confirm.back_to_list
+
+    # TEST CASE: Verify submission status is correct
+    assert_not_equal false, assignments.status_of("Assignment 1")=~/Re-submitted/
+    
+    @sakai.logout
+
+    workspace = @sakai.login(@instructor, @ipassword)
+
+    home = workspace.open_my_site_by_name "Portfolio Site"
+    
+    assignments = home.assignments
+    
+    submissions_list = assignments.grade "Assignment 1"
+    
+    # TEST CASE: Verify resubmission status
+    assert_not_equal false, submissions_list.submission_status_of("Cheeks, Sandra (student01)")=~/Re-submitted/
+
+    grade_assignment = submissions_list.grade "Cheeks, Sandra (student01)"
+    grade_assignment.instructor_comments="Good job again!"
+    grade_assignment.select_default_grade="A"
+    grade_assignment.save_and_dont_release
+    
+    submissions_list = grade_assignment.return_to_list
+    submissions_list.release_grades
+    
+    @sakai.logout
+
+    workspace = @sakai.login(@student, @spassword)
+    
+    home = workspace.open_my_site_by_name "Portfolio Site"
+    
+    assignments = home.assignments
+    assignment_1 = assignments.open_assignment "Assignment 1"
+    
+    # TEST CASE: Verify instructor's comments are as expected
+    assert_equal assignment_1.instructor_comments, "Good job again!"
+    
+    @sakai.logout
   end
 end

@@ -40,4 +40,16 @@ module Utilities
     (Time.now + 3600).strftime("%I").to_i
   end
   
+  def last_year
+    (Time.now - (3600*24*365)).strftime("%Y").to_i
+  end
+  
+  def current_year
+    (Time.now).strftime("%Y").to_i
+  end
+  
+  def next_year
+    (Time.now + (3600*24*365)).strftime("%Y").to_i
+  end
+  
 end

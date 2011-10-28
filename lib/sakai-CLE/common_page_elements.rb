@@ -129,20 +129,58 @@ class Calendar
   include PageObject
   include ToolsMenu
   
-  in_frame(:index=>0) do |frame| #FIXME!
-    select_list(:view, :id=>"view", :frame=>frame)
-    select_list(:show_events, :id=>"timeFilterOption", :frame=>frame)
-    select_list(:start_month, :id=>"customStartMonth", :frame=>frame)
-    select_list(:start_day, :id=>"customStartDay", :frame=>frame)
-    select_list(:start_year, :id=>"customStartYear", :frame=>frame)
-    select_list(:end_month, :id=>"customEndMonth", :frame=>frame)
-    select_list(:end_day, :id=>"customEndDay", :frame=>frame)
-    select_list(:end_year, :id=>"customEndYear", :frame=>frame)
-    button(:filter_events, :name=>"eventSubmit_doCustomdate", :frame=>frame)
-    button(:go_to_today, :name=>"eventSubmit_doToday", :frame=>frame)
-    
+  def view=(item)
+    frm.select(:id=>"view").select(item)
   end
-
+  
+  def show=(item)
+    frm.select(:id=>"timeFilterOption").select(item)
+  end
+  
+  def start_month=(item)
+    frm.select(:id=>"customStartMonth").select(item)
+  end
+  
+  def start_day=(item)
+    frm.select(:id=>"customStartDay").select(item)
+  end
+  
+  def start_year=(item)
+    frm.select(:id=>"customStartYear").select(item)
+  end
+  
+  def end_month=(item)
+    frm.select(:id=>"customEndMonth").select(item)
+  end
+  
+  def end_day=(item)
+    frm.select(:id=>"customEndDay").select(item)
+  end
+  
+  def end_year=(item)
+    frm.select(:id=>"customEndYear").select(item)
+  end
+  
+  def filter_events
+    frm.button(:name=>"eventSubmit_doCustomdate").click
+    Calendar.new(@browser)
+  end
+  
+  def go_to_today
+    frm.button(:value=>"Go to Today").click
+    Calendar.new(@browser)
+  end
+  
+  # Returns an array of the displayed event descriptions when
+  # viewing a list of events.
+  def events_list
+    list = []
+    events_table = frm.table(:class=>"listHier lines nolines")
+    links = events_table.links.find_all { |link| link.href=~/Description/ }
+    links.each { |link| list << link.text }
+    return list
+  end
+   
 end
 
 
@@ -183,6 +221,15 @@ class Home
   # context is a given Site or the Administration Workspace.
   # In that context, the frame index is 1.
   $frame_index=1
+  
+  # Gets the text of the displayed announcements, for
+  # test case verification
+  def announcements_list
+    list = []
+    links = @browser.frame(:index=>2).links
+    links.each { |link| list << link.text }
+    return list
+  end
   
 end
 
@@ -249,9 +296,8 @@ class Resources
   #
   # It then instantiates the ResourcesUploadFiles class.
   def upload_files_to_folder(folder_name)
-    index = folder_names.index(folder_name)
-    frm.link(:text=>"Start Add Menu", :index=>index).fire_event("onfocus")
-    frm.link(:text=>"Upload Files", :index=>index).click
+    frm.table(:class=>"listHier lines centerLines").row(:text=>/#{Regexp.escape(folder_name)}/).link(:text=>"Start Add Menu").fire_event("onfocus")
+    frm.table(:class=>"listHier lines centerLines").row(:text=>/#{Regexp.escape(folder_name)}/).link(:text=>"Upload Files").click
     ResourcesUploadFiles.new(@browser)
   end
   
@@ -260,17 +306,21 @@ class Resources
     Resources.new(@browser)
   end
   
+  def show_other_sites
+    frm.link(:text=>"Show other sites").click
+    Resources.new(@browser)
+  end
+  
   # Clicks the Create Folders menu item in the
   # Add menu of the specified folder, then
   # instantiates the CreateFolders class.
   def create_subfolders_in(folder_name)
-    index = folder_names.index(folder_name)
-    frm.link(:text=>"Start Add Menu", :index=>index).fire_event("onfocus")
-    frm.link(:text=>"Create Folders", :index=>index).click
+    frm.table(:class=>"listHier lines centerLines").row(:text=>/#{Regexp.escape(folder_name)}/).link(:text=>"Start Add Menu").fire_event("onfocus")
+    frm.table(:class=>"listHier lines centerLines").row(:text=>/#{Regexp.escape(folder_name)}/).link(:text=>"Create Folders").click
     CreateFolders.new(@browser)
   end
   
-  def edit_details(name)
+  def edit_details(name) #FIXME
     menus = resource_names.compact
     index=menus.index(name)
     frm.li(:text=>/Action/, :class=>"menuOpen", :index=>index).fire_event("onclick")
@@ -283,7 +333,7 @@ class Resources
     names = []
     resources_table = frm.table(:class=>"listHier lines centerLines")
     1.upto(resources_table.rows.size-1) do |x|
-      if (resources_table[x][2].h3.exist? || resources_table[x][2].h4.exist?) && resources_table[x][2].a.title=="Folder"
+      if resources_table[x][2].exist? && resources_table[x][2].a.title=="Folder"
         names << resources_table[x][2].text
       end
     end
@@ -298,7 +348,7 @@ class Resources
     names = []
     resources_table = frm.table(:class=>"listHier lines centerLines")
     1.upto(resources_table.rows.size-1) do |x|
-      if resources_table[x][2].h4.exist? && resources_table[x][2].a(:index=>1).title=="Unknown"
+      if resources_table[x][2].a(:index=>1).exist? && resources_table[x][2].a(:index=>1).title != "Folder"
         names << resources_table[x][2].text
       end
     end
@@ -336,6 +386,35 @@ class Resources
   
   def move
     frm.button(:value=>"Move").click
+  end
+  
+  # Takes the specified array object containing pointers
+  # to local file resources, then uploads those files to
+  # the folder specified, checks if they all uploaded properly and
+  # if not, re-tries the ones that failed the first time.
+  #
+  # Finally, it instantiates the Resources page class.
+  def upload_multiple_files_to_folder(folder, file_array)
+    
+    upload = upload_files_to_folder folder
+    
+    file_array.each do |file|
+      upload.file_to_upload=file
+      upload.add_another_file
+    end
+    
+    resources = upload.upload_files_now
+
+    file_array.each do |file|
+      file =~ /(?<=\/).+/
+      # puts $~.to_s # For debugging purposes
+      unless resources.file_names.include?($~.to_s)
+        upload_files = resources.upload_files_to_folder(folder)
+        upload_files.file_to_upload=file
+        resources = upload_files.upload_files_now
+      end
+    end
+    Resources.new(@browser)
   end
 
 end
