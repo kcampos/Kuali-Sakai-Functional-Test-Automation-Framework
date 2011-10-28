@@ -161,6 +161,11 @@ module ToolsMenu
     Forums.new(@browser)
   end
   
+  def glossary
+    @browser.link(:text=>"Glossary").click
+    Glossary.new(@browser)
+  end
+  
   def gradebook
     @browser.link(:text=>"Gradebook").click
     Gradebook.new(@browser)
@@ -193,7 +198,12 @@ module ToolsMenu
   link(:lesson_builder, :text=>"Lesson Builder")
   link(:link_tool, :text=>"Link Tool")
   link(:live_virtual_classroom, :text=>"Live Virtual Classroom")
-  link(:matrices, :text=>"Matrices")
+  
+  def matrices
+    @browser.link(:text=>"Matrices").click
+    Matrices.new(@browser)
+  end
+  
   link(:media_gallery, :text=>"Media Gallery")
   link(:membership, :text=>"Membership")
   link(:memory, :text=>"Memory")
@@ -220,6 +230,12 @@ module ToolsMenu
   link(:podcasts, :text=>"Podcasts")
   link(:polls, :text=>"Polls")
   link(:portfolios, :text=>"Portfolios")
+  
+  def portfolio_templates
+    @browser.link(:text=>"Portfolio Templates").click
+    PortfolioTemplates.new(@browser)
+  end
+  
   link(:preferences, :text=>"Preferences")
   link(:profile, :text=>"Profile")
   link(:realms, :text=>"Realms")

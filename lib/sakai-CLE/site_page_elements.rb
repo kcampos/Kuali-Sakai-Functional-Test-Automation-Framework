@@ -968,6 +968,11 @@ class AssignmentAdd
     AssignmentsList.new(@browser)
   end
   
+  def cancel
+    frm.div(:class=>"portletBody").div(:class=>"act").button(:value=>"Cancel").fire_event("onclick")
+    AssignmentsList.new(@browser)
+  end
+  
   def save_draft
     frm.button(:name=>"save").click
     AssignmentsList.new(@browser)
@@ -980,7 +985,18 @@ class AssignmentAdd
     
   # A method to insert text into the rich text editor
   def instructions=(instructions)
+    frm.frame(:id, "new_assignment_instructions___Frame").td(:id, "xEditingArea").frame(:index=>0).wait_until_present
     frm.frame(:id, "new_assignment_instructions___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(instructions)
+  end
+  
+  def preview
+    frm.button(:value=>"Preview").click
+    AssignmentsPreview.new(@browser)
+  end
+  
+  def add_attachments
+    frm.button(:value=>"Add Attachments").click
+    AssignmentAttachments.new(@browser)
   end
   
   in_frame(:index=>1) do |frame|
@@ -1030,13 +1046,10 @@ class AssignmentAdd
     radio_button(:send_summary_email, :id=>"sendnotifsummary", :frame=>frame)
     radio_button(:do_not_send_grade_notif, :id=>"notsendreleasegradenotif", :frame=>frame)
     radio_button(:send_grade_notif, :id=>"sendreleasegradenotif", :frame=>frame)
-    button(:add_attachments, :name=>"attach", :frame=>frame)
     link(:add_model_answer, :id=>"modelanswer_add", :frame=>frame)
     link(:add_private_note, :id=>"note_add", :frame=>frame)
     link(:add_all_purpose_item, :id=>"allPurpose_add", :frame=>frame)
     
-    button(:preview, :name=>"preview", :frame=>frame)
-    button(:cancel, :name=>"cancel", :frame=>frame)
     text_area(:model_answer, :id=>"modelanswer_text", :frame=>frame)
     button(:model_answer_attach, :name=>"modelAnswerAttach", :frame=>frame)
     select_list(:show_model_answer, :id=>"modelanswer_to", :frame=>frame)
@@ -1081,13 +1094,105 @@ class AssignmentAdd
   
 end
 
+# Page for attaching files to Assignments
+class AssignmentAttachments
+  
+  include PageObject
+  include ToolsMenu
+  
+  def upload_local_file(filename)
+    frm.file_field(:id=>"upload").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + filename)
+    if frm.div(:class=>"alertMessage").exist?
+      sleep 2
+      upload_local_file(filename)
+    end
+    AssignmentAttachments.new(@browser)
+  end
+  
+  def continue
+    frm.div(:class=>"highlightPanel").span(:id=>"submitnotifxxx").wait_while_present
+    frm.button(:value=>"Continue").click
+    if frm.div(:class=>"portletBody").h3.text=~/In progress/
+      AssignmentStudent.new(@browser)
+    elsif frm.div(:class=>"portletBody").h3.text=~/edit/
+      AssignmentAdd.new(@browser)
+    elsif frm.form(:id=>"gradeForm").exist?
+      AssignmentSubmission.new(@browser)
+    else
+      AssignmentAdd.new(@browser)
+    end
+  end
+  
+  def show_other_sites
+    frm.link(:title=>"Show other sites").click
+  end
+  
+  def open_folder(foldername)
+    frm.link(:text=>foldername).click 
+  end
+  
+  def select_file(filename)
+    frm.table(:class=>"listHier lines").tr(:text=>/#{Regexp.escape(filename)}/).link(:text=>"Select").click
+  end
+  
+  def upload_files_to_folder(foldername)
+    frm.table(:class=>"listHier lines").tr(:text=>/#{Regexp.escape(foldername)}/).li(:class=>"menuOpen").fire_event("onclick")
+    frm.table(:class=>"listHier lines").tr(:text=>/#{Regexp.escape(foldername)}/).link(:text=>"Upload Files").click
+    StylesUploadFiles.new(@browser)
+  end
+  
+  def url=(url_string)
+    frm.text_field(:id=>"url").set(url_string)
+  end
+  
+  def add
+    frm.button(:value=>"Add").click
+  end
+  
+end
+
 # Page that appears when you first click the Assignments link
 class AssignmentsList
   
   include PageObject
   include ToolsMenu
   
+  # Returns an array of the displayed assignment titles.
+  # Use for verification of test steps.
   def assignments_titles
+    titles = []
+    a_table = @browser.frame(:index=>1).table(:class=>"listHier lines nolines")
+    1.upto(a_table.rows.size-1) do |x|
+      titles << a_table[x][1].h4(:index=>0).text
+    end
+    return titles
+  end
+  
+  # Returns an array of the displayed assignment titles.
+  # Use for verification of test steps.
+  def assignment_titles
+    titles = []
+    a_table = @browser.frame(:index=>1).table(:class=>"listHier lines nolines")
+    1.upto(a_table.rows.size-1) do |x|
+      titles << a_table[x][1].h4(:index=>0).text
+    end
+    return titles
+  end
+  
+  # Returns an array of the displayed assignment titles.
+  # Use for verification of test steps.
+  def assignment_list
+    titles = []
+    a_table = @browser.frame(:index=>1).table(:class=>"listHier lines nolines")
+    1.upto(a_table.rows.size-1) do |x|
+      titles << a_table[x][1].h4(:index=>0).text
+    end
+    return titles
+  end
+  
+  # Returns an array of the displayed assignment titles.
+  # Use for verification of test steps.
+  def assignments_list
     titles = []
     a_table = @browser.frame(:index=>1).table(:class=>"listHier lines nolines")
     1.upto(a_table.rows.size-1) do |x|
@@ -1112,6 +1217,17 @@ class AssignmentsList
     AssignmentAdd.new(@browser)
   end
   
+  # Checks the appropriate checkbox, based on the specified assignment_name
+  # Then clicks the Update button and confirms the deletion request.
+  # It then reinstantiates the AssignmentsList class because of the page
+  # update.
+  def delete_assignment(assignment_name)
+    frm.table(:class=>"listHier lines nolines").row(:text=>/#{Regexp.escape(assignment_name)}/).checkbox(:name=>"selectedAssignments").set 
+    frm.button(:value=>"Update").click
+    frm.button(:value=>"Delete").click
+    AssignmentsList.new(@browser)
+  end
+  
   def duplicate_assignment(assignment_name)
     index = assignments_titles.index(assignment_name)
     frm.link(:text=>"Duplicate", :index=>index).click
@@ -1132,11 +1248,44 @@ class AssignmentsList
     frm.checkbox(:value, /#{id}/).set
   end
   
+  def reorder
+    frm().link(:text=>"Reorder").click
+    AssignmentsReorder.new(@browser)
+  end
+  
+  # Opens the specified assignment for viewing
+  #
+  # Instantiates the student view or instructor/admin
+  # view based on the landing page attributes
+  def open_assignment(assignment_name)
+    frm.link(:text=>assignment_name).click
+    if frm.div(:class=>"portletBody").h3.text=="Viewing assignment..."
+      AssignmentsPreview.new(@browser)
+    else
+      AssignmentStudent.new(@browser)
+    end
+  end
+  
+  # Gets the contents of the status column
+  # for the specified assignment
+  def status_of(assignment_name)
+    frm.table(:class=>"listHier lines nolines").row(:text=>/#{Regexp.escape(assignment_name)}/)[2].text
+  end
+  
+  def view_submissions_for(assignment_name)
+    frm.table(:class=>"listHier lines nolines").row(:text=>/#{Regexp.escape(assignment_name)}/).link(:text=>"View Submissions").click 
+    AssignmentSubmissionList.new(@browser)
+  end
+  
+  def grade(assignment_name)
+    frm.table(:class=>"listHier lines nolines").row(:text=>/#{Regexp.escape(assignment_name)}/).link(:text=>"Grade").click 
+    AssignmentSubmissionList.new(@browser)
+  end
+  
   in_frame(:index=>1) do |frame|
     link(:grade_report, :text=>"Grade Report", :frame=>frame)
     link(:student_view, :text=>"Student View", :frame=>frame)
     link(:options, :text=>"Options", :frame=>frame)
-    link(:reorder, :text=>"Reorder", :frame=>frame)
     link(:sort_assignment_title, :text=>"Assignment title", :frame=>frame)
     link(:sort_status, :text=>"Status", :frame=>frame)
     link(:sort_open, :text=>"Open", :frame=>frame)
@@ -1177,7 +1326,15 @@ class AssignmentsPermissions
   include PageObject
   include ToolsMenu
   
+  def save
+    frm.button(:value=>"Save").click
+    AssignmentsList.new(@browser)
+  end
+  
   in_frame(:index=>1) do |frame|
+    checkbox(:evaluators_share_drafts, :id=>"Evaluatorasn.share.drafts", :frame=>frame)
+    checkbox(:organizers_share_drafts, :id=>"Organizerasn.share.drafts", :frame=>frame)
+    
     checkbox(:guests_all_groups, :id=>"Guestasn.all.groups", :frame=>frame)
     checkbox(:guests_create_assignments, :id=>"Guestasn.new", :frame=>frame)
     checkbox(:guests_submit_to_assigments, :id=>"Guestasn.submit", :frame=>frame)
@@ -1215,7 +1372,6 @@ class AssignmentsPermissions
     checkbox(:tas_receive_notifications, :id=>"Teaching Assistantasn.receive.notifications", :frame=>frame)
     checkbox(:tas_share_drafts, :id=>"Teaching Assistantasn.share.drafts", :frame=>frame)
     link(:undo_changes, :text=>"Undo changes", :frame=>frame)
-    button(:save, :id=>"eventSubmit_doSave", :frame=>frame)
     button(:cancel, :id=>"eventSubmit_doCancel", :frame=>frame)
     link(:permission, :text=>"Permission", :frame=>frame)
     link(:guest, :text=>"Guest", :frame=>frame)
@@ -1318,6 +1474,11 @@ class AssignmentsReorder
   include PageObject
   include ToolsMenu
   
+  def save
+    frm.button(:value=>"Save").click
+    AssignmentsList.new(@browser)
+  end
+  
   in_frame(:index=>1) do |frame|
     link(:add, :text=>"Add", :frame=>frame)
     link(:assignment_list, :text=>"Assignment List", :frame=>frame)
@@ -1330,14 +1491,13 @@ class AssignmentsReorder
     link(:sort_by_due_date, :text=>"Sort by due date", :frame=>frame)
     link(:undo_last, :text=>"Undo last", :frame=>frame)
     link(:undo_all, :text=>"Undo all", :frame=>frame)
-    button(:save, :name=>"save", :frame=>frame)
     button(:cancel, :name=>"cancel", :frame=>frame)
     
   end
 
 end
 
-# A Student user's page for editing/submitting an assignment.
+# A Student user's page for editing/submitting/view an assignment.
 class AssignmentStudent
   
   include PageObject
@@ -1363,7 +1523,11 @@ class AssignmentStudent
     frm.table(:class=>"itemSummary")[0][5].text
   end
   
-  def add_assignment_text(text)
+  def instructor_comments
+    frm.div(:class=>"portletBody").div(:class=>"textPanel", :index=>2).text
+  end
+  
+  def assignment_text=(text)
     frm.frame(:id, "Assignment.view_submission_text___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(text)
   end
   
@@ -1372,22 +1536,98 @@ class AssignmentStudent
     frm.frame(:id, "Assignment.view_submission_text___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys :backspace
   end
   
-  def file_field #FIXME
-    frm.file_field(:id=>"clonableUpload")
+  @@file_number = 0
+  
+  def select_file(file_name)
+    frm.file_field(:id=>"clonableUpload", :name=>"upload#{@@file_number}").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + file_name)
+    @@file_number += 1
+  end
+  
+  def submit
+    frm.button(:value=>"Submit").click
+    @@file_number=0
+    if frm.div(:class=>"portletBody").h3.text=~/Submission Confirmation/
+      SubmissionConfirmation.new(@browser)
+    elsif frm.button(:value=>"Back to list").exist?
+      SubmissionConfirmation.new(@browser)
+    else
+      AssessmentsList.new(@browser)
+    end
+  end
+  
+  def resubmit
+    frm.button(:value=>"Resubmit").click
+    @@file_number=0
+    if frm.div(:class=>"portletBody").h3.text=~/Submission Confirmation/
+      SubmissionConfirmation.new(@browser)
+    elsif frm.button(:value=>"Back to list").exist?
+      SubmissionConfirmation.new(@browser)
+    else
+      AssessmentsList.new(@browser)
+    end
+  end
+  
+  def preview
+    frm.button(:value=>"Preview").click
+    @@file_number=0
+    AssignmentStudentPreview.new(@browser)
+  end
+  
+  def save_draft
+    frm.button(:value=>"Save Draft").click
+    SubmissionConfirmation.new(@browser)
+  end
+  
+  def select_more_files_from_workspace
+    frm.link(:id=>"attach").click
+    AssignmentAttachments.new(@browser)
+  end
+  
+  def back_to_list
+    frm.button(:value=>"Back to list").click
+    AssignmentsList.new(@browser)
   end
   
   in_frame(:index=>1) do |frame|
-    button(:submit, :id=>"post", :frame=>frame)
-    button(:preview, :id=>"preview", :frame=>frame)
-    button(:save_draft, :id=>"save", :frame=>frame)
     button(:cancel, :id=>"cancel", :frame=>frame)
-    button(:select_files, :id=>"attach", :frame=>frame)
     link(:add_another_file, :id=>"addMoreAttachmentControls", :frame=>frame)
   end
 
 end
 
-# The page that appears when you click on an assignments "Grade" link
+# Page that appears when a Student User clicks to Preview an
+# assignment that is in progress.
+class AssignmentStudentPreview
+  
+  include PageObject
+  include ToolsMenu
+  
+  def submit
+    frm.button(:value=>"Submit").click
+    SubmissionConfirmation.new(@browser)
+  end
+
+  def save_draft
+    frm.button(:value=>"Save Draft").click
+    SubmissionConfirmation.new(@browser)
+  end
+
+end
+
+# The page that appears when a Student user has fully submitted an assignment
+# or saves it as a draft.
+class SubmissionConfirmation
+  
+  include PageObject
+  include ToolsMenu
+  
+  def back_to_list
+    frm.button(:value=>"Back to list").click
+    AssignmentsList.new(@browser)
+  end
+end
+
+# The page that appears when you click on an assignment's "Grade" or "View Submission" link
 # as an instructor. Shows the list of students and their
 # assignment submission status.
 class AssignmentSubmissionList
@@ -1405,6 +1645,22 @@ class AssignmentSubmissionList
   
   def student_table
     table = frm.table(:class=>"listHier lines nolines").to_a
+  end
+  
+  def grade(student_name)
+    frm.table(:class=>"listHier lines nolines").row(:text=>/#{Regexp.escape(student_name)}/).link(:text=>"Grade").click
+    AssignmentSubmission.new(@browser)
+  end
+  
+  # Gets the value of the status field for the specified
+  # Student. Note that the student's name needs to be entered
+  # so that it's unique for the row, but it does not have
+  # to match the entire name/id value--unless there are two
+  # students with the same name.
+  #
+  # Useful for verification purposes.
+  def submission_status_of(student_name)
+    frm.table(:class=>"listHier lines nolines").row(:text=>/#{Regexp.escape(student_name)}/)[4].text
   end
   
   in_frame(:index=>1) do |frame|
@@ -1447,32 +1703,36 @@ class AssignmentSubmissionList
 
 end
 
-# The page that shows a student's submitted assignment
+# The page that shows a student's submitted assignment to an instructor user.
 class AssignmentSubmission
   
   include PageObject
   include ToolsMenu
-  
-  def student_assignment_text
-    frm.frame(:id, "grade_submission_feedback_text___Frame").td(:id, "xEditingArea").frame(:index=>0)
+
+  def assignment_text=(text)
+    frm.frame(:id, "grade_submission_feedback_text___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(text)
   end
   
-  def set_instructor_comments(text)
+  def remove_assignment_text
+    frm.frame(:id, "grade_submission_feedback_text___Frame").div(:title=>"Select All").fire_event("onclick")
+    frm.frame(:id, "grade_submission_feedback_text___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys :backspace
+  end
+  
+  def instructor_comments=(text)
     frm.frame(:id, "grade_submission_feedback_comment___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(text)
   end
   
+  def add_attachments
+    frm.button(:value=>"Add Attachments").click
+    AssignmentAttachments.new(@browser)
+  end
+  
+  def return_to_list
+    frm.button(:value=>"Return to List").click
+    AssignmentSubmissionList.new(@browser)
+  end
+  
   in_frame(:index=>1) do |frame|
-    link(:add, :text=>"Add", :frame=>frame)
-    link(:grade_report, :text=>"Grade Report", :frame=>frame)
-    link(:assignment_list, :text=>"Assignment List", :frame=>frame)
-    link(:permissions, :text=>"Permissions", :frame=>frame)
-    link(:options, :text=>"Options", :frame=>frame)
-    link(:student_view, :text=>"Student View", :frame=>frame)
-    link(:reorder, :text=>"Reorder", :frame=>frame)
-    button(:previous, :name=>"prevsubmission1", :frame=>frame)
-    button(:return_to_list, :name=>"cancelgradesubmission1", :frame=>frame)
-    button(:next, :name=>"nextsubmission1", :frame=>frame)
-    button(:add_attachments, :name=>"attach", :frame=>frame)
     select_list(:select_default_grade, :name=>"grade_submission_grade", :frame=>frame)
     checkbox(:allow_resubmission, :id=>"allowResToggle", :frame=>frame)
     select_list(:num_resubmissions, :id=>"allowResubmitNumberSelect", :frame=>frame)
@@ -1482,11 +1742,7 @@ class AssignmentSubmission
     select_list(:accept_until_hour, :id=>"allow_resubmit_closeHour", :frame=>frame)
     select_list(:accept_until_min, :id=>"allow_resubmit_closeMin", :frame=>frame)
     select_list(:accept_until_meridian, :id=>"allow_resubmit_closeAMPM", :frame=>frame)
-    button(:save_dont_release, :name=>"save", :frame=>frame)
-    button(:save_and_release, :name=>"return", :frame=>frame)
-    button(:preview, :name=>"preview", :frame=>frame)
-    button(:cancel, :name=>"cancel", :frame=>frame)
-    
+    button(:save_and_dont_release, :value=>"Save and Don't Release to Student", :frame=>frame)
   end
 
 end
@@ -1955,10 +2211,52 @@ class Forms
     PublishForm.new(@browser)
   end
 
-  in_frame(:index=>1) do |frame|
-    
+  def import
+    frm.link(:text=>"Import").click
+    ImportForms.new(@browser)
   end
   
+end
+
+class ImportForms
+  
+  include PageObject
+  include ToolsMenu
+  
+  def import
+    frm.button(:value=>"Import").click
+    Forms.new(@browser)
+  end
+
+  def select_file
+    frm.link(:text=>"Select File...").click
+    AttachFileFormImport.new(@browser)
+  end
+  
+end
+
+class AttachFileFormImport
+  
+  include PageObject
+  include ToolsMenu
+  
+  def continue
+    frm.button(:value=>"Continue").click
+    ImportForms.new(@browser)
+  end
+
+  def show_other_sites
+    frm.link(:text=>"Show other sites").click
+  end
+  
+  def open_folder(name)
+    frm.link(:text=>name).click
+  end
+
+  def select_file(filename)
+    frm.table(:class=>"listHier lines").row(:text, /#{Regexp.escape(filename)}/).link(:text=>"Select").click
+  end
+
 end
 
 class AddForm
@@ -2384,6 +2682,47 @@ class AddEditTopic
     text_area(:short_description, :id=>"revise:topic_shortDescription", :frame=>frame)
   end
 end
+
+
+#================
+# Glossary Pages - for a Portfolio Site
+#================
+
+class Glossary
+  
+  include PageObject
+  include ToolsMenu
+  
+  def add
+    frm.link(:text=>"Add").click
+    AddEditTerm.new(@browser)
+  end
+
+  in_frame(:index=>1) do |frame|
+    
+  end
+end
+
+class AddEditTerm
+  
+  include PageObject
+  include ToolsMenu
+  
+  def add_term
+    frm.button(:value=>"Add Term").click
+    Glossary.new(@browser)
+  end
+
+  def long_description=(text)
+    frm.frame(:id, "longDescription___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(text)
+  end
+
+  in_frame(:index=>1) do |frame|
+    text_field(:term, :id=>"term-id", :frame=>frame)
+    text_area(:short_description, :id=>"description-id", :frame=>frame)
+  end
+end
+
 
 
 #================
@@ -2852,6 +3191,15 @@ class Matrices
     EditMatrixCells.new(@browser)
   end
 
+  def preview(matrixname)
+    frm.table(:class=>"listHier lines nolines").tr(:text=>/#{Regexp.escape(matrixname)}/).link(:text=>"Preview").click
+  end
+
+  def publish(matrixname)
+    frm.table(:class=>"listHier lines nolines").tr(:text=>/#{Regexp.escape(matrixname)}/).link(:text=>"Publish").click
+    ConfirmPublishMatrix.new(@browser)
+  end
+
   in_frame(:index=>1) do |frame|
     
   end
@@ -2865,6 +3213,11 @@ class AddEditMatrix
   def create_matrix
     frm.button(:value=>"Create Matrix").click
     Matrices.new(@browser)
+  end
+
+  def save_changes
+    frm.button(:value=>"Save Changes").click
+    EditMatrixCells.new(@browser)
   end
 
   def select_style
@@ -2898,7 +3251,7 @@ class SelectMatrixStyle
   end
 
   def select_style(stylename)
-    frm.table(:class=>"listHier lines nolines").tr(:text=>/#{Regexp.escape(stylename)}/).link(:text=>"Select").click
+    frm.table(:class=>"listHier lines nolines ").tr(:text=>/#{Regexp.escape(stylename)}/).link(:text=>"Select").click
     AddEditMatrix.new(@browser)
   end
   
@@ -2941,8 +3294,84 @@ class EditMatrixCells
   include PageObject
   include ToolsMenu
   
-  def edit(column, row)
-    frm.div(:class=>"portletBody").table(:index=>0).tr(:index=>row).td(:index=>column).fire_event("onclick")
+  # Clicks on the cell that is specified, based on
+  # the row number, then the column number.
+  #
+  # Note that the numbering begins in the upper left
+  # of the Matrix, with (1, 1) being the first EDITABLE
+  # cell, NOT the first cell in the table itself.
+  #
+  # In other words, ignore the header row and header column
+  # in your count (or, if you prefer, consider those
+  # to be numbered "0").
+  def edit(row, column)
+    frm.div(:class=>"portletBody").table(:index=>0).tr(:index=>row).td(:index=>column-1).fire_event("onclick")
+    EditCell.new(@browser)
+  end
+
+  def return_to_list
+    frm.link(:text=>"Return to List").click
+    Matrices.new(@browser)
+  end
+
+end
+
+class EditCell
+  
+  include PageObject
+  include ToolsMenu
+
+  def select_evaluators
+    frm.link(:text=>"Select Evaluators").click
+    SelectEvaluators.new(@browser)
+  end
+
+  def save_changes
+    frm.button(:value=>"Save Changes").click
+    EditMatrixCells.new(@browser)
+  end
+  
+  in_frame(:index=>1) do |frame|
+    text_field(:title, :id=>"title-id", :frame=>frame)
+    checkbox(:use_default_reflection_form, :id=>"defaultReflectionForm", :frame=>frame)
+    select_list(:reflection, :id=>"reflectionDevice-id", :frame=>frame)
+    checkbox(:use_default_feedback_form, :id=>"defaultFeedbackForm", :frame=>frame)
+    select_list(:feedback, :id=>"reviewDevice-id", :frame=>frame)
+    checkbox(:use_default_evaluation_form, :id=>"defaultEvaluationForm", :frame=>frame)
+    select_list(:evaluation, :id=>"evaluationDevice-id", :frame=>frame)
+    checkbox(:use_default_evaluators, :id=>"defaultEvaluators", :frame=>frame)
+  end
+end
+
+class SelectEvaluators
+  
+  include PageObject
+  include ToolsMenu
+  
+  def save
+    frm.button(:value=>"Save").click
+    EditCell.new(@browser)
+  end
+
+  in_frame(:index=>1) do |frame|
+    select_list(:users, :id=>"mainForm:availableUsers", :frame=>frame)
+    select_list(:selected_users, :id=>"mainForm:selectedUsers", :frame=>frame)
+    select_list(:roles, :id=>"mainForm:audSubV11:availableRoles", :frame=>frame)
+    select_list(:selected_roles, :id=>"mainForm:audSubV11:selectedRoles", :frame=>frame)
+    button(:add_users, :id=>"mainForm:add_user_button", :frame=>frame)
+    button(:remove_users, :id=>"mainForm:remove_user_button", :frame=>frame)
+    button(:add_roles, :id=>"mainForm:audSubV11:add_role_button", :frame=>frame)
+    button(:remove_roles, :id=>"mainForm:audSubV11:remove_role_button", :frame=>frame)
+  end
+end
+
+class ConfirmPublishMatrix
+
+  include ToolsMenu
+  
+  def continue
+    frm.button(:value=>"Continue").click
+    Matrices.new(@browser)
   end
 
 end
@@ -3608,6 +4037,257 @@ end
 
 
 #================
+# Portfolio Templates pages
+#================
+
+class PortfolioTemplates
+  
+  include PageObject
+  include ToolsMenu
+  
+  def add
+    frm.link(:text=>"Add").click
+    AddPortfolioTemplate.new(@browser)
+  end
+
+  def publish(templatename)
+    frm.table(:class=>"listHier lines nolines").row(:text=>/#{Regexp.escape(templatename)}/).link(:text=>"Publish").click
+  end
+
+  def edit(templatename)
+    frm.table(:class=>"listHier lines nolines").row(:text=>/#{Regexp.escape(templatename)}/).link(:text=>"Edit").click
+  end
+
+  def delete(templatename)
+    frm.table(:class=>"listHier lines nolines").row(:text=>/#{Regexp.escape(templatename)}/).link(:text=>"Delete").click
+  end
+
+  def copy(templatename)
+    frm.table(:class=>"listHier lines nolines").row(:text=>/#{Regexp.escape(templatename)}/).link(:text=>"Copy").click
+  end
+
+  def export(templatename)
+    frm.table(:class=>"listHier lines nolines").row(:text=>/#{Regexp.escape(templatename)}/).link(:text=>"Export").click
+  end
+
+  in_frame(:index=>1) do |frame|
+    
+  end
+end
+
+class AddPortfolioTemplate
+  
+  include PageObject
+  include ToolsMenu
+  
+  def continue
+    frm.button(:value=>"Continue").click
+    BuildTemplate.new(@browser)
+  end
+
+  in_frame(:index=>1) do |frame|
+    text_field(:name, :id=>"name-id", :frame=>frame)
+    text_area(:description, :id=>"description", :frame=>frame)
+    
+  end
+end
+
+class BuildTemplate
+  
+  include PageObject
+  include ToolsMenu
+  
+  def select_file
+    frm.link(:text=>"Select File").click
+    PortfolioAttachFiles.new(@browser)
+  end
+  
+  def continue
+    frm.button(:value=>"Continue").click
+    PortfolioContent.new(@browser)
+  end
+
+  in_frame(:index=>1) do |frame|
+    select_list(:outline_options_form_type, :id=>"propertyFormType-id", :frame=>frame)
+  end
+end
+
+class PortfolioAttachFiles
+  
+  include PageObject
+  include ToolsMenu
+  
+  # Clicks the Add Menu for the specified
+  # folder, then selects the Upload Files
+  # command in the menu that appears.
+  #
+  # It then instantiates the ResourcesUploadFiles class.
+  def upload_files_to_folder(folder_name)
+    frm.table(:class=>"listHier lines").row(:text=>/#{Regexp.escape(folder_name)}/).image(:alt=>"add").fire_event("onclick")
+    frm.table(:class=>"listHier lines").row(:text=>/#{Regexp.escape(folder_name)}/).link(:text=>"Upload Files").click
+    PortfoliosUploadFiles.new(@browser)
+  end
+  
+  def continue
+    frm.button(:value=>"Continue").click
+    if frm.div(:class=>"portletBody").h3.text=="Select supporting files"
+      SupportingFilesPortfolio.new(@browser)
+    elsif frm.div(:class=>"portletBody").h3.text=="Build Template"
+      BuildTemplate.new(@browser)
+    end
+  end
+  
+  def select_file(filename)
+    frm.table(:class=>"listHier lines").tr(:text=>/#{Regexp.escape(filename)}/).link(:text=>"Select").click
+  end
+  
+  def open_folder(name)
+    frm.link(:text=>name).click
+  end
+  
+  def show_other_sites
+    frm.link(:text=>"Show other sites").click
+  end
+  
+  # Clicks the Create Folders menu item in the
+  # Add menu of the specified folder, then
+  # instantiates the CreateFolders class.
+  def create_subfolders_in(folder_name)
+    frm.table(:class=>"listHier lines").row(:text=>/#{Regexp.escape(folder_name)}/).link(:text=>"Start Add Menu").fire_event("onfocus")
+    frm.table(:class=>"listHier lines").row(:text=>/#{Regexp.escape(folder_name)}/).link(:text=>"Create Folders").click
+    #FIXME
+  end
+  
+  def edit_details(name) #FIXME
+    menus = resource_names.compact
+    index=menus.index(name)
+    frm.li(:text=>/Action/, :class=>"menuOpen", :index=>index).fire_event("onclick")
+    frm.link(:text=>"Edit Details", :index=>index).click
+    #FIXME
+  end
+ 
+  # This method returns folder names only #FIXME - headers will not always be the same
+  def folder_names
+    names = []
+    resources_table = frm.table(:class=>"listHier lines")
+    1.upto(resources_table.rows.size-1) do |x|
+      if (resources_table[x][2].h3.exist? || resources_table[x][2].h4.exist?) && resources_table[x][2].a.title=="Folder"
+        names << resources_table[x][2].text
+      end
+    end
+    return names
+  end
+  
+  # This method returns an array of the file names currently listed
+  # on the Resources page.
+  # 
+  # It excludes folder names.
+  def file_names #FIXME - headers will not always be the same
+    names = []
+    resources_table = frm.table(:class=>"listHier lines")
+    1.upto(resources_table.rows.size-1) do |x|
+      if resources_table[x][2].h4.exist? && resources_table[x][2].a(:index=>1).title=="Unknown"
+        names << resources_table[x][2].text
+      end
+    end
+    return names
+  end
+  
+  # This method returns an array of both the file and folder names
+  # currently listed on the Resources page.
+  #
+  # Note that it adds "" entries for any blank lines found
+  # so that the row index will still be accurate for the
+  # table itself. This is sometimes necessary for being
+  # able to find the correct row.
+  def resource_names
+    titles = []
+    resources_table = frm.table(:class=>"listHier lines")
+    1.upto(resources_table.rows.size-1) do |x|
+      if resources_table[x][2].link.exist?
+        titles << resources_table[x][2].text
+      else
+        titles << ""
+      end
+    end
+    return titles
+  end
+  
+end
+
+class PortfoliosUploadFiles
+  
+  include PageObject
+  include ToolsMenu
+  
+  @@filex=0
+  
+  # Note that the file_to_upload method can be used
+  # multiple times, but it assumes
+  # that the add_another_file method is used
+  # before it, every time except before the first time.
+  def file_to_upload=(file_name)
+    frm.file_field(:id, "content_#{@@filex}").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + file_name)
+    @@filex+=1
+  end
+  
+  def upload_files_now
+    frm.button(:value=>"Upload Files Now").click
+    sleep 1 # FIXME
+    @@filex=0
+    PortfolioAttachFiles.new(@browser)
+  end
+  
+  def add_another_file
+    frm.link(:text=>"Add Another File").click
+  end
+  
+end
+
+class PortfolioContent
+  
+  include PageObject
+  include ToolsMenu
+
+  def continue
+    frm.button(:value=>"Continue").click
+    SupportingFilesPortfolio.new(@browser)
+  end
+
+  in_frame(:index=>1) do |frame|
+    select_list(:type, :id=>"item.type", :frame=>frame)
+    text_field(:name, :id=>"item.name-id", :frame=>frame)
+    text_field(:title, :id=>"item.title-id", :frame=>frame)
+    text_area(:description, :id=>"item.description-id", :frame=>frame)
+    button(:add_to_list, :value=>"Add To List", :frame=>frame)
+    checkbox(:image, :id=>"image-id", :frame=>frame)
+  end
+end
+
+class SupportingFilesPortfolio
+  
+  include PageObject
+  include ToolsMenu
+  
+  def finish
+    frm.button(:value=>"Finish").click
+    PortfolioTemplates.new(@browser)
+  end
+  
+  def select_file
+    frm.link(:text=>"Select File").click
+    PortfolioAttachFiles.new(@browser)
+  end
+
+  in_frame(:index=>1) do |frame|
+    button(:add_to_list, :value=>"Add To List", :frame=>frame)
+    text_field(:name, :id=>"fileRef.usage-id", :frame=>frame)
+  end
+end
+
+
+
+#================
 # Site Editor Pages for an individual Site
 #================
 
@@ -3772,6 +4452,7 @@ class StylesUploadFiles
   
   def upload_files_now
     frm.button(:value=>"Upload Files Now").click
+    sleep 0.5
     @@filex=0
     StylesAddAttachment.new(@browser)
   end

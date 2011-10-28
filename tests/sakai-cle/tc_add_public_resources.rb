@@ -55,15 +55,23 @@ class AddPublicResources < Test::Unit::TestCase
     "audio/resources.mp3",
     "images/resources.JPG"
     ]
-    
+    filenames_1 = []
     files_1.each do |file|
+      file =~ /(?<=\/).+/
+      filenames_1 << $~.to_s
       upload_files.file_to_upload=file
       upload_files.add_another_file
     end
     resources = upload_files.upload_files_now
     
-    filenames_1 = [ "accomplishment.xsd", 
-    "flower01.jpg", "resources.ppt", "resources.mp3", "resources.JPG" ]
+    # Make sure they uploaded
+    filenames_1.each do |file|
+      unless resources.file_names.include?(file)
+        upload_files = resources.upload_files_to_folder("#{@site_name} Resources")
+        upload_files.file_to_upload=files_1[filenames_1.index(file)]
+        resources = upload_files.upload_files_now
+      end
+    end
     
     # Make them public
     filenames_1.each do |file|
@@ -93,14 +101,14 @@ class AddPublicResources < Test::Unit::TestCase
       "documents/sample.pdf",
       "images/flower02.jpg"
     ]
-    
+    filenames_2 = []
     files_2.each do |file|
+      file =~ /(?<=\/).+/
+      filenames_2 << $~.to_s
       upload_files.file_to_upload=file
       upload_files.add_another_file
     end
     resources = upload_files.upload_files_now
-    
-    filenames_2 = [ "sample.pdf", "flower02.jpg" ]
     
     # Make them public
     filenames_2.each do |file|
