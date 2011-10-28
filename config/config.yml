@@ -3,3 +3,4 @@ server:
     url: 'http://protactinium.phx.rsmart.com:8080'
 app:
     :cle: 'sakai-cle'
+    :oae: 'sakai-oae'
