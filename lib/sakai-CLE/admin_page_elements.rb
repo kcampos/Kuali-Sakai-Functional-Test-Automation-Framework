@@ -83,6 +83,74 @@ end
 
 
 #================
+# Login Pages
+#================
+
+# This is the page where users log in to the site.
+class Login
+  
+  include ToolsMenu
+  
+  def search_public_courses_and_projects
+    @browser.frame(:index=>0).link(:text=>"Search Public Courses and Projects").click
+    SearchPublic.new(@browser)
+  end
+  
+end
+
+# The page where you search for public courses and projects.
+class SearchPublic
+  
+  include ToolsMenu
+  
+  def home
+    @browser.frame(:index=>0).link(:text=>"Home").click
+    Login.new(@browser)
+  end
+  
+  def search_for=(string)
+    @browser.frame(:index=>0).text_field(:id=>"searchbox").set(string)
+  end
+  
+  def search_for_sites
+    @browser.frame(:index=>0).button(:value=>"Search for Sites").click
+    SearchPublicResults.new(@browser)
+  end
+
+end
+
+# The page showing the results list of Site matches to a search of public sites/projects.
+class SearchPublicResults
+  
+  include ToolsMenu
+  
+  def click_site(site_name)
+    @browser.frame(:index=>0).link(:text=>site_name).click
+    SiteSummaryPage.new(@browser)
+  end
+
+  def home
+    @browser.frame(:id=>"ifrm").link(:text=>"Home").click
+    Login.new(@browser)
+  end
+
+end
+
+# The page that appears when you click a Site in the Site Search Results page, when not logged
+# in to Sakai.
+class SiteSummaryPage
+  
+  include ToolsMenu
+  
+  def return_to_list
+    @browser.frame(:index=>0).button(:value=>"Return to List").click
+    SearchPublicResults.new(@browser)
+  end
+
+end
+
+
+#================
 # Realms Pages
 #================
 

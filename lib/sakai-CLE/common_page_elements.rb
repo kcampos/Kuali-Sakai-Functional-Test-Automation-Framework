@@ -22,11 +22,15 @@
 # The Announcements list page for a Site.
 class Announcements
   
-  include PageObject
   include ToolsMenu
   
   def add
     frm.div(:class=>"portletBody").link(:title=>"Add").click
+    AddEditAnnouncements.new(@browser)
+  end
+
+  def edit(subject)
+    frm.table(:class=>"listHier").row(:text=>/#{Regexp.escape(subject)}/).link(:text=>"Edit").click
     AddEditAnnouncements.new(@browser)
   end
 
@@ -48,8 +52,66 @@ class Announcements
     end
   end
 
+  # Returns the text of the "For" column for
+  # the specified announcement.
+  def for_column(subject)
+    frm.table(:class=>"listHier").row(:text=>/#{Regexp.escape(subject)}/)[4].text
+  end
+
+  def preview_announcement(subject)
+    frm.link(:text=>subject).click
+    PreviewAnnouncements.new(@browser)
+  end
+
   def view=(list_item)
     frm.select(:id=>"view").set(list_item)
+  end
+
+  def merge
+    frm.link(:text=>"Merge").click
+    AnnouncementsMerge.new(@browser)
+  end
+
+end
+
+# Show Announcements from Another Site. On this page you select what announcements
+# you want to merge into the current Site.
+class AnnouncementsMerge
+
+  include ToolsMenu
+
+  # Checks the checkbox for the specified site name
+  def check(site_name)
+    frm.table(:class=>"listHier lines nolines").row(:text=>/#{Regexp.escape(site_name)}/).checkbox(:id=>/site/).set
+  end
+  
+  def save
+    frm.button(:value=>"Save").click
+    Announcements.new(@browser)
+  end
+  
+end
+
+
+# This Class does double-duty. It's for the Preview page when editing an
+# Announcement, plus for when you just click an Announcement to view it.
+class PreviewAnnouncements
+  
+  include ToolsMenu
+  
+  def return_to_list
+    frm.button(:value=>"Return to List").click
+    Announcements.new(@browser)
+  end
+
+  def save_changes
+    frm.button(:value=>"Save Changes").click
+    Announcements.new(@browser)
+  end
+
+  def edit
+    frm.button(:value=>"Edit").click
+    AddEditAnnouncements.new(@browser)
   end
 
 end
@@ -61,12 +123,21 @@ class AddEditAnnouncements
   
   def add_announcement
     frm.button(:value=>"Add Announcement").click
+    if frm.div(:class=>"portletBody").h3.text=~/Add Announcement/
+      AddEditAnnouncements.new(@browser)
+    else
+      Announcements.new(@browser)
+    end
+  end
+  
+  def save_changes
+    frm.button(:value=>"Save Changes").click
     Announcements.new(@browser)
   end
   
   def preview
     frm.button(:value=>"Preview").click
-    PreviewAnnouncement.new(@browser)
+    PreviewAnnouncements.new(@browser)
   end
 
   def body=(text)
@@ -88,7 +159,7 @@ class AddEditAnnouncements
   # Sets the Announcement Title field to the specified
   # string value.
   def title=(string)
-    frm.text_field(:id=>"title").set(string)
+    frm.text_field(:id=>"subject").set(string)
   end
   
   # Clicks the radio button for "Only members of this site can see this announcement"
@@ -108,17 +179,17 @@ class AddEditAnnouncements
   
   # Clicks the radio button for "Show - (Post and display this announcement immediately)"
   def select_show
-    frm.radio(:id=>"hidden-false").set
+    frm.radio(:id=>"hidden_false").set
   end
   
   # Clicks the radio button for "Hide - (Draft mode - Do not display this announcement at this time)"
   def select_hide
-    frm.radio(:id=>"hidden-true").set
+    frm.radio(:id=>"hidden_true").set
   end
   
   # Clicks the radio button for "Specify Dates - (Choose when this announcement will be displayed)"
   def select_specify_dates
-    frm.radio(:id=>"hidden-specify").set
+    frm.radio(:id=>"hidden_specify").set
   end
   
   # Checks the checkbox for "Beginning"
@@ -208,6 +279,12 @@ class AddEditAnnouncements
     frm.select(:id=>"retract_ampm").select(string)
   end
 
+  # Gets the text of the alert message when it appears on
+  # the page
+  def alert_message
+    frm.div(:class=>"alertMessage").text
+  end
+
 end
 
 # The page for attaching files and links to Announcements.
@@ -235,8 +312,16 @@ class AnnouncementsAttach
   
   # Clicks the "Attach a copy" link for the specified
   # file, then reinstantiates the Class.
+  # If an alert box appears, the method will call itself again.
+  # Note that this can lead to an infinite loop. Will need to fix later.
   def attach_a_copy(file_name)
-    frm.table(:class=>"listHier lines").row(:text=>/#{Regexp.escape(file_name)}/).link(:text=>"Attach a copy").click
+    frm.table(:class=>"listHier lines").row(:text=>/#{Regexp.escape(file_name)}/).link(:href=>/doAttachitem/).click
+    
+    if frm.div(:class=>"alertMessage").exist?
+      sleep 1
+      attach_a_copy(file_name) # FIXME
+    end
+    
     AnnouncementsAttach.new(@browser)
   end
   
@@ -496,6 +581,8 @@ class Home
     link(:recent_announcements_options, :text=>"Options", :frame=>frame)
     # Link for New In Forms
     link(:new_in_forums, :text=>"New Messages", :frame=>frame)
+    text_field(:number_of_announcements, :id=>"itemsEntryField", :frame=>frame)
+    button(:update_announcements, :name=>"eventSubmit_doUpdate", :frame=>frame)
   end
   
   # The Home class should be instantiated whenever the user
@@ -509,6 +596,7 @@ class Home
     list = []
     links = @browser.frame(:index=>2).links
     links.each { |link| list << link.text }
+    list.delete_if { |item| item=="Options" } # Deletes the Options link if it's there.
     return list
   end
   
