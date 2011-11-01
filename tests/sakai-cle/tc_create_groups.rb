@@ -28,11 +28,18 @@ class TestGroups < Test::Unit::TestCase
     @password = @config.directory['person3']['password']
     @sakai = SakaiCLE.new(@browser)
     
+    
   end
   
   def teardown
+    # Save new groups info for later scripts to use
+    File.open("#{File.dirname(__FILE__)}/../../config/directory.yml", "w+") { |out|
+      YAML::dump(@config.directory, out)
+    }
+    
     # Close the browser window
     @browser.close
+    
   end
   
   def test_create_groups
@@ -51,14 +58,19 @@ class TestGroups < Test::Unit::TestCase
     group = site_editor.manage_groups
     
     # This test case creates 2 groups
-    2.times do
+    2.times do |x|
       
       #Create a New Group
       new_group = group.create_new_group
       
       # Make a random title for the group
+      
       group_title = random_string(84) + " - " + Time.now.strftime("%Y%m%d%H%M")
+      
       new_group.title=group_title
+      
+      # Store the title in the config.yml file
+      @config.directory["site1"]["group#{x}"] = group_title
       
       # Get contents of the Site Member Select list
       # and put those contents into an array
@@ -71,9 +83,9 @@ class TestGroups < Test::Unit::TestCase
       num = rand(members.length)
       
       # Add num Site Members to the new group
-      num.times do |x|
+      num.times do |z|
         # Select the random Site Member
-        new_group.site_member_list=members[x].text
+        new_group.site_member_list=members[z].text
       end
       
       # Click the "right" button to move the name

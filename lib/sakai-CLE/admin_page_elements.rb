@@ -252,15 +252,19 @@ class Sites
   include PageObject
   include ToolsMenu
   
-  # A method to click the first site Id link
+  # Clicks the first site Id link
   # listed. Useful when you've run a search and
-  # you're certain you've got the result you want
+  # you're certain you've got the result you want.
+  # It then instantiates the EditSiteInfo page class.
   def click_top_item
     frm.link(:href, /#{Regexp.escape("&panel=Main&sakai_action=doEdit")}/).click
     EditSiteInfo.new(@browser)
   end
   
-  # Use this method when you know the target site ID
+  # Clicks the specified Site in the list, using the
+  # specified id value to determine which item to click.
+  # It then instantiates the EditSiteInfo page class.
+  # Use this method when you know the target site ID.
   def edit_site_id(id)
     frm.text_field(:id=>"search_site").value=id
     frm.link(:text=>"Site ID").click
@@ -268,6 +272,8 @@ class Sites
     EditSiteInfo.new(@browser)
   end
   
+  # Clicks the New Site button, then instantiates
+  # the EditSiteInfo page class.
   def new_site
     frm.link(:text, "New Site").click
     EditSiteInfo.new(@browser)
@@ -300,35 +306,48 @@ class EditSiteInfo
   include PageObject
   include ToolsMenu
   
+  # Clicks the Remove Site button, then instantiates
+  # the RemoveSite page class.
   def remove_site
     frm.link(:text, "Remove Site").click
     RemoveSite.new(@browser)
   end
   
+  # Clicks the Save button, then instantiates the Sites
+  # page class.
   def save
     frm.button(:value=>"Save").click
     Sites.new(@browser)
   end
   
+  # Clicks the Save As link, then instantiates
+  # the SiteSaveAs page class.
   def save_as
     frm.link(:text, "Save As").click
     SiteSaveAs.new(@browser)
   end
   
+  # Gets the Site ID from the page.
   def site_id_read_only
     @browser.frame(:index=>0).table(:class=>"itemSummary").td(:class=>"shorttext", :index=>0).text
   end
   
-  # Method for adding text to the rich text editor
-  def add_description(text)
+  # Enters the specified text string in the text area of
+  # the FCKEditor.
+  def description=(text)
     @browser.frame(:index=>0).frame(:id, "description___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(text)
   end
   
+  # Clicks the Properties button on the page,
+  # then instantiates the AddEditSiteProperties
+  # page class.
   def properties
     frm.button(:value=>"Properties").click
     AddEditSiteProperties.new(@browser)
   end
   
+  # Clicks the Pages button, then instantiates
+  # the AddEditPages page class.
   def pages
     frm.button(:value=>"Pages").click
     AddEditPages.new(@browser)
@@ -354,6 +373,8 @@ class AddEditPages
   include PageObject
   include ToolsMenu
   
+  # Clicks the link for New Page, then
+  # instantiates the NewPage page class.
   def new_page
     frm.link(:text=>"New Page").click
     NewPage.new(@browser)
@@ -367,6 +388,8 @@ class NewPage
   include PageObject
   include ToolsMenu
   
+  # Clicks the Tools button, then instantiates
+  # the AddEditTools class.
   def tools
     frm.button(:value=>"Tools").click
     AddEditTools.new(@browser)
@@ -386,11 +409,15 @@ class AddEditTools
   include PageObject
   include ToolsMenu
   
+  # Clicks the New Tool link, then instantiates
+  # the NewTool class.
   def new_tool
     frm.link(:text=>"New Tool").click
     NewTool.new(@browser)
   end
   
+  # Clicks the Save button, then
+  # instantiates the AddEditPages class.
   def save
     frm.button(:value=>"Save").click
     AddEditPages.new(@browser)
@@ -404,6 +431,8 @@ class NewTool
   include PageObject
   include ToolsMenu
   
+  # Clicks the Done button, the instantiates
+  # The AddEditTools class.
   def done
     frm.button(:value=>"Done").click
     AddEditTools.new(@browser)
@@ -425,6 +454,8 @@ class RemoveSite
   include PageObject
   include ToolsMenu
   
+  # Clicks the Remove button, then
+  # instantiates the Sites class.
   def remove
     frm.button(:value=>"Remove").click
     Sites.new(@browser)
@@ -438,6 +469,8 @@ class SiteSaveAs
   include PageObject
   include ToolsMenu
   
+  # Clicks the Save button, then
+  # instantiates the Sites class.
   def save
     frm.button(:value, "Save").click
     Sites.new(@browser)
@@ -454,16 +487,21 @@ class AddEditSiteProperties
   include PageObject
   include ToolsMenu
   
+  # Clicks the New Property button
   def new_property
     frm.button(:value=>"New Property").click
     #Class.new(@browser)
   end
   
+  # Clicks the Done button, then instantiates
+  # the EditSiteInfo class.
   def done
     frm.button(:value=>"Done").click
     EditSiteInfo.new(@browser)
   end
   
+  # Clicks the Save button, then instantiates
+  # the Sites page class.
   def save
     frm.button(:value=>"Save").click
     Sites.new(@browser)
@@ -572,6 +610,8 @@ class SiteSetupEdit
   include PageObject
   include ToolsMenu
   
+  # Clicks the Edit Tools link, then
+  # instantiates the EditSiteTools class.
   def edit_tools
     frm.link(:text=>"Edit Tools").click
     EditSiteTools.new(@browser)
@@ -609,6 +649,8 @@ class EditSiteTools
   include PageObject
   include ToolsMenu
   
+  # Clicks the Continue button, then instantiates
+  # the appropriate class for the page that apears.
   def continue
     frm.button(:value=>"Continue").click
     # Logic for determining the new page class...
@@ -691,6 +733,8 @@ class ConfirmSiteToolsEdits
   include PageObject
   include ToolsMenu
   
+  # Clicks the Finish button, then instantiates
+  # the SiteSetupEdit class.
   def finish
     frm.button(:value=>"Finish").click
     SiteSetupEdit.new(@browser)
@@ -704,9 +748,9 @@ class SiteSetup
   include PageObject
   include ToolsMenu
   
-  # Method for clicking the "New" link on the Site Setup page.
+  # Clicks the "New" link on the Site Setup page.
+  # instantiates the SiteType class.
   def new
-    @browser.div(:id=>"siteTitle").text=="My Workspace" ? $frame_index = 0 : $frame_index = 1
     frm.div(:class=>"portletBody").link(:text=>"New").click
     SiteType.new(@browser)
   end
@@ -716,7 +760,6 @@ class SiteSetup
   # Then clicks the Edit button and instantiates
   # The SiteSetupEdit class.
   def edit(site_name)
-    @browser.div(:id=>"siteTitle").text=="My Workspace" ? $frame_index = 0 : $frame_index = 1
     frm.text_field(:id, "search").value=Regexp.escape(site_name)
     frm.button(:value=>"Search").click
     frm.div(:class=>"portletBody").checkbox(:name=>"selectedMembers").set
@@ -724,15 +767,19 @@ class SiteSetup
     SiteSetupEdit.new(@browser)
   end
 
+  # Enters the specified site name string in the search
+  # field, clicks the Search button, then reinstantiates
+  # the Class due to the page refresh.
   def search(site_name)
-    @browser.div(:id=>"siteTitle").text=="My Workspace" ? $frame_index = 0 : $frame_index = 1
     frm.text_field(:id, "search").set site_name
     frm.button(:value, "Search").click
     SiteSetup.new(@browser)
   end
 
+  # Searches for the specified site, then
+  # checks the site, clicks the delete button,
+  # and instantiates the DeleteSite class.
   def delete(site_name)
-    @browser.div(:id=>"siteTitle").text=="My Workspace" ? $frame_index = 0 : $frame_index = 1
     frm.text_field(:id, "Search").value=site_name
     frm.button(:value=>"Search").click
     frm.checkbox(:name=>"selectedMembers").set
@@ -740,8 +787,9 @@ class SiteSetup
     DeleteSite.new(@browser)
   end
   
+  # Returns an Array object containing strings of
+  # all Site titles displayed on the web page.
   def site_titles
-    @browser.div(:id=>"siteTitle").text=="My Workspace" ? $frame_index = 0 : $frame_index = 1
     titles = []
     sites_table = frm.table(:id=>"siteList")
     1.upto(sites_table.rows.size-1) do |x|
@@ -769,11 +817,15 @@ class DeleteSite
   include PageObject
   include ToolsMenu
   
+  # Clicks the Remove button, then instantiates
+  # the SiteSetup class.
   def remove
     frm.button(:value=>"Remove").click
     SiteSetup.new(@browser)
   end
   
+  # Clicks the Cancel button, then instantiates
+  # the SiteSetup class.
   def cancel
     frm.button(:value=>"Cancel").click
     SiteSetup.new(@browser)
@@ -843,6 +895,9 @@ class AddMultipleTools
   include PageObject
   include ToolsMenu
   
+  # Clicks the Continue button, then instantiates
+  # the appropriate Class, based on the page that
+  # appears.
   def continue
     frm.button(:value=>"Continue").click
     # Logic to determine the new page class
@@ -887,14 +942,15 @@ class CourseSectionInfo
   include PageObject
   include ToolsMenu
   
+  # Clicks the Continue button, then instantiates
+  # the CourseSiteInfo Class.
   def continue
     frm.button(:value=>"Continue").click
     CourseSiteInfo.new(@browser)
   end
   
-  # The Done button appears in certain contexts.
-  # use this method ONLY if the Done button is
-  # present on the page.
+  # Clicks the Done button, then instantiates
+  # the SiteSetup Class.
   def done
     frm.button(:value=>"Done").click
     SiteSetup.new(@browser)
@@ -929,6 +985,8 @@ class CourseSiteAccess
   include PageObject
   include ToolsMenu
   
+  # Clicks the Continue button, then
+  # instantiates the ConfirmCourseSiteSetup class.
   def continue
     frm.button(:value=>"Continue").click
     ConfirmCourseSiteSetup.new(@browser)
@@ -952,6 +1010,8 @@ class ConfirmCourseSiteSetup
   include PageObject
   include ToolsMenu
   
+  # Clicks the Request Site button, then
+  # instantiates the SiteSetup Class.
   def request_site
     frm.button(:value=>"Request Site").click
     SiteSetup.new(@browser)
@@ -966,17 +1026,18 @@ class CourseSiteInfo
   include PageObject
   include ToolsMenu
   
+  # Clicks the Continue button, then
+  # instantiates the EditSiteTools Class.
   def continue
     frm.button(:value=>"Continue").click
     EditSiteTools.new(@browser)
   end
   
+  # Gets the text contained in the alert box
+  # on the web page.
   def alert_box_text
     frm.div(:class=>"portletBody").div(:class=>"alertMessage").text
   end
-  
-  # The WYSIWYG FCKEditor on this page will have to be
-  # set up carefully, but later. The time for doing this is TBD.
   
   in_frame(:index=>0) do |frame|
     text_field(:short_description, :id=>"short_description", :frame=>frame)
@@ -1010,8 +1071,6 @@ class EditAccount
     button(:cancel_changes, :name=>"eventSubmit_doCancel", :frame=>frame)
   end
   
-  # Need to add definitions of read-only text fields here.
-
 end
 
 # A Non-Admin User's Account page
@@ -1032,46 +1091,58 @@ class UserAccount
     @browser = browser
   end
 
+  # Clicks the Modify Details button.
   def modify_details
     @browser.frame(:index=>0).button(:name=>"eventSubmit_doModify").click
   end
   
+  # Gets the text of the User ID field.
   def user_id
     @browser.frame(:index=>0).table(:class=>"itemSummary", :index=>0)[0][1].text
   end
   
+  # Gets the text of the First Name field.
   def first_name
     @browser.frame(:index=>0).table(:class=>"itemSummary", :index=>0)[1][1].text
   end
   
+  # Gets the text of the Last Name field.
   def last_name
     @browser.frame(:index=>0).table(:class=>"itemSummary", :index=>0)[2][1].text
   end
   
+  # Gets the text of the Email field.
   def email
     @browser.frame(:index=>0).table(:class=>"itemSummary", :index=>0)[3][1].text
   end
   
+  # Gets the text of the Type field.
   def type
     @browser.frame(:index=>0).table(:class=>"itemSummary", :index=>0)[4][1].text
   end
   
+  # Gets the text of the Created By field.
   def created_by
     @browser.frame(:index=>0).table(:class=>"itemSummary", :index=>1)[0][1].text
   end
   
+  # Gets the text of the Created field.
   def created
     @browser.frame(:index=>0).table(:class=>"itemSummary", :index=>1)[1][1].text
   end
   
+  # Gets the text of the Modified By field.
   def modified_by
     @browser.frame(:index=>0).table(:class=>"itemSummary", :index=>1)[2][1].text
   end
   
+  # Gets the text of the Modified (date) field.
   def modified
     @browser.frame(:index=>0).table(:class=>"itemSummary", :index=>1)[3][1].text
   end
   
+  # Clicks the Home buton in the left menu.
+  # instantiates the Home Class.
   def home
     @browser.link(:text, "Home").click
     Home.new(@browser)
@@ -1100,8 +1171,6 @@ class EditUser
     button(:cancel_changes, :name=>"eventSubmit_doCancel", :frame=>frame)
   end
   
-  # Need to add definitions of read-only text fields here.
-
 end
 
 # The Users page - "icon-sakai-users"
@@ -1188,6 +1257,8 @@ class JobScheduler
   include PageObject
   include ToolsMenu
   
+  # Clicks the Jobs link, then instantiates
+  # the JobList Class.
   def jobs
     frm.link(:text=>"Jobs").click
     JobList.new(@browser)
@@ -1201,11 +1272,15 @@ class JobList
   include PageObject
   include ToolsMenu
   
+  # Clicks the New Job link, then
+  # instantiates the CreateNewJob Class.
   def new_job
     frm.link(:text=>"New Job").click
     CreateNewJob.new(@browser)
   end
   
+  # Clicks the link with the text "Triggers(0)"
+  # then instantiates the EditTriggers Class.
   def triggers
     frm.link(:text=>"Triggers(0)").click
     EditTriggers.new(@browser)
@@ -1219,6 +1294,8 @@ class CreateNewJob
   include PageObject
   include ToolsMenu
   
+  # Clicks the Post button, then
+  # instantiates the JobList Class.
   def post
     frm.button(:value=>"Post").click
     JobList.new(@browser)
@@ -1236,6 +1313,8 @@ class EditTriggers
   include PageObject
   include ToolsMenu
   
+  # Clicks the "Jobs" link, then
+  # instantiates the RunJobConfirmation Class.
   def run_job_now
     frm.div(:class=>"portletBody").link(:text=>"Jobs").click
     RunJobConfirmation.new(@browser)
@@ -1252,6 +1331,8 @@ class RunJobConfirmation
   include PageObject
   include ToolsMenu
   
+  # Clicks the "Run Now" button, then
+  # instantiates the JobList Class.
   def run_now
     frm.button(:value=>"Run Now").click
     JobList.new(@browser)
