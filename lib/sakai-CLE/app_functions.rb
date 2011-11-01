@@ -101,6 +101,7 @@ module ToolsMenu
   # instantiates the MyWorkspace class.
   def administration_workspace
     @browser.link(:text, "Administration Workspace").click
+    $frame_index=1
     MyWorkspace.new(@browser)
   end
   
@@ -185,6 +186,7 @@ module ToolsMenu
   # instantiates the Job Scheduler class.
   def job_scheduler
     @browser.link(:text=>"Job Scheduler").click
+    $frame_index=0
     JobScheduler.new(@browser)
   end
   

@@ -1347,11 +1347,17 @@ class JobList
     CreateNewJob.new(@browser)
   end
   
-  # Clicks the link with the text "Triggers(0)"
+  # Clicks the link with the text "Triggers" associated with the
+  # specified job name, 
   # then instantiates the EditTriggers Class.
-  def triggers
-    frm.link(:text=>"Triggers(0)").click
+  def triggers(job_name)
+    frm.table(:class=>"listHier lines").row(:text=>/#{Regexp.escape(job_name)}/).link(:text=>/Triggers/).click
     EditTriggers.new(@browser)
+  end
+  
+  def event_log
+    frm.link(:text=>"Event Log").click
+    EventLog.new(@browser)
   end
   
 end
@@ -1388,10 +1394,35 @@ class EditTriggers
     RunJobConfirmation.new(@browser)
   end
   
+  def return_to_jobs
+    frm.link(:text=>"Return_to_Jobs").click
+    JobList.new(@browser)
+  end
+  
+  def new_trigger
+    frm.link(:text=>"New Trigger").click
+    CreateTrigger.new(@browser)
+  end
+
+end
+
+# The Create Trigger page
+class CreateTrigger
+  
+  include PageObject
+  include ToolsMenu
+  
+  def post
+    frm.button(:value=>"Post").click
+    EditTriggers.new(@browser)
+  end
+
   in_frame(:index=>0) do |frame|
-    #(:, =>"", :frame=>frame)
+    text_field(:name, :id=>"_id2:trigger_name", :frame=>frame)
+    text_field(:cron_expression, :id=>"_id2:trigger_expression", :frame=>frame)
   end
 end
+
 
 # The page for confirming you want to run a job
 class RunJobConfirmation
@@ -1409,4 +1440,12 @@ class RunJobConfirmation
   in_frame(:index=>0) do |frame|
     #(:, =>"", :frame=>frame)
   end
+end
+
+# The page containing the Event Log
+class EventLog
+  
+  include PageObject
+  include ToolsMenu
+
 end

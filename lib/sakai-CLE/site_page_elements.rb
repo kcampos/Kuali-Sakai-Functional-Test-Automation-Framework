@@ -1080,6 +1080,10 @@ class AssignmentAdd
     checkbox(:add_due_date, :id=>"new_assignment_check_add_due_date", :frame=>frame)
     checkbox(:add_open_announcement, :id=>"new_assignment_check_auto_announce", :frame=>frame)
     checkbox(:add_honor_pledge, :id=>"new_assignment_check_add_honor_pledge", :frame=>frame)
+    
+    checkbox(:use_turnitin, :id=>"new_assignment_use_review_service", :frame=>frame)
+    checkbox(:allow_students_to_view_report, :id=>"new_assignment_allow_student_view", :frame=>frame)
+    
     radio_button(:do_not_add_to_gradebook, :id=>"no",:name=>"new_assignment_add_to_gradebook", :frame=>frame)
     radio_button(:add_to_gradebook, :id=>"add", :name=>"new_assignment_add_to_gradebook", :frame=>frame)
     radio_button(:do_not_send_notifications, :id=>"notsendnotif", :frame=>frame)
