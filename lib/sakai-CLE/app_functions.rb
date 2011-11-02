@@ -82,12 +82,12 @@ module ToolsMenu
   end
   
   # Clicks the "Account" link in the Adminstration Workspace
-  # then instantiates the Account class.
+  # then instantiates the UserAccount class.
   #
   # Throws an error if the link is not present.
   def account
     @browser.link(:text=>"Account").click
-    Account.new(@browser)
+    UserAccount.new(@browser)
   end
   
   # Clicks the "Aliases" link in the Administration Workspace
