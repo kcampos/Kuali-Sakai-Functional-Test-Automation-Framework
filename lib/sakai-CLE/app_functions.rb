@@ -122,6 +122,13 @@ module ToolsMenu
   link(:basic_lti, :text=>"Basic LTI")
   link(:blogs, :text=>"Blogs")
   
+  # Clicks the Blogger link in the Site menu and
+  # instantiates the Blogger Class.
+  def blogger
+    @browser.link(:class=>"icon-blogger").click
+    Blogger.new(@browser)
+  end
+  
   # Clicks the Calendar link, then instantiates
   # the Calendar class.
   def calendar
