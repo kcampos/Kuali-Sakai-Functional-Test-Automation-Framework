@@ -27,6 +27,19 @@ class AddPublicResources < Test::Unit::TestCase
     @site_id = @config.directory['site1']['id']
     @sakai = SakaiCLE.new(@browser)
     
+    # Test case variables...
+    @files_1 = [
+    "documents/accomplishment.xsd",
+    "images/flower01.jpg",
+    "presentations/resources.ppt",
+    "audio/resources.mp3",
+    "images/resources.JPG"
+    ]
+    @files_2 = [
+    "documents/sample.pdf",
+    "images/flower02.jpg"
+    ]
+    
   end
   
   def teardown
@@ -48,15 +61,8 @@ class AddPublicResources < Test::Unit::TestCase
     # Upload files
     upload_files = resources.upload_files_to_folder("#{@site_name} Resources")
     
-    files_1 = [
-    "documents/accomplishment.xsd",
-    "images/flower01.jpg",
-    "presentations/resources.ppt",
-    "audio/resources.mp3",
-    "images/resources.JPG"
-    ]
     filenames_1 = []
-    files_1.each do |file|
+    @files_1.each do |file|
       file =~ /(?<=\/).+/
       filenames_1 << $~.to_s
       upload_files.file_to_upload=file
@@ -97,12 +103,8 @@ class AddPublicResources < Test::Unit::TestCase
     # Upload files to the folder
     resources.upload_files_to_folder("Folder 1")
     
-    files_2 = [
-      "documents/sample.pdf",
-      "images/flower02.jpg"
-    ]
     filenames_2 = []
-    files_2.each do |file|
+    @files_2.each do |file|
       file =~ /(?<=\/).+/
       filenames_2 << $~.to_s
       upload_files.file_to_upload=file
