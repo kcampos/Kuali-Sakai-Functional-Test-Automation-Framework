@@ -1948,6 +1948,198 @@ end
 
 
 #================
+# Blogger Pages
+#================
+
+# The top page of a Site's Blogger feature.
+class Blogger
+  
+  include PageObject
+  include ToolsMenu
+  
+  def view_all
+    frm.link(:text=>"View all").click
+    Blogger.new(@browser)
+  end
+  
+  def view_members_blog
+    frm.link(:text=>"View member's blog").click
+    ViewMembersBlog.new(@browser)
+  end
+  
+  def post_private?(post_title)
+    frm.table(:class=>"tableHeader").row(:text=>/#{Regexp.escape(post_title)}/).image(:alt=>"p").exist?
+  end
+  
+  def create_new_post
+    frm.link(:text=>"Create new post").click
+    CreateBloggerPost.new(@browser)
+  end
+
+  def open_post(post_title)
+    frm.link(:text=>post_title).click
+    ViewBloggerPost.new(@browser)
+  end
+
+  # Returns an array containing the displayed post titles (as string objects)
+  def post_titles
+    titles = []
+    if frm.table(:class=>"tableHeader").exist?
+      table = frm.table(:class=>"tableHeader")
+      table.rows.each do |row|
+        if row.link(:class=>"aTitleHeader").exist?
+          titles << row.link(:class=>"aTitleHeader").text
+        end
+      end
+    end
+    return titles
+  end
+
+  in_frame(:index=>1) do |frame|
+    text_field(:search_field, :id=>"_id1:idSearch", :frame=>frame)
+    checkbox(:show_comments, :id=>"_id1:showComments", :frame=>frame)
+    checkbox(:show_full_content, :id=>"_id1:showFullContent", :frame=>frame)
+  end
+end
+
+#
+class ViewMembersBlog
+  
+  include PageObject
+  include ToolsMenu
+  
+  # Clicks on the member name specified.
+  # The name string obviously needs to match the
+  # text of the link exactly.
+  def member(name)
+    frm.link(:text=>name).click
+    Blogger.new(@browser)
+  end
+
+end
+
+
+# 
+class CreateBloggerPost
+  
+  include PageObject
+  include ToolsMenu
+
+  def abstract=(text)
+    frm.frame(:id, "PostForm:shortTextBox_inputRichText___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(text)
+  end
+
+  def text=(text)
+    frm().frame(:id, "PostForm:tab0:main_text_inputRichText___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(text)
+  end
+
+  # Clicks the Add to document button in the text
+  # tab. 
+  def add_text_to_document
+    frm.div(:id=>"PostForm:tab0").button(:value=>"Add to document").click
+  end
+
+  def add_image_to_document
+    frm.div(:id=>"PostForm:tab1").button(:value=>"Add to document").click
+  end
+  
+  def add_link_to_document
+    frm.div(:id=>"PostForm:tab2").button(:value=>"Add to document").click
+  end
+  
+  def add_file_to_document
+    frm.div(:id=>"PostForm:tab3").button(:value=>"Add to document").click
+  end
+  
+  # Enters the specified filename in the file field.
+  #
+  # Note that the file should be inside the data/sakai-cle folder.
+  # The file or folder name used for the filename variable
+  # should not include a preceding / character.
+  def image_file=(filename)
+    frm.file_field(:name=>"PostForm:tab1:_id29").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + filename)
+  end
+  
+  def file_field=(filename)
+    frm().file_field(:name=>"PostForm:tab3:_id51").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + filename)
+  end
+  
+  def preview
+    frm().button(:value=>"Preview").click
+    PreviewBloggerPost.new(@browser)
+  end
+
+  def save
+    frm.button(:value=>"Save").click
+    Blogger.new(@browser)
+  end
+
+  in_frame(:index=>1) do |frame|
+    text_field(:title, :id=>"PostForm:idTitle", :frame=>frame)
+    text_field(:keywords, :id=>"PostForm:keyWords", :frame=>frame)
+    select_list(:access, :id=>"PostForm:selectVisibility", :frame=>frame)
+    checkbox(:read_only, :id=>"PostForm:readOnlyCheckBox", :frame=>frame)
+    checkbox(:allow_comments, :id=>"PostForm:allowCommentsCheckBox", :frame=>frame)
+    button(:text, :value=>"Text", :frame=>frame)
+    button(:images, :value=>"Images", :frame=>frame)
+    button(:links, :value=>"Links", :frame=>frame)
+    text_field(:description, :id=>"PostForm:tab2:idLinkDescription", :frame=>frame)
+    text_field(:url, :id=>"PostForm:tab2:idLinkExpression", :frame=>frame)
+    button(:files, :value=>"Files", :frame=>frame)
+    
+  end
+end
+
+# 
+class PreviewBloggerPost
+  
+  include PageObject
+  include ToolsMenu
+  
+  def back
+    frm().button(:value=>"Back").click
+    CreateBloggerPost.new(@browser)
+  end
+  
+  def save
+    frm.button(:value=>"Save").click
+    CreateBloggerPost.new(@browser)
+  end
+
+end
+
+#
+class ViewBloggerPost
+  
+  include PageObject
+  include ToolsMenu
+  
+  def add_comment
+    frm.button(:value=>"Add comment").click
+    AddBloggerComment.new(@browser)
+  end
+
+end
+
+# 
+class AddBloggerComment
+  
+  include PageObject
+  include ToolsMenu
+  
+  def save
+    frm.button(:value=>"Save").click
+    ViewBloggerPost.new(@browser)
+  end
+  
+  def your_comment=(text)
+    frm.frame(:id, "_id1:_id11_inputRichText___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(text)
+  end
+
+end
+
+
+#================
 # Discussion Forums Pages
 #================
 
@@ -2334,11 +2526,15 @@ class NewPrivateMessage
   include ToolsMenu
   include JForumsResources
 
+  # Enters text into the FCKEditor text area, after
+  # going to the beginning of any existing text in the field.
   def message_body=(text)
     frm.frame(:id, "message___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(:home)
     frm.frame(:id, "message___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(text)
   end
   
+  # Clicks the Submit button, then
+  # instantiates the Information Class.
   def submit
     frm.button(:value=>"Submit").click
     Information.new(@browser)
@@ -2388,21 +2584,28 @@ end
 # Forms Pages - Portfolio Site
 #================
 
+# The topmost page of Forms in a Portfolio Site.
 class Forms
   
   include PageObject
   include ToolsMenu
   
+  # Clicks the Add button and instantiates
+  # the AddForm Class.
   def add
     frm.link(:text=>"Add").click
     AddForm.new(@browser)
   end
   
+  # Clicks the Publish buton for the specified
+  # Form, then instantiates the PublishForm Class.
   def publish(form_name)
     frm.table(:class=>"listHier lines nolines").tr(:text, /#{Regexp.escape(form_name)}/).link(:text=>"Publish").click
     PublishForm.new(@browser)
   end
 
+  # Clicks the Import button, then
+  # instantiates the ImportForms Class.
   def import
     frm.link(:text=>"Import").click
     ImportForms.new(@browser)
