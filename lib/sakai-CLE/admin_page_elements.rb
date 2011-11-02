@@ -1120,7 +1120,7 @@ end
 
 
 #================
-# User's Account Page - "My Settings"
+# User's Account Page - in "My Settings"
 #================
 
 # The Page for editing User Account details
@@ -1129,14 +1129,25 @@ class EditAccount
   include PageObject
   include ToolsMenu
   
+  # Clicks the update details button then
+  # makes sure there isn't any error message present.
+  # If there is, it reinstantiates the Edit Account Class,
+  # otherwise it instantiates the UserAccount Class.
+  def update_details
+    frm.button(:value=>"Update Details").click
+    if frm.div(:class=>"alertMessage").exist?
+      EditAccount.new(@browser)
+    else
+      UserAccount.new(@browser)
+    end
+  end
+  
   in_frame(:index=>0) do |frame|
     text_field(:first_name, :id=>"first-name", :frame=>frame)
     text_field(:last_name, :id=>"last-name", :frame=>frame)
     text_field(:email, :id=>"email", :frame=>frame)
     text_field(:create_new_password, :id=>"pw", :frame=>frame)
     text_field(:verify_new_password, :id=>"pw0", :frame=>frame)
-    button(:update_details, :name=>"eventSubmit_doSave", :frame=>frame)
-    button(:cancel_changes, :name=>"eventSubmit_doCancel", :frame=>frame)
   end
   
 end
@@ -1159,9 +1170,10 @@ class UserAccount
     @browser = browser
   end
 
-  # Clicks the Modify Details button.
+  # Clicks the Modify Details button. Instantiates the EditAccount class.
   def modify_details
     @browser.frame(:index=>0).button(:name=>"eventSubmit_doModify").click
+    EditAccount.new(@browser)
   end
   
   # Gets the text of the User ID field.
