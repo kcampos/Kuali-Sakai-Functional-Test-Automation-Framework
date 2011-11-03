@@ -22,13 +22,96 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     # This test case uses the logins of several users
     @instructor = @config.directory['person3']['id']
     @ipassword = @config.directory['person3']['password']
+    @instructor_name = @config.directory['person3']['lastname'] + ", " + @config.directory['person3']['firstname']
     @instructor2 = @config.directory['person4']['id']
     @ipassword2 = @config.directory['person4']['password']
+    @instructor2_name = @config.directory['person4']['lastname'] + ", " + @config.directory['person4']['firstname']
     @student = @config.directory["person1"]["id"]
     @spassword = @config.directory["person1"]["password"]
     @site_name = @config.directory['site1']['name']
     @site_id = @config.directory['site1']['id']
     @sakai = SakaiCLE.new(@browser)
+    
+    # Test case variables
+    @files = [
+      "documents/evaluation.xsd",
+      "documents/feedback.xsd",
+      "documents/genEducation.xsd",
+      "documents/reflection.xsd",
+    ]
+    @folder_name = "data"
+    @portfolio_site = "Portfolio Site"
+    @schema = [ get_filename(@files[0]), get_filename(@files[1]), get_filename(@files[2]), get_filename(@files[3]) ]
+    @form_names = ["Evaluation", "Feedback for Matrix", "General Education Evidence", "Reflection for Matrix" ]
+    @form_instructions = [
+      "Use the Display Name to identify the purpose of your evaluation.",
+      "Use the Display name to identify the purpose of your feedback.",
+      "Use the Display Name to identify the specific evidence associated with this cell that you will document with this instance of the General Education Evidence form. Use the other fields in this form to provide information about your evidence to assist the viewer in understanding its context, why you choose it, and your own evaluation of it.",
+      "Reflect upon the evidence you have added to this matrix cell by responding to the following questions."
+    ]
+    @style_file = "documents/wacky2.css"
+    @style_filename = get_filename(@style_file)
+    @style_name = "Wacky Style"
+    @style_description = "Style for general use."
+    @matrix_name = "General Education "
+    @column_names = [
+      "Level 1",
+      "Level 2",
+      "Level 3"
+    ]
+    @row_names = [
+    "Written Communication",
+    "Critical Thinking",
+    "Information Retrieval and Technology",
+    "Quantitative Reasoning",
+    "Oral Communication",
+    "Understanding Self and Community"
+    ]
+    @font_color = "#000001"
+    @background_colors = [ "#B0E65A","#BDD676","#D3E195","#E3F29F","#F0FFA9","#ECFFD3"]
+    @glossary_terms = [
+      "Critical Thinking",
+      "Information Retrieval and Technology",
+      "Level 1",
+      "Level 2",
+      "Level 3",
+      "Oral Communication",
+      "Quantitative Reasoning",
+      "Understanding Self and Community",
+      "Written Communication"
+    ]
+    @glossary_short_descriptions = [
+      "Critical thinking, an analytical and creative process, is essential to every content area and discipline. It is an integral part of information retrieval and technology, oral communication, quantitative reasoning, and written communication.",
+      "Information retrieval and technology are integral parts of every content area and discipline.",
+      "Contribute at least two examples of coursework from a completed, required foundation course, and define and discuss the relevance of your works to at least one of the standards that are listed in the glossary for this cell.",
+      "Contribute at least two examples of coursework from two or more additional, completed courses, and define and discuss the relevance of your works to at least three of the standards that are listed in glossary for this cell.",
+      "Contribute at least four works from your courses, and define and discuss the relevance of your works to all the standards that are listed in the glossary for this cell.",
+      "Oral communication is an integral part of every content area and discipline.",
+      "Quantitative reasoning can have applications in all content areas and disciplines.",
+      "This institution emphasizes an understanding of one's self and one's relationship to the community, the region, and the world.",
+      "Written communication is an integral part of every content area and discipline."
+    ]
+    @glossary_long_descriptions = [
+      "Critical thinking, an analytical and creative process, is essential to every content area and discipline. It is an integral part of information retrieval and technology, oral communication, quantitative reasoning, and written communication. \n1. Identify and state problems, issues, arguments, and questions contained in a body of information. \n2. Identify and analyze assumptions and underlying points of view relating to an issue or problem. \n3. Formulate research questions that require descriptive and explanatory analyses. \n4. Recognize and understand multiple modes of inquiry, including investigative methods based on observation and analysis. \n5. Evaluate a problem, distinguishing between relevant and irrelevant facts, opinions, assumptions, issues, values, and biases through the use of appropriate evidence. \n6. Apply problem-solving techniques and skills, including the rules of logic and logical sequence.\n7. Synthesize information from various sources, drawing appropriate conclusions. \n8. Communicate clearly and concisely the methods and results of logical reasoning. \n9. Reflect upon and evaluate their thought processes, value systems, and world views in comparison to those of others.",
+      "Information retrieval and technology are integral parts of every content area and discipline. \n1. Use print and electronic information technology ethically and responsibly. \n2. Demonstrate knowledge of basic vocabulary, concepts, and operations of information retrieval and technology. \n3. Recognize, identify, and define an information need. \n4. Access and retrieve information through print and electronic media, evaluating the accuracy and authenticity of that information. \n5. Create, manage, organize, and communicate information through electronic media. \n6. Recognize changing technologies and make informed choices about their appropriateness and use.",
+      "Contribute at least two examples of coursework from a completed, required foundation course, and define and discuss the relevance of your works to at least one of the standards that are listed in the glossary for this cell.",
+      "Contribute at least two examples of coursework from two or more additional, completed courses, and define and discuss the relevance of your works to at least three of the standards that are listed in glossary for this cell.",
+      "Contribute at least four works from your courses, and define and discuss the relevance of your works to all the standards that are listed in the glossary for this cell.",
+      "Oral communication is an integral part of every content area and discipline. \n1. Identify and analyze the audience and purpose of any intended communication. \n2. Gather, evaluate, select, and organize information for the communication. \n3. Use language, techniques, and strategies appropriate to the audience and occasion. \n4. Speak clearly and confidently, using the voice, volume, tone, and articulation appropriate to the audience and occasion. \n5. Summarize, analyze, and evaluate oral communications and ask coherent questions as needed.\n6. Use competent oral expression to initiate and sustain discussions.",
+      "Quantitative reasoning can have applications in all content areas and disciplines. \n1. Apply numeric, graphic, and symbolic skills and other forms of quantitative reasoning accurately and appropriately. \n2. Demonstrate mastery of mathematical concepts, skills, and applications, using technology when appropriate. \n3. Communicate clearly and concisely the methods and results of quantitative problem solving.\n4. Formulate and test hypotheses using numerical experimentation. \n5. Define quantitative issues and problems, gather relevant information, analyze that information, and present results. \n6. Assess the validity of statistical conclusions.",
+      "This institution emphasizes an understanding of one's self and one's relationship to the community, the region, and the world. \n1. Demonstrate an awareness of the relationship between the environment and one's own fundamental physiological and psychological processes. \n2. Examine critically and appreciate the values and beliefs of one's own culture and those of other cultures separated in time or space from one's own. \n3. Communicate effectively and acknowledge opposing viewpoints. \n4. Use the study of a second language as a window to cultural understanding. \n5. Demonstrate an understanding of ethical, civic and social issues relevant to Hawai'i's and the world's past, present and future.",
+      "Written communication is an integral part of every content area and discipline. Use writing to discover and articulate ideas. \n1. Identify and analyze the audience and purpose for any intended communication. \n2. Choose language, style, and organization appropriate to particular purposes and audiences. \n3. Gather information and document sources appropriately. \n4. Express a main idea as a thesis, hypothesis, or other appropriate statement. \n5. Develop a main idea clearly and concisely with appropriate content. \n6. Demonstrate mastery of the conventions of writing, including grammar, spelling, and mechanics. \n7. Demonstrate proficiency in revision and editing. \n8. Develop a personal voice in written communication."
+    ]
+    @files_to_upload = ["images/banner.gif", "documents/GenEdscript.js", "documents/GenEdmatrixpres.xsl",
+                       "documents/GenEdstyle.css", "zips/Contact Information (Site Two) Form.zip",
+                       "zips/Portfolio Properties (Site Two) Form.zip" ]
+    @form_zips = [
+      get_filename(@files_to_upload[4]),
+      get_filename(@files_to_upload[5])
+    ]
+    @form_names = [ "Contact Information (#{@portfolio_site})", "Portfolio Properties (#{@portfolio_site})" ]
+    @template_name = "General Education Matrix Template"
+    @template_description = "Use this template to build a presentation of the works and reflections you have provided for a selected level of the General Education assessment matrix."
     
   end
   
@@ -46,20 +129,13 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
 
     # Add Files to Repository...
     create_folder = resources.create_subfolders_in "My Workspace"
-    create_folder.folder_name="data"
+    create_folder.folder_name=@folder_name
     
     resources = create_folder.create_folders_now
 
-    files = [
-      "documents/evaluation.xsd",
-      "documents/feedback.xsd",
-      "documents/genEducation.xsd",
-      "documents/reflection.xsd",
-    ]
+    resources = resources.upload_multiple_files_to_folder(@folder_name, @files)
 
-    resources = resources.upload_multiple_files_to_folder("data", files)
-
-    home = resources.open_my_site_by_name "Portfolio Site"
+    home = resources.open_my_site_by_name @portfolio_site
 
     # Build four Matrix Forms...
     forms = home.forms
@@ -71,12 +147,12 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     select_schema = select_schema.show_other_sites
     
     select_schema = select_schema.open_folder "My Workspace"
-    select_schema = select_schema.open_folder "data"
-    select_schema = select_schema.select_file "evaluation.xsd"
+    select_schema = select_schema.open_folder @folder_name
+    select_schema = select_schema.select_file @schema[0]
     
     add_form = select_schema.continue
-    add_form.name="Evaluation"
-    add_form.instruction="Use the Display Name to identify the purpose of your evaluation."
+    add_form.name=@form_names[0]
+    add_form.instruction=@form_instructions[0]
     
     forms = add_form.add_form
     
@@ -85,12 +161,12 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     schema = add_form2.select_schema_file
     schema = schema.show_other_sites
     schema = schema.open_folder "My Workspace"
-    schema = schema.open_folder "data"
-    schema = schema.select_file "genEducation.xsd"
+    schema = schema.open_folder @folder_name
+    schema = schema.select_file @schema[2]
     
     add_form2 = schema.continue
-    add_form2.name="General Education Evidence"
-    add_form2.instruction="Use the Display Name to identify the specific evidence associated with this cell that you will document with this instance of the General Education Evidence form. Use the other fields in this form to provide information about your evidence to assist the viewer in understanding its context, why you choose it, and your own evaluation of it."
+    add_form2.name=@form_names[2]
+    add_form2.instruction=@form_instructions[2]
     
     forms = add_form2.add_form
     
@@ -99,12 +175,12 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     schema = add_form3.select_schema_file
     schema = schema.show_other_sites
     schema = schema.open_folder "My Workspace"
-    schema = schema.open_folder "data"
-    schema = schema.select_file "feedback.xsd"
+    schema = schema.open_folder @folder_name
+    schema = schema.select_file @schema[1]
     
     add_form3 = schema.continue
-    add_form3.name="Feedback for Matrix"
-    add_form3.instruction="Use the Display name to identify the purpose of your feedback."
+    add_form3.name=@form_names[1]
+    add_form3.instruction=@form_instructions[1]
     
     forms = add_form3.add_form
     
@@ -113,23 +189,23 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     schema = add_form4.select_schema_file
     schema = schema.show_other_sites
     schema = schema.open_folder "My Workspace"
-    schema = schema.open_folder "data"
-    schema = schema.select_file "reflection.xsd"
+    schema = schema.open_folder @folder_name
+    schema = schema.select_file @schema[3]
     
     add_form4 = schema.continue
-    add_form4.name="Reflection for Matrix"
-    add_form4.instruction="Reflect upon the evidence you have added to this matrix cell by responding to the following questions."
+    add_form4.name=@form_names[3]
+    add_form4.instruction=@form_instructions[3]
     
     forms = add_form4.add_form
 
     # Publish the four forms...
-    publish = forms.publish "Evaluation"
+    publish = forms.publish @form_names[0]
     forms = publish.yes
-    publish = forms.publish "General Education Evidence"
+    publish = forms.publish @form_names[1]
     forms = publish.yes
-    publish = forms.publish "Feedback for Matrix"
+    publish = forms.publish @form_names[2]
     forms = publish.yes
-    publish = forms.publish "Reflection for Matrix"
+    publish = forms.publish @form_names[3]
     forms = publish.yes
 
     styles = forms.styles
@@ -141,79 +217,79 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     attach = attach.show_other_sites
     attach.open_folder "My Workspace"
     
-    upload = attach.upload_files_to_folder "data"
-    upload.file_to_upload="documents/wacky2.css"
+    upload = attach.upload_files_to_folder @folder_name
+    upload.file_to_upload=@style_file
     
     attach = upload.upload_files_now
-    attach.open_folder "data"
-    attach.select_file "wacky2.css"
+    attach.open_folder @folder_name
+    attach.select_file @style_filename
 
     add_style = attach.continue
-    add_style.name="Wacky Style"
-    add_style.description="Style for general use."
+    add_style.name=@style_name
+    add_style.description=@style_description
     
     styles = add_style.add_style
 
     matrices = styles.matrices
 
     add_matrix = matrices.add
-    add_matrix.title="General Education"
+    add_matrix.title=@matrix_name
     
     select = add_matrix.select_style
     
-    add_matrix = select.select_style "Wacky Style"
+    add_matrix = select.select_style @style_name
     
     column1 = add_matrix.add_column
-    column1.name="Level 1"
+    column1.name=@column_names[0]
     add_matrix = column1.update
     
     column2 = add_matrix.add_column
-    column2.name="Level 2"
+    column2.name=@column_names[1]
     add_matrix = column2.update
     
     column3 = add_matrix.add_column
-    column3.name="Level 3"
+    column3.name=@column_names[2]
     add_matrix = column3.update
     
     row1 = add_matrix.add_row
-    row1.name="Written Communication"
-    row1.background_color="#B0E65A"
-    row1.font_color="#000000"
+    row1.name=@row_names[0]
+    row1.background_color=@background_colors[0]
+    row1.font_color=@font_color
     
     add_matrix = row1.update
     
     row2 = add_matrix.add_row
-    row2.name="Critical Thinking"
-    row2.background_color="#BDD676"
-    row2.font_color="#000000"
+    row2.name=@row_names[1]
+    row2.background_color=@background_colors[1]
+    row2.font_color=@font_color
     
     add_matrix = row2.update
 
     row3 = add_matrix.add_row
-    row3.name="Information Retrieval and Technology"
-    row3.background_color="#D3E195"
-    row3.font_color="#000000"
+    row3.name=@row_names[2]
+    row3.background_color=@background_colors[2]
+    row3.font_color=@font_color
     
     add_matrix = row3.update
     
     row4 = add_matrix.add_row
-    row4.name="Quantitative Reasoning"
-    row4.background_color="#E3F29F"
-    row4.font_color="#000000"
+    row4.name=@row_names[3]
+    row4.background_color=@background_colors[3]
+    row4.font_color=@font_color
     
     add_matrix = row4.update
     
     row5 = add_matrix.add_row
-    row5.name="Oral Communication"
-    row5.background_color="#F0FFA9"
-    row5.font_color="#000000"
+    row5.name=@row_names[4]
+    row5.background_color=@background_colors[4]
+    row5.font_color=@font_color
     
     add_matrix = row5.update
     
     row5 = add_matrix.add_row
-    row5.name="Understanding Self and Community"
-    row5.background_color="#ECFFD3"
-    row5.font_color="#000000"
+    row5.name=@row_names[5]
+    row5.background_color=@background_colors[5]
+    row5.font_color=@font_color
     
     add_matrix = row5.update
 
@@ -222,18 +298,18 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     edit = edit_cells.edit(1, 1)
     
     # TEST CASE: Verify the title is correct
-    assert_equal edit.title_element.value, "Row: Written Communication; Column: Level 1"
+    assert_equal edit.title_element.value, "Row: #{@row_names[0]}; Column: #{@column_names[0]}"
     
     edit.uncheck_use_default_reflection_form
-    edit.reflection=/Reflection for Matrix/
+    edit.reflection=/#{Regexp.escape(@form_names[3])}/
     edit.uncheck_use_default_feedback_form
-    edit.feedback=/Feedback for Matrix/
+    edit.feedback=/#{Regexp.escape(@form_names[1])}/
     edit.uncheck_use_default_evaluation_form
-    edit.evaluation=/Evaluation/
+    edit.evaluation=/#{Regexp.escape(@form_names[0])}/
     edit.uncheck_use_default_evaluators
     
     select_eval = edit.select_evaluators
-    select_eval.users="Instructor, Joe"
+    select_eval.users=@instructor_name
     select_eval.add_users
     
     edit = select_eval.save
@@ -243,20 +319,20 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     edit = edit_cells.edit(1, 2)
     
     # TEST CASE: Verify the title is correct
-    assert_equal edit.title_element.value, "Row: Written Communication; Column: Level 2"
+    assert_equal edit.title_element.value, "Row: #{@row_names[0]}; Column: #{@column_names[1]}"
     
     edit.uncheck_use_default_reflection_form
-    edit.reflection=/Reflection for Matrix/
+    edit.reflection=/#{Regexp.escape(@form_names[3])}/
     edit.uncheck_use_default_feedback_form
-    edit.feedback=/Feedback for Matrix/
+    edit.feedback=/#{Regexp.escape(@form_names[1])}/
     edit.uncheck_use_default_evaluation_form
-    edit.evaluation=/Evaluation/
+    edit.evaluation=/#{Regexp.escape(@form_names[0])}/
     edit.uncheck_use_default_evaluators
     
     select_eval = edit.select_evaluators
-    select_eval.users="Instructor, Joe"
+    select_eval.users=@instructor_name
     select_eval.add_users
-    select_eval.users="Instructor, Joanne"
+    select_eval.users=@instructor2_name
     select_eval.add_users
     
     edit = select_eval.save
@@ -266,18 +342,18 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     edit = edit_cells.edit(1, 3)
     
     # TEST CASE: Verify the title is correct
-    assert_equal edit.title_element.value, "Row: Written Communication; Column: Level 3"
+    assert_equal edit.title_element.value, "Row: #{@row_names[0]}; Column: #{@column_names[2]}"
     
     edit.uncheck_use_default_reflection_form
-    edit.reflection=/Reflection for Matrix/
+    edit.reflection=/#{Regexp.escape(@form_names[3])}/
     edit.uncheck_use_default_feedback_form
-    edit.feedback=/Feedback for Matrix/
+    edit.feedback=/#{Regexp.escape(@form_names[1])}/
     edit.uncheck_use_default_evaluation_form
-    edit.evaluation=/Evaluation/
+    edit.evaluation=/#{Regexp.escape(@form_names[0])}/
     edit.uncheck_use_default_evaluators
     
     select_eval = edit.select_evaluators
-    select_eval.users="Instructor, Joe"
+    select_eval.users=@instructor_name
     select_eval.add_users
     select_eval.roles="Organizer"
     select_eval.add_roles
@@ -289,18 +365,18 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     edit = edit_cells.edit(2, 1)
     
     # TEST CASE: Verify the title is correct
-    assert_equal edit.title_element.value, "Row: Critical Thinking; Column: Level 1"
+    assert_equal edit.title_element.value, "Row: #{@row_names[1]}; Column: #{@column_names[0]}"
     
     edit.uncheck_use_default_reflection_form
-    edit.reflection=/Reflection for Matrix/
+    edit.reflection=/#{Regexp.escape(@form_names[3])}/
     edit.uncheck_use_default_feedback_form
-    edit.feedback=/Feedback for Matrix/
+    edit.feedback=/#{Regexp.escape(@form_names[1])}/
     edit.uncheck_use_default_evaluation_form
-    edit.evaluation=/Evaluation/
+    edit.evaluation=/#{Regexp.escape(@form_names[0])}/
     edit.uncheck_use_default_evaluators
     
     select_eval = edit.select_evaluators
-    select_eval.users="Instructor, Joe"
+    select_eval.users=@instructor_name
     select_eval.add_users
     select_eval.roles="Participant"
     select_eval.add_roles
@@ -312,18 +388,18 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     edit = edit_cells.edit(2, 2)
     
     # TEST CASE: Verify the title is correct
-    assert_equal edit.title_element.value, "Row: Critical Thinking; Column: Level 2"
+    assert_equal edit.title_element.value, "Row: #{@row_names[1]}; Column: #{@column_names[1]}"
     
     edit.uncheck_use_default_reflection_form
-    edit.reflection=/Reflection for Matrix/
+    edit.reflection=/#{Regexp.escape(@form_names[3])}/
     edit.uncheck_use_default_feedback_form
-    edit.feedback=/Feedback for Matrix/
+    edit.feedback=/#{Regexp.escape(@form_names[1])}/
     edit.uncheck_use_default_evaluation_form
-    edit.evaluation=/Evaluation/
+    edit.evaluation=/#{Regexp.escape(@form_names[0])}/
     edit.uncheck_use_default_evaluators
     
     select_eval = edit.select_evaluators
-    select_eval.users="Instructor, Joe"
+    select_eval.users=@instructor_name
     select_eval.add_users
     select_eval.roles="Evaluator"
     select_eval.add_roles
@@ -335,18 +411,18 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     edit = edit_cells.edit(2, 3)
     
     # TEST CASE: Verify the title is correct
-    assert_equal edit.title_element.value, "Row: Critical Thinking; Column: Level 3"
+    assert_equal edit.title_element.value, "Row: #{@row_names[1]}; Column: #{@column_names[2]}"
     
     edit.uncheck_use_default_reflection_form
-    edit.reflection=/Reflection for Matrix/
+    edit.reflection=/#{Regexp.escape(@form_names[3])}/
     edit.uncheck_use_default_feedback_form
-    edit.feedback=/Feedback for Matrix/
+    edit.feedback=/#{Regexp.escape(@form_names[1])}/
     edit.uncheck_use_default_evaluation_form
-    edit.evaluation=/Evaluation/
+    edit.evaluation=/#{Regexp.escape(@form_names[0])}/
     edit.uncheck_use_default_evaluators
     
     select_eval = edit.select_evaluators
-    select_eval.users="Instructor, Joe"
+    select_eval.users=@instructor_name
     select_eval.add_users
     select_eval.roles="Guest"
     select_eval.add_roles
@@ -358,18 +434,18 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     edit = edit_cells.edit(3, 1)
     
     # TEST CASE: Verify the title is correct
-    assert_equal edit.title_element.value, "Row: Information Retrieval and Technology; Column: Level 1"
+    assert_equal edit.title_element.value, "Row: #{@row_names[2]}; Column: #{@column_names[0]}"
     
     edit.uncheck_use_default_reflection_form
-    edit.reflection=/Reflection for Matrix/
+    edit.reflection=/#{Regexp.escape(@form_names[3])}/
     edit.uncheck_use_default_feedback_form
-    edit.feedback=/Feedback for Matrix/
+    edit.feedback=/#{Regexp.escape(@form_names[1])}/
     edit.uncheck_use_default_evaluation_form
-    edit.evaluation=/Evaluation/
+    edit.evaluation=/#{Regexp.escape(@form_names[0])}/
     edit.uncheck_use_default_evaluators
     
     select_eval = edit.select_evaluators
-    select_eval.users="Instructor, Joe"
+    select_eval.users=@instructor_name
     select_eval.add_users
     
     edit = select_eval.save
@@ -379,18 +455,18 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     edit = edit_cells.edit(3, 2)
     
     # TEST CASE: Verify the title is correct
-    assert_equal edit.title_element.value, "Row: Information Retrieval and Technology; Column: Level 2"
+    assert_equal edit.title_element.value, "Row: #{@row_names[2]}; Column: #{@column_names[1]}"
     
     edit.uncheck_use_default_reflection_form
-    edit.reflection=/Reflection for Matrix/
+    edit.reflection=/#{Regexp.escape(@form_names[3])}/
     edit.uncheck_use_default_feedback_form
-    edit.feedback=/Feedback for Matrix/
+    edit.feedback=/#{Regexp.escape(@form_names[1])}/
     edit.uncheck_use_default_evaluation_form
-    edit.evaluation=/Evaluation/
+    edit.evaluation=/#{Regexp.escape(@form_names[0])}/
     edit.uncheck_use_default_evaluators
     
     select_eval = edit.select_evaluators
-    select_eval.users="Instructor, Joe"
+    select_eval.users=@instructor_name
     select_eval.add_users
     
     edit = select_eval.save
@@ -400,18 +476,18 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     edit = edit_cells.edit(3, 3)
     
     # TEST CASE: Verify the title is correct
-    assert_equal edit.title_element.value, "Row: Information Retrieval and Technology; Column: Level 3"
+    assert_equal edit.title_element.value, "Row: #{@row_names[2]}; Column: #{@column_names[2]}"
     
     edit.uncheck_use_default_reflection_form
-    edit.reflection=/Reflection for Matrix/
+    edit.reflection=/#{Regexp.escape(@form_names[3])}/
     edit.uncheck_use_default_feedback_form
-    edit.feedback=/Feedback for Matrix/
+    edit.feedback=/#{Regexp.escape(@form_names[1])}/
     edit.uncheck_use_default_evaluation_form
-    edit.evaluation=/Evaluation/
+    edit.evaluation=/#{Regexp.escape(@form_names[0])}/
     edit.uncheck_use_default_evaluators
     
     select_eval = edit.select_evaluators
-    select_eval.users="Instructor, Joe"
+    select_eval.users=@instructor_name
     select_eval.add_users
     
     edit = select_eval.save
@@ -421,18 +497,18 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     edit = edit_cells.edit(4, 1)
     
     # TEST CASE: Verify the title is correct
-    assert_equal edit.title_element.value, "Row: Quantitative Reasoning; Column: Level 1"
+    assert_equal edit.title_element.value, "Row: #{@row_names[3]}; Column: #{@column_names[0]}"
     
     edit.uncheck_use_default_reflection_form
-    edit.reflection=/Reflection for Matrix/
+    edit.reflection=/#{Regexp.escape(@form_names[3])}/
     edit.uncheck_use_default_feedback_form
-    edit.feedback=/Feedback for Matrix/
+    edit.feedback=/#{Regexp.escape(@form_names[1])}/
     edit.uncheck_use_default_evaluation_form
-    edit.evaluation=/Evaluation/
+    edit.evaluation=/#{Regexp.escape(@form_names[0])}/
     edit.uncheck_use_default_evaluators
     
     select_eval = edit.select_evaluators
-    select_eval.users="Instructor, Joe"
+    select_eval.users=@instructor_name
     select_eval.add_users
     
     edit = select_eval.save
@@ -442,18 +518,18 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     edit = edit_cells.edit(4, 2)
     
     # TEST CASE: Verify the title is correct
-    assert_equal edit.title_element.value, "Row: Quantitative Reasoning; Column: Level 2"
+    assert_equal edit.title_element.value, "Row: #{@row_names[3]}; Column: #{@column_names[1]}"
     
     edit.uncheck_use_default_reflection_form
-    edit.reflection=/Reflection for Matrix/
+    edit.reflection=/#{Regexp.escape(@form_names[3])}/
     edit.uncheck_use_default_feedback_form
-    edit.feedback=/Feedback for Matrix/
+    edit.feedback=/#{Regexp.escape(@form_names[1])}/
     edit.uncheck_use_default_evaluation_form
-    edit.evaluation=/Evaluation/
+    edit.evaluation=/#{Regexp.escape(@form_names[0])}/
     edit.uncheck_use_default_evaluators
     
     select_eval = edit.select_evaluators
-    select_eval.users="Instructor, Joe"
+    select_eval.users=@instructor_name
     select_eval.add_users
     
     edit = select_eval.save
@@ -463,18 +539,18 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     edit = edit_cells.edit(4, 3)
     
     # TEST CASE: Verify the title is correct
-    assert_equal edit.title_element.value, "Row: Quantitative Reasoning; Column: Level 3"
+    assert_equal edit.title_element.value, "Row: #{@row_names[3]}; Column: #{@column_names[2]}"
     
     edit.uncheck_use_default_reflection_form
-    edit.reflection=/Reflection for Matrix/
+    edit.reflection=/#{Regexp.escape(@form_names[3])}/
     edit.uncheck_use_default_feedback_form
-    edit.feedback=/Feedback for Matrix/
+    edit.feedback=/#{Regexp.escape(@form_names[1])}/
     edit.uncheck_use_default_evaluation_form
-    edit.evaluation=/Evaluation/
+    edit.evaluation=/#{Regexp.escape(@form_names[0])}/
     edit.uncheck_use_default_evaluators
     
     select_eval = edit.select_evaluators
-    select_eval.users="Instructor, Joe"
+    select_eval.users=@instructor_name
     select_eval.add_users
     
     edit = select_eval.save
@@ -484,18 +560,18 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     edit = edit_cells.edit(5, 1)
     
     # TEST CASE: Verify the title is correct
-    assert_equal edit.title_element.value, "Row: Oral Communication; Column: Level 1"
+    assert_equal edit.title_element.value, "Row: #{@row_names[4]}; Column: #{@column_names[0]}"
     
     edit.uncheck_use_default_reflection_form
-    edit.reflection=/Reflection for Matrix/
+    edit.reflection=/#{Regexp.escape(@form_names[3])}/
     edit.uncheck_use_default_feedback_form
-    edit.feedback=/Feedback for Matrix/
+    edit.feedback=/#{Regexp.escape(@form_names[1])}/
     edit.uncheck_use_default_evaluation_form
-    edit.evaluation=/Evaluation/
+    edit.evaluation=/#{Regexp.escape(@form_names[0])}/
     edit.uncheck_use_default_evaluators
     
     select_eval = edit.select_evaluators
-    select_eval.users="Instructor, Joe"
+    select_eval.users=@instructor_name
     select_eval.add_users
     
     edit = select_eval.save
@@ -505,18 +581,18 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     edit = edit_cells.edit(5, 2)
     
     # TEST CASE: Verify the title is correct
-    assert_equal edit.title_element.value, "Row: Oral Communication; Column: Level 2"
+    assert_equal edit.title_element.value, "Row: #{@row_names[4]}; Column: #{@column_names[1]}"
     
     edit.uncheck_use_default_reflection_form
-    edit.reflection=/Reflection for Matrix/
+    edit.reflection=/#{Regexp.escape(@form_names[3])}/
     edit.uncheck_use_default_feedback_form
-    edit.feedback=/Feedback for Matrix/
+    edit.feedback=/#{Regexp.escape(@form_names[1])}/
     edit.uncheck_use_default_evaluation_form
-    edit.evaluation=/Evaluation/
+    edit.evaluation=/#{Regexp.escape(@form_names[0])}/
     edit.uncheck_use_default_evaluators
     
     select_eval = edit.select_evaluators
-    select_eval.users="Instructor, Joe"
+    select_eval.users=@instructor_name
     select_eval.add_users
     
     edit = select_eval.save
@@ -526,18 +602,18 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     edit = edit_cells.edit(5, 3)
     
     # TEST CASE: Verify the title is correct
-    assert_equal edit.title_element.value, "Row: Oral Communication; Column: Level 3"
+    assert_equal edit.title_element.value, "Row: #{@row_names[4]}; Column: #{@column_names[2]}"
     
     edit.uncheck_use_default_reflection_form
-    edit.reflection=/Reflection for Matrix/
+    edit.reflection=/#{Regexp.escape(@form_names[3])}/
     edit.uncheck_use_default_feedback_form
-    edit.feedback=/Feedback for Matrix/
+    edit.feedback=/#{Regexp.escape(@form_names[1])}/
     edit.uncheck_use_default_evaluation_form
-    edit.evaluation=/Evaluation/
+    edit.evaluation=/#{Regexp.escape(@form_names[0])}/
     edit.uncheck_use_default_evaluators
     
     select_eval = edit.select_evaluators
-    select_eval.users="Instructor, Joe"
+    select_eval.users=@instructor_name
     select_eval.add_users
     
     edit = select_eval.save
@@ -547,18 +623,18 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     edit = edit_cells.edit(6, 1)
     
     # TEST CASE: Verify the title is correct
-    assert_equal edit.title_element.value, "Row: Understanding Self and Community; Column: Level 1"
+    assert_equal edit.title_element.value, "Row: #{@row_names[5]}; Column: #{@column_names[0]}"
     
     edit.uncheck_use_default_reflection_form
-    edit.reflection=/Reflection for Matrix/
+    edit.reflection=/#{Regexp.escape(@form_names[3])}/
     edit.uncheck_use_default_feedback_form
-    edit.feedback=/Feedback for Matrix/
+    edit.feedback=/#{Regexp.escape(@form_names[1])}/
     edit.uncheck_use_default_evaluation_form
-    edit.evaluation=/Evaluation/
+    edit.evaluation=/#{Regexp.escape(@form_names[0])}/
     edit.uncheck_use_default_evaluators
     
     select_eval = edit.select_evaluators
-    select_eval.users="Instructor, Joe"
+    select_eval.users=@instructor_name
     select_eval.add_users
     
     edit = select_eval.save
@@ -568,18 +644,18 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     edit = edit_cells.edit(6, 2)
     
     # TEST CASE: Verify the title is correct
-    assert_equal edit.title_element.value, "Row: Understanding Self and Community; Column: Level 2"
+    assert_equal edit.title_element.value, "Row: #{@row_names[5]}; Column: #{@column_names[1]}"
     
     edit.uncheck_use_default_reflection_form
-    edit.reflection=/Reflection for Matrix/
+    edit.reflection=/#{Regexp.escape(@form_names[3])}/
     edit.uncheck_use_default_feedback_form
-    edit.feedback=/Feedback for Matrix/
+    edit.feedback=/#{Regexp.escape(@form_names[1])}/
     edit.uncheck_use_default_evaluation_form
-    edit.evaluation=/Evaluation/
+    edit.evaluation=/#{Regexp.escape(@form_names[0])}/
     edit.uncheck_use_default_evaluators
     
     select_eval = edit.select_evaluators
-    select_eval.users="Instructor, Joe"
+    select_eval.users=@instructor_name
     select_eval.add_users
     
     edit = select_eval.save
@@ -589,18 +665,18 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     edit = edit_cells.edit(6, 3)
     
     # TEST CASE: Verify the title is correct
-    assert_equal edit.title_element.value, "Row: Understanding Self and Community; Column: Level 3"
+    assert_equal edit.title_element.value, "Row: #{@row_names[5]}; Column: #{@column_names[0]}"
     
     edit.uncheck_use_default_reflection_form
-    edit.reflection=/Reflection for Matrix/
+    edit.reflection=/#{Regexp.escape(@form_names[3])}/
     edit.uncheck_use_default_feedback_form
-    edit.feedback=/Feedback for Matrix/
+    edit.feedback=/#{Regexp.escape(@form_names[1])}/
     edit.uncheck_use_default_evaluation_form
-    edit.evaluation=/Evaluation/
+    edit.evaluation=/#{Regexp.escape(@form_names[0])}/
     edit.uncheck_use_default_evaluators
     
     select_eval = edit.select_evaluators
-    select_eval.users="Instructor, Joe"
+    select_eval.users=@instructor_name
     select_eval.add_users
     
     edit = select_eval.save
@@ -609,85 +685,81 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     
     matrices = edit_cells.return_to_list
     
-    matrices.preview "General Education"
-    confirm = matrices.publish "General Education"
+    matrices.preview @matrix_name
+    confirm = matrices.publish @matrix_name
     matrices = confirm.continue
 
     glossary = matrices.glossary
 
     new_term = glossary.add
-    new_term.term="Critical Thinking"
-    new_term.short_description="Critical thinking, an analytical and creative process, is essential to every content area and discipline. It is an integral part of information retrieval and technology, oral communication, quantitative reasoning, and written communication."
-    new_term.long_description="Critical thinking, an analytical and creative process, is essential to every content area and discipline. It is an integral part of information retrieval and technology, oral communication, quantitative reasoning, and written communication. \n1. Identify and state problems, issues, arguments, and questions contained in a body of information. \n2. Identify and analyze assumptions and underlying points of view relating to an issue or problem. \n3. Formulate research questions that require descriptive and explanatory analyses. \n4. Recognize and understand multiple modes of inquiry, including investigative methods based on observation and analysis. \n5. Evaluate a problem, distinguishing between relevant and irrelevant facts, opinions, assumptions, issues, values, and biases through the use of appropriate evidence. \n6. Apply problem-solving techniques and skills, including the rules of logic and logical sequence.\n7. Synthesize information from various sources, drawing appropriate conclusions. \n8. Communicate clearly and concisely the methods and results of logical reasoning. \n9. Reflect upon and evaluate their thought processes, value systems, and world views in comparison to those of others."
+    new_term.term=@glossary_terms[0]
+    new_term.short_description=@glossary_short_descriptions[0]
+    new_term.long_description=@glossary_long_descriptions[0]
     
     glossary = new_term.add_term
     
     new_term = glossary.add
-    new_term.term="Information Retrieval and Technology"
-    new_term.short_description="Information retrieval and technology are integral parts of every content area and discipline."
-    new_term.long_description="Information retrieval and technology are integral parts of every content area and discipline. \n1. Use print and electronic information technology ethically and responsibly. \n2. Demonstrate knowledge of basic vocabulary, concepts, and operations of information retrieval and technology. \n3. Recognize, identify, and define an information need. \n4. Access and retrieve information through print and electronic media, evaluating the accuracy and authenticity of that information. \n5. Create, manage, organize, and communicate information through electronic media. \n6. Recognize changing technologies and make informed choices about their appropriateness and use."
+    new_term.term=@glossary_terms[1]
+    new_term.short_description=@glossary_short_descriptions[1]
+    new_term.long_description=@glossary_long_descriptions[1]
     
     glossary = new_term.add_term
     
     new_term = glossary.add
-    new_term.term="Level 1"
-    new_term.short_description="Contribute at least two examples of coursework from a completed, required foundation course, and define and discuss the relevance of your works to at least one of the standards that are listed in the glossary for this cell."
-    new_term.long_description="Contribute at least two examples of coursework from a completed, required foundation course, and define and discuss the relevance of your works to at least one of the standards that are listed in the glossary for this cell."
+    new_term.term=@glossary_terms[2]
+    new_term.short_description=@glossary_short_descriptions[2]
+    new_term.long_description=@glossary_long_descriptions[2]
     
     glossary = new_term.add_term
     
     new_term = glossary.add
-    new_term.term="Level 2"
-    new_term.short_description="Contribute at least two examples of coursework from two or more additional, completed courses, and define and discuss the relevance of your works to at least three of the standards that are listed in glossary for this cell."
-    new_term.long_description="Contribute at least two examples of coursework from two or more additional, completed courses, and define and discuss the relevance of your works to at least three of the standards that are listed in glossary for this cell."
+    new_term.term=@glossary_terms[3]
+    new_term.short_description=@glossary_short_descriptions[3]
+    new_term.long_description=@glossary_long_descriptions[3]
     
     glossary = new_term.add_term
     
     new_term = glossary.add
-    new_term.term="Level 3"
-    new_term.short_description="Contribute at least four works from your courses, and define and discuss the relevance of your works to all the standards that are listed in the glossary for this cell."
-    new_term.long_description="Contribute at least four works from your courses, and define and discuss the relevance of your works to all the standards that are listed in the glossary for this cell."
+    new_term.term=@glossary_terms[4]
+    new_term.short_description=@glossary_short_descriptions[4]
+    new_term.long_description=@glossary_long_descriptions[4]
     
     glossary = new_term.add_term
     
     new_term = glossary.add
-    new_term.term="Oral Communication"
-    new_term.short_description="Oral communication is an integral part of every content area and discipline."
-    new_term.long_description="Oral communication is an integral part of every content area and discipline. \n1. Identify and analyze the audience and purpose of any intended communication. \n2. Gather, evaluate, select, and organize information for the communication. \n3. Use language, techniques, and strategies appropriate to the audience and occasion. \n4. Speak clearly and confidently, using the voice, volume, tone, and articulation appropriate to the audience and occasion. \n5. Summarize, analyze, and evaluate oral communications and ask coherent questions as needed.\n6. Use competent oral expression to initiate and sustain discussions."
+    new_term.term=@glossary_terms[5]
+    new_term.short_description=@glossary_short_descriptions[5]
+    new_term.long_description=@glossary_long_descriptions[5]
     
     glossary = new_term.add_term
     
     new_term = glossary.add
-    new_term.term="Quantitative Reasoning"
-    new_term.short_description="Quantitative reasoning can have applications in all content areas and disciplines."
-    new_term.long_description="Quantitative reasoning can have applications in all content areas and disciplines. \n1. Apply numeric, graphic, and symbolic skills and other forms of quantitative reasoning accurately and appropriately. \n2. Demonstrate mastery of mathematical concepts, skills, and applications, using technology when appropriate. \n3. Communicate clearly and concisely the methods and results of quantitative problem solving.\n4. Formulate and test hypotheses using numerical experimentation. \n5. Define quantitative issues and problems, gather relevant information, analyze that information, and present results. \n6. Assess the validity of statistical conclusions."
+    new_term.term=@glossary_terms[6]
+    new_term.short_description=@glossary_short_descriptions[6]
+    new_term.long_description=@glossary_long_descriptions[6]
     
     glossary = new_term.add_term
     
     new_term = glossary.add
-    new_term.term="Understanding Self and Community"
-    new_term.short_description="This institution emphasizes an understanding of one's self and one's relationship to the community, the region, and the world."
-    new_term.long_description="This institution emphasizes an understanding of one's self and one's relationship to the community, the region, and the world. \n1. Demonstrate an awareness of the relationship between the environment and one's own fundamental physiological and psychological processes. \n2. Examine critically and appreciate the values and beliefs of one's own culture and those of other cultures separated in time or space from one's own. \n3. Communicate effectively and acknowledge opposing viewpoints. \n4. Use the study of a second language as a window to cultural understanding. \n5. Demonstrate an understanding of ethical, civic and social issues relevant to Hawai'i's and the world's past, present and future."
+    new_term.term=@glossary_terms[7]
+    new_term.short_description=@glossary_short_descriptions[7]
+    new_term.long_description=@glossary_long_descriptions[7]
     
     glossary = new_term.add_term
     
     new_term = glossary.add
-    new_term.term="Written Communication"
-    new_term.short_description="Written communication is an integral part of every content area and discipline."
-    new_term.long_description="Written communication is an integral part of every content area and discipline. Use writing to discover and articulate ideas. \n1. Identify and analyze the audience and purpose for any intended communication. \n2. Choose language, style, and organization appropriate to particular purposes and audiences. \n3. Gather information and document sources appropriately. \n4. Express a main idea as a thesis, hypothesis, or other appropriate statement. \n5. Develop a main idea clearly and concisely with appropriate content. \n6. Demonstrate mastery of the conventions of writing, including grammar, spelling, and mechanics. \n7. Demonstrate proficiency in revision and editing. \n8. Develop a personal voice in written communication."
-
+    new_term.term=@glossary_terms[8]
+    new_term.short_description=@glossary_short_descriptions[8]
+    new_term.long_description=@glossary_long_descriptions[8]
+    
     glossary = new_term.add_term
 
     resources = glossary.resources
     resources = resources.show_other_sites
     
     resources.open_folder "My Workspace"
-
-    files_to_upload = ["images/banner.gif", "documents/GenEdscript.js", "documents/GenEdmatrixpres.xsl",
-                       "documents/GenEdstyle.css", "zips/Contact Information (Site Two) Form.zip",
-                       "zips/Portfolio Properties (Site Two) Form.zip" ]
     
-    resources = resources.upload_multiple_files_to_folder("data", files_to_upload)
+    resources = resources.upload_multiple_files_to_folder(@folder_name, @files_to_upload)
 
     forms = resources.forms
 
@@ -696,14 +768,14 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     attach = import.select_file
     attach.show_other_sites
     attach.open_folder "My Workspace"
-    attach.open_folder "data"
-    attach.select_file "Contact Information (Site Two) Form.zip"
+    attach.open_folder @folder_name
+    attach.select_file @form_zips[0]
     
     import = attach.continue
     
     forms = import.import
     
-    publish = forms.publish "Contact Information (Portfolio Site)"
+    publish = forms.publish @form_names[0]
     
     forms = publish.yes
     
@@ -712,22 +784,22 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     attach = import.select_file
     attach.show_other_sites
     attach.open_folder "My Workspace"
-    attach.open_folder "data"
-    attach.select_file "Portfolio Properties (Site Two) Form.zip"
+    attach.open_folder @folder_name
+    attach.select_file @form_zips[1]
     
     import = attach.continue
 
     forms = import.import
 
-    publish = forms.publish "Portfolio Properties (Portfolio Site)"
+    publish = forms.publish @form_names[1]
     
     forms = publish.yes
 
     port_temp = forms.portfolio_templates
 
     add_template = port_temp.add
-    add_template.name="General Education Matrix Template"
-    add_template.description="Use this template to build a presentation of the works and reflections you have provided for a selected level of the General Education assessment matrix."
+    add_template.name=@template_name
+    add_template.description=@template_description
     
     build = add_template.continue
     
@@ -736,11 +808,11 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     attach.show_other_sites
     attach.open_folder "My Workspace"
     
-    upload = attach.upload_files_to_folder "data"
-    upload.file_to_upload="documents/GenEdmatrixpres.xsl"
+    upload = attach.upload_files_to_folder @folder_name
+    upload.file_to_upload=@files_to_upload[2]
 
     attach = upload.upload_files_now
-    attach.open_folder "data"
+    attach.open_folder @folder_name
     attach.select_file "GenEdmatrixpres.xsl"
 
     build = attach.continue
@@ -813,7 +885,7 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     attach.show_other_sites
     # 
     attach.open_folder "My Workspace"
-    attach.open_folder "data"
+    attach.open_folder @folder_name
     attach.select_file "banner.gif"
     
     supporting_files = attach.continue
@@ -823,7 +895,7 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     attach = supporting_files.select_file
     attach.show_other_sites
     attach.open_folder "My Workspace"
-    attach.open_folder "data"
+    attach.open_folder @folder_name
     attach.select_file "GenEdscript.js"
     
     supporting_files = attach.continue
@@ -833,7 +905,7 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     attach = supporting_files.select_file
     attach.show_other_sites
     attach.open_folder "My Workspace"
-    attach.open_folder "data"
+    attach.open_folder @folder_name
     attach.select_file "GenEdstyle.css"
     supporting_files = attach.continue
     supporting_files.add_to_list
@@ -1044,7 +1116,7 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
 
     workspace = @sakai.login(@student, @spassword)
 
-    home = workspace.open_my_site_by_name "Portfolio Site"
+    home = workspace.open_my_site_by_name @portfolio_site
 
     assignments = home.assignments
 
