@@ -44,6 +44,10 @@ class TestCreateAssignments < Test::Unit::TestCase
   
   def test_assignments_creation
     
+    def frm
+      @browser.frame(:index=>1)
+    end
+    
     # Log in to Sakai
     my_workspace = @sakai.login(@user_name, @password)
 
@@ -263,7 +267,7 @@ class TestCreateAssignments < Test::Unit::TestCase
     assert_equal(frm.div(:class, "portletBody").span(:id, "gradebookListWarnAssoc").visible?, false)
     
     # Select the "Add Assignment to Gradebook" radio button
-    assignment4.select_add_assignment
+    assignment4.select_add_to_gradebook
     
     # Wait for the alert message to appear
     sleep 0.1
@@ -273,7 +277,7 @@ class TestCreateAssignments < Test::Unit::TestCase
     
     # Need to clear the assignment radio button explicitly because
     # the radio button was actually selected, even though the UI doesn't show it.
-    assignment4.select_do_not_add_assignment
+    assignment4.select_do_not_add_to_gradebook
     
     # Preview the new assignment
     assignment4.preview
