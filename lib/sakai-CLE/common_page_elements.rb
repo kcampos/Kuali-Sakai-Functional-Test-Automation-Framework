@@ -493,6 +493,10 @@ class Calendar
     frm.select(:id=>"timeFilterOption").select(item)
   end
   
+  def show_events=(item)
+    frm.select(:id=>"timeFilterOption").select(item)
+  end
+  
   # Selects the specified value in the start month select list.
   def start_month=(item)
     frm.select(:id=>"customStartMonth").select(item)

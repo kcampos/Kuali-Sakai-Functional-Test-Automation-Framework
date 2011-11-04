@@ -1001,7 +1001,7 @@ class AssignmentAdd
   # Clicks the Cancel button, then
   # instantiates the AssignmentsList page class.
   def cancel
-    frm.div(:class=>"portletBody").div(:class=>"act").button(:value=>"Cancel").fire_event("onclick")
+    frm.button(:value=>"Cancel", :index=>-1).click
     AssignmentsList.new(@browser)
   end
   

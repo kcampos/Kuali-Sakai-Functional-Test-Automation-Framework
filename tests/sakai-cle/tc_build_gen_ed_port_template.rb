@@ -112,6 +112,42 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     @form_names = [ "Contact Information (#{@portfolio_site})", "Portfolio Properties (#{@portfolio_site})" ]
     @template_name = "General Education Matrix Template"
     @template_description = "Use this template to build a presentation of the works and reflections you have provided for a selected level of the General Education assessment matrix."
+    @form_type = "Portfolio Properties"
+
+    @content = [
+      {:type=>"Matrix", :name=> "GenEdmatrix", :title=> "Matrix",:description=> "Select a matrix to build the presentation on."},
+      {:type=>"Contact Information",:name=> "contactInformation",:title=> "Contact information",:description=> "Select the contact information to be displayed in the presentation."},
+      {:type=>"Uploaded File",:name=> "introImg",:title=> "Introduction image",:description=> "Select an image to introduce your presentation on the Introduction page (optional)."},
+      {:type=>"Uploaded File",:name=> "criterion1Img",:title=> "Written Communication image",:description=> "Select an image to represent the Written Communication standards (optional)."},
+      {:type=>"Uploaded File",:name=> "criterion2Img",:title=> "Critical Thinking image",:description=>"Select an image to represent the Critical Thinking standards (optional)." },
+      {:type=>"Uploaded File", :name=>"criterion3Img", :title=>"Information Retrieval and Technology image", :description=> "Select an image to represent the Information Retrieval and Technology standards (optional)."},
+      {:type=>"Uploaded File", :name=>"criterion4Img", :title=>"Quantitative Reasoning image", :description=> "Select an image to represent the Quantitative Reasoning standards (optional)."},
+      {:type=>"Uploaded File", :name=>"criterion5Img", :title=>"Oral Communication image", :description=>"Select an image to represent the Oral Communication standards (optional)." },
+      {:type=>"Uploaded File", :name=>"criterion6Img", :title=>"Understanding Self and Community image", :description=>"Select an image to represent the Understanding Self and Community standards (optional)." }
+    ]
+    
+    @supporting_files = [
+      {:file=>get_filename(@files_to_upload[0]), :name=>"KCCbanner" },
+      {:file=>get_filename(@files_to_upload[1]), :name=>"JavascriptFile" },
+      {:file=>get_filename(@files_to_upload[3]), :name=>"CascadingStyleSheet" },
+    ]
+    
+    @assignments = [
+      {:title=>"Assignment 1",
+        :student_text=>"Etiam nec tellus. Nulla semper volutpat ipsum. Cras lectus magna, convallis eget, molestie ac, pharetra vel, lorem. Etiam massa velit, vulputate ut, malesuada aliquet, pretium vitae, arcu. In ipsum libero, porttitor ac, viverra eu, feugiat et, tortor. Donec vel turpis ac tortor malesuada sollicitudin! Ut et lectus. Mauris sodales. Fusce ultrices euismod metus. Aliquam eu felis eget diam malesuada bibendum. Nunc a orci in augue condimentum blandit. Proin at dolor. Donec velit. Donec ullamcorper eros a ligula. Sed ullamcorper risus nec nisl. Nunc vel justo ut risus interdum faucibus. Sed dictum tempus ipsum! In neque dolor, auctor vel, accumsan pulvinar, feugiat sit amet, urna. Aenean sagittis luctus felis.\n\nAenean elementum pretium urna. Nullam eleifend congue nulla. Suspendisse potenti. Nullam posuere elit. Sed tellus. In facilisis. Nulla aliquet, turpis nec dictum euismod, nisl dui gravida leo, et volutpat odio eros sagittis sapien. Aliquam at purus? Nunc nibh diam; imperdiet ut, sodales ut, venenatis a, leo? Suspendisse pede. Maecenas congue risus et leo! Praesent urna purus, lobortis at; dapibus nec, dictum id, elit. Vivamus gravida odio non tellus. Aliquam non nulla.",
+        :instructor_text=>"Etiam nec tellus. Nulla semper volutpat ipsum. {{test text}} Cras lectus magna, convallis eget, molestie ac, pharetra vel, lorem. Etiam massa velit, vulputate ut, malesuada aliquet, pretium vitae, arcu. In ipsum libero, porttitor ac, viverra eu, feugiat et, tortor. Donec vel turpis ac tortor malesuada sollicitudin! Ut et lectus. Mauris sodales. Fusce ultrices euismod metus. Aliquam eu felis eget diam malesuada bibendum. Nunc a orci in augue condimentum blandit. Proin at dolor. Donec velit. Donec ullamcorper eros a ligula. Sed ullamcorper risus nec nisl. Nunc vel justo ut risus interdum faucibus. Sed dictum tempus ipsum! In neque dolor, auctor vel, accumsan pulvinar, feugiat sit amet, urna. Aenean sagittis luctus felis.\n\nAenean elementum pretium urna. Nullam eleifend congue nulla. Suspendisse potenti. Nullam posuere elit. Sed tellus. In facilisis. Nulla aliquet, turpis nec dictum euismod, nisl dui gravida leo, et volutpat odio eros sagittis sapien. Aliquam at purus? Nunc nibh diam; imperdiet ut, sodales ut, venenatis a, leo? Suspendisse pede. Maecenas congue risus et leo! Praesent urna purus, lobortis at; dapibus nec, dictum id, elit. Vivamus gravida odio non tellus. Aliquam non nulla.",
+        :instructor_comment1=>"Great job!",
+        :instructor_comment2=>"Good job again!",
+        :url=>"http://www.rsmart.com",
+        :instructions=>"Phasellus molestie. Sed in pede. Sed augue. Vestibulum lacus lectus, pulvinar nec, condimentum eu, sodales et, risus. Aenean dolor nisl, tristique at, vulputate nec, blandit in, mi. Fusce elementum ante. Maecenas rhoncus tincidunt sem. Sed leo dolor, faucibus hendrerit, tincidunt nec, elementum in, arcu. Donec et nulla. Vestibulum mauris nunc, consectetuer at, ultricies a, rutrum at, felis. Integer a nulla. Aliquam tincidunt nunc. Curabitur non purus. Nulla vel augue ac magna porttitor pretium.\n\nAenean fringilla enim. Vivamus nisi. Integer eleifend pharetra elit. Nulla scelerisque accumsan lectus. Morbi accumsan dui non velit. Suspendisse consequat mauris vitae neque. Etiam sit amet urna ut eros feugiat imperdiet? Nunc ut dolor. Nulla laoreet, nisi quis egestas condimentum, sapien nulla rutrum quam, quis auctor lorem justo at lectus. Integer in lacus eu nunc molestie pharetra. Curabitur dictum justo non eros. Nullam pellentesque ante rutrum mauris." },
+      {:title=>"Assignment 2", :instructions=>"Nullam urna elit; placerat convallis, posuere nec, semper id, diam. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Duis dignissim pulvinar nisl. Nunc interdum vulputate eros. In nec nibh! Suspendisse potenti. Maecenas at felis. Donec velit diam, mattis ut, venenatis vehicula, accumsan et, orci. Sed leo. Curabitur odio quam, accumsan eu, molestie eu, fringilla sagittis, pede. Mauris luctus mi id ligula. Proin elementum volutpat leo. Cras aliquet commodo elit. Praesent auctor consectetuer risus!\n\nDuis euismod felis nec nunc. Ut lectus felis, malesuada consequat, hendrerit at; vestibulum et, enim. Ut nec nulla sed eros bibendum vulputate. Sed tincidunt diam eget lacus. Nulla nisl? Nam condimentum mattis dui! Aenean varius purus eget sem? Nullam odio. Donec condimentum mauris. Cras volutpat tristique lacus. Sed id dui. Mauris purus purus, tristique sed, ornare convallis, consequat a, ipsum. Donec fringilla, metus quis mollis lobortis, magna tellus malesuada augue; laoreet auctor velit lorem vitae neque. Duis augue sem, vehicula sit amet, vulputate vitae, viverra quis; dolor. Donec quis eros vel massa euismod dignissim! Aliquam quam. Nam non dolor."},
+      {:title=>"Assignment 3",
+        :file=>"documents/resources.doc",
+        :student_file=>"documents/Lorem.txt",
+        :instructions=>"Fusce mollis massa nec nisi. Aliquam turpis libero, consequat quis, fringilla eget, fermentum ut, velit? Integer velit nisl, placerat non, fringilla at, pellentesque ut, odio? Cras magna ligula, tincidunt ac, iaculis in, hendrerit eu, justo. Vivamus porta. Suspendisse lorem! Donec nec libero in leo lobortis consectetuer. Vivamus quis enim? Proin viverra condimentum purus. Sed commodo.\n\nCurabitur eget velit. Curabitur eleifend libero et nisi aliquet facilisis. Integer ultricies commodo purus. Praesent velit. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Phasellus pretium. Suspendisse gravida diam. Nulla justo nulla, facilisis ut, sagittis ut, fermentum ac, elit. Morbi accumsan. Maecenas id tellus. Fusce ornare ullamcorper felis. Etiam fringilla. Maecenas in nunc nec sem sollicitudin condimentum? Nullam metus nunc, varius sit amet, consectetuer sed, vestibulum quis, est. Quisque in sapien a justo elementum iaculis?" },
+      {:title=>"Assignment 4", :instructions=>"Integer pulvinar facilisis purus. Quisque placerat! Maecenas risus. Nam vitae lacus. Quisque euismod imperdiet ipsum. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nam vitae nulla! Duis tincidunt. Nulla id felis. Duis accumsan, est ut volutpat mollis, tellus lorem venenatis justo, eu accumsan lorem neque sit amet ante. Sed dictum. Donec nulla mi, lacinia nec; viverra nec, commodo sed, justo. Praesent fermentum vehicula dui. Sed molestie eleifend leo. Nulla et risus! Nullam ut lacus. Etiam faucibus; eros sit amet tempus consectetuer, urna est hendrerit mi, eget molestie sapien lorem non tellus. In vitae nisl. Vivamus ac lectus id pede viverra placerat.<br /><br />Morbi nec dui eget pede dapibus mollis. Mauris nisl. Donec tempor blandit diam. In hac habitasse platea dictumst. Sed vulputate ornare urna. Nulla sed."},
+      {:title=>"Assignment 5", :file=>"documents/resources.txt", :instructions=>"Integer pulvinar facilisis purus. Quisque placerat! Maecenas risus. Nam vitae lacus. Quisque euismod imperdiet ipsum. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nam vitae nulla! Duis tincidunt. Nulla id felis. Duis accumsan, est ut volutpat mollis, tellus lorem venenatis justo, eu accumsan lorem neque sit amet ante. Sed dictum. Donec nulla mi, lacinia nec; viverra nec, commodo sed, justo. Praesent fermentum vehicula dui. Sed molestie eleifend leo. Nulla et risus! Nullam ut lacus. Etiam faucibus; eros sit amet tempus consectetuer, urna est hendrerit mi, eget molestie sapien lorem non tellus. In vitae nisl. Vivamus ac lectus id pede viverra placerat.\n\nMorbi nec dui eget pede dapibus mollis. Mauris nisl. Donec tempor blandit diam. In hac habitasse platea dictumst. Sed vulputate ornare urna. Nulla sed." }
+    ]
     
   end
   
@@ -813,121 +849,124 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
 
     attach = upload.upload_files_now
     attach.open_folder @folder_name
-    attach.select_file "GenEdmatrixpres.xsl"
+    attach.select_file get_filename(@files_to_upload[2])
 
     build = attach.continue
-    build.outline_options_form_type= /Portfolio Properties/
+    build.outline_options_form_type= /#{Regexp.escape(@form_type)}/
     
     content = build.continue
-    content.type="Matrix"
-    content.name="GenEdmatrix"
-    content.title="Matrix"
-    content.description="Select a matrix to build the presentation on."
+    content.type=@content[0][:type]
+    content.name=@content[0][:name]
+    content.title=@content[0][:title]
+    content.description=@content[0][:description]
+    
     content.add_to_list
-    content.type=/Contact Information/
-    content.name="contactInformation"
-    content.title="Contact information"
-    content.description="Select the contact information to be displayed in the presentation."
+    content.type=/#{Regexp.escape(@content[1][:type])}/
+    content.name=@content[1][:name]
+    content.title=@content[1][:title]
+    content.description=@content[1][:description]
+    
     content.add_to_list
-    content.type="Uploaded File"
-    content.name="introImg"
-    content.title="Introduction image"
-    content.description="Select an image to introduce your presentation on the Introduction page (optional)."
+    
+    content.type=@content[2][:type]
+    content.name=@content[2][:name]
+    content.title=@content[2][:title]
+    content.description=@content[2][:description]
     content.check_image
     content.add_to_list
     # 
-    content.type="Uploaded File"
-    content.name="criterion1Img"
-    content.title="Written Communication image"
-    content.description="Select an image to represent the Written Communication standards (optional)."
+    content.type=@content[3][:type]
+    content.name=@content[3][:name]
+    content.title=@content[3][:title]
+    content.description=@content[3][:description]
     content.check_image
     content.add_to_list
     # 
-    content.type="Uploaded File"
-    content.name="criterion2Img"
-    content.title="Critical Thinking image"
-    content.description="Select an image to represent the Critical Thinking standards (optional)."
+    content.type=@content[4][:type]
+    content.name=@content[4][:name]
+    content.title=@content[4][:title]
+    content.description=@content[4][:description]
     content.check_image
     content.add_to_list
     # 
-    content.type="Uploaded File"
-    content.title="Information Retrieval and Technology image"
-    content.name="criterion3Img"
-    content.check_image
-    content.description="Select an image to represent the Information Retrieval and Technology standards (optional)."
-    content.add_to_list
-    # 
-    content.type="Uploaded File"
-    content.title="Quantitative Reasoning image"
-    content.name="criterion4Img"
-    content.description="Select an image to represent the Quantitative Reasoning standards (optional)."
+    content.type=@content[5][:type]
+    content.name=@content[5][:name]
+    content.title=@content[5][:title]
+    content.description=@content[5][:description]
     content.check_image
     content.add_to_list
     # 
-    content.type="Uploaded File"
-    content.title="Oral Communication image"
-    content.name="criterion5Img"
-    content.description="Select an image to represent the Oral Communication standards (optional)."
+    content.type=@content[6][:type]
+    content.name=@content[6][:name]
+    content.title=@content[6][:title]
+    content.description=@content[6][:description]
     content.check_image
     content.add_to_list
     # 
-    content.type="Uploaded File"
-    content.name="criterion6Img"
-    content.title="Understanding Self and Community image"
-    content.description="Select an image to represent the Understanding Self and Community standards (optional)."
+    content.type=@content[7][:type]
+    content.name=@content[7][:name]
+    content.title=@content[7][:title]
+    content.description=@content[7][:description]
+    content.check_image
+    content.add_to_list
+    # 
+    content.type=@content[8][:type]
+    content.name=@content[8][:name]
+    content.title=@content[8][:title]
+    content.description=@content[8][:description]
     content.check_image
     content.add_to_list
     
     supporting_files = content.continue
-    supporting_files.name="KCCbanner"
-
+    supporting_files.name=@supporting_files[0][:name]
+    
     attach = supporting_files.select_file
     attach.show_other_sites
     # 
     attach.open_folder "My Workspace"
     attach.open_folder @folder_name
-    attach.select_file "banner.gif"
+    attach.select_file @supporting_files[0][:file]
     
     supporting_files = attach.continue
     supporting_files.add_to_list
-    supporting_files.name="JavascriptFile"
+    supporting_files.name=@supporting_files[1][:name]
     
     attach = supporting_files.select_file
     attach.show_other_sites
     attach.open_folder "My Workspace"
     attach.open_folder @folder_name
-    attach.select_file "GenEdscript.js"
+    attach.select_file @supporting_files[1][:file]
     
     supporting_files = attach.continue
     supporting_files.add_to_list
-    supporting_files.name="CascadingStyleSheet"
+    supporting_files.name=@supporting_files[2][:name]
     
     attach = supporting_files.select_file
     attach.show_other_sites
     attach.open_folder "My Workspace"
     attach.open_folder @folder_name
-    attach.select_file "GenEdstyle.css"
+    attach.select_file @supporting_files[2][:file]
     supporting_files = attach.continue
     supporting_files.add_to_list
     
     port_temp = supporting_files.finish
-    port_temp.publish "General Education Matrix Template"
+    port_temp.publish @template_name
 
     assignments = port_temp.assignments
 
     add_assignment = assignments.add
-    add_assignment.title="Assignment 1"
+    add_assignment.title=@assignments[0][:title]
     
     preview = add_assignment.preview
     
     assignments = preview.post
   
     # TEST CASE: Verify assignment appears in list
-    assert assignments.assignments_titles.include?("Assignment 1")
+    assert assignments.assignments_titles.include?(@assignments[0][:title])
     
     add_asgn2 = assignments.add
-    add_asgn2.instructions="Nullam urna elit; placerat convallis, posuere nec, semper id, diam. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Duis dignissim pulvinar nisl. Nunc interdum vulputate eros. In nec nibh! Suspendisse potenti. Maecenas at felis. Donec velit diam, mattis ut, venenatis vehicula, accumsan et, orci. Sed leo. Curabitur odio quam, accumsan eu, molestie eu, fringilla sagittis, pede. Mauris luctus mi id ligula. Proin elementum volutpat leo. Cras aliquet commodo elit. Praesent auctor consectetuer risus!\n\nDuis euismod felis nec nunc. Ut lectus felis, malesuada consequat, hendrerit at; vestibulum et, enim. Ut nec nulla sed eros bibendum vulputate. Sed tincidunt diam eget lacus. Nulla nisl? Nam condimentum mattis dui! Aenean varius purus eget sem? Nullam odio. Donec condimentum mauris. Cras volutpat tristique lacus. Sed id dui. Mauris purus purus, tristique sed, ornare convallis, consequat a, ipsum. Donec fringilla, metus quis mollis lobortis, magna tellus malesuada augue; laoreet auctor velit lorem vitae neque. Duis augue sem, vehicula sit amet, vulputate vitae, viverra quis; dolor. Donec quis eros vel massa euismod dignissim! Aliquam quam. Nam non dolor."
-    add_asgn2.title="Assignment 2"
+    add_asgn2.instructions=@assignments[1][:instructions]
+    add_asgn2.title=@assignments[1][:title]
     add_asgn2.open_hour=last_hour
     add_asgn2.open_meridian="AM"
     add_asgn2.student_submissions="Inline only"
@@ -937,20 +976,20 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     assignments = add_asgn2.post
     
     # TEST CASE: Verify assignment appears in list
-    assert assignments.assignments_titles.include?("Assignment 2")
+    assert assignments.assignments_titles.include?(@assignments[1][:title])
     
     calendar = assignments.calendar
     calendar.view="List of Events"
     calendar.show="All events"
     
     # TEST CASE: Event appears in list as expected
-    assert calendar.events_list.include?("Due Assignment 2")
+    assert calendar.events_list.include?("Due #{@assignments[1][:title]}")
     
     assignments = calendar.assignments
 
     add_assgn3 = assignments.add
-    add_assgn3.instructions="Fusce mollis massa nec nisi. Aliquam turpis libero, consequat quis, fringilla eget, fermentum ut, velit? Integer velit nisl, placerat non, fringilla at, pellentesque ut, odio? Cras magna ligula, tincidunt ac, iaculis in, hendrerit eu, justo. Vivamus porta. Suspendisse lorem! Donec nec libero in leo lobortis consectetuer. Vivamus quis enim? Proin viverra condimentum purus. Sed commodo.\n\nCurabitur eget velit. Curabitur eleifend libero et nisi aliquet facilisis. Integer ultricies commodo purus. Praesent velit. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Phasellus pretium. Suspendisse gravida diam. Nulla justo nulla, facilisis ut, sagittis ut, fermentum ac, elit. Morbi accumsan. Maecenas id tellus. Fusce ornare ullamcorper felis. Etiam fringilla. Maecenas in nunc nec sem sollicitudin condimentum? Nullam metus nunc, varius sit amet, consectetuer sed, vestibulum quis, est. Quisque in sapien a justo elementum iaculis?"
-    add_assgn3.title="Assignment 3"
+    add_assgn3.instructions=@assignments[1][:instructions]
+    add_assgn3.title=@assignments[2][:title]
     add_assgn3.open_hour=last_hour
     add_assgn3.open_meridian="AM"
     add_assgn3.student_submissions="Attachments only"
@@ -959,14 +998,14 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     add_assgn3.check_add_open_announcement
     
     attach = add_assgn3.add_attachments
-    attach = attach.upload_local_file "documents/resources.doc"
+    attach = attach.upload_local_file @assignments[2][:file]
 
     add_assgn3 = attach.continue
     
     assignments = add_assgn3.save_draft
     
     # TEST CASE: Assignment saved in draft mode
-    assert assignments.assignments_titles.include?("Draft - Assignment 3")
+    assert assignments.assignments_titles.include?("Draft - #{@assignments[2][:title]}")
     
     permissions = assignments.permissions
     permissions.uncheck_organizers_share_drafts
@@ -976,12 +1015,12 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     site_home = assignments.home
     
     # TEST CASE: Verify assignment announcement does not appear
-    assert_equal false, site_home.announcements_list.include?("Assignment: Open Date for 'Assignment 3'")
+    assert_equal false, site_home.announcements_list.include?("Assignment: Open Date for '#{@assignments[2][:title]}'")
     
     assignments = site_home.assignments
 
     add_assgn4 = assignments.add
-    add_assgn4.title="Assignment 4"
+    add_assgn4.title=@assignments[3][:title]
     add_assgn4.due_year=last_year
     add_assgn4.accept_year=last_year
     add_assgn4.post
@@ -991,7 +1030,7 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     # TEST CASE: Verify alert message appears
     assert_equal add_assgn4.alert_text, "Alert: Assignment due date set to be in the past. Please make a correction or click on the original button again to proceed.\n\nAssignment due date should be set after the open date.\n\nAccept submissions deadline should be set after the open date.\n\nThis assignment has no instructions. Please make a correction or click the original button to proceed."
 
-    add_assgn4.instructions="Integer pulvinar facilisis purus. Quisque placerat! Maecenas risus. Nam vitae lacus. Quisque euismod imperdiet ipsum. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nam vitae nulla! Duis tincidunt. Nulla id felis. Duis accumsan, est ut volutpat mollis, tellus lorem venenatis justo, eu accumsan lorem neque sit amet ante. Sed dictum. Donec nulla mi, lacinia nec; viverra nec, commodo sed, justo. Praesent fermentum vehicula dui. Sed molestie eleifend leo. Nulla et risus! Nullam ut lacus. Etiam faucibus; eros sit amet tempus consectetuer, urna est hendrerit mi, eget molestie sapien lorem non tellus. In vitae nisl. Vivamus ac lectus id pede viverra placerat.<br /><br />Morbi nec dui eget pede dapibus mollis. Mauris nisl. Donec tempor blandit diam. In hac habitasse platea dictumst. Sed vulputate ornare urna. Nulla sed."
+    add_assgn4.instructions=@assignments[3][:instructions]
     add_assgn4.due_year=current_year
     add_assgn4.accept_year=current_year
     add_assgn4.grade_scale="Pass"
@@ -1002,20 +1041,20 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     assignments = preview.post
     
     # TEST CASE: Verify assignment 4 appears in the list
-    assert assignments.assignments_titles.include?("Assignment 4")
+    assert assignments.assignments_titles.include?(@assignments[3][:title])
 
     @sakai.logout
     workspace = @sakai.login(@instructor2, @ipassword2)
     
-    home = workspace.open_my_site_by_name "Portfolio Site"
+    home = workspace.open_my_site_by_name @portfolio_site
 
     assignments = home.assignments
 
     # TEST CASE: Verify assignments appear as expected.
-    assert assignments.assignments_titles.include?("Assignment 1")
-    assert assignments.assignments_titles.include?("Assignment 2")
-    assert assignments.assignments_titles.include?("Assignment 4")
-    assert_equal false, assignments.assignments_titles.include?("Draft - Assignment 3")
+    assert assignments.assignments_titles.include?(@assignments[0][:title])
+    assert assignments.assignments_titles.include?(@assignments[1][:title])
+    assert assignments.assignments_titles.include?(@assignments[3][:title])
+    assert_equal false, assignments.assignments_titles.include?("Draft - #{@assignments[2][:title]}")
 
     permissions = assignments.permissions
     permissions.check_evaluators_share_drafts
@@ -1024,85 +1063,85 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     assignments = permissions.save
     
     # TEST CASE: Verify the draft shows in the list
-    assert assignments.assignments_titles.include?("Draft - Assignment 3")
+    assert assignments.assignments_titles.include?("Draft - #{@assignments[2][:title]}")
     
-    assignment3 = assignments.edit_assignment("Draft - Assignment 3")
+    assignment3 = assignments.edit_assignment("Draft - #{Regexp.escape(@assignments[2][:title])}")
     assignment3.post
     
     # TEST CASE: Verify the list has updated properly
-    assert_equal false, assignments.assignments_titles.include?("Draft - Assignment 3")
-    assert assignments.assignments_titles.include?("Assignment 3")
+    assert_equal false, assignments.assignments_titles.include?("Draft - #{@assignments[2][:title]}")
+    assert assignments.assignments_titles.include?(@assignments[2][:title])
 
     home = assignments.home
 
     # TEST CASE: Verify the announcement appears as expected
-    assert home.announcements_list.include?("Assignment: Open Date for 'Assignment 3'")
+    assert home.announcements_list.include?("Assignment: Open Date for '#{@assignments[2][:title]}'")
 
     assignments = home.assignments
     
     add_assgn5 = assignments.add
-    add_assgn5.instructions="Integer pulvinar facilisis purus. Quisque placerat! Maecenas risus. Nam vitae lacus. Quisque euismod imperdiet ipsum. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nam vitae nulla! Duis tincidunt. Nulla id felis. Duis accumsan, est ut volutpat mollis, tellus lorem venenatis justo, eu accumsan lorem neque sit amet ante. Sed dictum. Donec nulla mi, lacinia nec; viverra nec, commodo sed, justo. Praesent fermentum vehicula dui. Sed molestie eleifend leo. Nulla et risus! Nullam ut lacus. Etiam faucibus; eros sit amet tempus consectetuer, urna est hendrerit mi, eget molestie sapien lorem non tellus. In vitae nisl. Vivamus ac lectus id pede viverra placerat.\n\nMorbi nec dui eget pede dapibus mollis. Mauris nisl. Donec tempor blandit diam. In hac habitasse platea dictumst. Sed vulputate ornare urna. Nulla sed."
-    add_assgn5.title="Assignment 5"
+    add_assgn5.instructions=@assignments[4][:instructions]
+    add_assgn5.title=@assignments[4][:title]
     add_assgn5.grade_scale="Checkmark"
     
     attach = add_assgn5.add_attachments
-    attach.upload_local_file "documents/resources.txt"
+    attach.upload_local_file @assignments[4][:file]
     
     add_assgn5 = attach.continue
     
     assignments = add_assgn5.save_draft
     
     # TEST CASE: Verify list shows draft
-    assert assignments.assignments_titles.include?("Draft - Assignment 5")
+    assert assignments.assignments_titles.include?("Draft - #{@assignments[4][:title]}")
 
     @sakai.logout
 
     workspace = @sakai.login(@instructor, @ipassword)
     
-    home = workspace.open_my_site_by_name "Portfolio Site"
+    home = workspace.open_my_site_by_name @portfolio_site
 
     # TEST CASE: Verify Announcements does not include Assignment 5
-    assert_equal false, home.announcements_list.include?("Assignment: Open Date for Assignment 5")
+    assert_equal false, home.announcements_list.include?("Assignment: Open Date for #{@assignments[4][:title]}")
 
     assignments = home.assignments
 
     # TEST CASE: Verify list shows expected Assignments
-    assert assignments.assignments_titles.include?("Assignment 1")
-    assert assignments.assignments_titles.include?("Assignment 2")
-    assert assignments.assignments_titles.include?("Assignment 3")
-    assert assignments.assignments_titles.include?("Assignment 4")
-    assert assignments.assignments_titles.include?("Draft - Assignment 5")
+    assert assignments.assignments_titles.include?(@assignments[0][:title])
+    assert assignments.assignments_titles.include?(@assignments[1][:title])
+    assert assignments.assignments_titles.include?(@assignments[2][:title])
+    assert assignments.assignments_titles.include?(@assignments[3][:title])
+    assert assignments.assignments_titles.include?("Draft - #{@assignments[4][:title]}")
 
-    assignment1 = assignments.edit_assignment "Assignment 1"
-    assignment1.instructions="Phasellus molestie. Sed in pede. Sed augue. Vestibulum lacus lectus, pulvinar nec, condimentum eu, sodales et, risus. Aenean dolor nisl, tristique at, vulputate nec, blandit in, mi. Fusce elementum ante. Maecenas rhoncus tincidunt sem. Sed leo dolor, faucibus hendrerit, tincidunt nec, elementum in, arcu. Donec et nulla. Vestibulum mauris nunc, consectetuer at, ultricies a, rutrum at, felis. Integer a nulla. Aliquam tincidunt nunc. Curabitur non purus. Nulla vel augue ac magna porttitor pretium.\n\nAenean fringilla enim. Vivamus nisi. Integer eleifend pharetra elit. Nulla scelerisque accumsan lectus. Morbi accumsan dui non velit. Suspendisse consequat mauris vitae neque. Etiam sit amet urna ut eros feugiat imperdiet? Nunc ut dolor. Nulla laoreet, nisi quis egestas condimentum, sapien nulla rutrum quam, quis auctor lorem justo at lectus. Integer in lacus eu nunc molestie pharetra. Curabitur dictum justo non eros. Nullam pellentesque ante rutrum mauris."
+    assignment1 = assignments.edit_assignment @assignments[0][:title]
+    assignment1.instructions=@assignments[0][:instructions]
     assignment1.grade_scale="Letter grade"
     
     assignments = assignment1.post
-    assignments = assignments.delete_assignment "Assignment 1"
+    assignments = assignments.delete_assignment @assignments[0][:title]
 
     # TEST CASE: Verify assignnment 1 is deleted but the others remain
-    assert_equal false, assignments.assignments_titles.include?("Assignment 1")
-    assert assignments.assignments_titles.include?("Assignment 2")
-    assert assignments.assignments_titles.include?("Assignment 3")
-    assert assignments.assignments_titles.include?("Assignment 4")
-    assert assignments.assignments_titles.include?("Draft - Assignment 5")
+    assert_equal false, assignments.assignments_titles.include?(@assignments[0][:title])
+    assert assignments.assignments_titles.include?(@assignments[1][:title])
+    assert assignments.assignments_titles.include?(@assignments[2][:title])
+    assert assignments.assignments_titles.include?(@assignments[3][:title])
+    assert assignments.assignments_titles.include?("Draft - #{@assignments[4][:title]}")
 
-    assignments = assignments.duplicate_assignment "Assignment 2"
+    assignments = assignments.duplicate_assignment @assignments[1][:title]
 
     # TEST CASE: Verify duplication
-    assert assignments.assignments_titles.include?("Draft - Assignment 2 - Copy")
+    assert assignments.assignments_titles.include?("Draft - #{@assignments[1][:title]} - Copy")
 
-    assignment1 = assignments.edit_assignment "Draft - Assignment 2 - Copy"
-    assignment1.title="Assignment 1"
+    assignment1 = assignments.edit_assignment "Draft - #{@assignments[1][:title]} - Copy"
+    assignment1.title=@assignments[0][:title]
 
     assignments = assignment1.post
   
     # TEST CASE: Verify assignments list
-    assert assignments.assignments_titles.include?("Assignment 1")
-    assert assignments.assignments_titles.include?("Assignment 2")
-    assert assignments.assignments_titles.include?("Assignment 3")
-    assert assignments.assignments_titles.include?("Assignment 4")
-    assert assignments.assignments_titles.include?("Draft - Assignment 5")
+    assert assignments.assignments_titles.include?(@assignments[0][:title])
+    assert assignments.assignments_titles.include?(@assignments[1][:title])
+    assert assignments.assignments_titles.include?(@assignments[2][:title])
+    assert assignments.assignments_titles.include?(@assignments[3][:title])
+    assert assignments.assignments_titles.include?("Draft - #{@assignments[4][:title]}")
 
     reorder = assignments.reorder
     reorder.sort_by_title
@@ -1110,7 +1149,7 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     assignments = reorder.save
     
     # TEST CASE: Verify the reorder happened
-    assert_equal assignments.assignment_list[0], "Assignment 1"
+    assert_equal assignments.assignment_list[0], @assignments[0][:title]
 
     @sakai.logout
 
@@ -1120,8 +1159,8 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
 
     assignments = home.assignments
 
-    assignment1 = assignments.open_assignment "Assignment 1"
-    assignment1.assignment_text="Etiam nec tellus. Nulla semper volutpat ipsum. Cras lectus magna, convallis eget, molestie ac, pharetra vel, lorem. Etiam massa velit, vulputate ut, malesuada aliquet, pretium vitae, arcu. In ipsum libero, porttitor ac, viverra eu, feugiat et, tortor. Donec vel turpis ac tortor malesuada sollicitudin! Ut et lectus. Mauris sodales. Fusce ultrices euismod metus. Aliquam eu felis eget diam malesuada bibendum. Nunc a orci in augue condimentum blandit. Proin at dolor. Donec velit. Donec ullamcorper eros a ligula. Sed ullamcorper risus nec nisl. Nunc vel justo ut risus interdum faucibus. Sed dictum tempus ipsum! In neque dolor, auctor vel, accumsan pulvinar, feugiat sit amet, urna. Aenean sagittis luctus felis.\n\nAenean elementum pretium urna. Nullam eleifend congue nulla. Suspendisse potenti. Nullam posuere elit. Sed tellus. In facilisis. Nulla aliquet, turpis nec dictum euismod, nisl dui gravida leo, et volutpat odio eros sagittis sapien. Aliquam at purus? Nunc nibh diam; imperdiet ut, sodales ut, venenatis a, leo? Suspendisse pede. Maecenas congue risus et leo! Praesent urna purus, lobortis at; dapibus nec, dictum id, elit. Vivamus gravida odio non tellus. Aliquam non nulla."
+    assignment1 = assignments.open_assignment @assignments[0][:title]
+    assignment1.assignment_text=@assignments[0][:student_text]
     assignment1.preview
     
     confirm = assignment1.save_draft
@@ -1129,46 +1168,45 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     assignments = confirm.back_to_list
 
     # TEST CASE: assignment shows a draft status
-    assert_equal assignments.status_of("Assignment 1"), "Draft - In progress"
+    assert_equal assignments.status_of(@assignments[0][:title]), "Draft - In progress"
 
-    assignment1 = assignments.open_assignment "Assignment 1"
+    assignment1 = assignments.open_assignment @assignments[0][:title]
     
     confirm = assignment1.submit
     
     assignments = confirm.back_to_list
 
     # TEST CASE: Verify assignment submission
-    assert_not_equal false, assignments.status_of("Assignment 1")=~/Submitted/
+    assert_not_equal false, assignments.status_of(@assignments[0][:title])=~/Submitted/
     
-    assignment3 = assignments.open_assignment "Assignment 3"
-    assignment3.select_file "documents/Lorem.txt"
+    assignment3 = assignments.open_assignment @assignments[2][:title]
+    assignment3.select_file 
     
     confirm = assignment3.submit
 
     assignments = confirm.back_to_list
     
     # TEST CASE: Verify assignment has submitted status
-    assert_not_equal false, assignments.status_of("Assignment 3")=~/Submitted/
+    assert_not_equal false, assignments.status_of(@assignments[2][:title])=~/Submitted/
 
     @sakai.logout
 
     workspace = @sakai.login(@instructor, @ipassword)
     
-    home = workspace.open_my_site_by_name "Portfolio Site"
+    home = workspace.open_my_site_by_name @portfolio_site
     
     assignments = home.assignments
     
-    submissions_list = assignments.grade "Assignment 1"
+    submissions_list = assignments.grade @assignments[0][:title]
     
-    grade_assignment = submissions_list.grade "Cheeks, Sandra (student01)"
+    grade_assignment = submissions_list.grade "#{@config.directory['person1']['lastname']}, #{@config.directory['person1']['firstname']} (#{@config.directory['person1']['id']})"
     sleep 4 #FIXME
-    grade_assignment.instructor_comments="Great job!"
+    grade_assignment.instructor_comments=@assignments[0][:instructor_comment1]
     grade_assignment.remove_assignment_text
-    grade_assignment.assignment_text="Etiam nec tellus. Nulla semper volutpat ipsum. {{test text}} Cras lectus magna, convallis eget, molestie ac, pharetra vel, lorem. Etiam massa velit, vulputate ut, malesuada aliquet, pretium vitae, arcu. In ipsum libero, porttitor ac, viverra eu, feugiat et, tortor. Donec vel turpis ac tortor malesuada sollicitudin! Ut et lectus. Mauris sodales. Fusce ultrices euismod metus. Aliquam eu felis eget diam malesuada bibendum. Nunc a orci in augue condimentum blandit. Proin at dolor. Donec velit. Donec ullamcorper eros a ligula. Sed ullamcorper risus nec nisl. Nunc vel justo ut risus interdum faucibus. Sed dictum tempus ipsum! In neque dolor, auctor vel, accumsan pulvinar, feugiat sit amet, urna. Aenean sagittis luctus felis.\n\nAenean elementum pretium urna. Nullam eleifend congue nulla. Suspendisse potenti. Nullam posuere elit. Sed tellus. In facilisis. Nulla aliquet, turpis nec dictum euismod, nisl dui gravida leo, et volutpat odio eros sagittis sapien. Aliquam at purus? Nunc nibh diam; imperdiet ut, sodales ut, venenatis a, leo? Suspendisse pede. Maecenas congue risus et leo! Praesent urna purus, lobortis at; dapibus nec, dictum id, elit. Vivamus gravida odio non tellus. Aliquam non nulla."
-    
+    grade_assignment.assignment_text=@assignments[0][:instructor_text]    
     attach = grade_assignment.add_attachments
 
-    attach.url="http://www.rsmart.com"
+    attach.url=@assignments[0][:url]
     attach.add
 
     grade_assignment = attach.continue
@@ -1178,7 +1216,7 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     submissions_list = grade_assignment.return_to_list
     submissions_list.release_grades
     
-    grade_assignment = submissions_list.grade "Cheeks, Sandra (student01)"
+    grade_assignment = submissions_list.grade "#{@config.directory['person1']['lastname']}, #{@config.directory['person1']['firstname']} (#{@config.directory['person1']['id']})"
     grade_assignment.check_allow_resubmission
     grade_assignment.return_to_list
     
@@ -1186,40 +1224,40 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
 
     workspace = @sakai.login(@student, @spassword)
     
-    home = workspace.open_my_site_by_name "Portfolio Site"
+    home = workspace.open_my_site_by_name @portfolito_site
     
     assignments = home.assignments
   
-    assignment_1 = assignments.open_assignment "Assignment 1"
+    assignment_1 = assignments.open_assignment @assignments[0][:title]
     
     # TEST CASE: Verify attached URL
-    assert @browser.frame(:index=>1).link(:text=>"http://www.rsmart.com").exist?
+    assert @browser.frame(:index=>1).link(:text=>@assignments[0][:url]).exist?
     
     assignment_1.remove_assignment_text
-    assignment_1.assignment_text="Etiam nec tellus. Nulla semper volutpat ipsum. Cras lectus magna, convallis eget, molestie ac, pharetra vel, lorem. Etiam massa velit, vulputate ut, malesuada aliquet, pretium vitae, arcu. In ipsum libero, porttitor ac, viverra eu, feugiat et, tortor. Donec vel turpis ac tortor malesuada sollicitudin! Ut et lectus. Mauris sodales. Fusce ultrices euismod metus. Aliquam eu felis eget diam malesuada bibendum. Nunc a orci in augue condimentum blandit. Proin at dolor. Donec velit. Donec ullamcorper eros a ligula. Sed ullamcorper risus nec nisl. Nunc vel justo ut risus interdum faucibus. Sed dictum tempus ipsum! In neque dolor, auctor vel, accumsan pulvinar, feugiat sit amet, urna. Aenean sagittis luctus felis.\n\nAenean elementum pretium urna. Nullam eleifend congue nulla. Suspendisse potenti. Nullam posuere elit. Sed tellus. In facilisis. Nulla aliquet, turpis nec dictum euismod, nisl dui gravida leo, et volutpat odio eros sagittis sapien. Aliquam at purus? Nunc nibh diam; imperdiet ut, sodales ut, venenatis a, leo? Suspendisse pede. Maecenas congue risus et leo! Praesent urna purus, lobortis at; dapibus nec, dictum id, elit. Vivamus gravida odio non tellus. Aliquam non nulla.\n\nRev2 Text"
+    assignment_1.assignment_text=@assignments[0][:student_text]
     
     confirm = assignment_1.resubmit
     
     assignments = confirm.back_to_list
 
     # TEST CASE: Verify submission status is correct
-    assert_not_equal false, assignments.status_of("Assignment 1")=~/Re-submitted/
+    assert_not_equal false, assignments.status_of(@assignments[0][:title])=~/Re-submitted/
     
     @sakai.logout
 
     workspace = @sakai.login(@instructor, @ipassword)
 
-    home = workspace.open_my_site_by_name "Portfolio Site"
+    home = workspace.open_my_site_by_name @portfolito_site
     
     assignments = home.assignments
     
-    submissions_list = assignments.grade "Assignment 1"
+    submissions_list = assignments.grade @assignments[0][:title]
     
     # TEST CASE: Verify resubmission status
-    assert_not_equal false, submissions_list.submission_status_of("Cheeks, Sandra (student01)")=~/Re-submitted/
+    assert_not_equal false, submissions_list.submission_status_of("#{@config.directory['person1']['lastname']}, #{@config.directory['person1']['firstname']} (#{@config.directory['person1']['id']})")=~/Re-submitted/
 
-    grade_assignment = submissions_list.grade "Cheeks, Sandra (student01)"
-    grade_assignment.instructor_comments="Good job again!"
+    grade_assignment = submissions_list.grade "#{@config.directory['person1']['lastname']}, #{@config.directory['person1']['firstname']} (#{@config.directory['person1']['id']})"
+    grade_assignment.instructor_comments=@assignments[0][:instructor_comment2]
     grade_assignment.select_default_grade="A"
     grade_assignment.save_and_dont_release
     
@@ -1230,13 +1268,13 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
 
     workspace = @sakai.login(@student, @spassword)
     
-    home = workspace.open_my_site_by_name "Portfolio Site"
+    home = workspace.open_my_site_by_name @portfolito_site
     
     assignments = home.assignments
-    assignment_1 = assignments.open_assignment "Assignment 1"
+    assignment_1 = assignments.open_assignment @assignments[0][:title]
     
     # TEST CASE: Verify instructor's comments are as expected
-    assert_equal assignment_1.instructor_comments, "Good job again!"
+    assert_equal assignment_1.instructor_comments, @assignments[0][:instructor_comment2]
     
     @sakai.logout
   end
