@@ -61,7 +61,7 @@ class AssessmentsList
   
   # Collects the titles of the Assessments listed as "Pending"
   # then returns them as an Array.
-  def pending_assessment_titles
+  def pending_assessment_titles #FIXME
     titles =[]
     pending_table = @browser.frame(:index=>1).table(:class=>"authorIndexForm:coreAssessments")
     1.upto(pending_table.rows.size-1) do |x|
@@ -76,14 +76,14 @@ class AssessmentsList
     titles =[]
     published_table = @browser.frame(:index=>1).div(:class=>"tier2", :index=>2).table(:class=>"listHier")
     1.upto(published_table.rows.size-1) do |x|
-      titles << published_table[x][1].span(:class=>"firstChild").link(:index=>0).text
+      titles << published_table[x][1].span(:id=>/publishedAssessmentTitle/).text
     end
     return titles
   end
   
   # Returns an Array of the inactive Assessment titles displayed
   # in the list.
-  def inactive_assessment_titles
+  def inactive_assessment_titles #FIXME
     titles =[]
     inactive_table = @browser.frame(:index=>1).div(:class=>"tier2", :index=>2).table(:class=>"authorIndexForm:inactivePublishedAssessments")
     1.upto(inactive_table.rows.size-1) do |x|
@@ -863,7 +863,7 @@ class PoolImport
   # file field. Note that it assumes the file is in
   # the data/sakai-cle folder in the expected resources
   # tree.
-  def choose_file (filename)
+  def choose_file=(filename)
     frm.file_field(:name=>"importPoolForm:_id6.upload").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + file_name)
   end
   
