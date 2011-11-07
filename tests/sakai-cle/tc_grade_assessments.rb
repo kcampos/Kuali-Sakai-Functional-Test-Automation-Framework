@@ -30,6 +30,9 @@ class TestGradeAssessment < Test::Unit::TestCase
     @test1 = @config.directory['site1']['quiz1']
     @sakai = SakaiCLE.new(@browser)
     
+    # Test case variables
+    @instructor_comment = "I am very disappointed. :("
+    
   end
   
   def teardown
@@ -39,28 +42,26 @@ class TestGradeAssessment < Test::Unit::TestCase
   
   def test_grade_assessment
     
-    # some code to simplify writing steps in this test case
-    def frm
-      @browser.frame(:index=>$frame_index)
-    end
-    
     # Log in to Sakai as instructor
-    @sakai.login(@instructor, @ipassword)
+    workspace = @sakai.login(@instructor, @ipassword)
     
     # Go to test site.
-    @browser.link(:href, /#{@site_id}/).click
-    home = Home.new(@browser)
+    home = workspace.open_my_site_by_id(@site_id)
     
     # Score the first test
     test_list = home.tests_and_quizzes
     
-    score_test = test_list.score_test(@test1)
+    score_test1 = test_list.score_test(@test1)
+    
+    score_test1.sort_by_submit_date
+    sleep 0.5 # Need this because of a selenium bug.
+    score_test1.sort_by_submit_date
     
     # Enter feedback
-    score_test.comment_for_student(@student, "I am very disappointed. :(")
+    score_test1.comment_in_first_box=@instructor_comment
     
     # Save the feedback
-    score_test = score_test.update
+    score_test = score_test1.update
     
     # Go back to the Assessments list
     score_test.assessments
@@ -69,18 +70,17 @@ class TestGradeAssessment < Test::Unit::TestCase
     @sakai.logout
     
     # Log in as the student
-    @sakai.login(@student, @spassword)
+    workspace = @sakai.login(@student, @spassword)
     
     # Go to the Assessments page
-    @browser.link(:href, /#{@site_id}/).click
-    home = Home.new(@browser)
+    home = workspace.open_my_site_by_id(@site_id)
     tests = home.tests_and_quizzes
     
     # Click the link to get the feedback
     tests.feedback(@test1)
     
     # TEST CASE: Confirm instructor comment is present on page
-    assert frm.div(:class=>"portletBody").text =~ /I am very disappointed/
+    assert_not_equal false, @browser.frame(:index=>1).div(:class=>"portletBody").text=~/#{Regexp.escape(@instructor_comment)}/ 
     
   end
   

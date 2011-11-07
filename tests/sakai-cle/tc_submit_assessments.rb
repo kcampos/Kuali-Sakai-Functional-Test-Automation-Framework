@@ -39,11 +39,10 @@ class TestSubmitAssessment < Test::Unit::TestCase
   
   def test_submit_assessment
     # Log in to Sakai
-    @sakai.login(@user_name, @password)
+    workspace = @sakai.login(@user_name, @password)
     
     # Go to test site.
-    @browser.link(:href, /#{@site_id}/).click
-    home = Home.new(@browser)
+    home = workspace.open_my_site_by_id(@site_id)
     
     # Defining the frame code for ease of
     # step writing...
@@ -62,59 +61,52 @@ class TestSubmitAssessment < Test::Unit::TestCase
     
     quiz1.begin_assessment
     
-    # Going to have to spend some time thinking about
-    # ways to abstract this later. Unfortunately, right
-    # now it doesn't look possible--at least in a way
-    # that will have flexibility.
-    
     # Answer the questions...
-    frm.radio(:name=>"takeAssessmentForm:_id48:0:_id105:0:deliverMultipleChoiceSingleCorrect:_id733:3:_id736").set
-    frm.button(:value=>"Next").click
+    quiz1.multiple_choice_answer "D"
+    quiz1 = quiz1.next
     
-    frm.radio(:name=>"takeAssessmentForm:_id48:0:_id105:0:deliverTrueFalse:_id1075:0:question").set
-    frm.button(:value=>"Next").click
+    quiz1.true_false_answer "true"
+    quiz1 = quiz1.next
     
-    frm.text_field(:name=>"takeAssessmentForm:_id48:0:_id105:0:deliverFillInTheBlank:_id506:0:_id509").value="Rhode Island"
-    frm.button(:value=>"Next").click
+    quiz1.fill_in_blank_answer("Rhode Island", 1)
+    quiz1 = quiz1.next
     
-    frm.radio(:name=>"takeAssessmentForm:_id48:0:_id105:0:deliverMultipleChoiceSingleCorrect:_id733:1:_id736").set
-    frm.button(:value=>"Next").click
+    quiz1.multiple_choice_answer "B"
+    quiz1 = quiz1.next
     
-    frm.text_field(:id=>"takeAssessmentForm:_id48:0:_id105:0:deliverShortAnswer:_id972_textinput").value="Vivamus placerat. Duis tincidunt lacus non magna. Nullam faucibus tortor a nisl."
-    frm.button(:value=>"Next").click
+    quiz1.short_answer "Vivamus placerat. Duis tincidunt lacus non magna. Nullam faucibus tortor a nisl."
+    quiz1 = quiz1.next
     
-    frm.text_field(:name=>"takeAssessmentForm:_id48:0:_id105:0:deliverFillInTheBlank:_id506:0:_id509").value="Queen Anne"
-    frm.text_field(:name=>"takeAssessmentForm:_id48:0:_id105:0:deliverFillInTheBlank:_id506:1:_id509").value="Britain"
-    frm.button(:value=>"Next").click
+    quiz1.fill_in_blank_answer("Queen Anne", 1)
+    quiz1.fill_in_blank_answer("Britain", 2)
+    quiz1 = quiz1.next
     
-    frm.select(:name=>"takeAssessmentForm:_id48:0:_id105:0:deliverMatching:_id613:0:_id616").select("B")
-    frm.select(:name=>"takeAssessmentForm:_id48:0:_id105:0:deliverMatching:_id613:1:_id616").select("A")
-    frm.button(:value=>"Next").click
+    quiz1.match_answer("B", 1)
+    quiz1.match_answer("A", 2)
+    quiz1 = quiz1.next
     
-    frm.radio(:name=>"takeAssessmentForm:_id48:0:_id105:0:deliverTrueFalse:_id1075:0:question").set
-    frm.text_field(:id=>"takeAssessmentForm:_id48:0:_id105:0:deliverTrueFalse:rationale").value="Epistemology is the study of knowledge."
-    frm.button(:value=>"Next").click
+    quiz1.true_false_answer "False"
+    quiz1.true_false_rationale "Epistemology is the study of knowledge."
+    quiz1 = quiz1.next
     
-    frm.file_field(:name=>"takeAssessmentForm:_id48:0:_id105:0:deliverFileUpload:_id284.upload").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/documents/resources.doc")
-    frm.button(:value=>"Next").click
+    quiz1.file_answer "documents/resources.doc"
+    quiz1 = quiz1.next
     
-    frm.text_field(:name=>"takeAssessmentForm:_id48:0:_id105:0:deliverFillInTheBlank:_id506:0:_id509").set("red")
-    frm.text_field(:name=>"takeAssessmentForm:_id48:0:_id105:0:deliverFillInTheBlank:_id506:1:_id509").set("blue")
+    quiz1.fill_in_blank_answer("red", 1)
+    quiz1.fill_in_blank_answer("blue", 2)
     
     # Submit for grading
-    frm.button(:value=>"Submit for Grading").click
+    confirm = quiz1.submit_for_grading
     
     # TEST CASE: Confirm warning screen contents
     assert frm.span(:class=>"validation").text =~ /You are about to submit this assessment for grading./
     
-    frm.button(:value=>"Submit for Grading").click
+    summary = confirm.submit_for_grading
     
     # TEST CASE: Verify confirmation page contents
     assert frm.div(:class=>"portletBody").div(:class=>"tier1").text =~ /You have completed this assessment./
     
-    frm.button(:value=>"Continue").click
-    
-    tests = TakeAssessmentList.new(@browser)
+    tests = summary.continue
     
     # TEST CASE: Verify test is listed as submitted
     assert tests.submitted_assessments.include?(@test1), "#{@test1} not found in #{tests.submitted_assessments}"
@@ -124,14 +116,16 @@ class TestSubmitAssessment < Test::Unit::TestCase
     quiz2 = tests.take_assessment(@test2)
     quiz2.begin_assessment
     
-    frm.radio(:name=>"takeAssessmentForm:_id48:0:_id105:0:deliverMultipleChoiceSingleCorrect:_id733:2:_id736").set
-    frm.button(:value=>"Next").click
+    quiz2.multiple_choice_answer "c"
+    quiz2 = quiz2.next
     
-    frm.radio(:name=>"takeAssessmentForm:_id48:0:_id105:0:deliverTrueFalse:_id1075:0:question").set
-    frm.button(:value=>"Submit for Grading").click
-    frm.button(:value=>"Submit for Grading").click
-    frm.button(:value=>"Continue").click
-    tests_lists = TakeAssessmentList.new(@browser)
+    quiz2.true_false_answer "true"
+    
+    confirm = quiz2.submit_for_grading
+    
+    summary = confirm.submit_for_grading
+    
+    tests_lists = summary.continue
     
     # TEST CASE: Verify test is listed as submitted
     assert tests_lists.submitted_assessments.include?(@test2), "#{@test2} not found in #{tests_lists.submitted_assessments}"

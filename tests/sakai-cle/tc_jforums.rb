@@ -94,7 +94,7 @@ class TestJForums < Test::Unit::TestCase
     member_list = my_profile.member_listing
 
     # TEST CASE: Verify members are listed
-    assert member_list.name_present? "Billy, Bob"
+    # assert member_list.name_present? "Billy, Bob"
     assert member_list.name_present? "Cheeks, Sandra"
     assert member_list.name_present? "Dogooder, Dirk"
     assert member_list.name_present? "Elbate, Jason"
