@@ -83,7 +83,7 @@ class TestMessages < Test::Unit::TestCase
     
     personal_message = messages.compose_message
     
-    personal_message.send_to="Billy, Bob"
+    personal_message.send_to="Bob, Billy"
     personal_message.subject="Personal Message"
     personal_message.message_text="This is a personal message"
     
@@ -223,8 +223,8 @@ class TestMessages < Test::Unit::TestCase
     
     messages = home.messages
     
-    # TEST CASE: User has 2 unread messages
-    assert_equal messages.unread_messages_in_folder("Received"), "3"
+    # TEST CASE: User has unread messages
+    assert_equal "3", messages.unread_messages_in_folder("Received")
     
     received = messages.received
     
@@ -242,7 +242,7 @@ class TestMessages < Test::Unit::TestCase
     messages = Messages.new(@browser)
     
     # TEST CASE: Verify the count of unread messages has updated
-    assert_equal messages.unread_messages_in_folder("Received"), "1"
+    assert_equal "1", messages.unread_messages_in_folder("Received")
 
     @sakai.logout
 

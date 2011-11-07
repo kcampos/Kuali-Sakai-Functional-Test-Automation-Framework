@@ -23,6 +23,15 @@ class TestCreatingCourseSite < Test::Unit::TestCase
     @password = @config.directory['admin']['password']
     @sakai = SakaiCLE.new(@browser)
     
+    # Test case variables
+    @subject = random_string(8)
+    @course = random_string(8)
+    @section = random_string(8)
+    @authorizer = "admin"
+    @web_content_source = "http://www.rsmart.com"
+    @email=random_alphanums
+    @joiner_role = "Student"
+    
   end
   
   def teardown
@@ -73,17 +82,14 @@ class TestCreatingCourseSite < Test::Unit::TestCase
     assert @browser.text.include?("You have thus far selected the following course/section(s) for this course site:")
     
     # Fill in those fields, storing the entered values for later verification steps
-    subject = random_string(8)
-    course_section.subject = subject
+    course_section.subject = @subject
     
-    course = random_string(8)
-    course_section.course = course
+    course_section.course = @course
     
-    section = random_string(8)
-    course_section.section = section
+    course_section.section = @section
     
     # Store site name for ease of coding and readability later
-    site_name = "#{subject} #{course} #{section} #{term}"
+    site_name = "#{@subject} #{@course} #{@section} #{term}"
     
     @config.directory['site1']['name'] = site_name
     
@@ -103,7 +109,7 @@ class TestCreatingCourseSite < Test::Unit::TestCase
     assert @browser.text.include?("Alert: Please enter a valid Username for the instructor of record.")
     
     # Add a valid instructor id
-    course_section.authorizers_username="admin"
+    course_section.authorizers_username=@authorizer
     
     # Click continue button
     course_site = course_section.continue
@@ -157,11 +163,8 @@ class TestCreatingCourseSite < Test::Unit::TestCase
     # TEST CASE: Site email address is required to continue
     assert @browser.text.include?("Alert: Please specify an email address for Email Archive tool.")
     
-    # Create a random email address and store the string for later
-    email_address = random_alphanums
-    
-    add_tools.site_email_address = email_address
-    add_tools.web_content_source="http://www.rsmart.com"
+    add_tools.site_email_address = @email
+    add_tools.web_content_source=@web_content_source
     
     # Click the Continue button
     # Note that I am calling this element directly rather than using its Class definition
@@ -173,7 +176,7 @@ class TestCreatingCourseSite < Test::Unit::TestCase
     # TEST CASE: Joiner Role selection list is not visible by default
     assert_equal(access.joiner_role_element.visible?, false)
     access.select_allow
-    access.joiner_role="Student"
+    access.joiner_role=@joiner_role
     
     review = access.continue
     
@@ -192,7 +195,7 @@ class TestCreatingCourseSite < Test::Unit::TestCase
       sleep 0.5 # Need this due to a bug in selenium-webdriver: http://code.google.com/p/selenium/issues/detail?id=2099
       }
     
-    link_text = @browser.frame(:index=>0).link(:href=>/xsl-portal.site/, :index=>0).text
+    link_text = @browser.frame(:index=>0).link(:href=>/xsl-portal.site/, :index=>0).text #FIXME
     
     #TEST CASE: Verify the creation of the site by the name
     assert_equal(link_text, site_name, "#{link_text} does not match #{site_name}")

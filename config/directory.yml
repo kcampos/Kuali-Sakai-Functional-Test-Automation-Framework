@@ -11,8 +11,8 @@ person1:
   type: registered
 person2: 
   id: student02
-  firstname: Bob
-  lastname: Billy
+  firstname: Billy
+  lastname: Bob
   email: cswines@rsmart.com
   password: password
   type: registered
@@ -109,7 +109,7 @@ site1:
   assignment3: 98092005-4783-4a5e-b60f-fd7a00401a2e
   assignment4: 6336f34e-b54d-4784-b040-684c518d8265
   assignment5: bd8739c6-95f4-470d-9d7b-f4c15b9bdbd6
-  quiz1: u:q>!9P,@I
-  quiz2: </TITLE><SCRIPT>alert("XSS");</SCRIPT>
-  group0: YOI]%+Qh\h0[t@$w6qci[a0IP+253`PJ,*];b;mdZQ%&niO!$RmG84Zq]doM.Ko"#x<g<_ma(Rp!|<(9Y@30 - 201110311023
-  group1: ":[Tn2g-Y^9DcriM)C;Mx(`U.$LE(|36{>pD',nS\\w,XII,Q8pJW.mmX;p=!sbQ_<\"0Bck|qZ#b>U2{Azwa8W - 201110311023"
+  quiz1: Test 1TF7CUjrsEK
+  quiz2: Test 2ygGx2dWggp
+  group0: $9tbm>?$k,pluw!fvm.yerv5AT_GHu4V_1Y"R,H@NFZ7SiUIxe^mV=SiuCkR_R?1:isy$nB><2tN0p{kn))= - 201111070854
+  group1: vJ<NNo0d.CFbLd5>`CD>,%a\xpw3\Wy)26"Em42D.Ck#1SR*|=p:mA$2|D=Rhx{Ia}]n|S2&]gD"E?zNp":d - 201111070854

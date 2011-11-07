@@ -22,6 +22,7 @@
 
 #require 'page-object'
 #require  File.dirname(__FILE__) + '/app_functions.rb'
+require 'cgi'
 
 #================
 # Assessments pages - "Samigo", a.k.a., "Tests & Quizzes"
@@ -95,9 +96,7 @@ class AssessmentsList
   # Opens the selected test for scoring
   # then instantiates the AssessmentTotalScores class.
   def score_test(test_title)
-    test_names = get_published_titles
-    index_value = test_names.index(test_title)
-    frm.link(:id=>"authorIndexForm:_id88:#{index_value}:authorIndexToScore1").click
+    frm.tbody(:id=>"authorIndexForm:_id88:tbody_element").row(:text=>/#{Regexp.escape(test_title)}/).link(:id=>/authorIndexToScore/).click
     AssessmentTotalScores.new(@browser)
   end
   
@@ -265,6 +264,11 @@ class AssessmentTotalScores
   # Gets the user ids listed in the
   # scores table, returns them as an Array
   # object.
+  #
+  # Note that this method is only appropriate when student
+  # identities are not being obscured on this page. If student
+  # submissions are set to be anonymous then this method will fail
+  # to return any ids.
   def student_ids
     ids = []
     scores_table = frm.table(:id=>"editTotalResults:totalScoreTable").to_a
@@ -274,12 +278,23 @@ class AssessmentTotalScores
   end
   
   # Adds a comment to the specified student's comment box.
+  #
+  # Note that this method assumes that the student identities are not being
+  # obscured on this page. If they are, then this method will not work for
+  # selecting the appropriate comment box.
   def comment_for_student(student_id, comment)
-    available_ids = student_ids
-    index_val = available_ids.index(student_id)
+    index_val = student_ids.index(student_id)
     
     frm.text_field(:name=>"editTotalResults:totalScoreTable:#{index_val}:_id345").value=comment
     
+  end
+  
+  def sort_by_submit_date
+    frm.link(:text=>"Submit Date").click
+  end
+  
+  def comment_in_first_box=(comment)
+    frm.text_field(:name=>"editTotalResults:totalScoreTable:0:_id345").value=comment
   end
   
   # Clicks the Update button, then instantiates
@@ -832,6 +847,18 @@ class QuestionPoolsList
     AddQuestionPool.new(@browser)
   end
   
+  # Returns an array containing strings of the pool names listed
+  # on the page.
+  def pool_names
+    names= []
+    frm.table(:id=>"questionpool:TreeTable").rows.each do | row |
+      if row.span(:id=>/questionpool.+poolnametext/).exist?
+        names << row.span(:id=>/questionpool.+poolnametext/).text
+      end
+    end
+    return names
+  end
+  
   # Clicks "Import" and then instantiates the
   # PoolImport page class.
   def import
@@ -863,7 +890,7 @@ class PoolImport
   # file field. Note that it assumes the file is in
   # the data/sakai-cle folder in the expected resources
   # tree.
-  def choose_file=(filename)
+  def choose_file=(file_name)
     frm.file_field(:name=>"importPoolForm:_id6.upload").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + file_name)
   end
   
@@ -887,8 +914,8 @@ class SelectQuestionType
   # drop-down list, then instantiates the appropriate
   # page class, based on the question type selected.
   def select_question_type(qtype)
-    frm(1).select(:id=>"_id1:selType").select(qtype)
-    frm(1).button(:value=>"Save").click
+    frm.select(:id=>"_id1:selType").select(qtype)
+    frm.button(:value=>"Save").click
     
     page = case(qtype)
     when "Multiple Choice" then MultipleChoice.new(@browser)
@@ -914,6 +941,9 @@ class SelectQuestionType
 end
 
 # Page of Assessments accessible to a student user
+#
+# It may be that we want to deprecate this class and simply use
+# the AssessmentsList class alone.
 class TakeAssessmentList
   
   include PageObject
@@ -955,10 +985,10 @@ class TakeAssessmentList
   # This method is in need of improvement to make it
   # more generalized for finding the correct test.
   def feedback(test_name)
-    test_table = frm(1).table(:id=>"selectIndexForm:reviewTable").to_a
+    test_table = frm.table(:id=>"selectIndexForm:reviewTable").to_a
     test_table.delete_if { |row| row[3] != "Immediate" }
     index_value = test_table.index { |row| row[0] == test_name }
-    frm(1).link(:text=>"Feedback", :index=>index_value).click
+    frm.link(:text=>"Feedback", :index=>index_value).click
     # Need to add a call to a New class here, when it's written
   end
 
@@ -978,8 +1008,86 @@ class BeginAssessment
   def cancel
     # Define this later
   end
+  
+  # Selects the specified radio button answer
+  def multiple_choice_answer(letter)
+    index = case(letter.upcase)
+    when "A" then "0"
+    when "B" then "1"
+    when "C" then "2"
+    when "D" then "3"
+    when "E" then "4"
+    end
+    frm.radio(:name=>/takeAssessmentForm.+:deliverMultipleChoice.+:_id.+:#{index}/).click
+  end
+  
+  # Enters the answer into the specified blank number (1-based).
+  def fill_in_blank_answer(answer, blank_number)
+    index = blank_number.to_i-1
+    frm.text_field(:name=>/deliverFillInTheBlank:_id.+:#{index}/).value=answer
+  end
+  
+  def true_false_answer(answer)
+    answer.upcase=="TRUE" ? index = 0 : index = 1
+    frm.radio(:name=>/deliverTrueFalse/, :index=>index).set
+  end
+  
+  def true_false_rationale(text)
+    frm.text_field(:name=>/:deliverTrueFalse:rationale/).value=text
+  end
+  
+  def short_answer(answer)
+    frm.text_field(:name=>/deliverShortAnswer/).value=answer
+  end
+
+  def match_answer(answer, number)
+    index = number.to_i-1
+    frm.select(:name=>/deliverMatching/, :index=>index).select(answer)
+  end
+
+  def file_answer(file_name)
+    frm.file_field(:name=>/deliverFileUpload/).set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + file_name)
+    frm.button(:value=>"Upload").click
+  end
+
+  def next
+    frm.button(:value=>"Next").click
+    BeginAssessment.new(@browser)
+  end
+  
+  def submit_for_grading
+    frm.button(:value=>"Submit for Grading").click
+    ConfirmSubmission.new(@browser)
+  end
+  
+end
+
+
+class ConfirmSubmission
+  
+  include PageObject
+  include ToolsMenu
+  
+  def submit_for_grading
+    frm.button(:value=>"Submit for Grading").click
+    SubmissionSummary.new(@browser)
+  end
 
 end
+
+
+class SubmissionSummary
+  
+  include PageObject
+  include ToolsMenu
+
+  def continue
+    frm.button(:value=>"Continue").click
+    TakeAssessmentList.new(@browser)
+  end
+
+end
+
 
 #================
 # Assignments Pages
@@ -3839,7 +3947,7 @@ class Messages
   # as a string
   def unread_messages_in_folder(folder_name)
     index=folders.index(folder_name)
-    frm.table(:id=>"msgForum:_id23:0:privateForums").row(:index=>index).span(:class=>"textPanelFooter", :index=>0).text =~ /\d+/
+    frm.table(:id=>"msgForum:_id23:0:privateForums").row(:index=>index).span(:text=>/unread/).text =~ /\d+/
     return $~.to_s
   end
   
