@@ -1875,6 +1875,19 @@ class AssignmentStudentPreview
     SubmissionConfirmation.new(@browser)
   end
 
+  # Returns the contents of the submission box.
+  def submission_text
+    frm.div(:class=>"portletBody").div(:class=>/textPanel/).text
+  end
+
+  # Returns an array of strings. Each element in the
+  # array is the name of attached files.
+  def attachments
+    names = []
+    frm.ul(:class=>"attachList indnt1").links.each { |link| names << link.text }
+    return names
+  end
+
 end
 
 # The page that appears when a Student user has fully submitted an assignment
@@ -1883,6 +1896,14 @@ class SubmissionConfirmation
   
   include PageObject
   include ToolsMenu
+  
+  def confirmation_text
+    frm.div(:class=>"portletBody").div(:class=>"success").text
+  end
+  
+  def submission_text
+    frm.div(:class=>"portletBody").div(:class=>"textPanel indnt2").text
+  end
   
   # Clicks the Back to list button, then
   # instantiates the AssignmentsList page class.
