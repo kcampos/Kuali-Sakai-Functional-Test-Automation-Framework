@@ -1141,6 +1141,12 @@ class AssignmentAdd
     AssignmentsPreview.new(@browser)
   end
   
+  # This is the warning message that appears when you
+  # select to add an assignment to the gradebook.
+  def gradebook_warning
+    frm.div(:class, "portletBody").span(:id, "gradebookListWarnAssoc")
+  end
+  
   # Clicks the Add Attachments button, then
   # instantiates the AssignmentAttachments page class.
   def add_attachments
@@ -1455,7 +1461,7 @@ class AssignmentsList
   # Gets the contents of the status column
   # for the specified assignment
   def status_of(assignment_name)
-    frm.table(:class=>"listHier lines nolines").row(:text=>/#{Regexp.escape(assignment_name)}/)[2].text
+    frm.table(:class=>"listHier lines nolines").row(:text=>/#{Regexp.escape(assignment_name)}/)[3].text
   end
   
   # Clicks the View Submissions link for the specified
@@ -1765,7 +1771,7 @@ class AssignmentStudent
   # @@file_number class variable is increased by one
   # in case any more files need to be added to the upload
   # list.
-  def select_file(file_name)
+  def select_file=(file_name)
     frm.file_field(:id=>"clonableUpload", :name=>"upload#{@@file_number}").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + file_name)
     @@file_number += 1
   end
