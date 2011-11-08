@@ -40,7 +40,7 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
       "documents/reflection.xsd",
     ]
     @folder_name = "data"
-    @portfolio_site = "Portfolio Site"
+    @portfolio_site = "123Port"
     @schema = [ get_filename(@files[0]), get_filename(@files[1]), get_filename(@files[2]), get_filename(@files[3]) ]
     @form_names = ["Evaluation", "Feedback for Matrix", "General Education Evidence", "Reflection for Matrix" ]
     @form_instructions = [
