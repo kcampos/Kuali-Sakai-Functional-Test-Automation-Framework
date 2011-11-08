@@ -75,4 +75,12 @@ module Utilities
     (Time.now + (3600*24*365)).strftime("%Y").to_i
   end
   
+  def yesterday
+    (Time.now - (3600*24)).strftime("%d").to_i
+  end
+  
+  def tomorrow
+    (Time.now + (3600*24)).strftime("%d").to_i
+  end
+  
 end

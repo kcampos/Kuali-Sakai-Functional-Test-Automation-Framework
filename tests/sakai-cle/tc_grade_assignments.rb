@@ -31,6 +31,10 @@ class TestGradingAssignments < Test::Unit::TestCase
     @student_pw = @config.directory['person1']['password']
     @sakai = SakaiCLE.new(@browser)
     
+    # Test case variables
+    @assignment1id = @config.directory["site1"]["assignment4"]
+    @assignment2id = @config.directory["site1"]["assignment2"]
+    
   end
   
   def teardown
@@ -40,12 +44,8 @@ class TestGradingAssignments < Test::Unit::TestCase
   
   def test_grade_assignments
     
-    # Gather the assignment ids for later
-    assignment1id = @config.directory["site1"]["assignment4"]
-    assignment2id = @config.directory["site1"]["assignment2"]
-    
     # Log in to Sakai as the instructor
-    @sakai.login(@instructor_id, @instructor_pw)
+    workspace = @sakai.login(@instructor_id, @instructor_pw)
     
     # some code to simplify writing steps in this test case
     def frm
@@ -53,17 +53,16 @@ class TestGradingAssignments < Test::Unit::TestCase
     end
     
     # Go to test site
-    @browser.link(:href, /#{@site_id}/).click
-    home = Home.new(@browser)
+    home = workspace.open_my_site_by_id @site_id
     
     # Go to assignments page
-    home.assignments
+    assignments = home.assignments
 
     # Click to Grade the first assignment
     frm.link(:xpath=>"//a[contains(@onclick, '#{assignment1id}')]").click
     
     # Find the right student for grading
-    submissions = AssignmentSubmissionList.new(@browser)
+    submissions = assignments.grade()
     
     index = submissions.student_table.find_index { |row| row[2] =~ /#{@student_id}/ }
 

@@ -34,16 +34,22 @@ class TestCreateAssignments < Test::Unit::TestCase
     # Test case variables
     @assignments = [
       {:title=>random_string, :grade_scale=>"Letter grade", :instructions=>"Nullam urna elit; placerat convallis, posuere nec, semper id, diam. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Duis dignissim pulvinar nisl. Nunc interdum vulputate eros. In nec nibh! Suspendisse potenti. Maecenas at felis. Donec velit diam, mattis ut, venenatis vehicula, accumsan et, orci. Sed leo. Curabitur odio quam, accumsan eu, molestie eu, fringilla sagittis, pede. Mauris luctus mi id ligula. Proin elementum volutpat leo. Cras aliquet commodo elit. Praesent auctor consectetuer risus!\n\nDuis euismod felis nec nunc. Ut lectus felis, malesuada consequat, hendrerit at; vestibulum et, enim. Ut nec nulla sed eros bibendum vulputate. Sed tincidunt diam eget lacus. Nulla nisl? Nam condimentum mattis dui! Aenean varius purus eget sem? Nullam odio. Donec condimentum mauris. Cras volutpat tristique lacus. Sed id dui. Mauris purus purus, tristique sed, ornare convallis, consequat a, ipsum. Donec fringilla, metus quis mollis lobortis, magna tellus malesuada augue; laoreet auctor velit lorem vitae neque. Duis augue sem, vehicula sit amet, vulputate vitae, viverra quis; dolor. Donec quis eros vel massa euismod dignissim! Aliquam quam. Nam non dolor.", :open_date=>(Time.now - 86400).strftime("%d").to_i},
-      {:title=>random_string(15), :open_hour=>current_hour, :open_meridian=>"AM", :student_submissions=>"Inline only", :grade_scale=>"Letter grade", :instructions=>random_string(1028) },
-      {:title=>random_xss_string(30), :open_hour=>next_hour, :student_submissions=>"Attachments only", :grade_scale=>"Points", :max_points=>"100", :instructions=>"Fusce mollis massa nec nisi. Aliquam turpis libero, consequat quis, fringilla eget, fermentum ut, velit? Integer velit nisl, placerat non, fringilla at, pellentesque ut, odio? Cras magna ligula, tincidunt ac, iaculis in, hendrerit eu, justo. Vivamus porta. Suspendisse lorem! Donec nec libero in leo lobortis consectetuer. Vivamus quis enim? Proin viverra condimentum purus. Sed commodo.\n\nCurabitur eget velit. Curabitur eleifend libero et nisi aliquet facilisis. Integer ultricies commodo purus. Praesent velit. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Phasellus pretium. Suspendisse gravida diam. Nulla justo nulla, facilisis ut, sagittis ut, fermentum ac, elit. Morbi accumsan. Maecenas id tellus. Fusce ornare ullamcorper felis. Etiam fringilla. Maecenas in nunc nec sem sollicitudin condimentum? Nullam metus nunc, varius sit amet, consectetuer sed, vestibulum quis, est. Quisque in sapien a justo elementum iaculis?" },
-      {:title=>random_string(25), :open_day=>yesterdays_date, :grade_scale=>"Pass", :instructions=>"Integer pulvinar facilisis purus. Quisque placerat! Maecenas risus. Nam vitae lacus. Quisque euismod imperdiet ipsum. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nam vitae nulla! Duis tincidunt. Nulla id felis. Duis accumsan, est ut volutpat mollis, tellus lorem venenatis justo, eu accumsan lorem neque sit amet ante. Sed dictum. Donec nulla mi, lacinia nec; viverra nec, commodo sed, justo. Praesent fermentum vehicula dui. Sed molestie eleifend leo. Nulla et risus! Nullam ut lacus. Etiam faucibus; eros sit amet tempus consectetuer, urna est hendrerit mi, eget molestie sapien lorem non tellus. In vitae nisl. Vivamus ac lectus id pede viverra placerat.\n\nMorbi nec dui eget pede dapibus mollis. Mauris nisl. Donec tempor blandit diam. In hac habitasse platea dictumst. Sed vulputate ornare urna. Nulla sed."  },
-      {:title=>random_nicelink(30), :open_day=>yesterdays_date, :grade_scale=>"Checkmark", :instructions=>"Integer pulvinar facilisis purus. Quisque placerat! Maecenas risus. Nam vitae lacus. Quisque euismod imperdiet ipsum. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nam vitae nulla! Duis tincidunt. Nulla id felis. Duis accumsan, est ut volutpat mollis, tellus lorem venenatis justo, eu accumsan lorem neque sit amet ante. Sed dictum. Donec nulla mi, lacinia nec; viverra nec, commodo sed, justo. Praesent fermentum vehicula dui. Sed molestie eleifend leo. Nulla et risus! Nullam ut lacus. Etiam faucibus; eros sit amet tempus consectetuer, urna est hendrerit mi, eget molestie sapien lorem non tellus. In vitae nisl. Vivamus ac lectus id pede viverra placerat.\n\nMorbi nec dui eget pede dapibus mollis. Mauris nisl. Donec tempor blandit diam. In hac habitasse platea dictumst. Sed vulputate ornare urna. Nulla sed." },
-      {:instructions=> }
+      {:title=>random_xss_string(30), :open_hour=>current_hour, :open_meridian=>"AM", :student_submissions=>"Inline only", :grade_scale=>"Letter grade", :instructions=>random_string(1028) },
+      {:title=>random_string(15), :open_hour=>next_hour, :student_submissions=>"Attachments only", :grade_scale=>"Points", :max_points=>"100", :instructions=>"Fusce mollis massa nec nisi. Aliquam turpis libero, consequat quis, fringilla eget, fermentum ut, velit? Integer velit nisl, placerat non, fringilla at, pellentesque ut, odio? Cras magna ligula, tincidunt ac, iaculis in, hendrerit eu, justo. Vivamus porta. Suspendisse lorem! Donec nec libero in leo lobortis consectetuer. Vivamus quis enim? Proin viverra condimentum purus. Sed commodo.\n\nCurabitur eget velit. Curabitur eleifend libero et nisi aliquet facilisis. Integer ultricies commodo purus. Praesent velit. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Phasellus pretium. Suspendisse gravida diam. Nulla justo nulla, facilisis ut, sagittis ut, fermentum ac, elit. Morbi accumsan. Maecenas id tellus. Fusce ornare ullamcorper felis. Etiam fringilla. Maecenas in nunc nec sem sollicitudin condimentum? Nullam metus nunc, varius sit amet, consectetuer sed, vestibulum quis, est. Quisque in sapien a justo elementum iaculis?" },
+      {:title=>random_string(25), :open_day=>yesterday, :grade_scale=>"Pass", :instructions=>"Integer pulvinar facilisis purus. Quisque placerat! Maecenas risus. Nam vitae lacus. Quisque euismod imperdiet ipsum. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nam vitae nulla! Duis tincidunt. Nulla id felis. Duis accumsan, est ut volutpat mollis, tellus lorem venenatis justo, eu accumsan lorem neque sit amet ante. Sed dictum. Donec nulla mi, lacinia nec; viverra nec, commodo sed, justo. Praesent fermentum vehicula dui. Sed molestie eleifend leo. Nulla et risus! Nullam ut lacus. Etiam faucibus; eros sit amet tempus consectetuer, urna est hendrerit mi, eget molestie sapien lorem non tellus. In vitae nisl. Vivamus ac lectus id pede viverra placerat.\n\nMorbi nec dui eget pede dapibus mollis. Mauris nisl. Donec tempor blandit diam. In hac habitasse platea dictumst. Sed vulputate ornare urna. Nulla sed."  },
+      {:title=>random_nicelink(30), :open_day=>yesterday, :grade_scale=>"Checkmark", :instructions=>"Integer pulvinar facilisis purus. Quisque placerat! Maecenas risus. Nam vitae lacus. Quisque euismod imperdiet ipsum. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nam vitae nulla! Duis tincidunt. Nulla id felis. Duis accumsan, est ut volutpat mollis, tellus lorem venenatis justo, eu accumsan lorem neque sit amet ante. Sed dictum. Donec nulla mi, lacinia nec; viverra nec, commodo sed, justo. Praesent fermentum vehicula dui. Sed molestie eleifend leo. Nulla et risus! Nullam ut lacus. Etiam faucibus; eros sit amet tempus consectetuer, urna est hendrerit mi, eget molestie sapien lorem non tellus. In vitae nisl. Vivamus ac lectus id pede viverra placerat.\n\nMorbi nec dui eget pede dapibus mollis. Mauris nisl. Donec tempor blandit diam. In hac habitasse platea dictumst. Sed vulputate ornare urna. Nulla sed." }
     ]
     
   end
   
   def teardown
+    
+    @config.directory["site1"]["assignment1"] = @assignments[0][:title]
+    @config.directory["site1"]["assignment2"] = @assignments[1][:title]
+    @config.directory["site1"]["assignment3"] = @assignments[2][:title]
+    @config.directory["site1"]["assignment4"] = @assignments[3][:title]
+    @config.directory["site1"]["assignment5"] = @assignments[4][:title]
+    
     # Save new assignment info for later scripts to use
     File.open("#{File.dirname(__FILE__)}/../../config/directory.yml", "w+") { |out|
       YAML::dump(@config.directory, out)
@@ -53,10 +59,6 @@ class TestCreateAssignments < Test::Unit::TestCase
   end
   
   def test_assignments_creation
-    
-    def frm
-      @browser.frame(:index=>1)
-    end
     
     # Log in to Sakai
     my_workspace = @sakai.login(@user_name, @password)
@@ -95,10 +97,7 @@ class TestCreateAssignments < Test::Unit::TestCase
     
     # TEST CASE: Assignment saves this time
     assert assignments.view_element.exist?
-    assert frm.link(:text, @assignments[0][:title]).exist?
-    
-    # Get the assignment id for use later in the script
-    assignment1_id = assignments.get_assignment_id(@assignments[0][:title])
+    assert assignments.assignments_list.include?(@assignments[0][:title])
     
     # Create a New Assignment
     assignments.add
@@ -135,11 +134,7 @@ class TestCreateAssignments < Test::Unit::TestCase
     assignments = assignment2.post
     
     # TEST CASE: Verify save
-    assert frm.link(:text, @assignments[1][:title]).exist?
-    
-    # Get the assignment id for use later in the script
-    assignment2_id = assignments.get_assignment_id(@assignments[1][:title])
-    @config.directory["site1"]["assignment2"] = assignment2_id
+    assert assignments.assignment_titles.include? @assignments[1][:title]
     
     # Go to calendar page
     calendar = assignments.calendar
@@ -156,7 +151,7 @@ class TestCreateAssignments < Test::Unit::TestCase
     calendar.filter_events
     
     # TEST CASE: Verify assignment 2 appears on calendar
-    assert frm.link(:title, "Due #{@assignments[1][:title]}").exist?
+    assert calendar.events_list.include? "Due #{@assignments[1][:title]}"
     
     # List events on the expected due date for Assignment 1
     calendar.start_month=month_due1
@@ -168,8 +163,7 @@ class TestCreateAssignments < Test::Unit::TestCase
     calendar.filter_events
     
     # TEST CASE: Verify assignment 1 does not appear on calendar
-    assert_equal(frm.link(:title, "Due #{@assignments[0][:title]}").exist?, false, "#{@assignments[0][:title]} appears in the calendar?")
-    assert_equal(frm.link(:href, /#{assignment1_id}/).exist?, false, "#{@assignments[0][:title]} appears in the calendar?")
+    assert_equal(false, calendar.events_list.include?("Due #{@assignments[0][:title]}"), "#{@assignments[0][:title]} appears in the calendar?")
     
     # Go back to the Assignments List
     assignments = calendar.assignments
@@ -203,48 +197,33 @@ class TestCreateAssignments < Test::Unit::TestCase
     # new_assignment.attach
     #===========
     
-    assignment3.save_draft
+    assignments = assignment3.save_draft
     
     # TEST CASE: Assignment link shows "draft" mode
-    assert frm.link(:text, "Draft - #{Regexp.escape(@assignments[2][:title])}").exist?
-    
-    # Get the assignment id
-    frm.link(:text, "Draft - #{Regexp.escape(@assignments[2][:title])}").click
-    
-    #FIXME!
-    edit = AssignmentAdd.new(@browser)
-    edit.assignment_id_element.value =~ /(?<=\/a\/\S{36}\/).+/
-    assignment3_id = $~.to_s
-    @config.directory["site1"]["assignment3"] = assignment3_id
+    assert assignments.assignment_titles.include?("Draft - #{@assignments[2][:title]}"), "#{@assignments[2][:title]} not found!"
     
     # Go to the Home page for the Site
-    edit.cancel
-    assignments = AssignmentsList.new(@browser)
     home = assignments.home
     
     # Verify that the annoucements frame does not show Assignment 3
-    assert_equal @browser.frame(:index=>2).link(:text, "Assignment: Open Date for '#{Regexp.escape(@assignments[2][:title])}'").exist?, false
+    assert_equal @browser.frame(:index=>2).link(:text, "Assignment: Open Date for '#{@assignments[2][:title]}'").exist?, false
     
     # Go back to Assignments List page
-    home.assignments
- 
-    assignments = AssignmentsList.new(@browser)
+    assignments = home.assignments
     
     # Create assignment #4
     assignment4 = assignments.add
     assignment4.title=@assignments[3][:title]
     
     # Cancel assignment creation
-    assignment4.cancel
-    assignments = AssignmentsList.new(@browser)
+    assignments = assignment4.cancel
     
     # TEST CASE: Verify assignment not created
-    assert_equal(frm.link(:text, @assignments[3][:title]).exist?, false)
+    assert_equal false, assignments.assignment_titles.include?(@assignments[3][:title])
     
     # Add and set up Assignment 4 again
-    assignments.add
-    
-    assignment4 = AssignmentAdd.new(@browser)
+    assignment4 = assignments.add
+
     assignment4.title=@assignments[3][:title]
     assignment4.open_day=@assignments[3][:open_day]
     assignment4.grade_scale=@assignments[3][:grade_scale]
@@ -252,7 +231,7 @@ class TestCreateAssignments < Test::Unit::TestCase
     assignment4.instructions=@assignments[3][:instructions]
     
     # TEST CASE: Verify that the alert message is not showing
-    assert_equal(frm.div(:class, "portletBody").span(:id, "gradebookListWarnAssoc").visible?, false)
+    assert_equal false, assignment4.gradebook_warning.visible?
     
     # Select the "Add Assignment to Gradebook" radio button
     assignment4.select_add_to_gradebook
@@ -261,7 +240,7 @@ class TestCreateAssignments < Test::Unit::TestCase
     sleep 0.1
     
     # TEST CASE: Verify that the alert message appears
-    assert frm.div(:class, "portletBody").span(:id, "gradebookListWarnAssoc").visible?
+    assert assignment4.gradebook_warning.visible?
     
     # Need to clear the assignment radio button explicitly because
     # the radio button was actually selected, even though the UI doesn't show it.
@@ -280,11 +259,7 @@ class TestCreateAssignments < Test::Unit::TestCase
     assignments = preview.post
     
     # TEST CASE: Verify assignment appears in the list
-    assert frm.link(:text, @assignments[3][:title]).exist?
-    
-    # Get the assignment id for use later in the script
-    assignment4_id = assignments.get_assignment_id(@assignments[3][:title])
-    @config.directory["site1"]["assignment4"] = assignment4_id
+    assert assignments.assignment_list.include? @assignments[3][:title]
   
     # Log out and log back in as instructor2
     @sakai.logout
@@ -297,13 +272,10 @@ class TestCreateAssignments < Test::Unit::TestCase
     assignments = home.assignments
     
     # TEST CASE: Verify all expected assignments appear in list
-    assert frm.link(:text, @assignments[0][:title]).exist?
-    assert frm.link(:href, /#{assignment1_id}/).exist?
-    assert frm.link(:text, @assignments[1][:title]).exist?
-    assert frm.link(:href, /#{assignment2_id}/).exist?
-    assert frm.link(:href, /#{assignment3_id}/).exist?
-    assert frm.link(:text, @assignments[3][:title]).exist?
-    assert frm.link(:href, /#{assignment4_id}/).exist?
+    assert assignments.assignment_list.include? @assignments[0][:title]
+    assert assignments.assignment_list.include? @assignments[1][:title]
+    assert assignments.assignment_list.include? "Draft - #{@assignments[2][:title]}"
+    assert assignments.assignment_list.include? @assignments[3][:title]
     
     # Go to Assignments Permissions page
     assignments.permissions
@@ -317,30 +289,32 @@ class TestCreateAssignments < Test::Unit::TestCase
     # Save button element explicitly, here, instead of using the
     # AssignmentPermissions class definition. Hopefully this will
     # be fixed in the future.
-    frm.button(:name, "eventSubmit_doSave").click
+    @browser.frame(:index=>1).button(:name, "eventSubmit_doSave").click
+    
+    assignments = AssignmentsList.new(@browser)
     
     # TEST CASE: instructor2 can no longer see the Draft assignment
-    assert_equal(frm.link(:href, /#{assignment3_id}/).exist?, false)
+    assert_equal false, assignments.assignments_list.include?("Draft - #{@assignments[2][:title]}")
     
     # Go to Assignments Permissions page
-    assignments = AssignmentsList.new(@browser)
     permissions = assignments.permissions
     
     # Re-check "Instructors share drafts"
     permissions.check_instructors_share_drafts
-    frm.button(:name, "eventSubmit_doSave").click
+    @browser.frame(:index=>1).button(:name, "eventSubmit_doSave").click
+    
+    assignments = AssignmentsList.new(@browser)
     
     # Edit Assignment 3 and save it so it's no longer in Draft mode
-    frm.link(:href, /#{assignment3_id}/).click
-    edit = AssignmentAdd.new(@browser)
-    edit.post
+    assignment3 = assignments.edit_assignment "Draft - #{@assignments[2][:title]}"
+
+    assignments = assignment3.post
     
     # Go to Home page of Site
-    assignments = AssignmentsList.new(@browser)
     home = assignments.home
     
     # TEST CASE: Verify assignment 3 appears in announcements
-    assert @browser.frame(:index=>2).link(:text, "Assignment: Open Date for '#{Regexp.escape(@assignments[2][:title])}'").exist?
+    assert home.announcements_list.include? "Assignment: Open Date for '#{@assignments[2][:title]}'"
     
     # Go to the assignments page and make Assignment 5
     assignments = home.assignments
@@ -362,11 +336,7 @@ class TestCreateAssignments < Test::Unit::TestCase
     assignments = assignment5.save_draft
     
     # TEST CASE: Assignment link shows "draft" mode
-    assert frm.link(:text, "Draft - #{Regexp.escape(@assignments[4][:title])}").exist?
-    
-    # Get the assignment id
-    assignment5_id = assignments.get_assignment_id(@assignments[4][:title])
-    @config.directory["site1"]["assignment5"] = assignment5_id
+    assert assignments.assignment_list.include? "Draft - #{@assignments[4][:title]}"
     
     # Log out and log back in as instructor1
     @sakai.logout
@@ -374,21 +344,21 @@ class TestCreateAssignments < Test::Unit::TestCase
     
     # Go to test site
     home = workspace.open_my_site_by_id(@site_id)
-    
+
     # Go to assignments page
     assignments = home.assignments
-    
+
     # TEST CASE: Make sure there's a link to the Assignment 5 draft.
-    assert frm.link(:href, /#{assignment5_id}/).exist?
+    assert assignments.assignment_list.include? "Draft - #{@assignments[4][:title]}"
     
     # Post assignment 5
-    assignment5 = assignments.edit_assignment_id(assignment5_id)
-    
+    assignment_5 = assignments.edit_assignment("Draft - #{@assignments[4][:title]}")
+
     assignments = assignment_5.post
-    
+
     # Edit assignment 1
-    assignment1 = assignments.edit_assignment_id(assignment1_id)
-    
+    assignment_1 = assignments.edit_assignment(@assignments[0][:title])
+
     # TEST CASE: Verify the alert about revising assignments after the Open Date.
     assert_equal(assignment_1.alert_text, "Alert: You are revising an assignment after the open date.")
     
@@ -413,26 +383,16 @@ class TestCreateAssignments < Test::Unit::TestCase
     assignments = assignment_1.post
     
     # Delete Assignment 1
-    assignments.check_assignment(assignment1_id)
-    assignments.update
-    
-    # TEST CASE: Verify user is asked if they want to delete
-    assert_equal(frm.div(:class=>"portletBody").div(:class=>"alertMessage").text, "Are you sure you want to delete this assignment?")
-    
-    frm.button(:name, "eventSubmit_doDelete_assignment").click
-    
+    assignments = assignments.delete_assignment @assignments[0][:title]
+
     # Verify delete
-    assert_equal(frm.link(:text, @assignments[0][:title]).exist?, false)
+    assert_equal false, assignments.assignment_titles.include?(@assignments[0][:title])
     
     # Duplicate assignment 2 to assignment 1
-    frm.link(:text=>"Duplicate", :href=>/#{assignment2_id}/).click #FIXME
+    assignments = assignments.duplicate_assignment(@assignments[1][:title])
     
     # TEST CASE: Verify duplication
-    assert frm.link(:text, "Draft - #{Regexp.escape(@assignments[1][:title])} - Copy").exist?
-    
-    frm.link(:text, "Draft - #{Regexp.escape(@assignments[1][:title])} - Copy").href =~ /(?<=\/a\/\S{36}\/).+(?=&pan)/ #FIXME
-    assignment1_id = $~.to_s 
-    @config.directory["site1"]["assignment1"] = assignment1_id
+    assert assignments.assignment_list.include? "Draft - #{@assignments[1][:title]} - Copy"
     
     # Go to Reorder page
     assignments = AssignmentsList.new(@browser)
