@@ -944,7 +944,7 @@ class SiteType
     radio_button(:course_site, :id=>"course", :frame=>frame)
     radio_button(:project_site, :id=>"project", :frame=>frame)
     radio_button(:portfolio_site, :id=>"portfolio", :frame=>frame)
-    radio_button(:template_site, :id=>"copy", :frame=>frame)
+    radio_button(:create_site_from_template, :id=>"copy", :frame=>frame)
     select_list(:academic_term, :id=>"selectTerm", :frame=>frame)
     select_list(:select_template, :id=>"templateSiteId", :frame=>frame)
     select_list(:select_term, :id=>"selectTermTemplate", :frame=>frame)
@@ -1021,6 +1021,11 @@ class CourseSectionInfo
   # the SiteSetup Class.
   def done
     frm.button(:value=>"Done").click
+    SiteSetup.new(@browser)
+  end
+  
+  def done_go_to_site
+    frm.button(:value=>"Done - go to site").click
     SiteSetup.new(@browser)
   end
   
@@ -1363,7 +1368,7 @@ class JobList
   # specified job name, 
   # then instantiates the EditTriggers Class.
   def triggers(job_name)
-    frm.table(:class=>"listHier lines").row(:text=>/#{Regexp.escape(job_name)}/).link(:text=>/Triggers/).click
+    frm.div(:class=>"portletBody").table(:class=>"listHier lines").row(:text=>/#{Regexp.escape(job_name)}/).link(:text=>/Triggers/).click
     EditTriggers.new(@browser)
   end
   
@@ -1399,10 +1404,10 @@ class EditTriggers
   include PageObject
   include ToolsMenu
   
-  # Clicks the "Jobs" link, then
+  # Clicks the "Run Job Now" link, then
   # instantiates the RunJobConfirmation Class.
   def run_job_now
-    frm.div(:class=>"portletBody").link(:text=>"Jobs").click
+    frm.div(:class=>"portletBody").link(:text=>"Run Job Now").click
     RunJobConfirmation.new(@browser)
   end
   

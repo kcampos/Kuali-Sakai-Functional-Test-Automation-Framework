@@ -32,6 +32,27 @@ class TestCreateLessons < Test::Unit::TestCase
     @site_id = @config.directory['site1']['id']
     @sakai = SakaiCLE.new(@browser)
     
+    # Test case variables
+    @modules = [
+      {:title=>"Lesson1",:description=>"Lesson1"},
+      {:title=>"Lesson2 (Expired)", :start=>"July 6, #{last_year} 08:00 AM", :end=>"July 15, #{last_year} 08:00 AM" },
+      {:title=>"Lesson3-Future", :start=>"July 15, #{next_year} 08:00 AM"},
+      {:title=>"Lesson4" },
+      {:title=>"Lesson5" },
+      {:title=>"Lesson6" }
+      ]
+    
+    @sections =[
+      {:title=>"Lesson1-Section1", :type=>"Compose content with editor", :content=>"<h3 style=\"color: Red;\"><b>Aliquet vitae, sollicitudin et, pretium a, dolor? </b></h3> <br /> <tt>Aenean ante risus, vehicula nec, malesuada eu, laoreet sit amet, tortor. Nunc non dui vitae lectus aliquet vehicula. Vivamus dolor turpis, elementum sed, adipiscing ac, sodales vel, felis. Aenean dui nunc, placerat in, fermentum eu, commodo nec, odio. <br /> </tt> <ol>     <li>Duis sit amet lorem.</li>     <li>Maecenas nec dolor.</li>     <li>Vivamus lacus.</li>     <li>Vivamus ante. Duis vitae quam.</li> </ol> <span style=\"background-color: rgb(255, 153, 0);\">Vestibulum posuere diam quis purus dapibus et vehicula diam mollis. Sed non erat a lacus iaculis semper. Sed quis est eget ante ornare molestie vel eget mi? Mauris mollis pulvinar diam eu aliquet.</span> <b>Morbi placerat, magna metus</b>.<br /> <br />" },
+      {:title=>"Lesson1-Section2", :type=>"Link to new or existing URL resource on server", :url_title=>"rsmart", :url=>"http://www.rsmart.com" },
+      {:title=>"Lesson2 - Section1", :type=>"Link to new or existing URL resource on server", :url_type=>"http://sakaiproject.org", :url=>"sakai" },
+      {:title=>"Lesson3-Section1", :type=>"Compose content with editor", :content=>"<h3 style=\"color: Red;\"><b>Aliquet vitae, sollicitudin et, pretium a, dolor? </b></h3> <br /> <tt>Aenean ante risus, vehicula nec, malesuada eu, laoreet sit amet, tortor. Nunc non dui vitae lectus aliquet vehicula. Vivamus dolor turpis, elementum sed, adipiscing ac, sodales vel, felis. Aenean dui nunc, placerat in, fermentum eu, commodo nec, odio. <br /> </tt> <ol>     <li>Duis sit amet lorem.</li>     <li>Maecenas nec dolor.</li>     <li>Vivamus lacus.</li>     <li>Vivamus ante. Duis vitae quam.</li> </ol> <span style=\"background-color: rgb(255, 153, 0);\">Vestibulum posuere diam quis purus dapibus et vehicula diam mollis. Sed non erat a lacus iaculis semper. Sed quis est eget ante ornare molestie vel eget mi? Mauris mollis pulvinar diam eu aliquet.</span> <b>Morbi placerat, magna metus</b>.<br /> <br />"},
+      {:title=>"Lesson4-Section1", :type=>"Compose content with editor", :content=>"<h3 style=\"color: Red;\"><b>Aliquet vitae, sollicitudin et, pretium a, dolor? </b></h3> <br /> <tt>Aenean ante risus, vehicula nec, malesuada eu, laoreet sit amet, tortor. Nunc non dui vitae lectus aliquet vehicula. Vivamus dolor turpis, elementum sed, adipiscing ac, sodales vel, felis. Aenean dui nunc, placerat in, fermentum eu, commodo nec, odio. <br /> </tt> <ol>     <li>Duis sit amet lorem.</li>     <li>Maecenas nec dolor.</li>     <li>Vivamus lacus.</li>     <li>Vivamus ante. Duis vitae quam.</li> </ol> <span style=\"background-color: rgb(255, 153, 0);\">Vestibulum posuere diam quis purus dapibus et vehicula diam mollis. Sed non erat a lacus iaculis semper. Sed quis est eget ante ornare molestie vel eget mi? Mauris mollis pulvinar diam eu aliquet.</span> <b>Morbi placerat, magna metus</b>.<br /> <br />"},
+      {:title=>"Lesson5-Section1", :type=>"Upload or link to a file in Resources", :file=>"resources.ppt" },
+      {:title=>"Lesson6-Section1", :type=>"Upload or link to a file in Resources", :file=>"resources.mp3" },
+      {:title=>"Lesson5-Section2", :type=>"Upload or link to a file in Resources", :file=>"resources.JPG" }
+    ]
+    
   end
   
   def teardown
@@ -40,7 +61,7 @@ class TestCreateLessons < Test::Unit::TestCase
   end
   
   def test_lesson_creation
-      
+
     # some code to simplify writing steps in this test case
     def frm
       @browser.frame(:index=>1)
@@ -59,30 +80,30 @@ class TestCreateLessons < Test::Unit::TestCase
     new_module = lessons.add_module
     
     # Enter module attributes
-    new_module.title="Lesson1"
-    new_module.description="Lesson1"
+    new_module.title=@module[0][:title]
+    new_module.description=@module[0][:description]
     
     # Add a section
     confirm = new_module.add
     new_section = confirm.add_content_sections
     
     # Enter section info
-    new_section.title="Lesson1-Section1"
-    new_section.content_type="Compose content with editor"
+    new_section.title=@sections[0][:title]
+    new_section.content_type=@sections[0][:type]
     
     new_section.clear_content
-    new_section.add_content="<h3 style=\"color: Red;\"><b>Aliquet vitae, sollicitudin et, pretium a, dolor? </b></h3> <br /> <tt>Aenean ante risus, vehicula nec, malesuada eu, laoreet sit amet, tortor. Nunc non dui vitae lectus aliquet vehicula. Vivamus dolor turpis, elementum sed, adipiscing ac, sodales vel, felis. Aenean dui nunc, placerat in, fermentum eu, commodo nec, odio. <br /> </tt> <ol>     <li>Duis sit amet lorem.</li>     <li>Maecenas nec dolor.</li>     <li>Vivamus lacus.</li>     <li>Vivamus ante. Duis vitae quam.</li> </ol> <span style=\"background-color: rgb(255, 153, 0);\">Vestibulum posuere diam quis purus dapibus et vehicula diam mollis. Sed non erat a lacus iaculis semper. Sed quis est eget ante ornare molestie vel eget mi? Mauris mollis pulvinar diam eu aliquet.</span> <b>Morbi placerat, magna metus</b>.<br /> <br />"
+    new_section.add_content=@sections[0][:content]
     confirm = new_section.add
     # Save section and add another... 
     new_section2 = confirm.add_another_section
     
-    new_section2.title="Lesson1-Section2"
-    new_section2.content_type="Link to new or existing URL resource on server"
+    new_section2.title=@sections[1][:title]
+    new_section2.content_type=@sections[1][:type]
     
     select_content = new_section2.select_url
     
-    select_content.new_url="http://www.rsmart.com"
-    select_content.url_title="rsmart"
+    select_content.new_url=@sections[1][:url]
+    select_content.url_title=@sections[1][:url_title]
     new_section2 = select_content.continue
      
     confirm = new_section2.add
@@ -91,21 +112,21 @@ class TestCreateLessons < Test::Unit::TestCase
     
     # Add another Lesson (from the past)...
     new_module2 = lessons.add_module
-    new_module2.title="Lesson2 (Expired)"
-    new_module2.start_date="July 6, 2008 08:00 AM"
-    new_module2.end_date="July 15, 2008 08:00 AM"
+    new_module2.title=@modules[1][:title]
+    new_module2.start_date=@modules[1][:start]
+    new_module2.end_date=@modules[1][:end]
     
     confirm = new_module2.add
     
     # Add a section to the module...
     new_section3 = confirm.add_content_sections 
-    new_section3.title="Lesson2 - Section1"
-    new_section3.content_type="Link to new or existing URL resource on server"
+    new_section3.title=@sections[2][:title]
+    new_section3.content_type=@sections[2][:type]
     
     select_content2 = new_section3.select_url
      
-    select_content2.new_url="http://sakaiproject.org"
-    select_content2.url_title="sakai"
+    select_content2.new_url=@sections[2][:url]
+    select_content2.url_title=@sections[2][:url_type]
     
     new_section3 = select_content2.continue
 
@@ -116,19 +137,19 @@ class TestCreateLessons < Test::Unit::TestCase
     # Add another lesson (for the future)...
     new_module3 = lessons.add_module
     
-    new_module3.title="Lesson3-Future"
-    new_module3.start_date="July 15, 2012 08:00 AM"
+    new_module3.title=@modules[2][:title]
+    new_module3.start_date=@modules[2][:start]
     
     confirm = new_module3.add
     
     # Add a section to the module
     new_section4 = confirm.add_content_sections
      
-    new_section4.title="Lesson3-Section1"
-    new_section4.content_type="Compose content with editor"
+    new_section4.title=@sections[3][:title]
+    new_section4.content_type=@sections[3][:type]
     
     new_section4.clear_content
-    new_section4.add_content="<h3 style=\"color: Red;\"><b>Aliquet vitae, sollicitudin et, pretium a, dolor? </b></h3> <br /> <tt>Aenean ante risus, vehicula nec, malesuada eu, laoreet sit amet, tortor. Nunc non dui vitae lectus aliquet vehicula. Vivamus dolor turpis, elementum sed, adipiscing ac, sodales vel, felis. Aenean dui nunc, placerat in, fermentum eu, commodo nec, odio. <br /> </tt> <ol>     <li>Duis sit amet lorem.</li>     <li>Maecenas nec dolor.</li>     <li>Vivamus lacus.</li>     <li>Vivamus ante. Duis vitae quam.</li> </ol> <span style=\"background-color: rgb(255, 153, 0);\">Vestibulum posuere diam quis purus dapibus et vehicula diam mollis. Sed non erat a lacus iaculis semper. Sed quis est eget ante ornare molestie vel eget mi? Mauris mollis pulvinar diam eu aliquet.</span> <b>Morbi placerat, magna metus</b>.<br /> <br />"
+    new_section4.add_content=@sections[3][:content]
     
     confirm = new_section4.add
     
@@ -136,15 +157,15 @@ class TestCreateLessons < Test::Unit::TestCase
     
     # Add another lesson module...
     new_module4 = lessons.add_module
-    new_module4.title="Lesson4"
+    new_module4.title=@modules[3][:title]
     
     confirm = new_module4.add
      
     new_section5 = confirm.add_content_sections
-    new_section5.title="Lesson4-Section1"
-    new_section5.content_type="Compose content with editor"
+    new_section5.title=@sections[4][:title]
+    new_section5.content_type=@sections[4][:type]
     new_section5.clear_content
-    new_section5.add_content="<h3 style=\"color: Red;\"><b>Aliquet vitae, sollicitudin et, pretium a, dolor? </b></h3> <br /> <tt>Aenean ante risus, vehicula nec, malesuada eu, laoreet sit amet, tortor. Nunc non dui vitae lectus aliquet vehicula. Vivamus dolor turpis, elementum sed, adipiscing ac, sodales vel, felis. Aenean dui nunc, placerat in, fermentum eu, commodo nec, odio. <br /> </tt> <ol>     <li>Duis sit amet lorem.</li>     <li>Maecenas nec dolor.</li>     <li>Vivamus lacus.</li>     <li>Vivamus ante. Duis vitae quam.</li> </ol> <span style=\"background-color: rgb(255, 153, 0);\">Vestibulum posuere diam quis purus dapibus et vehicula diam mollis. Sed non erat a lacus iaculis semper. Sed quis est eget ante ornare molestie vel eget mi? Mauris mollis pulvinar diam eu aliquet.</span> <b>Morbi placerat, magna metus</b>.<br /> <br />"
+    new_section5.add_content=@sections[4][:content]
     
     confirm = new_section5.add
     
@@ -152,17 +173,17 @@ class TestCreateLessons < Test::Unit::TestCase
     
     # Add another lesson
     new_module5 = lessons.add_module
-    new_module5.title="Lesson5"
+    new_module5.title=@modules[4][:title]
     
     confirm = new_module5.add
     
     new_section6 = confirm.add_content_sections
     
-    new_section6.title="Lesson5-Section1"
-    new_section6.content_type="Upload or link to a file in Resources"
+    new_section6.title=@sections[5][:title]
+    new_section6.content_type=@sections[5][:type]
     add_attach = new_section6.select_or_upload_file
 
-    add_attach.select_file "resources.ppt"
+    add_attach.select_file @sections[5][:file]
 
     new_section6 = add_attach.continue
 
@@ -171,19 +192,19 @@ class TestCreateLessons < Test::Unit::TestCase
     lessons = confirm.finish
     
     new_module6 = lessons.add_module
-    new_module6.title="Lesson6"
+    new_module6.title=@module[5][:title]
     
     confirm = new_module6.add
     
     new_section7 = confirm.add_content_sections
     
-    new_section7.title="Lesson6-Section1"
+    new_section7.title=@sections[6][:title]
     new_section7.check_auditory_content
     
-    new_section7.content_type="Upload or link to a file in Resources"
+    new_section7.content_type=@sections[6][:type]
      
     add_attach = new_section7.select_or_upload_file
-    add_attach.select_file "resources.mp3"
+    add_attach.select_file @sections[6][:file]
     
     new_section7 = add_attach.continue
     
@@ -192,18 +213,18 @@ class TestCreateLessons < Test::Unit::TestCase
     lessons =confirm.finish
     
     #TEST CASE: Confirm all lessons and sections are listed properly
-    assert frm.link(:text, "Lesson1-Section1").exist?
-    assert frm.link(:text, "Lesson1-Section2").exist?
-    assert frm.link(:text, "Lesson2 (Expired)").exist?
-    assert frm.link(:text, "Lesson2 - Section1").exist?
-    assert frm.link(:text, "Lesson3-Future").exist?
-    assert frm.link(:text, "Lesson3-Section1").exist?
-    assert frm.link(:text, "Lesson4").exist?
-    assert frm.link(:text, "Lesson4-Section1").exist?
-    assert frm.link(:text, "Lesson5").exist?
-    assert frm.link(:text, "Lesson5-Section1").exist?
-    assert frm.link(:text, "Lesson6").exist?
-    assert frm.link(:text, "Lesson6-Section1").exist?
+    assert frm.link(:text, @sections[0][:title]).exist?
+    assert frm.link(:text, @sections[1][:title]).exist?
+    assert frm.link(:text, @modules[1][:title]).exist?
+    assert frm.link(:text, @sections[2][:title]).exist?
+    assert frm.link(:text, @modules[2][:title]).exist?
+    assert frm.link(:text, @sections[3][:title]).exist?
+    assert frm.link(:text, @modules[3][:title]).exist?
+    assert frm.link(:text, @sections[4][:title]).exist?
+    assert frm.link(:text, @modules[4][:title]).exist?
+    assert frm.link(:text, @sections[5][:title]).exist?
+    assert frm.link(:text, @modules[5][:title]).exist?
+    assert frm.link(:text, @sections[6][:title]).exist?
     
     @sakai.logout
    
@@ -215,25 +236,25 @@ class TestCreateLessons < Test::Unit::TestCase
     
     # TEST CASE: Make sure Lessons appear, or not, for the student
     # as expected.
-    assert frm.link(:text, "Lesson1").exist?
-    assert_equal frm.link(:text, "Lesson2 (Expired)").exist?, false
-    assert_equal frm.link(:text, "Lesson3-Future").exist?, false
-    assert frm.link(:text, "Lesson4").exist?
-    assert frm.link(:text, "Lesson5").exist?
-    assert frm.link(:text, "Lesson6").exist?
+    assert frm.link(:text, @modules[0][:title]).exist?
+    assert_equal frm.link(:text, @modules[1][:title]).exist?, false
+    assert_equal frm.link(:text, @modules[2][:title]).exist?, false
+    assert frm.link(:text, @modules[3][:title]).exist?
+    assert frm.link(:text, @modules[4][:title]).exist?
+    assert frm.link(:text, @modules[5][:title]).exist?
     
-    frm.link(:text, "Lesson1").click #FIXME
+    frm.link(:text, @modules[0][:title]).click #FIXME
     
     # TEST CASE: Verify the sections are present, as expected
-    assert frm.link(:text, "Lesson1-Section1").exist?
-    assert frm.link(:text, "Lesson1-Section2").exist?
+    assert frm.link(:text, @sections[0][:title]).exist?
+    assert frm.link(:text, @sections[1][:title]).exist?
     
     frm.link(:text=>"Next").click #FIXME
     frm.link(:text=>"Next").click #FIXME
     frm.link(:text=>"Next").click #FIXME
     
     # TEST CASE: Verify the section link is present
-    assert frm.link(:text, "Lesson4-Section1")
+    assert frm.link(:text, @sections[4][:title])
     
     frm.link(:text=>"Prev").click #FIXME
     
@@ -241,10 +262,10 @@ class TestCreateLessons < Test::Unit::TestCase
     assert frm.frame(:id=>"iframe1").exist? #FIXME
     
     frm.link(:text=>"Table Of Contents").click #FIXME
-    frm.link(:text=>"Lesson5").click #FIXME
+    frm.link(:text=>@modules[4][:title]).click #FIXME
     
     # TEST CASE: Verify the section link is available
-    assert frm.link(:text=>"Lesson5-Section1").exist?
+    assert frm.link(:text=>@sections[5][:title]).exist?
     
     frm.link(:text=>"Next").click #FIXME
     
@@ -254,7 +275,7 @@ class TestCreateLessons < Test::Unit::TestCase
     frm.link(:text=>"Next").click #FIXME
     
     #TEST CASE: Verify section link is present
-    assert frm.link(:text=>"Lesson6-Section1").exist?
+    assert frm.link(:text=>@sections[6][:title]).exist?
     
     frm.link(:text=>"Next").click #FIXME
     
@@ -270,9 +291,9 @@ class TestCreateLessons < Test::Unit::TestCase
     lessons = prefs.view
     
     # TEST CASE: Verify collapsed view
-    assert frm.link(:text=>"Lesson1").exist?
-    assert_equal frm.link(:text=>"Lesson1-Section1").exist?, false
-    assert_equal frm.span(:id=>"listmodulesStudentform:table:1:titleTxt2").text, "Lesson2 (Expired)" #FIXME
+    assert frm.link(:text=>@modules[0][:title]).exist?
+    assert_equal frm.link(:text=>@sections[0][:title]).exist?, false
+    assert_equal frm.span(:id=>"listmodulesStudentform:table:1:titleTxt2").text, @modules[1][:title] #FIXME
     
     @sakai.logout
     
@@ -282,14 +303,14 @@ class TestCreateLessons < Test::Unit::TestCase
     
     lessons = home.lessons
     
-    module_5 = lessons.open_lesson "Lesson5"
+    module_5 = lessons.open_lesson @modules[4][:title]
     
     section_2 = module_5.add_content_sections
-    section_2.title="Lesson5-Section2"
-    section_2.content_type="Upload or link to a file in Resources"
+    section_2.title=@sections[7][:title]
+    section_2.content_type=@sections[7][:type]
     
     attach = section_2.select_or_upload_file
-    attach.select_file "resources.JPG"
+    attach.select_file @sections[7][:file]
     
     section_2 = attach.continue
     
@@ -299,10 +320,10 @@ class TestCreateLessons < Test::Unit::TestCase
     
     listview = lessons.view
     
-    sectionview = listview.open_section "Lesson5-Section2"
+    sectionview = listview.open_section @sections[7][:title]
     
     # TEST CASE: Verify the uploaded file appears
-    assert frm.link(:text, "resources.JPG").exist?
+    assert frm.link(:text, @sections[7][:file]).exist?
     
     manage = sectionview.manage
     

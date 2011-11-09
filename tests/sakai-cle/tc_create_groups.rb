@@ -28,10 +28,10 @@ class TestGroups < Test::Unit::TestCase
     @password = @config.directory['person3']['password']
     @sakai = SakaiCLE.new(@browser)
     
-    
   end
   
   def teardown
+    
     # Save new groups info for later scripts to use
     File.open("#{File.dirname(__FILE__)}/../../config/directory.yml", "w+") { |out|
       YAML::dump(@config.directory, out)

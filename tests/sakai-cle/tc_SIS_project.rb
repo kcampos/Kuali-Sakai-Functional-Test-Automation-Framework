@@ -27,6 +27,14 @@ class TestMasterProjectSite < Test::Unit::TestCase
     @sakai = SakaiCLE.new(@browser)
     @master_project_site_id = "12345678-abcd-1234-wxyz-12ab34cd56ef"
     
+    # Test case variables
+    @site_title = "Test Project"
+    @files_to_upload = [ "documents/resources.doc", "presentations/resources.ppt", "documents/resources.txt", "spreadsheets/resources.xls", "audio/resources.mp3" ]
+    @site_description = "Project site for testers."
+    
+    @job_name = "SIS" + random_alphanums
+    @job_type = "SIS Synchronization"
+    
   end
   
   def teardown
@@ -49,10 +57,10 @@ class TestMasterProjectSite < Test::Unit::TestCase
     # Enter the master site id and other site attributes
     @browser.frame(:index=>0).frame(:id, "description___Frame").wait_until_present
     new_site.site_id=@master_project_site_id
-    new_site.title="Test Project"
+    new_site.title=@site_title
     new_site.type="project"
-    new_site.short_description="Test Project"
-    new_site.add_description("Project site for testers.")
+    new_site.short_description=@site_title
+    new_site.description=@site_description
     new_site.select_published
     new_site.select_public_view_yes
     
@@ -76,7 +84,7 @@ class TestMasterProjectSite < Test::Unit::TestCase
     
     site_setup_page = edit_pages.site_setup
     
-    test_proj_edit = site_setup_page.edit("Test Project")
+    test_proj_edit = site_setup_page.edit(@site_title)
     
     edit_tools_page = test_proj_edit.edit_tools
     
@@ -98,7 +106,7 @@ class TestMasterProjectSite < Test::Unit::TestCase
     edit_tools_page.check_roster
     edit_tools_page.check_search
     edit_tools_page.check_sections
-    edit_tools_page.check_site_statistics
+    #edit_tools_page.check_site_statistics
     edit_tools_page.check_web_content
     edit_tools_page.check_wiki
     
@@ -119,32 +127,29 @@ class TestMasterProjectSite < Test::Unit::TestCase
     tst_proj_resources = home.resources
 
     # Upload files
-    upload_page = tst_proj_resources.upload_files
+    upload_page = tst_proj_resources.upload_files_to_folder @site_title
     
-    files_to_upload = [ "documents/resources.doc", "presentations/resources.ppt", "documents/resources.txt", "spreadsheets/resources.xls", "audio/resources.mp3" ]
-    
-    files_to_upload.each do |filename|
-      upload_page.file_to_upload(filename)
+    @files_to_upload.each do |filename|
+      upload_page.file_to_upload=filename
       upload_page.add_another_file
     end
     
     upload_page.upload_files_now
     # Go back to the admin workspace
-    workspace = upload_page.administration_workspace
+    workspace = upload_page.my_workspace
     
     job_scheduler = workspace.job_scheduler
 
     jobs = job_scheduler.jobs
-    jobs = JobList.new(@browser)
 
     new_job = jobs.new_job
 
-    new_job.job_name="SIS"
-    new_job.type="SIS Synchronization"
+    new_job.job_name=@job_name
+    new_job.type=@job_type
 
     jobs = new_job.post
 
-    triggers = jobs.triggers
+    triggers = jobs.triggers @job_name
 
     confirmation = triggers.run_job_now
 

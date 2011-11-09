@@ -60,6 +60,7 @@ class TestTurnItIn < Test::Unit::TestCase
     assignments = home.assignments
     
     assignment_1 = assignments.add
+    sleep 4 # Needed for testing slow sites, otherwise the FCKEditor does not load.
     assignment_1.instructions=@assignment_1_instructions
     assignment_1.title=@assignment_1_title
     assignment_1.grade_scale="Letter grade"
@@ -82,7 +83,7 @@ class TestTurnItIn < Test::Unit::TestCase
     
     assignment_1 = assignments.open_assignment @assignment_1_title
     assignment_1.assignment_text=@assignment_1_student_text
-    assignment_1.select_file @assignment_1_file
+    assignment_1.select_file=@assignment_1_file
     
     confirm = assignment_1.submit
     
