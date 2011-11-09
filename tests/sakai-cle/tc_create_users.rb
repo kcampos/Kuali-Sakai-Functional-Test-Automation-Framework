@@ -16,7 +16,6 @@ class CreateUsers < Test::Unit::TestCase
   include Utilities
   
   def setup
-    @verification_errors = []
     
     # Get the test configuration data
     config = AutoConfig.new
@@ -30,7 +29,6 @@ class CreateUsers < Test::Unit::TestCase
   def teardown
     # Close the browser window
     @browser.close
-    assert_equal [], @verification_errors
   end
   
   def test_create_users
@@ -79,11 +77,5 @@ class CreateUsers < Test::Unit::TestCase
       assert @browser.frame(:index=>0).link(:text, people["person#{x}"]['id']).exist?
     end 
   end
-  
-  def verify(&blk)
-    yield
-  rescue Test::Unit::AssertionFailedError => ex
-    @verification_errors << ex
-  end  
   
 end
