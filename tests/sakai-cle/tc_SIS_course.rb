@@ -27,6 +27,15 @@ class TestMasterCourseSite < Test::Unit::TestCase
     @sakai = SakaiCLE.new(@browser)
     @master_course_site_id = "87654321-abcd-1234-wxyz-12ab34cd56ef"
     
+    # Test case variables
+    @files_to_upload = [ "documents/resources.doc", "presentations/resources.ppt", "documents/resources.txt", "spreadsheets/resources.xls", "audio/resources.mp3" ]
+    @subject = "TST"
+    @course = "101"
+    @section = "100"
+    
+    @job_name = "SIS" + random_alphanums
+    @job_type = "SIS Synchronization"
+    
   end
   
   def teardown
@@ -51,9 +60,9 @@ class TestMasterCourseSite < Test::Unit::TestCase
     section_info = site_type.continue
 
     # Give the site a name
-    section_info.subject="TST"
-    section_info.course="101"
-    section_info.section="100"
+    section_info.subject=@subject
+    section_info.course=@course
+    section_info.section=@section
     section_info.authorizers_username="admin"
     
     basic_site_info = section_info.continue
@@ -99,7 +108,7 @@ class TestMasterCourseSite < Test::Unit::TestCase
     sites_page = tst_save_as.save
     
     # Search for the sites again
-    sites_page.search_field="TST"
+    sites_page.search_field=Regexp.escape(@subject)
     sites_page.search_button
     
     # Remove the original site
@@ -119,19 +128,17 @@ class TestMasterCourseSite < Test::Unit::TestCase
     tst_resources_page = home.resources
     
     # Upload files
-    upload_page = tst_resources_page.upload_files
+    upload_page = tst_resources_page.upload_files_to_folder "#{@subject} #{@course} #{@section}"
     
-    files_to_upload = [ "documents/resources.doc", "presentations/resources.ppt", "documents/resources.txt", "spreadsheets/resources.xls", "audio/resources.mp3" ]
-    
-    files_to_upload.each do |filename|
-      upload_page.file_to_upload(filename)
+    @files_to_upload.each do |filename|
+      upload_page.file_to_upload=filename
       upload_page.add_another_file
     end
     
-    upload_page.upload_files_now
+    resources = upload_page.upload_files_now
 
     # Go back to the admin workspace
-    workspace = upload_page.administration_workspace
+    workspace = resources.my_workspace
     
     job_scheduler = workspace.job_scheduler
 
@@ -140,12 +147,12 @@ class TestMasterCourseSite < Test::Unit::TestCase
 
     new_job = jobs.new_job
 
-    new_job.job_name="SIS"
-    new_job.type="SIS Synchronization"
+    new_job.job_name=@job_name
+    new_job.type=@job_type
 
     jobs = new_job.post
 
-    triggers = jobs.triggers
+    triggers = jobs.triggers @job_name
 
     confirmation = triggers.run_job_now
 

@@ -27,6 +27,15 @@ class TestMasterPortfolioSite < Test::Unit::TestCase
     @sakai = SakaiCLE.new(@browser)
     @master_portfolio_site_id = "87654321-abcd-1234-wxyz-ab12cd34ef56"
     
+    # Test case variables
+    @site_title = "Test Portfolio"
+    @site_description  = "Portfolio Site For Testing"
+    @files_to_upload = [ "documents/resources.doc", "presentations/resources.ppt", "documents/resources.txt", "spreadsheets/resources.xls", "audio/resources.mp3" ]
+    @page_title = "Site Editor"
+    
+    @job_name = "SIS" + random_alphanums
+    @job_type = "SIS Synchronization"
+    
   end
   
   def teardown
@@ -48,10 +57,10 @@ class TestMasterPortfolioSite < Test::Unit::TestCase
     new_site = sites_page.new_site
     
     new_site.site_id=@master_portfolio_site_id
-    new_site.title="Test Portfolio"
+    new_site.title=@site_title
     new_site.type='portfolio'
-    new_site.short_description="Test Portfolio"
-    new_site.add_description("Portfolio site for testers.")
+    new_site.short_description=@site_title
+    new_site.description=@site_description
     new_site.select_published
     new_site.select_public_view_yes
     
@@ -65,7 +74,7 @@ class TestMasterPortfolioSite < Test::Unit::TestCase
     
     new_page = pages.new_page
     
-    new_page.title="Site Editor"
+    new_page.title=@page_title
     
     tools = new_page.tools
     
@@ -79,7 +88,7 @@ class TestMasterPortfolioSite < Test::Unit::TestCase
     
     site_setup_page = sites_page.site_setup
     
-    site_edit = site_setup_page.edit("Test Portfolio")
+    site_edit = site_setup_page.edit(@site_title)
     
     edit_tools = site_edit.edit_tools
     
@@ -89,7 +98,7 @@ class TestMasterPortfolioSite < Test::Unit::TestCase
     edit_tools.check_calendar
     edit_tools.check_email_archive
     edit_tools.check_evaluations
-    edit_tools.check_forms
+    #edit_tools.check_forms
     edit_tools.check_glossary
     edit_tools.check_matrices
     edit_tools.check_news
@@ -121,33 +130,30 @@ class TestMasterPortfolioSite < Test::Unit::TestCase
     port_resources_page = home.resources
     
     # Upload files
-    upload_page = port_resources_page.upload_files
+    upload_page = port_resources_page.upload_files_to_folder @site_title
     
-    files_to_upload = [ "documents/resources.doc", "presentations/resources.ppt", "documents/resources.txt", "spreadsheets/resources.xls", "audio/resources.mp3" ]
-    
-    files_to_upload.each do |filename|
-      upload_page.file_to_upload(filename)
+    @files_to_upload.each do |filename|
+      upload_page.file_to_upload=filename
       upload_page.add_another_file
     end
     
     upload_page.upload_files_now
     
     # Go back to the admin workspace
-    workspace = upload_page.administration_workspace
+    workspace = upload_page.my_workspace
     
     job_scheduler = workspace.job_scheduler
 
     jobs = job_scheduler.jobs
-    jobs = JobList.new(@browser)
 
     new_job = jobs.new_job
 
-    new_job.job_name="SIS"
-    new_job.type="SIS Synchronization"
+    new_job.job_name=@job_name
+    new_job.type=@job_type
 
     jobs = new_job.post
 
-    triggers = jobs.triggers
+    triggers = jobs.triggers @job_name
 
     confirmation = triggers.run_job_now
 

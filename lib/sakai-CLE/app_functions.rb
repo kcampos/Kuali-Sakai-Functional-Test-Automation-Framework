@@ -21,6 +21,7 @@ class SakaiCLE
     frame.text_field(:id, "eid").set username
     frame.text_field(:id, "pw").set password
     frame.form(:method, "post").submit
+    $frame_index=0
     MyWorkspace.new(@browser)
   end
   
@@ -193,7 +194,6 @@ module ToolsMenu
   # instantiates the Job Scheduler class.
   def job_scheduler
     @browser.link(:text=>"Job Scheduler").click
-    $frame_index=0
     JobScheduler.new(@browser)
   end
   

@@ -25,6 +25,8 @@ class CreateSiteTemplate < Test::Unit::TestCase
     @site_name = @config.directory['site1']['name']
     @site_id = @config.directory['site1']['id']
     @sakai = SakaiCLE.new(@browser)
+    
+    # Test case variables
     @template_site_id = "88888888-7777-6666-5555-abcdefghijklm"
     @template_site_name = "Template - " + random_string(16)
     @assignment_title = "Assignment - " + random_string(16)
@@ -149,7 +151,7 @@ class CreateSiteTemplate < Test::Unit::TestCase
     section_info.section=section
     section_info.authorizers_username="admin"
     
-    site_setup = section_info.done
+    site_setup = section_info.done_go_to_site
     
     site_setup = site_setup.search "#{subject} #{course} #{section}"
     
@@ -183,8 +185,6 @@ class CreateSiteTemplate < Test::Unit::TestCase
     assert syllabus.syllabus_titles.include? @syllabus_title
     
     # ...
-    
-sleep 20 
   end
   
 end
