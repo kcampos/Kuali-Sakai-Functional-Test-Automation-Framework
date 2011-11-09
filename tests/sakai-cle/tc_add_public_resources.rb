@@ -40,6 +40,8 @@ class AddPublicResources < Test::Unit::TestCase
     "images/flower02.jpg"
     ]
     
+    @folder_name = "Folder 1"
+    
   end
   
   def teardown
@@ -93,15 +95,15 @@ class AddPublicResources < Test::Unit::TestCase
     
     # Add a folder
     create_folder = resources.create_subfolders_in("#{@site_name} Resources")
-    create_folder.folder_name="Folder 1"
+    create_folder.folder_name=@folder_name
     
     resources = create_folder.create_folders_now
     
     # Navigate to the folder
-    resources.open_folder("Folder 1")
+    resources.open_folder @folder_name
     
     # Upload files to the folder
-    resources.upload_files_to_folder("Folder 1")
+    resources.upload_files_to_folder @folder_name
     
     filenames_2 = []
     @files_2.each do |file|

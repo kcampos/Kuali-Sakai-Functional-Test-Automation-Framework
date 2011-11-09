@@ -66,7 +66,7 @@ class TestCreateLessons < Test::Unit::TestCase
     def frm
       @browser.frame(:index=>1)
     end
-  
+sngnsrty
     # Log in to Sakai
     workspace = @sakai.login(@instructor, @ipassword)
 
@@ -80,8 +80,8 @@ class TestCreateLessons < Test::Unit::TestCase
     new_module = lessons.add_module
     
     # Enter module attributes
-    new_module.title=@module[0][:title]
-    new_module.description=@module[0][:description]
+    new_module.title=@modules[0][:title]
+    new_module.description=@modules[0][:description]
     
     # Add a section
     confirm = new_module.add

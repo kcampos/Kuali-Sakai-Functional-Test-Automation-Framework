@@ -26,6 +26,9 @@ class TestDuplicateSite < Test::Unit::TestCase
     @site_id = @config.directory['site1']['id']
     @sakai = SakaiCLE.new(@browser)
     
+    # Test case variables
+    
+    
   end
   
   def teardown
