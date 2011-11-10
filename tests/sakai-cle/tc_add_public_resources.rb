@@ -38,7 +38,8 @@ class AddPublicResources < Test::Unit::TestCase
     ]
     @files_2 = [
     "documents/sample.pdf",
-    "images/flower02.jpg"
+    "images/flower02.jpg",
+    "documents/resources.doc"
     ]
     
     @folder_name = "Folder 1"
