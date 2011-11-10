@@ -21,8 +21,8 @@ class TestCompleteAssignment < Test::Unit::TestCase
     @config = AutoConfig.new
     @browser = @config.browser
     # This test case requires logging in with a student user
-    @user_name = @config.directory['person9']['id']
-    @password = @config.directory['person9']['password']
+    @user_name = @config.directory['person1']['id']
+    @password = @config.directory['person1']['password']
     @site_name = @config.directory['site1']['name']
     @site_id = @config.directory['site1']['id']
     @sakai = SakaiCLE.new(@browser)
@@ -84,7 +84,7 @@ class TestCompleteAssignment < Test::Unit::TestCase
     assignments = confirm.back_to_list
     
     # TEST CASE: Verify assignment shows as draft in list
-    assert_equal("Draft - In progress", assignments.status_of(assignment1_title))
+    assert_equal("Draft - In progress", assignments.status_of(@assignment1_title))
     
     # Edit assignment
     assignment1 = assignments.open_assignment(@assignment_1_title)
@@ -97,7 +97,7 @@ class TestCompleteAssignment < Test::Unit::TestCase
     
     assignments = confirm.back_to_list
     
-    submitted_date = @sakai.make_date(Time.now.utc)
+    submitted_date = @sakai.make_date(Time.now)
     
     # TEST CASE: Verify list shows assignment submitted
     assert_equal("Submitted #{submitted_date}", assignments.status_of(@assignment_1_title))
@@ -136,7 +136,7 @@ class TestCompleteAssignment < Test::Unit::TestCase
     assignments = confirm.back_to_list
 
     # Edit assignment again
-    assignment2 = assignments.open_assignment(@assigment_2_title)
+    assignment2 = assignments.open_assignment(@assignment_2_title)
     
     # Verify the user is not allowed to edit assignment
     assert @browser.frame(:index=>1).button(:name=>"eventSubmit_doCancel_view_grade").exist?

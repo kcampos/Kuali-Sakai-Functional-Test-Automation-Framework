@@ -1663,6 +1663,11 @@ class AssignmentsPreview
     AssignmentsList.new(@browser)
   end
   
+  def cancel
+    frm.button(:value=>"Cancel").click
+    AssignmentsList.new(@browser)
+  end
+  
   in_frame(:index=>1) do |frame|
     hidden_field(:assignment_id, :name=>"assignmentId", :frame=>frame)
     link(:assignment_list, :text=>"Assignment List", :frame=>frame)
@@ -1693,6 +1698,11 @@ class AssignmentsReorder
     frm.button(:value=>"Save").click
     AssignmentsList.new(@browser)
   end
+    
+  def cancel
+    frm.button(:value=>"Cancel").click
+    AssignmentsList.new(@browser)
+  end
   
   in_frame(:index=>1) do |frame|
     link(:add, :text=>"Add", :frame=>frame)
@@ -1706,7 +1716,6 @@ class AssignmentsReorder
     link(:sort_by_due_date, :text=>"Sort by due date", :frame=>frame)
     link(:undo_last, :text=>"Undo last", :frame=>frame)
     link(:undo_all, :text=>"Undo all", :frame=>frame)
-    button(:cancel, :name=>"cancel", :frame=>frame)
     
   end
 
@@ -1844,9 +1853,13 @@ class AssignmentStudent
     frm.button(:value=>"Back to list").click
     AssignmentsList.new(@browser)
   end
+    
+  def cancel
+    frm.button(:value=>"Cancel").click
+    AssignmentsList.new(@browser)
+  end
   
   in_frame(:index=>1) do |frame|
-    button(:cancel, :id=>"cancel", :frame=>frame)
     link(:add_another_file, :id=>"addMoreAttachmentControls", :frame=>frame)
   end
 
@@ -1921,6 +1934,10 @@ class AssignmentSubmissionList
   include PageObject
   include ToolsMenu
   
+  def assignment_list
+    frm.link(:text=>"Assignment List").click
+    AssignmentsList.new(@browser)
+  end
   # Clicks the Show Resubmission Settings button
   def show_resubmission_settings
     frm.image(:src, "/library/image/sakai/expand.gif?panel=Main").click
@@ -1957,7 +1974,6 @@ class AssignmentSubmissionList
   in_frame(:index=>1) do |frame|
     link(:add, :text=>"Add", :frame=>frame)
     link(:grade_report, :text=>"Grade Report", :frame=>frame)
-    link(:assignment_list, :text=>"Assignment List", :frame=>frame)
     link(:permissions, :text=>"Permissions", :frame=>frame)
     link(:options, :text=>"Options", :frame=>frame)
     link(:student_view, :text=>"Student View", :frame=>frame)

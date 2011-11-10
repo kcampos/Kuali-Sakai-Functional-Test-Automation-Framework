@@ -16,7 +16,6 @@ class TestGlossary < Test::Unit::TestCase
   include Utilities
 
   def setup
-    @verification_errors = []
     
     # Get the test configuration data
     config = AutoConfig.new
@@ -31,7 +30,6 @@ class TestGlossary < Test::Unit::TestCase
   def teardown
     # Close the browser window
     @browser.close
-    assert_equal [], @verification_errors
   end
   
   def test_glossary
@@ -51,12 +49,6 @@ class TestGlossary < Test::Unit::TestCase
     
     # TEST CASE: Verify add
     
-  end
-  
-  def verify(&blk)
-    yield
-  rescue Test::Unit::AssertionFailedError => ex
-    @verification_errors << ex
   end
   
 end
