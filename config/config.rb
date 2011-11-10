@@ -8,7 +8,7 @@ require 'yaml'
 
 class AutoConfig
   
-  attr_reader :web_browser, :url, :user_name, :user_pw, :site_name, :browser, :directory
+  attr_reader :web_browser, :url, :user_name, :user_pw, :site_name, :browser, :directory, :reports
   
   def initialize
     
@@ -16,8 +16,8 @@ class AutoConfig
     @directory = YAML.load_file("#{File.dirname(__FILE__)}/directory.yml")
     @test_data_path = "#{File.dirname(__FILE__)}/../data"
     
-    @web_browser   = config['server']['browser']
-    @url           = config['server']['url']
+    @web_browser  = config['server']['browser']
+    @url          = config['server']['url']
     
     @browser = Watir::Browser.new @web_browser
     @browser.goto @url

@@ -4,8 +4,8 @@
 # Tests of Discussion Forums
 # 
 # Author: Abe Heward (aheward@rSmart.com)
-
-gems = ["test/unit", "watir-webdriver"]
+gem "test-unit"
+gems = ["test/unit", "watir-webdriver", "ci/reporter/rake/test_unit_loader"]
 gems.each { |gem| require gem }
 files = [ "/../../config/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-CLE/app_functions.rb", "/../../lib/sakai-CLE/admin_page_elements.rb", "/../../lib/sakai-CLE/site_page_elements.rb", "/../../lib/sakai-CLE/common_page_elements.rb" ]
 files.each { |file| require File.dirname(__FILE__) + file }
@@ -27,7 +27,21 @@ class TestDiscussionForums < Test::Unit::TestCase
     @sakai = SakaiCLE.new(@browser)
     
     # Test case variables
+    @groups = [ "Group 1", "Group 2" ]
     
+    @forums = [
+      {:title=>"Forum 1", :short_description=>"Test Forum", :description=>"Donec pellentesque leo in diam? Sed eget lacus sed orci rutrum porttitor. Phasellus id risus scelerisque mi consequat scelerisque. Nam at leo." },
+      {:title=>"Forum 2 " + random_alphanums, :short_description=>"Test Forum", :description=>"Donec pellentesque leo in diam? Sed eget lacus sed orci rutrum porttitor. Phasellus id risus scelerisque mi consequat scelerisque. Nam at leo." },
+      {}
+    ]
+    
+    @topics = [
+      {:title=>"Topic 1", :short_description=>"Test Topic", :file=>"documents/resources.doc", :description=>"Donec pellentesque leo in diam? Sed eget lacus sed orci rutrum porttitor. Phasellus id risus scelerisque mi consequat scelerisque. Nam at leo. Donec pellentesque leo in diam? Sed eget lacus sed orci rutrum porttitor. Phasellus id risus scelerisque mi consequat scelerisque. Nam at leo." },
+      {:title=>"Thread for Group 1 " + random_alphanums, :short_description=>"Test Topic", :description=>"Sed eget lacus sed orci rutrum porttitor. Phasellus id risus scelerisque mi consequat scelerisque. Nam at leo. Donec pellentesque leo in diam? Sed eget lacus sed orci rutrum porttitor. Phasellus id risus scelerisque mi consequat scelerisque. Nam at leo." },
+      {}
+    ]
+    
+    @messages = [{}]
     
   end
   
@@ -48,16 +62,16 @@ class TestDiscussionForums < Test::Unit::TestCase
     site_editor = home.site_editor
     groups = site_editor.manage_groups
     new_group = groups.create_new_group
-    new_group.title="Group 1"
+    new_group.title=@groups[0]
     1.upto(3) do |x|
-      new_group.site_member_list=/student0#{x}/
+      new_group.site_member_list=/student0#{x}/ # FIXME
     end
     new_group.right
     groups = new_group.add
     new_group = groups.create_new_group
-    new_group.title="Group 2"
+    new_group.title=@groups[1]
     4.upto(7) do |x|
-      new_group.site_member_list=/student0#{x}/
+      new_group.site_member_list=/student0#{x}/ # FIXME
     end
     new_group.right
     groups = new_group.add
@@ -67,45 +81,42 @@ class TestDiscussionForums < Test::Unit::TestCase
 
     # Create a new forum
     add_forum = forums.new_forum
-    add_forum.title="Forum 1"
-    add_forum.short_description="Test Forum"
+    add_forum.title=@forums[0][:title]
+    add_forum.short_description=@forums[0][:short_description]
     sleep 5 #FIXME - Takes a while for FCKEditor to load on VPN
     add_forum.editor.wait_until_present
-    add_forum.description="Donec pellentesque leo in diam? Sed eget lacus sed orci rutrum porttitor. Phasellus id risus scelerisque mi consequat scelerisque. Nam at leo."
+    add_forum.description=@forums[0][:description]
     
     # Add a topic to the forum
     add_topic = add_forum.save_and_add
-    add_topic.title="Topic 1"
-    add_topic.short_description="Test Topic"
-    add_topic.description="Donec pellentesque leo in diam? Sed eget lacus sed orci rutrum porttitor. Phasellus id risus scelerisque mi consequat scelerisque. Nam at leo. Donec pellentesque leo in diam? Sed eget lacus sed orci rutrum porttitor. Phasellus id risus scelerisque mi consequat scelerisque. Nam at leo."
+    add_topic.title=@topics[0][:title]
+    add_topic.short_description=@topics[0][:short_description]
+    add_topic.description=@topics[0][:description]
     
     # Add a file to the topic
     attach_file = add_topic.add_attachments
-    attach_file.upload_file="documents/resources.doc"
+    attach_file.upload_file=@topics[0][:file]
     
     add_topic = attach_file.continue
     
     forums = add_topic.save
     
     # TEST CASE: Verify forum and topic saved
-    assert forums.forum_titles.include?("Forum 1")
-    assert forums.topic_titles.include?("Topic 1")
-   
-    forum2_title = "Forum 2 " + random_alphanums
-    topic2_title = "Thread for Group 1 " + random_alphanums
+    assert forums.forum_titles.include?(@forums[0][:title])
+    assert forums.topic_titles.include?(@topics[0][:title])
     
     add_forum2 = forums.new_forum
-    add_forum2.title=forum2_title
-    add_forum2.short_description="Test Forum"
     add_forum2.editor.wait_until_present(25)
-    add_forum2.description="Donec pellentesque leo in diam? Sed eget lacus sed orci rutrum porttitor. Phasellus id risus scelerisque mi consequat scelerisque. Nam at leo."
+    add_forum2.title=@forums[1][:title]
+    add_forum2.short_description=@forums[1][:short_description]
+    add_forum2.description=@forums[1][:description]
     
     add_topic2 = add_forum2.save_and_add
-    add_topic2.title=topic2_title
-    add_topic2.short_description="Test Topic"
-    add_topic2.description="Sed eget lacus sed orci rutrum porttitor. Phasellus id risus scelerisque mi consequat scelerisque. Nam at leo. Donec pellentesque leo in diam? Sed eget lacus sed orci rutrum porttitor. Phasellus id risus scelerisque mi consequat scelerisque. Nam at leo."
+    add_topic2.title=@topics[1][:title]
+    add_topic2.short_description=@topics[1][:short_description]
+    add_topic2.description=@topics[1][:description]
     
-    add_topic2.site_role=/Group 1/
+    add_topic2.site_role=/#{Regexp.escape(@groups[0])}/
     add_topic2.permission_level="Contributor"
     
     add_topic2.site_role="Student (Contributor)"
@@ -118,7 +129,7 @@ class TestDiscussionForums < Test::Unit::TestCase
     
     forums = organize.save
     
-    edit_forum = forums.forum_settings "Forum 1"
+    edit_forum = forums.forum_settings @forums[0][:title]
     forums = edit_forum.save
     
     template = forums.template_settings
@@ -138,14 +149,14 @@ class TestDiscussionForums < Test::Unit::TestCase
     forums = home.forums
     sleep 30
     # TEST CASE: Verify the student can seen the right stuff
-    assert forums.forum_titles.include? "Forum 1"
-    assert forums.topic_titles.include? "Topic 1"
+    assert forums.forum_titles.include? @forums[0][:title]
+    assert forums.topic_titles.include? @topics[0][:title]
     # What about a link to the uploaded file???
     assert_equal forums.forum_titles.include?(forum2_title), false #FIXME - Is this supposed to be the case???
     assert_equal forums.topic_titles.include?(topic2_title), false
   
     # Open topic 1
-    topic_page = forums.open_topic "Topic 1"
+    topic_page = forums.open_topic @topics[0][:title]
   
     # Post a message
     new_message = topic_page.post_new_thread
@@ -175,14 +186,14 @@ class TestDiscussionForums < Test::Unit::TestCase
     forums = home.forums
     
     # TEST CASE: Verify the student can seen the forums
-    assert forums.forum_titles.include? "Forum 1"
-    assert forums.topic_titles.include? "Topic 1"
+    assert forums.forum_titles.include? @forums[0][:title]
+    assert forums.topic_titles.include? @topics[0][:title]
     assert forums.forum_titles.include? forum2_title
-    assert forums.topic_titles.include? topic2_title
+    assert forums.topic_titles.include? @topics[1][:title]
     
     # TEST CASE: Verify something about the student access to the Group 1 thread.
     
-    topic = forums.open_topic "Topic 1"
+    topic = forums.open_topic @topics[0][:title]
 
     # TEST CASE: Verify the post new thread link is available
     assert @browser.frame(:index=>$frame_index).table(:class=>/topicBloc/).link(:text=>"Post New Thread").exist?
@@ -196,15 +207,15 @@ class TestDiscussionForums < Test::Unit::TestCase
     forums = home.forums
     
     # TEST CASE: Verify the instructor can seen the forums
-    assert forums.forum_titles.include? "Forum 1"
-    assert forums.topic_titles.include? "Topic 1"
+    assert forums.forum_titles.include? @forums[0][:title]
+    assert forums.topic_titles.include? @topics[0][:title]
     assert forums.forum_titles.include?(forum2_title)
-    assert forums.topic_titles.include?(topic2_title)  
+    assert forums.topic_titles.include? @topics[1][:title] 
     
     # TEST CASE: Verify the instructor see the "unread message" notifications
     assert forums.forums_table.text.include? "1 message - 1 unread"
     
-    topic_page = forums.open_topic "Topic 1"
+    topic_page = forums.open_topic @topics[0][:title]
     message = topic_page.open_message "Thread for Topic 1"
     
     # TEST CASE: Verify user can read the text
