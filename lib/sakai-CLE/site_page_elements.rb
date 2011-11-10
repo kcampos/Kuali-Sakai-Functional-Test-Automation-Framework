@@ -3980,8 +3980,7 @@ class Messages
   # in the specified folder
   # and returns it as a string
   def total_messages_in_folder(folder_name)
-    index=folders.index(folder_name)
-    frm.table(:id=>"msgForum:_id23:0:privateForums").row(:index=>index).span(:class=>"textPanelFooter", :index=>0).text =~ /\d+/
+    frm.table(:id=>"msgForum:_id23:0:privateForums").row(:text=>/#{Regexp.escape(folder_name)}/).span(:class=>"textPanelFooter", :index=>0).text =~ /\d+/
     return $~.to_s
   end
   
@@ -3989,8 +3988,7 @@ class Messages
   # in the specified folder and returns it
   # as a string
   def unread_messages_in_folder(folder_name)
-    index=folders.index(folder_name)
-    frm.table(:id=>"msgForum:_id23:0:privateForums").row(:index=>index).span(:text=>/unread/).text =~ /\d+/
+    frm.table(:id=>"msgForum:_id23:0:privateForums").row(:text=>/#{Regexp.escape(folder_name)}/).span(:text=>/unread/).text =~ /\d+/
     return $~.to_s
   end
   
@@ -4002,9 +4000,8 @@ class Messages
     return folders
   end
   
-  def folder_settings(foldername)
-    index = folders.index(foldername)
-    frm.table(:class=>"hierItemBlockWrapper").link(:text=>"Folder Settings", :index=>index-4).click
+  def folder_settings(folder_name)
+    frm.table(:class=>"hierItemBlockWrapper").row(:text=>/#{Regexp.escape(folder_name)}/).link(:text=>"Folder Settings").click
     MessageFolderSettings.new(@browser)
   end
   
@@ -4015,6 +4012,31 @@ class MessagesSentList
   
   include PageObject
   include ToolsMenu
+  
+  # Clicks the "Messages" breadcrumb link to return
+  # to the top level of Messages. Then instantiates
+  # the Messages class.
+  def messages
+    frm.link(:text=>"Messages").click
+    Messages.new(@browser)
+  end
+  
+  # Creates an array consisting of the
+  # message subject lines.
+  def subjects
+    titles = []
+    messages = frm.table(:id=>"prefs_pvt_form:pvtmsgs")
+    1.upto(messages.rows.size-1) do |x|
+      titles << messages.row(:index=>x).a.title
+    end
+    return titles
+  end
+  
+  # Returns a string consisting of the content of the
+  # page header--or "breadcrumb", as it's called.
+  def header
+    frm.div(:class=>"breadCrumb specialLink").text
+  end
   
   # Clicks the Compose Message button,
   # then instantiates the
@@ -4044,6 +4066,20 @@ class MessagesReceivedList
   
   include PageObject
   include ToolsMenu
+  
+  # Returns a string consisting of the content of the
+  # page header--or "breadcrumb", as it's called.
+  def header
+    frm.div(:class=>"breadCrumb specialLink").text
+  end
+  
+  # Clicks the "Messages" breadcrumb link to return
+  # to the top level of Messages. Then instantiates
+  # the Messages class.
+  def messages
+    frm.link(:text=>"Messages").click
+    Messages.new(@browser)
+  end
   
   def compose_message
     frm.link(:text=>"Compose Message").click
@@ -4244,6 +4280,20 @@ class MessagesDeletedList
   include PageObject
   include ToolsMenu
   
+  # Returns a string consisting of the content of the
+  # page header--or "breadcrumb", as it's called.
+  def header
+    frm.div(:class=>"breadCrumb specialLink").text
+  end
+  
+  # Clicks the "Messages" breadcrumb link to return
+  # to the top level of Messages. Then instantiates
+  # the Messages class.
+  def messages
+    frm.link(:text=>"Messages").click
+    Messages.new(@browser)
+  end
+  
   def compose_message
     frm.link(:text=>"Compose Message").click
     ComposeMessage.new(@browser)
@@ -4327,6 +4377,11 @@ class MessageView
   include PageObject
   include ToolsMenu
   
+  # Returns the contents of the message body.
+  def message_text
+    frm.div(:class=>"textPanel").text
+  end
+  
   def reply
     frm.button(:value=>"Reply").click
     ReplyToMessage.new(@browser)
@@ -4340,6 +4395,14 @@ class MessageView
   def received
     frm.link(:text=>"Received").click
     MessagesReceivedList.new(@browser)
+  end
+
+  # Clicks the "Messages" breadcrumb link to return
+  # to the top level of Messages. Then instantiates
+  # the Messages class.
+  def messages
+    frm.link(:text=>"Messages").click
+    Messages.new(@browser)
   end
 
 end
