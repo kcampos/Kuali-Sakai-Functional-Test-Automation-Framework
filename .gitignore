@@ -1,4 +1,4 @@
 doc
 config/config.yml
 config/directory.yml
-tests
+test/
