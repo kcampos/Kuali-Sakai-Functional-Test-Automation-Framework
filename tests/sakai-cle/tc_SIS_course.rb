@@ -32,6 +32,9 @@ class TestMasterCourseSite < Test::Unit::TestCase
     @subject = "TST"
     @course = "101"
     @section = "100"
+    @authorizer = "admin"
+    @email = "tst100"
+    @url = "http://www.rsmart.com"
     
     @job_name = "SIS" + random_alphanums
     @job_type = "SIS Synchronization"
@@ -63,7 +66,7 @@ class TestMasterCourseSite < Test::Unit::TestCase
     section_info.subject=@subject
     section_info.course=@course
     section_info.section=@section
-    section_info.authorizers_username="admin"
+    section_info.authorizers_username=@authorizer
     
     basic_site_info = section_info.continue
     
@@ -74,14 +77,14 @@ class TestMasterCourseSite < Test::Unit::TestCase
 
     add_mult_tools = course_tools.continue
     
-    add_mult_tools.site_email_address="tst100"
-    add_mult_tools.web_content_source="http://www.rsmart.com"
+    add_mult_tools.site_email_address=@email
+    add_mult_tools.web_content_source=@url
     
     access = add_mult_tools.continue
     
     # Set the site to be joinable by student users
     access.select_allow
-    access.joiner_role="Student"
+    access.joiner_role="Student" # This is not a 'variable'
     confirm = access.continue
     
     # Click to request the site
@@ -91,7 +94,7 @@ class TestMasterCourseSite < Test::Unit::TestCase
     sites_page = sites_list.sites
     
     # Search for the site
-    sites_page.search_field="TST"
+    sites_page.search_field=@subject
     sites_page.search_button
 
     # Edit the site

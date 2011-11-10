@@ -32,6 +32,8 @@ class TestMasterPortfolioSite < Test::Unit::TestCase
     @site_description  = "Portfolio Site For Testing"
     @files_to_upload = [ "documents/resources.doc", "presentations/resources.ppt", "documents/resources.txt", "spreadsheets/resources.xls", "audio/resources.mp3" ]
     @page_title = "Site Editor"
+    @email = "testportfolio"
+    @url = "http://www.rsmart.com"
     
     @job_name = "SIS" + random_alphanums
     @job_type = "SIS Synchronization"
@@ -115,8 +117,8 @@ class TestMasterPortfolioSite < Test::Unit::TestCase
     
     add_mult = edit_tools.continue
     
-    add_mult.site_email_address="testportfolio"
-    add_mult.web_content_source="http://www.rsmart.com"
+    add_mult.site_email_address=@email
+    add_mult.web_content_source=@url
     
     confirm = add_mult.continue
     
