@@ -5,11 +5,12 @@
 # changes, and updates to the password
 #
 # Author: Abe Heward (aheward@rSmart.com)
-
+gem "test-unit"
 gems = ["test/unit", "watir-webdriver"]
 gems.each { |gem| require gem }
 files = [ "/../../config/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-CLE/app_functions.rb", "/../../lib/sakai-CLE/admin_page_elements.rb", "/../../lib/sakai-CLE/site_page_elements.rb", "/../../lib/sakai-CLE/common_page_elements.rb" ]
 files.each { |file| require File.dirname(__FILE__) + file }
+require "ci/reporter/rake/test_unit_loader"
 
 class UserAccountUpdate < Test::Unit::TestCase
   

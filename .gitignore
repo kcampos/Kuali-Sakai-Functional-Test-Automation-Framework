@@ -12,3 +12,23 @@ config/directory.yml
 config/directory.yml
 
 config/config.yml
+
+tests/sakai-cle/test/reports/TEST-TestCreateLessons.xml
+
+tests/sakai-cle/test/reports/transform-results.xsl
+
+tests/sakai-cle/test/reports/TEST-CreateUsers.xml
+
+config/config.yml
+
+config/directory.yml
+
+tests/sakai-cle/test/reports/TEST-TestGroups.xml
+
+tests/sakai-cle/test/reports/TEST-TestCreatingCourseSite.xml
+
+tests/sakai-cle/test/reports/TEST-AddSiteParticipants.xml
+
+config/config.yml
+
+config/directory.yml

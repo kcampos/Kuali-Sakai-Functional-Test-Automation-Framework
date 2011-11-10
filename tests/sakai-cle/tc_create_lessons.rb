@@ -1,3 +1,4 @@
+#!/usr/bin/env ruby
 # 
 # == Synopsis
 #
@@ -8,8 +9,8 @@
 # Currently these are hard-coded, making this test somewhat brittle.
 #
 # Author: Abe Heward (aheward@rSmart.com)
-
-gems = ["test/unit", "watir-webdriver"]
+gem "test-unit"
+gems = ["test/unit", "watir-webdriver", "ci/reporter/rake/test_unit_loader"]
 gems.each { |gem| require gem }
 files = [ "/../../config/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-CLE/app_functions.rb", "/../../lib/sakai-CLE/admin_page_elements.rb", "/../../lib/sakai-CLE/site_page_elements.rb", "/../../lib/sakai-CLE/common_page_elements.rb" ]
 files.each { |file| require File.dirname(__FILE__) + file }
@@ -23,6 +24,7 @@ class TestCreateLessons < Test::Unit::TestCase
     # Get the test configuration data
     @config = AutoConfig.new
     @browser = @config.browser
+    
     # Using instructor2 and student04 for this test case
     @instructor =@config.directory['person4']['id']
     @ipassword = @config.directory['person4']['password']
@@ -66,7 +68,7 @@ class TestCreateLessons < Test::Unit::TestCase
     def frm
       @browser.frame(:index=>1)
     end
-sngnsrty
+
     # Log in to Sakai
     workspace = @sakai.login(@instructor, @ipassword)
 
