@@ -32,3 +32,17 @@ tests/sakai-cle/test/reports/TEST-AddSiteParticipants.xml
 config/config.yml
 
 config/directory.yml
+
+tests/sakai-cle/test/reports/TEST-TestCreateLessons.4.xml
+
+tests/sakai-cle/test/reports/TEST-TestCreateLessons.3.xml
+
+tests/sakai-cle/test/reports/TEST-TestCreateLessons.2.xml
+
+tests/sakai-cle/test/reports/TEST-TestCreateLessons.1.xml
+
+tests/sakai-cle/test/reports/TEST-TestCreateLessons.0.xml
+
+tests/sakai-cle/test/reports/TEST-AddPublicResources.xml
+
+tests/sakai-cle/test/reports/TEST-AddPublicResources.0.xml

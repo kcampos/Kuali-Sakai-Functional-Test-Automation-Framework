@@ -47,7 +47,7 @@ class TestCreateLessons < Test::Unit::TestCase
     @sections =[
       {:title=>"Lesson1-Section1", :type=>"Compose content with editor", :content=>"<h3 style=\"color: Red;\"><b>Aliquet vitae, sollicitudin et, pretium a, dolor? </b></h3> <br /> <tt>Aenean ante risus, vehicula nec, malesuada eu, laoreet sit amet, tortor. Nunc non dui vitae lectus aliquet vehicula. Vivamus dolor turpis, elementum sed, adipiscing ac, sodales vel, felis. Aenean dui nunc, placerat in, fermentum eu, commodo nec, odio. <br /> </tt> <ol>     <li>Duis sit amet lorem.</li>     <li>Maecenas nec dolor.</li>     <li>Vivamus lacus.</li>     <li>Vivamus ante. Duis vitae quam.</li> </ol> <span style=\"background-color: rgb(255, 153, 0);\">Vestibulum posuere diam quis purus dapibus et vehicula diam mollis. Sed non erat a lacus iaculis semper. Sed quis est eget ante ornare molestie vel eget mi? Mauris mollis pulvinar diam eu aliquet.</span> <b>Morbi placerat, magna metus</b>.<br /> <br />" },
       {:title=>"Lesson1-Section2", :type=>"Link to new or existing URL resource on server", :url_title=>"rsmart", :url=>"http://www.rsmart.com" },
-      {:title=>"Lesson2 - Section1", :type=>"Link to new or existing URL resource on server", :url_type=>"http://sakaiproject.org", :url=>"sakai" },
+      {:title=>"Lesson2 - Section1", :type=>"Link to new or existing URL resource on server",:url_title=>"sakai", :url=>"http://sakaiproject.org" },
       {:title=>"Lesson3-Section1", :type=>"Compose content with editor", :content=>"<h3 style=\"color: Red;\"><b>Aliquet vitae, sollicitudin et, pretium a, dolor? </b></h3> <br /> <tt>Aenean ante risus, vehicula nec, malesuada eu, laoreet sit amet, tortor. Nunc non dui vitae lectus aliquet vehicula. Vivamus dolor turpis, elementum sed, adipiscing ac, sodales vel, felis. Aenean dui nunc, placerat in, fermentum eu, commodo nec, odio. <br /> </tt> <ol>     <li>Duis sit amet lorem.</li>     <li>Maecenas nec dolor.</li>     <li>Vivamus lacus.</li>     <li>Vivamus ante. Duis vitae quam.</li> </ol> <span style=\"background-color: rgb(255, 153, 0);\">Vestibulum posuere diam quis purus dapibus et vehicula diam mollis. Sed non erat a lacus iaculis semper. Sed quis est eget ante ornare molestie vel eget mi? Mauris mollis pulvinar diam eu aliquet.</span> <b>Morbi placerat, magna metus</b>.<br /> <br />"},
       {:title=>"Lesson4-Section1", :type=>"Compose content with editor", :content=>"<h3 style=\"color: Red;\"><b>Aliquet vitae, sollicitudin et, pretium a, dolor? </b></h3> <br /> <tt>Aenean ante risus, vehicula nec, malesuada eu, laoreet sit amet, tortor. Nunc non dui vitae lectus aliquet vehicula. Vivamus dolor turpis, elementum sed, adipiscing ac, sodales vel, felis. Aenean dui nunc, placerat in, fermentum eu, commodo nec, odio. <br /> </tt> <ol>     <li>Duis sit amet lorem.</li>     <li>Maecenas nec dolor.</li>     <li>Vivamus lacus.</li>     <li>Vivamus ante. Duis vitae quam.</li> </ol> <span style=\"background-color: rgb(255, 153, 0);\">Vestibulum posuere diam quis purus dapibus et vehicula diam mollis. Sed non erat a lacus iaculis semper. Sed quis est eget ante ornare molestie vel eget mi? Mauris mollis pulvinar diam eu aliquet.</span> <b>Morbi placerat, magna metus</b>.<br /> <br />"},
       {:title=>"Lesson5-Section1", :type=>"Upload or link to a file in Resources", :file=>"resources.ppt" },
@@ -128,7 +128,7 @@ class TestCreateLessons < Test::Unit::TestCase
     select_content2 = new_section3.select_url
      
     select_content2.new_url=@sections[2][:url]
-    select_content2.url_title=@sections[2][:url_type]
+    select_content2.url_title=@sections[2][:url_title]
     
     new_section3 = select_content2.continue
 
@@ -194,7 +194,7 @@ class TestCreateLessons < Test::Unit::TestCase
     lessons = confirm.finish
     
     new_module6 = lessons.add_module
-    new_module6.title=@module[5][:title]
+    new_module6.title=@modules[5][:title]
     
     confirm = new_module6.add
     
