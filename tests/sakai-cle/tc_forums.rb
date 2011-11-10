@@ -37,11 +37,16 @@ class TestDiscussionForums < Test::Unit::TestCase
     
     @topics = [
       {:title=>"Topic 1", :short_description=>"Test Topic", :file=>"documents/resources.doc", :description=>"Donec pellentesque leo in diam? Sed eget lacus sed orci rutrum porttitor. Phasellus id risus scelerisque mi consequat scelerisque. Nam at leo. Donec pellentesque leo in diam? Sed eget lacus sed orci rutrum porttitor. Phasellus id risus scelerisque mi consequat scelerisque. Nam at leo." },
-      {:title=>"Thread for Group 1 " + random_alphanums, :short_description=>"Test Topic", :description=>"Sed eget lacus sed orci rutrum porttitor. Phasellus id risus scelerisque mi consequat scelerisque. Nam at leo. Donec pellentesque leo in diam? Sed eget lacus sed orci rutrum porttitor. Phasellus id risus scelerisque mi consequat scelerisque. Nam at leo." },
-      {}
+      {:title=>"Thread for Group 1 " + random_alphanums, :permission_level=>"None", :short_description=>"Test Topic", :description=>"Sed eget lacus sed orci rutrum porttitor. Phasellus id risus scelerisque mi consequat scelerisque. Nam at leo. Donec pellentesque leo in diam? Sed eget lacus sed orci rutrum porttitor. Phasellus id risus scelerisque mi consequat scelerisque. Nam at leo." },
+      {:title=>"Topic for Group 2", :permission_level=>"None", :short_description=>"Test Topic", :description=>"Sed eget lacus sed orci rutrum porttitor. Donec pellentesque leo in diam? Phasellus id risus scelerisque mi consequat scelerisque. Nam at leo. Donec pellentesque leo in diam? Sed eget lacus sed orci rutrum porttitor. Phasellus id risus scelerisque mi consequat scelerisque. Nam at leo." }
     ]
     
-    @messages = [{}]
+    @messages = [
+      {:title=>"Thread for Topic 1", :text=> "Praesent vel augue? Nulla vel nulla. Praesent tempus suscipit tellus. Mauris ac massa eleifend pede sagittis sollicitudin. Aenean nunc. Fusce nulla! Vivamus et quam rutrum diam molestie lobortis! Suspendisse quis ligula at lectus aliquam egestas."},
+      {:title=>"Thread for Topic for Group 2", :text=>"Integer nulla ipsum, congue eu, blandit ac, commodo vitae, erat. Curabitur sit amet tortor. Nullam hendrerit. Morbi dui. Morbi vitae nunc. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos." }
+    ]
+    
+    @reply_text = "In tincidunt varius neque. Maecenas vehicula. Praesent rutrum? Proin lacinia, neque vel consequat malesuada, diam diam scelerisque massa, fermentum accumsan est tortor in libero. Morbi tempus vestibulum tellus! Mauris sit amet purus? Sed eros. Phasellus ornare lectus eget quam. Etiam lorem? Integer molestie. Vivamus erat."
     
   end
   
@@ -120,7 +125,7 @@ class TestDiscussionForums < Test::Unit::TestCase
     add_topic2.permission_level="Contributor"
     
     add_topic2.site_role="Student (Contributor)"
-    add_topic2.permission_level="None"
+    add_topic2.permission_level=@topics[1][:permission_level]
     
     forums = add_topic2.save
 
@@ -152,29 +157,27 @@ class TestDiscussionForums < Test::Unit::TestCase
     assert forums.forum_titles.include? @forums[0][:title]
     assert forums.topic_titles.include? @topics[0][:title]
     # What about a link to the uploaded file???
-    assert_equal forums.forum_titles.include?(forum2_title), false #FIXME - Is this supposed to be the case???
-    assert_equal forums.topic_titles.include?(topic2_title), false
+    assert_equal false, forums.forum_titles.include?(@forums[1][:title])
+    assert_equal false, forums.topic_titles.include?(@topics[1][:title])
   
     # Open topic 1
     topic_page = forums.open_topic @topics[0][:title]
   
     # Post a message
     new_message = topic_page.post_new_thread
-    new_message.title="Thread for Topic 1"
     new_message.editor.wait_until_present
-
-    msg_text = "Praesent vel augue? Nulla vel nulla. Praesent tempus suscipit tellus. Mauris ac massa eleifend pede sagittis sollicitudin. Aenean nunc. Fusce nulla! Vivamus et quam rutrum diam molestie lobortis! Suspendisse quis ligula at lectus aliquam egestas."
-
-    new_message.message=msg_text
+    new_message.message=@messages[0][:text]
+    new_message.title=@messages[0][:title]
+    
     topic_page = new_message.post_message
 
     # TEST CASE: Verify message posted
-    assert @browser.frame(:index=>$frame_index).table(:id=>"msgForum:messagesInHierDataTable").text.include? "Thread for Topic 1"
+    assert @browser.frame(:index=>$frame_index).table(:id=>"msgForum:messagesInHierDataTable").text.include? @messages[0][:title]
    
-    message = topic_page.open_message "Thread for Topic 1"
+    message = topic_page.open_message @messages[0][:title]
     
     # TEST CASE: Verify user can read the text
-    assert @browser.frame(:index=>$frame_index).table(:id=>"msgForum:expandedThreadedMessages").text.include? msg_text
+    assert @browser.frame(:index=>$frame_index).table(:id=>"msgForum:expandedThreadedMessages").text.include? @messages[0][:text]
     
     @sakai.logout
     
@@ -188,7 +191,7 @@ class TestDiscussionForums < Test::Unit::TestCase
     # TEST CASE: Verify the student can seen the forums
     assert forums.forum_titles.include? @forums[0][:title]
     assert forums.topic_titles.include? @topics[0][:title]
-    assert forums.forum_titles.include? forum2_title
+    assert forums.forum_titles.include? @forums[1][:title]
     assert forums.topic_titles.include? @topics[1][:title]
     
     # TEST CASE: Verify something about the student access to the Group 1 thread.
@@ -196,7 +199,7 @@ class TestDiscussionForums < Test::Unit::TestCase
     topic = forums.open_topic @topics[0][:title]
 
     # TEST CASE: Verify the post new thread link is available
-    assert @browser.frame(:index=>$frame_index).table(:class=>/topicBloc/).link(:text=>"Post New Thread").exist?
+    assert @browser.frame(:index=>1).table(:class=>/topicBloc/).link(:text=>"Post New Thread").exist?
     
     @sakai.logout
    
@@ -209,54 +212,51 @@ class TestDiscussionForums < Test::Unit::TestCase
     # TEST CASE: Verify the instructor can seen the forums
     assert forums.forum_titles.include? @forums[0][:title]
     assert forums.topic_titles.include? @topics[0][:title]
-    assert forums.forum_titles.include?(forum2_title)
+    assert forums.forum_titles.include? @forums[1][:title]
     assert forums.topic_titles.include? @topics[1][:title] 
     
     # TEST CASE: Verify the instructor see the "unread message" notifications
     assert forums.forums_table.text.include? "1 message - 1 unread"
     
     topic_page = forums.open_topic @topics[0][:title]
-    message = topic_page.open_message "Thread for Topic 1"
+    message = topic_page.open_message @messages[0][:title]
     
     # TEST CASE: Verify user can read the text
-    assert @browser.frame(:index=>$frame_index).table(:id=>"msgForum:expandedThreadedMessages").text.include? msg_text
+    assert @browser.frame(:index=>$frame_index).table(:id=>"msgForum:expandedThreadedMessages").text.include? @messages[0][:text]
     
     compose = message.reply_to_thread
     
     # TEST CASE: Reply screen contains original message text
-    assert compose.reply_text.include? msg_text
+    assert compose.reply_text.include? @messages[0][:text]
     
     thread = compose.cancel
     
     compose = thread.reply_to_message(1)
     
     # TEST CASE: Reply screen contains original message text
-    assert compose.reply_text.include? msg_text
+    assert compose.reply_text.include? @messages[0][:text]
     
-    reply_text = "In tincidunt varius neque. Maecenas vehicula. Praesent rutrum? Proin lacinia, neque vel consequat malesuada, diam diam scelerisque massa, fermentum accumsan est tortor in libero. Morbi tempus vestibulum tellus! Mauris sit amet purus? Sed eros. Phasellus ornare lectus eget quam. Etiam lorem? Integer molestie. Vivamus erat."
-    
-    compose.message= reply_text
+    compose.message= @reply_text
     
     topic_page = compose.post_message
     
     # TEST CASE: Verify the message appears in the thread list
-    assert @browser.frame(:index=>$frame_index).div(:class=>"portletBody").link(:text=>"Re: Thread for Topic 1").exist?
+    assert @browser.frame(:index=>1).div(:class=>"portletBody").link(:text=>"Re: #{@messages[0][:title]}").exist?
     
     topic_page.reset
 
     forums = Forums.new(@browser)
     
     # Add a new topic that is visible to Group 2
-    topic = forums.new_topic_for_forum forum2_title
-    topic.title="Topic for Group 2"
-    topic.short_description="Test Topic"
+    topic = forums.new_topic_for_forum @forums[1][:title]
     topic.editor.wait_until_present
-    topic_description_text= "Sed eget lacus sed orci rutrum porttitor. Donec pellentesque leo in diam? Phasellus id risus scelerisque mi consequat scelerisque. Nam at leo. Donec pellentesque leo in diam? Sed eget lacus sed orci rutrum porttitor. Phasellus id risus scelerisque mi consequat scelerisque. Nam at leo."
-    topic.description=topic_description_text
-    topic.site_role=/Group 2/
+    topic.description=@topics[2][:description]
+    topic.title=@topics[2][:title]
+    topic.short_description=@topics[2][:short_description]
+    topic.site_role=/#{Regexp.escape(@groups[1])}/
     topic.permission_level="Contributor"
     topic.site_role=/Student/
-    topic.permission_level="None"
+    topic.permission_level=@topics[2][:permission_level]
     
     forums = topic.save
     
@@ -271,8 +271,8 @@ class TestDiscussionForums < Test::Unit::TestCase
     forums = home.forums
     
     # TEST CASE: Student in group 1 can't see topic for group 2
-    #assert forum_names.include?(forum2_title)
-    assert_equal forums.topic_titles.include?("Topic for Group 2"), false
+    assert forums.forum_titles.include?(@forums[1][:title])
+    assert_equal forums.topic_titles.include?(@topics[2][:title]), false
     
     # Log out and log back in with a student from Group 2
     @sakai.logout
@@ -283,19 +283,17 @@ class TestDiscussionForums < Test::Unit::TestCase
     forums = home.forums
 
     # TEST CASE: Student in group 2 can see the group 2 topic
-    assert forums.topic_titles.include?("Topic for Group 2")
-    #assert_equal forums.topic_titles.include?(topic2_title), false
+    assert forums.topic_titles.include?(@topics[2][:title])
     
-    topic_page = forums.open_topic "Topic for Group 2"
+    topic_page = forums.open_topic @topics[2][:title]
     
     compose_new = topic_page.post_new_thread
-    compose_new.title="Thread for Topic for Group 2"
-    t2g2_msg="Integer nulla ipsum, congue eu, blandit ac, commodo vitae, erat. Curabitur sit amet tortor. Nullam hendrerit. Morbi dui. Morbi vitae nunc. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos."
-    compose_new.message=t2g2_msg
+    compose_new.message=@messages[1][:text]
+    compose_new.title=@messages[1][:title]
     topic_page = compose_new.post_message
     
     # TEST CASE: Student in group 2 can post a new thread in the Group 2 topic
-    assert @browser.frame(:index=>$frame_index).table(:id=>"msgForum:messagesInHierDataTable").text.include? "Thread for Topic for Group 2"
+    assert @browser.frame(:index=>1).table(:id=>"msgForum:messagesInHierDataTable").text.include? @messages[1][:title]
     
     # Log out and log back in as the instructor, to change the permissions
     # of a topic...
@@ -307,8 +305,8 @@ class TestDiscussionForums < Test::Unit::TestCase
     forums = home.forums
     
     # In Topic for Group 2, update Group 1 permission to "Reviewer"
-    topic_settings = forums.topic_settings "Topic for Group 2"
-    topic_settings.site_role= /Group 1/
+    topic_settings = forums.topic_settings @topics[2][:title]
+    topic_settings.site_role= /#{Regexp.escape(@groups[0])}/
     topic_settings.permission_level="Reviewer"
     topic_settings.save
     
@@ -320,13 +318,13 @@ class TestDiscussionForums < Test::Unit::TestCase
     home = workspace.open_my_site_by_id(@site_id)
     forums = home.forums
     
-    topic_page = forums.open_topic "Topic for Group 2"
+    topic_page = forums.open_topic @topics[2][:title]
     
     # TEST CASE: Verify student in group 1 can see but not edit Group 2 thread items.
-    assert topic_page.thread_titles.include? "Thread for Topic for Group 2"
-    assert_equal @browser.frame(:index=>$frame_index).table(:class=>/topicBloc/).link(:text=>"Post New Thread").exist?, false
-    assert_equal @browser.frame(:index=>$frame_index).table(:class=>/topicBloc/).link(:text=>"Topic Settings").exist?, false
-    assert_equal @browser.frame(:index=>$frame_index).table(:class=>/topicBloc/).link(:text=>"Delete").exist?, false
+    assert topic_page.thread_titles.include? @messages[1][:title]
+    assert_equal @browser.frame(:index=>1).table(:class=>/topicBloc/).link(:text=>"Post New Thread").exist?, false
+    assert_equal @browser.frame(:index=>1).table(:class=>/topicBloc/).link(:text=>"Topic Settings").exist?, false
+    assert_equal @browser.frame(:index=>1).table(:class=>/topicBloc/).link(:text=>"Delete").exist?, false
     
     @sakai.logout
     
@@ -336,13 +334,13 @@ class TestDiscussionForums < Test::Unit::TestCase
     home = workspace.open_my_site_by_id(@site_id)
     forums = home.forums
     
-    topic_page = forums.open_topic "Topic for Group 2"
+    topic_page = forums.open_topic @topics[2][:title]
     
     # Verify student in group 2's permissions have not changed
-    assert topic_page.thread_titles.include? "Thread for Topic for Group 2"
-    assert @browser.frame(:index=>$frame_index).table(:class=>/topicBloc/).link(:text=>"Post New Thread").exist?
-    assert_equal @browser.frame(:index=>$frame_index).table(:class=>/topicBloc/).link(:text=>"Topic Settings").exist?, false
-    assert_equal @browser.frame(:index=>$frame_index).table(:class=>/topicBloc/).link(:text=>"Delete").exist?, false
+    assert topic_page.thread_titles.include? @messages[1][:title]
+    assert @browser.frame(:index=>1).table(:class=>/topicBloc/).link(:text=>"Post New Thread").exist?
+    assert_equal @browser.frame(:index=>1).table(:class=>/topicBloc/).link(:text=>"Topic Settings").exist?, false
+    assert_equal @browser.frame(:index=>1).table(:class=>/topicBloc/).link(:text=>"Delete").exist?, false
     
     #FIXME ADD TEST CASE for saving a group in DRAFT mode
     #FIXME ADD TEST CASE for clicking to view full descriptions and attachments
