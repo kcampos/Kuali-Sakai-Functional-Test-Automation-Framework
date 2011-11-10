@@ -31,6 +31,9 @@ class TestMasterProjectSite < Test::Unit::TestCase
     @site_title = "Test Project"
     @files_to_upload = [ "documents/resources.doc", "presentations/resources.ppt", "documents/resources.txt", "spreadsheets/resources.xls", "audio/resources.mp3" ]
     @site_description = "Project site for testers."
+    @page_title = "Site Editor"
+    @email = "testproject"
+    @url = "http://www.rsmart.com"
     
     @job_name = "SIS" + random_alphanums
     @job_type = "SIS Synchronization"
@@ -71,7 +74,7 @@ class TestMasterProjectSite < Test::Unit::TestCase
     pages = edit_site.pages
     
     new_page = pages.new_page
-    new_page.title="Site Editor"
+    new_page.title=@page_title
     
     tools = new_page.tools
     
@@ -112,8 +115,8 @@ class TestMasterProjectSite < Test::Unit::TestCase
     
     add_mult = edit_tools_page.continue
 
-    add_mult.site_email_address="testproject"
-    add_mult.web_content_source="http://www.rsmart.com"
+    add_mult.site_email_address=@email
+    add_mult.web_content_source=@url
     
     confirm = add_mult.continue
     

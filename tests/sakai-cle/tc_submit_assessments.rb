@@ -29,6 +29,26 @@ class TestSubmitAssessment < Test::Unit::TestCase
     @site_id = @config.directory['site1']['id']
     @sakai = SakaiCLE.new(@browser)
     
+    # Test case variables
+    @answers = [
+      "D",
+      "true",
+      {:answer=>"Rhode Island", :space=>1},
+      "B",
+      "Vivamus placerat. Duis tincidunt lacus non magna. Nullam faucibus tortor a nisl.",
+      {:answer=>"Queen Anne", :space=>1},
+      {:answer=>"Britain", :space=>2},
+      {:answer=>"B", :space=>1},
+      {:answer=>"A", :space=>2},
+      "False",
+      "Epistemology is the study of knowledge.",
+      "documents/resources.doc",
+      {:answer=>"red", :space=>1},
+      {:answer=>"blue", :space=>2},
+      "c",
+      "true"
+    ]
+    
   end
   
   def teardown
@@ -62,49 +82,49 @@ class TestSubmitAssessment < Test::Unit::TestCase
     quiz1.begin_assessment
     
     # Answer the questions...
-    quiz1.multiple_choice_answer "D"
+    quiz1.multiple_choice_answer @answers[0]
     quiz1 = quiz1.next
     
-    quiz1.true_false_answer "true"
+    quiz1.true_false_answer @answers[1]
     quiz1 = quiz1.next
     
-    quiz1.fill_in_blank_answer("Rhode Island", 1)
+    quiz1.fill_in_blank_answer(@answers[2][:answer], @answers[2][:space])
     quiz1 = quiz1.next
     
-    quiz1.multiple_choice_answer "B"
+    quiz1.multiple_choice_answer @answers[3]
     quiz1 = quiz1.next
     
-    quiz1.short_answer "Vivamus placerat. Duis tincidunt lacus non magna. Nullam faucibus tortor a nisl."
+    quiz1.short_answer @answers[4]
     quiz1 = quiz1.next
     
-    quiz1.fill_in_blank_answer("Queen Anne", 1)
-    quiz1.fill_in_blank_answer("Britain", 2)
+    quiz1.fill_in_blank_answer(@answers[5][:answer], @answers[5][:space])
+    quiz1.fill_in_blank_answer(@answers[6][:answer], @answers[6][:space])
     quiz1 = quiz1.next
     
-    quiz1.match_answer("B", 1)
-    quiz1.match_answer("A", 2)
+    quiz1.match_answer(@answers[7][:answer], @answers[7][:space])
+    quiz1.match_answer(@answers[8][:answer], @answers[8][:space])
     quiz1 = quiz1.next
     
-    quiz1.true_false_answer "False"
-    quiz1.true_false_rationale "Epistemology is the study of knowledge."
+    quiz1.true_false_answer @answers[9]
+    quiz1.true_false_rationale @answers[10]
     quiz1 = quiz1.next
     
-    quiz1.file_answer "documents/resources.doc"
+    quiz1.file_answer @answers[11]
     quiz1 = quiz1.next
     
-    quiz1.fill_in_blank_answer("red", 1)
-    quiz1.fill_in_blank_answer("blue", 2)
+    quiz1.fill_in_blank_answer(@answers[12][:answer], @answers[12][:space])
+    quiz1.fill_in_blank_answer(@answers[13][:answer], @answers[13][:space])
     
     # Submit for grading
     confirm = quiz1.submit_for_grading
     
     # TEST CASE: Confirm warning screen contents
-    assert frm.span(:class=>"validation").text =~ /You are about to submit this assessment for grading./
+    assert_match(/You are about to submit this assessment for grading./, frm.span(:class=>"validation").text)
     
     summary = confirm.submit_for_grading
     
     # TEST CASE: Verify confirmation page contents
-    assert frm.div(:class=>"portletBody").div(:class=>"tier1").text =~ /You have completed this assessment./
+    assert_match(/You have completed this assessment./, frm.div(:class=>"portletBody").div(:class=>"tier1").text)
     
     tests = summary.continue
     
@@ -116,10 +136,10 @@ class TestSubmitAssessment < Test::Unit::TestCase
     quiz2 = tests.take_assessment(@test2)
     quiz2.begin_assessment
     
-    quiz2.multiple_choice_answer "c"
+    quiz2.multiple_choice_answer @answers[14]
     quiz2 = quiz2.next
     
-    quiz2.true_false_answer "true"
+    quiz2.true_false_answer @answers[15]
     
     confirm = quiz2.submit_for_grading
     
