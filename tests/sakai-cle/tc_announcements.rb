@@ -51,6 +51,10 @@ class TestAnnouncements < Test::Unit::TestCase
     
     @portfolio_site = "PortfolioAdmin"
     
+    # Validation text -- These contain page content that will be used for
+    # test asserts.
+    @body_alert = "Alert: You need to fill in the body of the announcement!"
+    
   end
   
   def teardown
@@ -127,7 +131,7 @@ class TestAnnouncements < Test::Unit::TestCase
     ancmnt4 = ancmnt4.add_announcement
     
     # TEST CASE: Verify Alert Message
-    assert_equal "Alert: You need to fill in the body of the announcement!", ancmnt4.alert_message
+    assert_equal @body_alert, ancmnt4.alert_message
     
     ancmnt4.body=@announcement_4_body
     

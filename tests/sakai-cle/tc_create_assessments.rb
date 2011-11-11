@@ -66,6 +66,13 @@ class TestCreateNewAssessments < Test::Unit::TestCase
     @config.directory['site1']['quiz1'] = @assessments[0][:title] 
     @config.directory['site1']['quiz2'] = @assessments[1][:title]
     
+    # Validation text -- These contain page content that will be used for
+    # test asserts.
+    @due_date = "There is no due date for this assessment."
+    @time_limit = "There is no time limit."
+    @submission_limit = "You can submit this assessment an unlimited number of times. Your highest score will be recorded."
+    @feedback_policy = "No feedback will be provided."
+    
   end
   
   def teardown
@@ -135,10 +142,10 @@ class TestCreateNewAssessments < Test::Unit::TestCase
     overview = quiz.preview
     
     #TEST CASE: Verify the preview overview contents
-    assert_equal("There is no due date for this assessment.", overview.due_date)
-    assert_equal("There is no time limit.", overview.time_limit)
-    assert_equal("You can submit this assessment an unlimited number of times. Your highest score will be recorded.", overview.submission_limit)
-    assert_equal("No feedback will be provided.", overview.feedback)
+    assert_equal(@due_date, overview.due_date)
+    assert_equal(@time_limit, overview.time_limit)
+    assert_equal(@submission_limit, overview.submission_limit)
+    assert_equal(@feedback_policy, overview.feedback)
     
     quiz = overview.done
     

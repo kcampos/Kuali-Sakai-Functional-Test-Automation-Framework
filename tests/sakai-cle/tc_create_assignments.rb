@@ -40,6 +40,11 @@ class TestCreateAssignments < Test::Unit::TestCase
       {:title=>random_nicelink(30), :open_day=>yesterday, :grade_scale=>"Checkmark", :instructions=>"Integer pulvinar facilisis purus. Quisque placerat! Maecenas risus. Nam vitae lacus. Quisque euismod imperdiet ipsum. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nam vitae nulla! Duis tincidunt. Nulla id felis. Duis accumsan, est ut volutpat mollis, tellus lorem venenatis justo, eu accumsan lorem neque sit amet ante. Sed dictum. Donec nulla mi, lacinia nec; viverra nec, commodo sed, justo. Praesent fermentum vehicula dui. Sed molestie eleifend leo. Nulla et risus! Nullam ut lacus. Etiam faucibus; eros sit amet tempus consectetuer, urna est hendrerit mi, eget molestie sapien lorem non tellus. In vitae nisl. Vivamus ac lectus id pede viverra placerat.\n\nMorbi nec dui eget pede dapibus mollis. Mauris nisl. Donec tempor blandit diam. In hac habitasse platea dictumst. Sed vulputate ornare urna. Nulla sed." }
     ]
     
+    # Validation text -- These contain page content that will be used for
+    # test asserts.
+    @revising_alert = "Alert: You are revising an assignment after the open date."
+    @missing_instructions = "Alert: This assignment has no instructions. Please make a correction or click the original button to proceed."
+    
   end
   
   def teardown
@@ -360,7 +365,7 @@ class TestCreateAssignments < Test::Unit::TestCase
     assignment_1 = assignments.edit_assignment(@assignments[0][:title])
 
     # TEST CASE: Verify the alert about revising assignments after the Open Date.
-    assert_equal(assignment_1.alert_text, "Alert: You are revising an assignment after the open date.")
+    assert_equal(@revising_alert, assignment_1.alert_text)
     
     # Change letter grade
     assignment_1.grade_scale=@assignments[0][:grade_scale]
@@ -371,7 +376,7 @@ class TestCreateAssignments < Test::Unit::TestCase
     assignment_1 = AssignmentAdd.new(@browser)
     
     # Verify the instructions error message again
-    assert_equal assignment_1.alert_text, "Alert: This assignment has no instructions. Please make a correction or click the original button to proceed."
+    assert_equal @missing_istructions, assignment_1.alert_text
     
     # Add instructions
     assignment_1.instructions=@assignments[0][:instructions]

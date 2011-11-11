@@ -57,6 +57,12 @@ class TestJForums < Test::Unit::TestCase
     
     @xss = random_xss_string
     
+    # Validation text -- These contain page content that will be used for
+    # test asserts.
+    @profile_header = 'Information updated'
+    @successful_send = "Your message was successfully sent"
+    @no_bookmarks = 'There are no bookmark entries for this user.'
+    
   end
   
   def teardown
@@ -113,7 +119,7 @@ class TestJForums < Test::Unit::TestCase
     my_profile = my_profile.submit
     
     # TEST CASE: Verify information was saved
-    assert_equal 'Information updated', my_profile.header_text
+    assert_equal @profile_header, my_profile.header_text
     
     member_list = my_profile.member_listing
 
@@ -132,7 +138,7 @@ class TestJForums < Test::Unit::TestCase
     info = new_priv_msg.submit
     
     #TEST CASE: Verify the message is sent
-    assert info.information_text.include?("Your message was successfully sent")
+    assert info.information_text.include?(@successful_send)
     
     @sakai.logout
     
@@ -162,7 +168,7 @@ class TestJForums < Test::Unit::TestCase
     info = reply_msg.submit
     
     #TEST CASE: Verify the message is sent
-    assert info.information_text.include?("Your message was successfully sent")
+    assert info.information_text.include?(@successful_send)
     
     search_page = info.search
     search_page.keywords=@keywords
@@ -234,7 +240,7 @@ class TestJForums < Test::Unit::TestCase
     q_topic_page.my_bookmarks
     
     # TEST CASE: Verify message about no bookmarks
-    assert_equal frm.span(:class=>"gen").text, 'There are no bookmark entries for this user.'
+    assert_equal @no_bookmarks, frm.span(:class=>"gen").text
     
     @sakai.logout
  

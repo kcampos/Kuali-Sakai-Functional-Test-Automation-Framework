@@ -1258,6 +1258,7 @@ class AssignmentAttachments
   
   include PageObject
   include ToolsMenu
+  include AttachPageTools
   
   # Enters the specified file (assuming it's in the
   # data/sakai-cle folder or a subfolder therein)
@@ -1265,11 +1266,7 @@ class AssignmentAttachments
   # AssignmentAttachments page class to ensure
   # against the ObsoleteElement error.
   def upload_local_file(filename)
-    frm.file_field(:id=>"upload").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + filename)
-    if frm.div(:class=>"alertMessage").exist?
-      sleep 2
-      upload_local_file(filename)
-    end
+    m_upload_local_file(filename)
     AssignmentAttachments.new(@browser)
   end
   
@@ -1278,7 +1275,7 @@ class AssignmentAttachments
   # based on the page that appears.
   def continue
     frm.div(:class=>"highlightPanel").span(:id=>"submitnotifxxx").wait_while_present
-    frm.button(:value=>"Continue").click
+    m_continue
     if frm.div(:class=>"portletBody").h3.text=~/In progress/
       AssignmentStudent.new(@browser)
     elsif frm.div(:class=>"portletBody").h3.text=~/edit/
@@ -1290,39 +1287,12 @@ class AssignmentAttachments
     end
   end
   
-  # Clicks the Show Other Sites link.
-  def show_other_sites
-    frm.link(:title=>"Show other sites").click
-  end
-  
-  # Clicks on the specified folder
-  def open_folder(foldername)
-    frm.link(:text=>foldername).click 
-  end
-  
-  # Clicks on the Select button for
-  # the specified file.
-  def select_file(filename)
-    frm.table(:class=>"listHier lines").tr(:text=>/#{Regexp.escape(filename)}/).link(:text=>"Select").click
-  end
-  
   # Opens the file menu for the specified folder
   # then clicks on the menu option "Upload Files",
   # then instantiates the StylesUploadFiles page class.
-  def upload_files_to_folder(foldername)
-    frm.table(:class=>"listHier lines").tr(:text=>/#{Regexp.escape(foldername)}/).li(:class=>"menuOpen").fire_event("onclick")
-    frm.table(:class=>"listHier lines").tr(:text=>/#{Regexp.escape(foldername)}/).link(:text=>"Upload Files").click
+  def upload_files_to_folder(folder_name)
+    m_upload_files_to_folder(folder_name)
     StylesUploadFiles.new(@browser)
-  end
-  
-  # Sets the URL field to the specified value.
-  def url=(url_string)
-    frm.text_field(:id=>"url").set(url_string)
-  end
-  
-  # Clicks the Add button next to the URL field.
-  def add
-    frm.button(:value=>"Add").click
   end
   
 end
@@ -2785,22 +2755,11 @@ class AttachFileFormImport
   
   include PageObject
   include ToolsMenu
+  include AttachPageTools
   
   def continue
-    frm.button(:value=>"Continue").click
+    m_continue
     ImportForms.new(@browser)
-  end
-
-  def show_other_sites
-    frm.link(:text=>"Show other sites").click
-  end
-  
-  def open_folder(name)
-    frm.link(:text=>name).click
-  end
-
-  def select_file(filename)
-    frm.table(:class=>"listHier lines").row(:text, /#{Regexp.escape(filename)}/).link(:text=>"Select").click
   end
 
 end
@@ -3157,9 +3116,10 @@ class ForumsAddAttachments
   
   include PageObject
   include ToolsMenu
+  include AttachPageTools
   
   def continue
-    frm.button(:value=>"Continue").click
+    m_continue
     sleep 2 #FIXME
     frm.div(:class=>"portletBody").h3(:index=>0).wait_until_present
     title = frm.div(:class=>"portletBody").h3(:index=>0).text
@@ -3172,7 +3132,7 @@ class ForumsAddAttachments
   end
   
   def upload_file=(file_name)
-    frm.file_field(:id, "upload").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + file_name)
+    m_upload_local_file(file_name)
   end
 
 end
@@ -3243,10 +3203,39 @@ class Glossary
     frm.link(:text=>"Add").click
     AddEditTerm.new(@browser)
   end
-
-  in_frame(:index=>1) do |frame|
-    
+  
+  def import
+    frm.link(:text=>"Import").click
+    GlossaryImport.new(@browser)
   end
+
+  def edit(term)
+    frm.table(:class=>"listHier lines nolines").row(:text=>/#{Regexp.escape(term)}/).link(:text=>"Edit").click
+    AddEditTerm.new(@browser)
+  end
+  
+  def delete(term)
+    frm.table(:class=>"listHier lines nolines").row(:text=>/#{Regexp.escape(term)}/).link(:text=>"Delete").click
+    AddEditTerm.new(@browser)
+  end
+
+  def open(term)
+    frm.link(:text=>term).click
+    #FIXME!
+    # Need to do special handling here because of the new window.
+  end
+  
+  # Returns an array containing the string values of the terms
+  # displayed in the list.
+  def terms
+    term_list = []
+    frm.table(:class=>"listHier lines nolines").rows.each do |row|
+      term_list << row[0].text
+    end
+    term_list.delete_at(0)
+    return term_list
+  end
+
 end
 
 class AddEditTerm
@@ -3256,6 +3245,11 @@ class AddEditTerm
   
   def add_term
     frm.button(:value=>"Add Term").click
+    Glossary.new(@browser)
+  end
+  
+  def save_changes
+    frm.button(:value=>"Save Changes").click
     Glossary.new(@browser)
   end
 
@@ -3269,6 +3263,75 @@ class AddEditTerm
   end
 end
 
+# Page for importing Glossary files into a Glossary
+class GlossaryImport
+  
+  include PageObject
+  include ToolsMenu
+  
+  def select_file
+    frm.link(:text=>"Select file...").click
+    GlossaryAttach.new(@browser)
+  end
+  
+  def import
+    frm.button(:value=>"Import").click
+    Glossary.new(@browser)
+  end
+
+end
+
+# Page for uploading or grabbing files that will be imported to the Glossary.
+class GlossaryAttach
+  
+  include PageObject
+  include ToolsMenu
+  include AttachPageTools
+  
+  def upload_file_to_folder(folder_name)
+    m_upload_files_to_folder(folder_name)
+    GlossaryFileUpload.new(@browser)
+  end
+  
+  def continue
+    m_continue
+    if frm.div(:class=>"portletBody").h3(:text=>"Import Glossary Terms").exist?
+      GlossaryImport.new(@browser)
+    else
+      # huh?
+    end
+  end
+
+end
+
+# The file upload page for Glossary importing
+class GlossaryFileUpload
+  
+  include ToolsMenu
+    
+  @@filex=0
+  
+  # Note that the file_to_upload method can be used
+  # multiple times, but it assumes
+  # that the add_another_file method is used
+  # before it, every time except before the first time.
+  def file_to_upload=(file_name)
+    frm.file_field(:id, "content_#{@@filex}").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + file_name)
+    @@filex+=1
+  end
+  
+  def upload_files_now
+    frm.button(:value=>"Upload Files Now").click
+    sleep 0.5
+    @@filex=0
+    GlossaryAttach.new(@browser)
+  end
+  
+  def add_another_file
+    frm.link(:text=>"Add Another File").click
+  end
+  
+end
 
 
 #================
@@ -3646,6 +3709,7 @@ class LessonAddAttachment
   
   include PageObject
   include ToolsMenu
+  include AttachPageTools
   
   # Clicks the Continue button on the page
   # and instantiates the AddSection class.
@@ -3653,67 +3717,9 @@ class LessonAddAttachment
   # Note that it assumes the Continue button is present
   # and available.
   def continue
-    frm.button(:value=>"Continue").click
+    m_continue
     AddEditSection.new(@browser)
   end
-  
-  # Finds the row containing the target filename, then
-  # clicks the Select link associated with the
-  # file.
-  #
-  # Note it will error out if the name used is not found
-  # in the list.
-  def select_file(filename)
-    index = file_names.index(filename)
-    frm.link(:text=>"Select", :index=>index).click
-  end
-  
-  # Returns an array of the file names currently listed
-  # on the Add Attachments page for Lessons.
-  # 
-  # It excludes folder names.
-  def file_names
-    names = []
-    table = frm.table(:class=>"listHier lines")
-    anchors = table.links.find_all { |link| link.text != "" && link.title =~/File Type/ }
-    anchors.each { |anchor| names << anchor.text }
-    return names
-  end
-  
-  #FIXME!!!
-=begin
-  # This method returns folder names only
-  def folder_names
-    names = []
-    resources_table = frm.table(:class=>"listHier lines")
-    1.upto(resources_table.rows.size-1) do |x|
-      if resources_table[x][2].h3.exist? && resources_table[x][2].a.title=~/folder/
-        names << resources_table[x][2].text
-      end
-    end
-    return names
-  end
-  
-  # This method returns an array of both the file and folder names
-  # currently listed on the Resources page.
-  #
-  # Note that it adds "" entries for any blank lines found
-  # so that the row index will still be accurate for the
-  # table itself. This is sometimes necessary for being
-  # able to find the correct row.
-  def resource_names
-    titles = []
-    resources_table = frm.table(:class=>"listHier lines")
-    1.upto(resources_table.rows.size-1) do |x|
-      if resources_table[x][2].link.exist?
-        titles << resources_table[x][2].text
-      else
-        titles << ""
-      end
-    end
-    return titles
-  end
-=end  
 
 end
 
@@ -4534,9 +4540,10 @@ class MessagesAttachment
   
   include PageObject
   include ToolsMenu
+  include AttachPageTools
   
   def continue
-    frm.button(:value=>"Continue").click
+    m_continue
     # Logic for determining which class to call...
     if frm.div(:class=>/breadCrumb/).text =~ /Messages \/ Compose/
       ComposeMessage.new(@browser)
@@ -4547,32 +4554,13 @@ class MessagesAttachment
   end
   
   def upload_file(filename)
-    frm.file_field(:id=>"upload").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + filename)
+    m_upload_local_file(filename)
   end
 
   def attach_a_copy(filename)
-    index=file_names.index(filename)
-    frm.link(:text=>/Attach a copy/, :index=>index).click
+    m_attach_a_copy(file_name)
   end
 
-  # This method returns an array of the file names currently listed
-  # on the Add Attachment page.
-  # 
-  # It excludes folder names.
-  def file_names
-    names = []
-    resources_table = frm.table(:class=>"listHier lines")
-    1.upto(resources_table.rows.size-1) do |x|
-      if resources_table[x][0].h4.exist? && resources_table[x][0].a(:index=>0).title=~/File Type/
-        names << resources_table[x][0].text
-      end
-    end
-    return names
-  end
-
-  in_frame(:index=>1) do |frame|
-    text_field(:url, :id=>"url", :frame=>frame)
-  end
 end
 
 # The page that appears when you select to
@@ -4730,6 +4718,7 @@ class PortfolioAttachFiles
   
   include PageObject
   include ToolsMenu
+  include AttachPageTools
   
   # Clicks the Add Menu for the specified
   # folder, then selects the Upload Files
@@ -4737,94 +4726,30 @@ class PortfolioAttachFiles
   #
   # It then instantiates the ResourcesUploadFiles class.
   def upload_files_to_folder(folder_name)
-    frm.table(:class=>"listHier lines").row(:text=>/#{Regexp.escape(folder_name)}/).image(:alt=>"add").fire_event("onclick")
-    frm.table(:class=>"listHier lines").row(:text=>/#{Regexp.escape(folder_name)}/).link(:text=>"Upload Files").click
+    m_upload_files_to_folder(folder_name)
     PortfoliosUploadFiles.new(@browser)
   end
   
   def continue
-    frm.button(:value=>"Continue").click
+    m_continue
     if frm.div(:class=>"portletBody").h3.text=="Select supporting files"
       SupportingFilesPortfolio.new(@browser)
     elsif frm.div(:class=>"portletBody").h3.text=="Build Template"
       BuildTemplate.new(@browser)
     end
   end
-  
-  def select_file(filename)
-    frm.table(:class=>"listHier lines").tr(:text=>/#{Regexp.escape(filename)}/).link(:text=>"Select").click
-  end
-  
-  def open_folder(name)
-    frm.link(:text=>name).click
-  end
-  
-  def show_other_sites
-    frm.link(:text=>"Show other sites").click
-  end
-  
+
   # Clicks the Create Folders menu item in the
   # Add menu of the specified folder, then
   # instantiates the CreateFolders class.
   def create_subfolders_in(folder_name)
-    frm.table(:class=>"listHier lines").row(:text=>/#{Regexp.escape(folder_name)}/).link(:text=>"Start Add Menu").fire_event("onfocus")
-    frm.table(:class=>"listHier lines").row(:text=>/#{Regexp.escape(folder_name)}/).link(:text=>"Create Folders").click
+    m_create_subfolders_in(folder_name)
     #FIXME
   end
   
   def edit_details(name) #FIXME
-    menus = resource_names.compact
-    index=menus.index(name)
-    frm.li(:text=>/Action/, :class=>"menuOpen", :index=>index).fire_event("onclick")
-    frm.link(:text=>"Edit Details", :index=>index).click
+    m_edit_details(name)
     #FIXME
-  end
- 
-  # This method returns folder names only #FIXME - headers will not always be the same
-  def folder_names
-    names = []
-    resources_table = frm.table(:class=>"listHier lines")
-    1.upto(resources_table.rows.size-1) do |x|
-      if (resources_table[x][2].h3.exist? || resources_table[x][2].h4.exist?) && resources_table[x][2].a.title=="Folder"
-        names << resources_table[x][2].text
-      end
-    end
-    return names
-  end
-  
-  # This method returns an array of the file names currently listed
-  # on the Resources page.
-  # 
-  # It excludes folder names.
-  def file_names #FIXME - headers will not always be the same
-    names = []
-    resources_table = frm.table(:class=>"listHier lines")
-    1.upto(resources_table.rows.size-1) do |x|
-      if resources_table[x][2].h4.exist? && resources_table[x][2].a(:index=>1).title=="Unknown"
-        names << resources_table[x][2].text
-      end
-    end
-    return names
-  end
-  
-  # This method returns an array of both the file and folder names
-  # currently listed on the Resources page.
-  #
-  # Note that it adds "" entries for any blank lines found
-  # so that the row index will still be accurate for the
-  # table itself. This is sometimes necessary for being
-  # able to find the correct row.
-  def resource_names
-    titles = []
-    resources_table = frm.table(:class=>"listHier lines")
-    1.upto(resources_table.rows.size-1) do |x|
-      if resources_table[x][2].link.exist?
-        titles << resources_table[x][2].text
-      else
-        titles << ""
-      end
-    end
-    return titles
   end
   
 end
@@ -5020,30 +4945,15 @@ class StylesAddAttachment
   
   include PageObject
   include ToolsMenu
-  
-  def show_other_sites
-    frm.link(:title=>"Show other sites").click
-    StylesAddAttachment.new(@browser)
-  end
+  include AttachPageTools
   
   def continue
-    frm.button(:value=>"Continue").click
+    m_continue
     AddStyle.new(@browser)
   end
-  
-  def open_folder(foldername)
-    frm.link(:text=>foldername).click 
-    #StylesAddAttachment.new(@browser) # Test this!
-  end
-  
-  def select_file(filename)
-    frm.table(:class=>"listHier lines").tr(:text=>/#{Regexp.escape(filename)}/).link(:text=>"Select").click
-    #StylesAddAttachment.new(@browser) # Test this!
-  end
-  
+
   def upload_files_to_folder(foldername)
-    frm.table(:class=>"listHier lines").tr(:text=>/#{Regexp.escape(foldername)}/).li(:class=>"menuOpen").fire_event("onclick")
-    frm.table(:class=>"listHier lines").tr(:text=>/#{Regexp.escape(foldername)}/).link(:text=>"Upload Files").click
+    m_upload_files_to_folder(foldername)
     StylesUploadFiles.new(@browser)
   end
 

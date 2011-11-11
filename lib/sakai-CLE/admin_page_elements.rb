@@ -1058,6 +1058,15 @@ class CourseSiteAccess
   include PageObject
   include ToolsMenu
   
+  # The page element that displays the joiner role
+  # select list. Use this method to validate whether the
+  # select list is visible or not.
+  #
+  # Example: page.joiner_role_div.visible?
+  def joiner_role_div
+    frm.div(:id=>"joinerrole")
+  end
+  
   # Clicks the Continue button, then
   # instantiates the ConfirmCourseSiteSetup class.
   def continue

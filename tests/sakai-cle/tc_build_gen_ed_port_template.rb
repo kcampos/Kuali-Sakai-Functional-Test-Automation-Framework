@@ -139,15 +139,25 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
         :instructor_comment1=>"Great job!",
         :instructor_comment2=>"Good job again!",
         :url=>"http://www.rsmart.com",
+        :grade_scale=>"Letter grade",
         :instructions=>"Phasellus molestie. Sed in pede. Sed augue. Vestibulum lacus lectus, pulvinar nec, condimentum eu, sodales et, risus. Aenean dolor nisl, tristique at, vulputate nec, blandit in, mi. Fusce elementum ante. Maecenas rhoncus tincidunt sem. Sed leo dolor, faucibus hendrerit, tincidunt nec, elementum in, arcu. Donec et nulla. Vestibulum mauris nunc, consectetuer at, ultricies a, rutrum at, felis. Integer a nulla. Aliquam tincidunt nunc. Curabitur non purus. Nulla vel augue ac magna porttitor pretium.\n\nAenean fringilla enim. Vivamus nisi. Integer eleifend pharetra elit. Nulla scelerisque accumsan lectus. Morbi accumsan dui non velit. Suspendisse consequat mauris vitae neque. Etiam sit amet urna ut eros feugiat imperdiet? Nunc ut dolor. Nulla laoreet, nisi quis egestas condimentum, sapien nulla rutrum quam, quis auctor lorem justo at lectus. Integer in lacus eu nunc molestie pharetra. Curabitur dictum justo non eros. Nullam pellentesque ante rutrum mauris." },
       {:title=>"Assignment 2", :instructions=>"Nullam urna elit; placerat convallis, posuere nec, semper id, diam. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Duis dignissim pulvinar nisl. Nunc interdum vulputate eros. In nec nibh! Suspendisse potenti. Maecenas at felis. Donec velit diam, mattis ut, venenatis vehicula, accumsan et, orci. Sed leo. Curabitur odio quam, accumsan eu, molestie eu, fringilla sagittis, pede. Mauris luctus mi id ligula. Proin elementum volutpat leo. Cras aliquet commodo elit. Praesent auctor consectetuer risus!\n\nDuis euismod felis nec nunc. Ut lectus felis, malesuada consequat, hendrerit at; vestibulum et, enim. Ut nec nulla sed eros bibendum vulputate. Sed tincidunt diam eget lacus. Nulla nisl? Nam condimentum mattis dui! Aenean varius purus eget sem? Nullam odio. Donec condimentum mauris. Cras volutpat tristique lacus. Sed id dui. Mauris purus purus, tristique sed, ornare convallis, consequat a, ipsum. Donec fringilla, metus quis mollis lobortis, magna tellus malesuada augue; laoreet auctor velit lorem vitae neque. Duis augue sem, vehicula sit amet, vulputate vitae, viverra quis; dolor. Donec quis eros vel massa euismod dignissim! Aliquam quam. Nam non dolor."},
       {:title=>"Assignment 3",
         :file=>"documents/resources.doc",
-        :student_file=>"documents/Lorem.txt",
+        :student_file=>"documents/Lorem.txt", :open_hour=>last_hour,
+        :open_meridian=>"AM", :grade_scale=>"Points", :max_points=>"100",
+        :student_submissions=>"Attachments only",
         :instructions=>"Fusce mollis massa nec nisi. Aliquam turpis libero, consequat quis, fringilla eget, fermentum ut, velit? Integer velit nisl, placerat non, fringilla at, pellentesque ut, odio? Cras magna ligula, tincidunt ac, iaculis in, hendrerit eu, justo. Vivamus porta. Suspendisse lorem! Donec nec libero in leo lobortis consectetuer. Vivamus quis enim? Proin viverra condimentum purus. Sed commodo.\n\nCurabitur eget velit. Curabitur eleifend libero et nisi aliquet facilisis. Integer ultricies commodo purus. Praesent velit. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Phasellus pretium. Suspendisse gravida diam. Nulla justo nulla, facilisis ut, sagittis ut, fermentum ac, elit. Morbi accumsan. Maecenas id tellus. Fusce ornare ullamcorper felis. Etiam fringilla. Maecenas in nunc nec sem sollicitudin condimentum? Nullam metus nunc, varius sit amet, consectetuer sed, vestibulum quis, est. Quisque in sapien a justo elementum iaculis?" },
-      {:title=>"Assignment 4", :instructions=>"Integer pulvinar facilisis purus. Quisque placerat! Maecenas risus. Nam vitae lacus. Quisque euismod imperdiet ipsum. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nam vitae nulla! Duis tincidunt. Nulla id felis. Duis accumsan, est ut volutpat mollis, tellus lorem venenatis justo, eu accumsan lorem neque sit amet ante. Sed dictum. Donec nulla mi, lacinia nec; viverra nec, commodo sed, justo. Praesent fermentum vehicula dui. Sed molestie eleifend leo. Nulla et risus! Nullam ut lacus. Etiam faucibus; eros sit amet tempus consectetuer, urna est hendrerit mi, eget molestie sapien lorem non tellus. In vitae nisl. Vivamus ac lectus id pede viverra placerat.<br /><br />Morbi nec dui eget pede dapibus mollis. Mauris nisl. Donec tempor blandit diam. In hac habitasse platea dictumst. Sed vulputate ornare urna. Nulla sed."},
-      {:title=>"Assignment 5", :file=>"documents/resources.txt", :instructions=>"Integer pulvinar facilisis purus. Quisque placerat! Maecenas risus. Nam vitae lacus. Quisque euismod imperdiet ipsum. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nam vitae nulla! Duis tincidunt. Nulla id felis. Duis accumsan, est ut volutpat mollis, tellus lorem venenatis justo, eu accumsan lorem neque sit amet ante. Sed dictum. Donec nulla mi, lacinia nec; viverra nec, commodo sed, justo. Praesent fermentum vehicula dui. Sed molestie eleifend leo. Nulla et risus! Nullam ut lacus. Etiam faucibus; eros sit amet tempus consectetuer, urna est hendrerit mi, eget molestie sapien lorem non tellus. In vitae nisl. Vivamus ac lectus id pede viverra placerat.\n\nMorbi nec dui eget pede dapibus mollis. Mauris nisl. Donec tempor blandit diam. In hac habitasse platea dictumst. Sed vulputate ornare urna. Nulla sed." }
+      {:title=>"Assignment 4", :grade_scale=>"Pass", :instructions=>"Integer pulvinar facilisis purus. Quisque placerat! Maecenas risus. Nam vitae lacus. Quisque euismod imperdiet ipsum. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nam vitae nulla! Duis tincidunt. Nulla id felis. Duis accumsan, est ut volutpat mollis, tellus lorem venenatis justo, eu accumsan lorem neque sit amet ante. Sed dictum. Donec nulla mi, lacinia nec; viverra nec, commodo sed, justo. Praesent fermentum vehicula dui. Sed molestie eleifend leo. Nulla et risus! Nullam ut lacus. Etiam faucibus; eros sit amet tempus consectetuer, urna est hendrerit mi, eget molestie sapien lorem non tellus. In vitae nisl. Vivamus ac lectus id pede viverra placerat.<br /><br />Morbi nec dui eget pede dapibus mollis. Mauris nisl. Donec tempor blandit diam. In hac habitasse platea dictumst. Sed vulputate ornare urna. Nulla sed."},
+      {:title=>"Assignment 5", :due_year=>current_year, :accept_year=>current_year, :file=>"documents/resources.txt", :instructions=>"Integer pulvinar facilisis purus. Quisque placerat! Maecenas risus. Nam vitae lacus. Quisque euismod imperdiet ipsum. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nam vitae nulla! Duis tincidunt. Nulla id felis. Duis accumsan, est ut volutpat mollis, tellus lorem venenatis justo, eu accumsan lorem neque sit amet ante. Sed dictum. Donec nulla mi, lacinia nec; viverra nec, commodo sed, justo. Praesent fermentum vehicula dui. Sed molestie eleifend leo. Nulla et risus! Nullam ut lacus. Etiam faucibus; eros sit amet tempus consectetuer, urna est hendrerit mi, eget molestie sapien lorem non tellus. In vitae nisl. Vivamus ac lectus id pede viverra placerat.\n\nMorbi nec dui eget pede dapibus mollis. Mauris nisl. Donec tempor blandit diam. In hac habitasse platea dictumst. Sed vulputate ornare urna. Nulla sed." }
     ]
+    @grades = [ "B+", "A" ]
+    @default_folder = "My Workspace"
+    @roles = [ "Organizer", "Participant", "Evaluator", "Guest" ]
+    
+    # Validation text -- These contain page content that will be used for
+    # test asserts.
+    @due_date_alert = "Alert: Assignment due date set to be in the past. Please make a correction or click on the original button again to proceed.\n\nAssignment due date should be set after the open date.\n\nAccept submissions deadline should be set after the open date.\n\nThis assignment has no instructions. Please make a correction or click the original button to proceed."
     
   end
   
@@ -164,7 +174,7 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     resources = workspace.resources
 
     # Add Files to Repository...
-    create_folder = resources.create_subfolders_in "My Workspace"
+    create_folder = resources.create_subfolders_in @default_folder
     create_folder.folder_name=@folder_name
     
     resources = create_folder.create_folders_now
@@ -182,7 +192,7 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     
     select_schema = select_schema.show_other_sites
     
-    select_schema = select_schema.open_folder "My Workspace"
+    select_schema = select_schema.open_folder @default_folder
     select_schema = select_schema.open_folder @folder_name
     select_schema = select_schema.select_file @schema[0]
     
@@ -196,7 +206,7 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     
     schema = add_form2.select_schema_file
     schema = schema.show_other_sites
-    schema = schema.open_folder "My Workspace"
+    schema = schema.open_folder @default_folder
     schema = schema.open_folder @folder_name
     schema = schema.select_file @schema[2]
     
@@ -210,7 +220,7 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     
     schema = add_form3.select_schema_file
     schema = schema.show_other_sites
-    schema = schema.open_folder "My Workspace"
+    schema = schema.open_folder @default_folder
     schema = schema.open_folder @folder_name
     schema = schema.select_file @schema[1]
     
@@ -224,7 +234,7 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     
     schema = add_form4.select_schema_file
     schema = schema.show_other_sites
-    schema = schema.open_folder "My Workspace"
+    schema = schema.open_folder @default_folder
     schema = schema.open_folder @folder_name
     schema = schema.select_file @schema[3]
     
@@ -251,7 +261,7 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     
     attach = add_style.select_file
     attach = attach.show_other_sites
-    attach.open_folder "My Workspace"
+    attach.open_folder @default_folder
     
     upload = attach.upload_files_to_folder @folder_name
     upload.file_to_upload=@style_file
@@ -391,7 +401,7 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     select_eval = edit.select_evaluators
     select_eval.users=@instructor_name
     select_eval.add_users
-    select_eval.roles="Organizer"
+    select_eval.roles=@roles[0]
     select_eval.add_roles
     
     edit = select_eval.save
@@ -414,7 +424,7 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     select_eval = edit.select_evaluators
     select_eval.users=@instructor_name
     select_eval.add_users
-    select_eval.roles="Participant"
+    select_eval.roles=@roles[1]
     select_eval.add_roles
     
     edit = select_eval.save
@@ -437,7 +447,7 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     select_eval = edit.select_evaluators
     select_eval.users=@instructor_name
     select_eval.add_users
-    select_eval.roles="Evaluator"
+    select_eval.roles=@roles[2]
     select_eval.add_roles
     
     edit = select_eval.save
@@ -460,7 +470,7 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     select_eval = edit.select_evaluators
     select_eval.users=@instructor_name
     select_eval.add_users
-    select_eval.roles="Guest"
+    select_eval.roles=@roles[3]
     select_eval.add_roles
     
     edit = select_eval.save
@@ -793,7 +803,7 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     resources = glossary.resources
     resources = resources.show_other_sites
     
-    resources.open_folder "My Workspace"
+    resources.open_folder @default_folder
     
     resources = resources.upload_multiple_files_to_folder(@folder_name, @files_to_upload)
 
@@ -803,7 +813,7 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
 
     attach = import.select_file
     attach.show_other_sites
-    attach.open_folder "My Workspace"
+    attach.open_folder @default_folder
     attach.open_folder @folder_name
     attach.select_file @form_zips[0]
     
@@ -819,7 +829,7 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
 
     attach = import.select_file
     attach.show_other_sites
-    attach.open_folder "My Workspace"
+    attach.open_folder @default_folder
     attach.open_folder @folder_name
     attach.select_file @form_zips[1]
     
@@ -842,7 +852,7 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     attach = build.select_file
     
     attach.show_other_sites
-    attach.open_folder "My Workspace"
+    attach.open_folder @default_folder
     
     upload = attach.upload_files_to_folder @folder_name
     upload.file_to_upload=@files_to_upload[2]
@@ -923,7 +933,7 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     attach = supporting_files.select_file
     attach.show_other_sites
     # 
-    attach.open_folder "My Workspace"
+    attach.open_folder @default_folder
     attach.open_folder @folder_name
     attach.select_file @supporting_files[0][:file]
     
@@ -933,7 +943,7 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     
     attach = supporting_files.select_file
     attach.show_other_sites
-    attach.open_folder "My Workspace"
+    attach.open_folder @default_folder
     attach.open_folder @folder_name
     attach.select_file @supporting_files[1][:file]
     
@@ -943,7 +953,7 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     
     attach = supporting_files.select_file
     attach.show_other_sites
-    attach.open_folder "My Workspace"
+    attach.open_folder @default_folder
     attach.open_folder @folder_name
     attach.select_file @supporting_files[2][:file]
     supporting_files = attach.continue
@@ -988,13 +998,13 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     assignments = calendar.assignments
 
     add_assgn3 = assignments.add
-    add_assgn3.instructions=@assignments[1][:instructions]
+    add_assgn3.instructions=@assignments[2][:instructions]
     add_assgn3.title=@assignments[2][:title]
-    add_assgn3.open_hour=last_hour
-    add_assgn3.open_meridian="AM"
-    add_assgn3.student_submissions="Attachments only"
-    add_assgn3.grade_scale="Points"
-    add_assgn3.max_points="100"
+    add_assgn3.open_hour=@assignments[2][:open_hour]
+    add_assgn3.open_meridian=@assignments[2][:open_meridian]
+    add_assgn3.student_submissions=@assignments[2][:student_submissions]
+    add_assgn3.grade_scale=@assignments[2][:grade_scale]
+    add_assgn3.max_points=@assignments[2][:max_points]
     add_assgn3.check_add_open_announcement
     
     attach = add_assgn3.add_attachments
@@ -1028,12 +1038,12 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     add_assgn4 = AssignmentAdd.new(@browser) # FIXME
     
     # TEST CASE: Verify alert message appears
-    assert_equal add_assgn4.alert_text, "Alert: Assignment due date set to be in the past. Please make a correction or click on the original button again to proceed.\n\nAssignment due date should be set after the open date.\n\nAccept submissions deadline should be set after the open date.\n\nThis assignment has no instructions. Please make a correction or click the original button to proceed."
+    assert_equal @due_date_alert, add_assgn4.alert_text
 
     add_assgn4.instructions=@assignments[3][:instructions]
-    add_assgn4.due_year=current_year
-    add_assgn4.accept_year=current_year
-    add_assgn4.grade_scale="Pass"
+    add_assgn4.due_year=@assignments[3][:due_year]
+    add_assgn4.accept_year=@assignments[3][:accept_year]
+    add_assgn4.grade_scale=@assignments[3][:grade_scale]
     
     preview = add_assgn4.preview
     preview.show_student_view
@@ -1114,7 +1124,7 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
 
     assignment1 = assignments.edit_assignment @assignments[0][:title]
     assignment1.instructions=@assignments[0][:instructions]
-    assignment1.grade_scale="Letter grade"
+    assignment1.grade_scale=@assignments[0][:grade_scale]
     
     assignments = assignment1.post
     assignments = assignments.delete_assignment @assignments[0][:title]
@@ -1210,7 +1220,7 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     attach.add
 
     grade_assignment = attach.continue
-    grade_assignment.select_default_grade="B+"
+    grade_assignment.select_default_grade=@grades[0]
     grade_assignment.save_and_dont_release
     
     submissions_list = grade_assignment.return_to_list
@@ -1258,7 +1268,7 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
 
     grade_assignment = submissions_list.grade "#{@config.directory['person1']['lastname']}, #{@config.directory['person1']['firstname']} (#{@config.directory['person1']['id']})"
     grade_assignment.instructor_comments=@assignments[0][:instructor_comment2]
-    grade_assignment.select_default_grade="A"
+    grade_assignment.select_default_grade=@grades[1]
     grade_assignment.save_and_dont_release
     
     submissions_list = grade_assignment.return_to_list

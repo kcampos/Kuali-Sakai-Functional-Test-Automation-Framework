@@ -26,6 +26,9 @@ class }}name{{ < Test::Unit::TestCase
     @password = config.directory['']['password']
     @sakai = SakaiCLE.new(@browser)
     
+    # Validation text -- These contain page content that will be used for
+    # test asserts.
+    
   end
   
   def teardown
