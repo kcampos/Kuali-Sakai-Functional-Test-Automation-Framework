@@ -372,3 +372,199 @@ module QuestionHelpers
   end
   
 end
+
+# This module consolidates the code that can be shared among all the
+# File Upload and Attachment pages.
+#
+# Not every method in this module will be appropriate for every attachment page.
+module AttachPageTools
+  
+  include PageObject
+  
+  # Returns an array of the displayed folder names.
+  def folder_names
+    names = []
+    resources_table = frm.table(:class=>/listHier lines/)
+    1.upto(resources_table.rows.size-1) do |x|
+      if resources_table[x][0].exist? && resources_table[x][0].a.title=="Folder"
+        names << resources_table[x][0].text
+      end
+    end
+    return names
+  end
+  
+  # Returns an array of the file names currently listed
+  # on the page.
+  # 
+  # It excludes folder names.
+  def file_names
+    names = []
+    resources_table = frm.table(:class=>/listHier lines/)
+    1.upto(resources_table.rows.size-1) do |x|
+      if resources_table[x][0].a(:index=>1).exist? && resources_table[x][0].a(:index=>1).title != "Folder"
+        names << resources_table[x][0].text
+      end
+    end
+    return names
+  end
+  
+  # Clicks the Select button next to the specified file.
+  def select_file(filename)
+    frm.table(:class=>/listHier lines/).row(:text, /#{Regexp.escape(filename)}/).link(:text=>"Select").click
+  end
+  
+  # This method returns an array of both the file and folder names
+  # currently listed on the Resources page.
+  #
+  # Note that it adds "" entries for any blank lines found
+  # so that the row index will still be accurate for the
+  # table itself. This is sometimes necessary for being
+  # able to find the correct row.
+  def resource_names
+    titles = []
+    resources_table = frm.table(:class=>/listHier lines/)
+    1.upto(resources_table.rows.size-1) do |x|
+      if resources_table[x][0].link.exist?
+        titles << resources_table[x][0].text
+      else
+        titles << ""
+      end
+    end
+    return titles
+  end
+
+  # Clicks the Remove button.
+  def remove
+    frm.button(:value=>"Remove").click
+  end
+  
+  # Clicks the Move button.
+  def move
+    frm.button(:value=>"Move").click
+  end
+  
+  # Clicks the Show Other Sites link.
+  def show_other_sites
+    frm.link(:text=>"Show other sites").click
+  end
+  
+  # Clicks on the specified folder
+  def open_folder(foldername)
+    frm.link(:text=>foldername).click 
+  end
+  
+  # Sets the URL field to the specified value.
+  def url=(url_string)
+    frm.text_field(:id=>"url").set(url_string)
+  end
+  
+  # Clicks the Add button next to the URL field.
+  def add
+    frm.button(:value=>"Add").click
+  end
+  
+  # Gets the value of the access level cell for the specified
+  # file.
+  def access_level(filename) 
+    index = resource_names.index(filename) #FIXME
+    frm.table(:class=>/listHier lines/)[index+1][6].text
+  end
+  
+  private
+  
+  def m_edit_details(name) # This method will probably need to be fixed.
+    menus = resource_names.compact
+    index=menus.index(name)
+    frm.li(:text=>/Action/, :class=>"menuOpen", :index=>index).fire_event("onclick")
+    frm.link(:text=>"Edit Details", :index=>index).click
+  end
+  
+  # Clicks the Create Folders menu item in the
+  # Add menu of the specified folder.
+  def m_create_subfolders_in(folder_name)
+    frm.table(:class=>/listHier lines/).row(:text=>/#{Regexp.escape(folder_name)}/).link(:text=>"Start Add Menu").fire_event("onfocus")
+    frm.table(:class=>/listHier lines/).row(:text=>/#{Regexp.escape(folder_name)}/).link(:text=>"Create Folders").click
+  end
+
+  # Enters the specified file into the file field name (assuming it's in the
+  # data/sakai-cle folder or a subfolder therein)
+  #
+  # Use this method ONLY for instances where there's a file field on the page
+  # with an "upload" id.
+  def m_upload_local_file(filename)
+    frm.file_field(:id=>"upload").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + filename)
+    if frm.div(:class=>"alertMessage").exist?
+      sleep 2
+      upload_local_file(filename)
+    end
+  end
+
+  # Clicks the Add Menu for the specified
+  # folder, then selects the Upload Files
+  # command in the menu that appears.
+  def m_upload_files_to_folder(folder_name)
+    if frm.li(:text=>/A/, :class=>"menuOpen").exist?
+      frm.table(:class=>/listHier lines/).row(:text=>/#{Regexp.escape(folder_name)}/).li(:text=>/A/, :class=>"menuOpen").fire_event("onclick")
+    else
+      frm.table(:class=>/listHier lines/).row(:text=>/#{Regexp.escape(folder_name)}/).link(:text=>"Start Add Menu").fire_event("onfocus")
+    end
+    frm.table(:class=>/listHier lines/).row(:text=>/#{Regexp.escape(folder_name)}/).link(:text=>"Upload Files").click
+  end
+  
+  # Clicks the "Attach a copy" link for the specified
+  # file, then reinstantiates the Class.
+  # If an alert box appears, the method will call itself again.
+  # Note that this can lead to an infinite loop. Will need to fix later.
+  def m_attach_a_copy(file_name)
+    frm.table(:class=>/listHier lines/).row(:text=>/#{Regexp.escape(file_name)}/).link(:href=>/doAttachitem/).click
+    
+    if frm.div(:class=>"alertMessage").exist?
+      sleep 1
+      m_attach_a_copy(file_name) # FIXME
+    end
+
+  end
+  
+  # Clicks the Create Folders menu item in the
+  # Add menu of the specified folder.
+  def m_create_subfolders_in(folder_name)
+    frm.table(:class=>"listHier lines").row(:text=>/#{Regexp.escape(folder_name)}/).link(:text=>"Start Add Menu").fire_event("onfocus")
+    frm.table(:class=>"listHier lines").row(:text=>/#{Regexp.escape(folder_name)}/).link(:text=>"Create Folders").click
+  end
+  
+  # Takes the specified array object containing pointers
+  # to local file resources, then uploads those files to
+  # the folder specified, checks if they all uploaded properly and
+  # if not, re-tries the ones that failed the first time.
+  #
+  # Finally, it re-instantiates the AnnouncementsAttach page class.
+  def m_upload_multiple_files_to_folder(folder, file_array)
+    
+    upload = upload_files_to_folder folder
+    
+    file_array.each do |file|
+      upload.file_to_upload=file
+      upload.add_another_file
+    end
+    
+    resources = upload.upload_files_now
+
+    file_array.each do |file|
+      file =~ /(?<=\/).+/
+      # puts $~.to_s # For debugging purposes
+      unless resources.file_names.include?($~.to_s)
+        upload_files = resources.upload_files_to_folder(folder)
+        upload_files.file_to_upload=file
+        resources = upload_files.upload_files_now
+      end
+    end
+
+  end
+
+  # Clicks the Continue button, then
+  # instantiates the AddEditAnnouncements Class.
+  def m_continue
+    frm.button(:value=>"Continue").click
+  end
+  
+end

@@ -46,6 +46,10 @@ class TestMessages < Test::Unit::TestCase
     @folder1 = "Test Folder"
     @folder2 = "Another Test Folder"
     
+    # Validation text -- These contain page content that will be used for
+    # test asserts.
+    @received_header = "Messages / Received"
+    
   end
   
   def teardown
@@ -65,7 +69,7 @@ class TestMessages < Test::Unit::TestCase
     received = messages.received
     
     # TEST CASE: Verify we are on the Messages Received page
-    assert_equal "Messages / Received", received.header, "Received Messages page did not load"
+    assert_equal @received_header, received.header, "Received Messages page did not load"
     
     messages = received.messages
     
@@ -137,7 +141,7 @@ class TestMessages < Test::Unit::TestCase
     received = messages.received
     
     # TEST CASE: Verify we are on the Messages Received page
-    assert_equal "Messages / Received", received.header, "Received Messages page did not load"
+    assert_equal @received_header, received.header, "Received Messages page did not load"
     # TEST CASE: Verify the list of messages is as expected
     assert received.subjects.include? @messages[2][:subject]
     assert received.subjects.include? @messages[1][:subject]

@@ -29,8 +29,23 @@ class TestCreatingCourseSite < Test::Unit::TestCase
     @section = random_string(8)
     @authorizer = "admin"
     @web_content_source = "http://www.rsmart.com"
-    @email=random_alphanums
+    @bad_address = random_string(32)
+    @email=random_nicelink(32)
     @joiner_role = "Student"
+    
+    # Validation text -- These contain page content that will be used for
+    # test asserts.
+    @choose_site_text = "Choose the type of site you want to create."
+    @term_text = "Academic term:"
+    @course_text = "You have thus far selected the following course/section(s) for this course site:"
+    @authorizer_alert = "Alert: Please enter the authorizers {0}."
+    @username_alert = "Alert: Please enter a valid Username for the instructor of record."
+    @basic_info_text = "Enter basic information about the course site..."
+    @invalid_email_alert = "Alert: #{@bad_address} is an invalid email address. The Email id must be made up of alpha numeric characters or any of !\#$&*+-=?^_`{|}~. (no spaces)."
+    @choose_tools_text = "Choose tools to include on your site..."
+    @multiple_tools_text = "Add multiple tool instances or configure tool options."
+    @archive_alert = "Alert: Please specify an email address for Email Archive tool."
+    @review_text = "Please review the following information about your site."
     
   end
   
@@ -62,14 +77,14 @@ class TestCreatingCourseSite < Test::Unit::TestCase
     site_type = site_setup.new
     
     # TEST CASE: Check the Site Type page
-    assert @browser.text.include?("Choose the type of site you want to create.")
+    assert @browser.text.include?(@choose_site_text)
     
     # Select the Course Site radio button
     
     site_type.select_course_site
     
     #TEST CASE: Check that the academic term selection appeared
-    assert @browser.text.include?("Academic term:")
+    assert @browser.text.include?(@term_text)
     assert site_type.academic_term_element.visible?
     
     # Store the selected term value for use later
@@ -79,7 +94,7 @@ class TestCreatingCourseSite < Test::Unit::TestCase
     course_section = site_type.continue
     
     #TEST CASE: Check the Course/Section Information page
-    assert @browser.text.include?("You have thus far selected the following course/section(s) for this course site:")
+    assert @browser.text.include?(@course_text)
     
     # Fill in those fields, storing the entered values for later verification steps
     course_section.subject = @subject
@@ -97,7 +112,7 @@ class TestCreatingCourseSite < Test::Unit::TestCase
     course_section.continue
     
     # TEST CASE: Check that authorizer is required.
-    assert @browser.text.include?("Alert: Please enter the authorizers {0}.")
+    assert @browser.text.include?(@authorizer_alert)
     
     # Add an invalid authorizer
     course_section.authorizers_username=random_alphanums
@@ -106,7 +121,7 @@ class TestCreatingCourseSite < Test::Unit::TestCase
     course_section.continue
     
     # TEST CASE: Check that authorizer's name must be valid
-    assert @browser.text.include?("Alert: Please enter a valid Username for the instructor of record.")
+    assert @browser.text.include?(@username_alert)
     
     # Add a valid instructor id
     course_section.authorizers_username=@authorizer
@@ -115,17 +130,16 @@ class TestCreatingCourseSite < Test::Unit::TestCase
     course_site = course_section.continue
     
     # TEST CASE: Check the Course Site Information page
-    assert @browser.text.include?("Enter basic information about the course site...")
+    assert @browser.text.include?(@basic_info_text)
     assert @browser.frame(:index, 0).p(:class, /shorttext/).text.include?("*\nSite Title\n#{site_name}")
     
     # Enter an invalid email address
-    address = random_alphanums
-    course_site.site_contact_email=address
+    course_site.site_contact_email=@bad_address
     
     course_site.continue
     
     # TEST CASE: Check that an invalid email address is not allowed
-    assert_equal course_site.alert_box_text, "Alert: #{address} is an invalid email address. The Email id must be made up of alpha numeric characters or any of !\#$&*+-=?^_`{|}~. (no spaces).", "Should have given an alert about the invalid Email."
+    assert_equal @invalid_email_alert, course_site.alert_box_text
     
     # Blank out the email field
     course_site.site_contact_email=""
@@ -134,7 +148,7 @@ class TestCreatingCourseSite < Test::Unit::TestCase
     course_tools = course_site.continue
     
     # TEST CASE: Check the Course Site Tools page
-    assert @browser.text.include?("Choose tools to include on your site...")
+    assert @browser.text.include?(@choose_tools_text)
     
     # TEST CASE: Check that the Site Editor can't be edited
     assert(course_tools.site_editor_element.disabled?, "Site Editor checkbox is not read-only.")
@@ -155,13 +169,13 @@ class TestCreatingCourseSite < Test::Unit::TestCase
     add_tools = course_tools.continue
     
     # TEST CASE: Check the Add Multiple Tool page
-    assert @browser.text.include?("Add multiple tool instances or configure tool options.")
+    assert @browser.text.include?(@multiple_tools_text)
     
     # Click the continue button
     @browser.frame(:index=>0).button(:name, "Continue").click
     
     # TEST CASE: Site email address is required to continue
-    assert @browser.text.include?("Alert: Please specify an email address for Email Archive tool.")
+    assert @browser.text.include?(@archive_alert)
     
     add_tools.site_email_address = @email
     add_tools.web_content_source=@web_content_source
@@ -174,14 +188,15 @@ class TestCreatingCourseSite < Test::Unit::TestCase
     access = CourseSiteAccess.new(@browser)
     
     # TEST CASE: Joiner Role selection list is not visible by default
-    assert_equal(access.joiner_role_element.visible?, false)
+    assert_equal false, access.joiner_role_div.visible?
+    
     access.select_allow
     access.joiner_role=@joiner_role
     
     review = access.continue
     
     # TEST CASE: Verify the text on the Review page
-    assert @browser.text.include?("Please review the following information about your site.")
+    assert @browser.text.include?(@review_text)
     assert @browser.text.include?("#{site_name}"), "Review page not showing site name #{site_name}"
 
     review.request_site

@@ -291,6 +291,7 @@ end
 class AnnouncementsAttach
 
   include ToolsMenu
+  include AttachPageTools
   
   # Clicks the Add Menu for the specified
   # folder, then selects the Upload Files
@@ -298,16 +299,8 @@ class AnnouncementsAttach
   #
   # It then instantiates the AnnouncementsUploadFiles class.
   def upload_files_to_folder(folder_name)
-    frm.table(:class=>"listHier lines").row(:text=>/#{Regexp.escape(folder_name)}/).link(:text=>"Start Add Menu").fire_event("onfocus")
-    frm.table(:class=>"listHier lines").row(:text=>/#{Regexp.escape(folder_name)}/).link(:text=>"Upload Files").click
+    m_upload_files_to_folder(folder_name)
     AnnouncementsUploadFiles.new(@browser)
-  end
-  
-  # Clicks the specified folder, then re-instantiates the
-  # page class.
-  def open_folder(name)
-    frm.link(:text=>name).click
-    AnnouncementsAttach.new(@browser)
   end
   
   # Clicks the "Attach a copy" link for the specified
@@ -315,20 +308,7 @@ class AnnouncementsAttach
   # If an alert box appears, the method will call itself again.
   # Note that this can lead to an infinite loop. Will need to fix later.
   def attach_a_copy(file_name)
-    frm.table(:class=>"listHier lines").row(:text=>/#{Regexp.escape(file_name)}/).link(:href=>/doAttachitem/).click
-    
-    if frm.div(:class=>"alertMessage").exist?
-      sleep 1
-      attach_a_copy(file_name) # FIXME
-    end
-    
-    AnnouncementsAttach.new(@browser)
-  end
-  
-  # Clicks the Show Other Sites link, then
-  # re-instantiates the page class.
-  def show_other_sites
-    frm.link(:text=>"Show other sites").click
+    m_attach_a_copy(file_name)
     AnnouncementsAttach.new(@browser)
   end
   
@@ -336,8 +316,7 @@ class AnnouncementsAttach
   # Add menu of the specified folder, then
   # instantiates the AnnouncementsCreateFolders class.
   def create_subfolders_in(folder_name)
-    frm.table(:class=>"listHier lines").row(:text=>/#{Regexp.escape(folder_name)}/).link(:text=>"Start Add Menu").fire_event("onfocus")
-    frm.table(:class=>"listHier lines").row(:text=>/#{Regexp.escape(folder_name)}/).link(:text=>"Create Folders").click
+    m_create_subfolders_in(folder_name)
     AnnouncementsCreateFolders.new(@browser)
   end
   
@@ -345,70 +324,10 @@ class AnnouncementsAttach
   # clicks on the Edit Details menu item, then
   # instantiates the AnnouncementsEditFileDetails page class.
   def edit_details(name) #FIXME
-    menus = resource_names.compact
-    index=menus.index(name)
-    frm.li(:text=>/Action/, :class=>"menuOpen", :index=>index).fire_event("onclick")
-    frm.link(:text=>"Edit Details", :index=>index).click
+    m_edit_details(name)
     AnnouncementsEditFileDetails.new(@browser)
   end
  
-  # Returns an array of the displayed folder names.
-  def folder_names
-    names = []
-    resources_table = frm.table(:class=>"listHier lines")
-    1.upto(resources_table.rows.size-1) do |x|
-      if resources_table[x][0].exist? && resources_table[x][0].a.title=="Folder"
-        names << resources_table[x][0].text
-      end
-    end
-    return names
-  end
-  
-  # Returns an array of the file names currently listed
-  # on the page.
-  # 
-  # It excludes folder names.
-  def file_names
-    names = []
-    resources_table = frm.table(:class=>"listHier lines centerLines")
-    1.upto(resources_table.rows.size-1) do |x|
-      if resources_table[x][0].a(:index=>1).exist? && resources_table[x][0].a(:index=>1).title != "Folder"
-        names << resources_table[x][0].text
-      end
-    end
-    return names
-  end
-  
-  # This method returns an array of both the file and folder names
-  # currently listed on the Resources page.
-  #
-  # Note that it adds "" entries for any blank lines found
-  # so that the row index will still be accurate for the
-  # table itself. This is sometimes necessary for being
-  # able to find the correct row.
-  def resource_names
-    titles = []
-    resources_table = frm.table(:class=>"listHier lines centerLines")
-    1.upto(resources_table.rows.size-1) do |x|
-      if resources_table[x][0].link.exist?
-        titles << resources_table[x][0].text
-      else
-        titles << ""
-      end
-    end
-    return titles
-  end
-
-  # Clicks the Remove button.
-  def remove
-    frm.button(:value=>"Remove").click
-  end
-  
-  # Clicks the Move button.
-  def move
-    frm.button(:value=>"Move").click
-  end
-  
   # Takes the specified array object containing pointers
   # to local file resources, then uploads those files to
   # the folder specified, checks if they all uploaded properly and
@@ -416,32 +335,14 @@ class AnnouncementsAttach
   #
   # Finally, it re-instantiates the AnnouncementsAttach page class.
   def upload_multiple_files_to_folder(folder, file_array)
-    
-    upload = upload_files_to_folder folder
-    
-    file_array.each do |file|
-      upload.file_to_upload=file
-      upload.add_another_file
-    end
-    
-    resources = upload.upload_files_now
-
-    file_array.each do |file|
-      file =~ /(?<=\/).+/
-      # puts $~.to_s # For debugging purposes
-      unless resources.file_names.include?($~.to_s)
-        upload_files = resources.upload_files_to_folder(folder)
-        upload_files.file_to_upload=file
-        resources = upload_files.upload_files_now
-      end
-    end
+    m_upload_multiple_files_to_folder(folder, file_array)
     AnnouncementsAttach.new(@browser)
   end
 
   # Clicks the Continue button, then
   # instantiates the AddEditAnnouncements Class.
   def continue
-    frm.button(:value=>"Continue").click
+    m_continue
     AddEditAnnouncements.new(@browser)
   end
 
@@ -662,6 +563,7 @@ end
 class Resources
 
   include ToolsMenu
+  include AttachPageTools
   
   # Clicks the Add Menu for the specified
   # folder, then selects the Upload Files
@@ -674,26 +576,11 @@ class Resources
     ResourcesUploadFiles.new(@browser)
   end
   
-  # Clicks the specified folder, then re-instantiates the
-  # page class.
-  def open_folder(name)
-    frm.link(:text=>name).click
-    Resources.new(@browser)
-  end
-  
-  # Clicks the Show Other Sites link, then
-  # re-instantiates the page class.
-  def show_other_sites
-    frm.link(:text=>"Show other sites").click
-    Resources.new(@browser)
-  end
-  
   # Clicks the Create Folders menu item in the
   # Add menu of the specified folder, then
   # instantiates the CreateFolders class.
   def create_subfolders_in(folder_name)
-    frm.table(:class=>"listHier lines centerLines").row(:text=>/#{Regexp.escape(folder_name)}/).link(:text=>"Start Add Menu").fire_event("onfocus")
-    frm.table(:class=>"listHier lines centerLines").row(:text=>/#{Regexp.escape(folder_name)}/).link(:text=>"Create Folders").click
+    m_create_subfolders_in(folder_name)
     CreateFolders.new(@browser)
   end
   
@@ -701,77 +588,10 @@ class Resources
   # clicks on the Edit Details menu item, then
   # instantiates the EditFileDetails page class.
   def edit_details(name) #FIXME
-    menus = resource_names.compact
-    index=menus.index(name)
-    frm.li(:text=>/Action/, :class=>"menuOpen", :index=>index).fire_event("onclick")
-    frm.link(:text=>"Edit Details", :index=>index).click
+    m_edit_details(name)
     EditFileDetails.new(@browser)
   end
  
-  # Returns an array of the displayed folder names.
-  def folder_names
-    names = []
-    resources_table = frm.table(:class=>"listHier lines centerLines")
-    1.upto(resources_table.rows.size-1) do |x|
-      if resources_table[x][2].exist? && resources_table[x][2].a.title=="Folder"
-        names << resources_table[x][2].text
-      end
-    end
-    return names
-  end
-  
-  # Returns an array of the file names currently listed
-  # on the Resources page.
-  # 
-  # It excludes folder names.
-  def file_names
-    names = []
-    resources_table = frm.table(:class=>"listHier lines centerLines")
-    1.upto(resources_table.rows.size-1) do |x|
-      if resources_table[x][2].a(:index=>1).exist? && resources_table[x][2].a(:index=>1).title != "Folder"
-        names << resources_table[x][2].text
-      end
-    end
-    return names
-  end
-  
-  # This method returns an array of both the file and folder names
-  # currently listed on the Resources page.
-  #
-  # Note that it adds "" entries for any blank lines found
-  # so that the row index will still be accurate for the
-  # table itself. This is sometimes necessary for being
-  # able to find the correct row.
-  def resource_names
-    titles = []
-    resources_table = frm.table(:class=>"listHier lines centerLines")
-    1.upto(resources_table.rows.size-1) do |x|
-      if resources_table[x][2].link.exist?
-        titles << resources_table[x][2].text
-      else
-        titles << ""
-      end
-    end
-    return titles
-  end
-
-  # Gets the value of the access level cell for the specified
-  # file.
-  def access_level(filename)
-    index = resource_names.index(filename)
-    frm.table(:class=>"listHier lines centerLines")[index+1][6].text
-  end
-
-  # Clicks the Remove button.
-  def remove
-    frm.button(:value=>"Remove").click
-  end
-  
-  # Clicks the Move button.
-  def move
-    frm.button(:value=>"Move").click
-  end
-  
   # Takes the specified array object containing pointers
   # to local file resources, then uploads those files to
   # the folder specified, checks if they all uploaded properly and
@@ -779,25 +599,7 @@ class Resources
   #
   # Finally, it instantiates the Resources page class.
   def upload_multiple_files_to_folder(folder, file_array)
-    
-    upload = upload_files_to_folder folder
-    
-    file_array.each do |file|
-      upload.file_to_upload=file
-      upload.add_another_file
-    end
-    
-    resources = upload.upload_files_now
-
-    file_array.each do |file|
-      file =~ /(?<=\/).+/
-      # puts $~.to_s # For debugging purposes
-      unless resources.file_names.include?($~.to_s)
-        upload_files = resources.upload_files_to_folder(folder)
-        upload_files.file_to_upload=file
-        resources = upload_files.upload_files_now
-      end
-    end
+    m_upload_multiple_files_to_folder(folder, file_array)
     Resources.new(@browser)
   end
 

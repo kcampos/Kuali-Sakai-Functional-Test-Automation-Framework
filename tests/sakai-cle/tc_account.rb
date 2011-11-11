@@ -31,6 +31,11 @@ class UserAccountUpdate < Test::Unit::TestCase
     @email_address = "#{random_nicelink(20)}@#{random_nicelink(20)}.com"
     @new_password = random_string(32)
     
+    # Validation text -- These contain page content that will be used for
+    # test asserts.
+    @invalid_email_alert = "Alert: The email address is invalid"
+    @unmatched_passwords = "Alert: Please enter the password the same in both fields."
+    
   end
   
   def teardown
@@ -72,7 +77,7 @@ class UserAccountUpdate < Test::Unit::TestCase
     edit_account.update_details
     
     # TEST CASE: Verify alert about invalid email address
-    assert @browser.text.include?("Alert: The email address is invalid"), "No warning about invalid email address"
+    assert @browser.text.include?(@invalid_email_alert), "No warning about invalid email address"
     
     edit_account.email=@email_address
     
@@ -82,7 +87,7 @@ class UserAccountUpdate < Test::Unit::TestCase
     edit_account = edit_account.update_details
     
     # TEST CASE: Verify alert about unmatched passwords
-    assert @browser.text.include?("Alert: Please enter the password the same in both fields."), "No warning about unmatched passwords"
+    assert @browser.text.include?(@unmatched_passwords), "No warning about unmatched passwords"
     
     # Set names. Set password values the same and save changes
     edit_account.first_name=@first_name
