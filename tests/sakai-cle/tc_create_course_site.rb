@@ -36,7 +36,6 @@ class TestCreatingCourseSite < Test::Unit::TestCase
     # Validation text -- These contain page content that will be used for
     # test asserts.
     @choose_site_text = "Choose the type of site you want to create."
-    @term_text = "Academic term:"
     @course_text = "You have thus far selected the following course/section(s) for this course site:"
     @authorizer_alert = "Alert: Please enter the authorizers {0}."
     @username_alert = "Alert: Please enter a valid Username for the instructor of record."
@@ -84,7 +83,6 @@ class TestCreatingCourseSite < Test::Unit::TestCase
     site_type.select_course_site
     
     #TEST CASE: Check that the academic term selection appeared
-    assert @browser.text.include?(@term_text)
     assert site_type.academic_term_element.visible?
     
     # Store the selected term value for use later
