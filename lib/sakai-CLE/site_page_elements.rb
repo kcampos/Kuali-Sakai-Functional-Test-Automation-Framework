@@ -121,22 +121,22 @@ class PreviewOverview
   include PageObject
   include ToolsMenu
   
-  # Scrapes the value of the due date from the page.
+  # Scrapes the value of the due date from the page. Returns it as a string.
   def due_date
     frm.div(:class=>"tier2").table(:index=>0)[0][0].text
   end
   
-  # Scrapes the value of the time limit from the page.
+  # Scrapes the value of the time limit from the page. Returns it as a string.
   def time_limit
     frm.div(:class=>"tier2").table(:index=>0)[3][0].text
   end
   
-  # Scrapes the submission limit from the page.
+  # Scrapes the submission limit from the page. Returns it as a string.
   def submission_limit
     frm.div(:class=>"tier2").table(:index=>0)[6][0].text
   end
   
-  # Scrapes the Feedback policy from the page.
+  # Scrapes the Feedback policy from the page. Returns it as a string.
   def feedback
     frm.div(:class=>"tier2").table(:index=>0)[9][0].text
   end
@@ -161,17 +161,17 @@ class AssessmentSettings
   include PageObject
   include ToolsMenu
   
-  # Scrapes the Assessment Type from the page
+  # Scrapes the Assessment Type from the page and returns it as a string.
   def assessment_type_title
     frm.div(:class=>"tier2").table(:index=>0)[0][1].text
   end
   
-  # Scrapes the Assessment Author information from the page
+  # Scrapes the Assessment Author information from the page and returns it as a string.
   def assessment_type_author
     frm.div(:class=>"tier2").table(:index=>$frame_index)[1][1].text
   end
   
-  # Scrapes the Assessment Type Description from the page.
+  # Scrapes the Assessment Type Description from the page and returns it as a string.
   def assessment_type_description
     frm.div(:class=>"tier2").table(:index=>0)[2][1].text
   end
@@ -284,15 +284,18 @@ class AssessmentTotalScores
   # selecting the appropriate comment box.
   def comment_for_student(student_id, comment)
     index_val = student_ids.index(student_id)
-    
     frm.text_field(:name=>"editTotalResults:totalScoreTable:#{index_val}:_id345").value=comment
-    
   end
   
+  # Clicks the Submit Date link in the table header to sort/reverse sort the list.
   def sort_by_submit_date
     frm.link(:text=>"Submit Date").click
   end
   
+  # Enters the specified string into the topmost box listed on the page.
+  #
+  # This method is especially useful when the student identities are obscured, since
+  # in that situation you can't target a specific student's comment box, obviously.
   def comment_in_first_box=(comment)
     frm.text_field(:name=>"editTotalResults:totalScoreTable:0:_id345").value=comment
   end
@@ -803,11 +806,15 @@ class EditQuestionPool
   include PageObject
   include ToolsMenu
   
+  # Clicks the Add Question link, then
+  # instantiates the SelectQuestionType class.
   def add_question
     frm.link(:id=>"editform:addQlink").click
     SelectQuestionType.new(@browser)
   end
   
+  # Clicks the Question Pools link, then
+  # instantiates the QuestionPoolsList class.
   def question_pools
     frm.link(:text=>"Question Pools").click
     QuestionPoolsList.new(@browser)
@@ -949,6 +956,7 @@ class TakeAssessmentList
   include PageObject
   include ToolsMenu
   
+  # Returns an array containing the assessment names that appear on the page.
   def available_assessments
     # define this later
   end
@@ -1005,6 +1013,7 @@ class BeginAssessment
     frm.button(:value=>"Begin Assessment").click
   end
   
+  # Clicks the Cancel button and instantiates the X Class.
   def cancel
     # Define this later
   end
@@ -1027,34 +1036,41 @@ class BeginAssessment
     frm.text_field(:name=>/deliverFillInTheBlank:_id.+:#{index}/).value=answer
   end
   
+  # Clicks either the True or the False radio button, as specified.
   def true_false_answer(answer)
-    answer.upcase=="TRUE" ? index = 0 : index = 1
+    answer.upcase=~/t/i ? index = 0 : index = 1
     frm.radio(:name=>/deliverTrueFalse/, :index=>index).set
   end
   
+  # Enters the specified string into the Rationale text box.
   def true_false_rationale(text)
     frm.text_field(:name=>/:deliverTrueFalse:rationale/).value=text
   end
   
+  # Enters the specified text into the "Short Answer" field.
   def short_answer(answer)
     frm.text_field(:name=>/deliverShortAnswer/).value=answer
   end
 
+  # Selects the specified matching value, at the spot specified by the number (1-based counting).
   def match_answer(answer, number)
     index = number.to_i-1
     frm.select(:name=>/deliverMatching/, :index=>index).select(answer)
   end
 
+  # Enters the specified file name (and subdirectory below the expected target Sakai-CLE path) in the file field.
   def file_answer(file_name)
     frm.file_field(:name=>/deliverFileUpload/).set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + file_name)
     frm.button(:value=>"Upload").click
   end
 
+  # Clicks the Next button and instantiates the BeginAssessment Class.
   def next
     frm.button(:value=>"Next").click
     BeginAssessment.new(@browser)
   end
   
+  # Clicks the Submit for Grading button and instantiates the ConfirmSubmission Class.
   def submit_for_grading
     frm.button(:value=>"Submit for Grading").click
     ConfirmSubmission.new(@browser)
@@ -1062,12 +1078,15 @@ class BeginAssessment
   
 end
 
-
+# The confirmation page that appears when submitting an Assessment.
+# The last step before actually submitting the the Assessment.
 class ConfirmSubmission
   
   include PageObject
   include ToolsMenu
   
+  # Clicks the Submit for Grading button and instantiates
+  # the SubmissionSummary Class.
   def submit_for_grading
     frm.button(:value=>"Submit for Grading").click
     SubmissionSummary.new(@browser)
@@ -1075,12 +1094,14 @@ class ConfirmSubmission
 
 end
 
-
+# The summary page that appears when an Assessment has been submitted.
 class SubmissionSummary
   
   include PageObject
   include ToolsMenu
 
+  # Clicks the Continue button and instantiates
+  # the TakeAssessmentList Class.
   def continue
     frm.button(:value=>"Continue").click
     TakeAssessmentList.new(@browser)
@@ -1633,6 +1654,8 @@ class AssignmentsPreview
     AssignmentsList.new(@browser)
   end
   
+  # Clicks the Cancel button and instantiates the
+  # AssignmentsList Class.
   def cancel
     frm.button(:value=>"Cancel").click
     AssignmentsList.new(@browser)
@@ -1668,7 +1691,9 @@ class AssignmentsReorder
     frm.button(:value=>"Save").click
     AssignmentsList.new(@browser)
   end
-    
+  
+  # Clicks the Cancel button, then instantiates
+  # the AssignmentsList Class.
   def cancel
     frm.button(:value=>"Cancel").click
     AssignmentsList.new(@browser)
@@ -1823,7 +1848,9 @@ class AssignmentStudent
     frm.button(:value=>"Back to list").click
     AssignmentsList.new(@browser)
   end
-    
+  
+  # Clicks the Cancel button and instantiates the
+  # AssignmentsList Class.
   def cancel
     frm.button(:value=>"Cancel").click
     AssignmentsList.new(@browser)
@@ -1880,10 +1907,12 @@ class SubmissionConfirmation
   include PageObject
   include ToolsMenu
   
+  # Returns the text of the success message on the page.
   def confirmation_text
     frm.div(:class=>"portletBody").div(:class=>"success").text
   end
   
+  # Returns the text of the assignment submission.
   def submission_text
     frm.div(:class=>"portletBody").div(:class=>"textPanel indnt2").text
   end
@@ -1904,6 +1933,7 @@ class AssignmentSubmissionList
   include PageObject
   include ToolsMenu
   
+  # Clicks the Assignment List link and instantiates the AssignmentsList Class.
   def assignment_list
     frm.link(:text=>"Assignment List").click
     AssignmentsList.new(@browser)
@@ -1985,25 +2015,31 @@ class AssignmentSubmission
   
   include PageObject
   include ToolsMenu
-
+  
+  # Enters the specified text string in the FCKEditor box for the assignment text.
   def assignment_text=(text)
     frm.frame(:id, "grade_submission_feedback_text___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(text)
   end
   
+  # Removes all the contents of the FCKEditor Assignment Text box.
   def remove_assignment_text
     frm.frame(:id, "grade_submission_feedback_text___Frame").div(:title=>"Select All").fire_event("onclick")
     frm.frame(:id, "grade_submission_feedback_text___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys :backspace
   end
   
+  # Enters the specified string into the Instructor Comments FCKEditor box.
   def instructor_comments=(text)
     frm.frame(:id, "grade_submission_feedback_comment___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(text)
   end
   
+  # Clicks the Add Attachments button, then instantiates the AssignmentAttachments Class.
   def add_attachments
     frm.button(:value=>"Add Attachments").click
     AssignmentAttachments.new(@browser)
   end
   
+  # Clicks the Return to List button, then instantiates the
+  # AssignmentSubmissionList Class.
   def return_to_list
     frm.button(:value=>"Return to List").click
     AssignmentSubmissionList.new(@browser)
@@ -2078,31 +2114,37 @@ class Blogger
   include PageObject
   include ToolsMenu
   
+  # Clicks the View All button, then reinstantiates the Class.
   def view_all
     frm.link(:text=>"View all").click
     Blogger.new(@browser)
   end
   
+  # Clicks the View Members Blog link, then instantiates the
+  # ViewMembersBlog Class.
   def view_members_blog
     frm.link(:text=>"View member's blog").click
     ViewMembersBlog.new(@browser)
   end
   
+  # Returns true if the specified post title exists in the list. Otherwise returns false.
   def post_private?(post_title)
     frm.table(:class=>"tableHeader").row(:text=>/#{Regexp.escape(post_title)}/).image(:alt=>"p").exist?
   end
   
+  # Clicks the Create New Post link and instantiates the CreateBloggerPost Class.
   def create_new_post
     frm.link(:text=>"Create new post").click
     CreateBloggerPost.new(@browser)
   end
-
+  # Clicks on the specified post title, then instantiates
+  # the ViewBloggerPost Class.
   def open_post(post_title)
     frm.link(:text=>post_title).click
     ViewBloggerPost.new(@browser)
   end
 
-  # Returns an array containing the displayed post titles (as string objects)
+  # Returns an array containing the displayed post titles (as string objects).
   def post_titles
     titles = []
     if frm.table(:class=>"tableHeader").exist?
@@ -2123,7 +2165,7 @@ class Blogger
   end
 end
 
-#
+# The page showing contents of a user's Blog.
 class ViewMembersBlog
   
   include PageObject
@@ -2139,17 +2181,18 @@ class ViewMembersBlog
 
 end
 
-
-# 
+# The page where users create a Post for their Blogger blog.
 class CreateBloggerPost
   
   include PageObject
   include ToolsMenu
 
+  # Enters the specified string into the FCKEditor for the Abstract.
   def abstract=(text)
     frm.frame(:id, "PostForm:shortTextBox_inputRichText___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(text)
   end
 
+  # Enters the specified string into the FCKEditor for the Text of the Blog.
   def text=(text)
     frm().frame(:id, "PostForm:tab0:main_text_inputRichText___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(text)
   end
@@ -2160,19 +2203,28 @@ class CreateBloggerPost
     frm.div(:id=>"PostForm:tab0").button(:value=>"Add to document").click
   end
 
+  # Clicks the Add to Document button on the Image tab.
+  #
+  # This method will fail if the image tab is not the currently selected tab.
   def add_image_to_document
     frm.div(:id=>"PostForm:tab1").button(:value=>"Add to document").click
   end
   
+  # Clicks the Add to Document button on the Link tab.
+  #
+  # This method will fail if the Link tab is not the currently selected tab.
   def add_link_to_document
     frm.div(:id=>"PostForm:tab2").button(:value=>"Add to document").click
   end
   
+  # Clicks the Add to Document button on the File tab.
+  #
+  # This method will fail if the File tab is not the currently selected tab.
   def add_file_to_document
     frm.div(:id=>"PostForm:tab3").button(:value=>"Add to document").click
   end
   
-  # Enters the specified filename in the file field.
+  # Enters the specified filename in the file field for images.
   #
   # Note that the file should be inside the data/sakai-cle folder.
   # The file or folder name used for the filename variable
@@ -2181,15 +2233,18 @@ class CreateBloggerPost
     frm.file_field(:name=>"PostForm:tab1:_id29").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + filename)
   end
   
+  # Enters the specified directory/filename in the file field.
   def file_field=(filename)
     frm().file_field(:name=>"PostForm:tab3:_id51").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + filename)
   end
   
+  # Clicks the Preview button and instantiates the PreviewBloggerPost Class.
   def preview
     frm().button(:value=>"Preview").click
     PreviewBloggerPost.new(@browser)
   end
-
+  
+  # Clicks the Save button and instantiates the Blogger Class.
   def save
     frm.button(:value=>"Save").click
     Blogger.new(@browser)
@@ -2211,17 +2266,19 @@ class CreateBloggerPost
   end
 end
 
-# 
+# The Preview page for a Blog post.
 class PreviewBloggerPost
   
   include PageObject
   include ToolsMenu
   
+  # Clicks the Back button and instantiates the CreateBloggerPost Class.
   def back
     frm().button(:value=>"Back").click
     CreateBloggerPost.new(@browser)
   end
   
+  # Clicks the Save button and instantiates the CreateBloggerPost Class.
   def save
     frm.button(:value=>"Save").click
     CreateBloggerPost.new(@browser)
@@ -2229,12 +2286,14 @@ class PreviewBloggerPost
 
 end
 
-#
+# The page for Viewing a blog post.
 class ViewBloggerPost
   
   include PageObject
   include ToolsMenu
   
+  # Clicks the button for adding a comment to a blog post, then
+  # instantiates the AddBloggerComment Class.
   def add_comment
     frm.button(:value=>"Add comment").click
     AddBloggerComment.new(@browser)
@@ -2242,17 +2301,20 @@ class ViewBloggerPost
 
 end
 
-# 
+# The page for adding a comment to a Blog post.
 class AddBloggerComment
   
   include PageObject
   include ToolsMenu
   
+  # Clicks the Save button and instantiates
+  # The ViewBloggerPost Class.
   def save
     frm.button(:value=>"Save").click
     ViewBloggerPost.new(@browser)
   end
   
+  # Enters the specified string into the FCKEditor box for the Comment.
   def your_comment=(text)
     frm.frame(:id, "_id1:_id11_inputRichText___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(text)
   end
@@ -2333,6 +2395,8 @@ class JForums
     DiscussionForum.new(@browser)
   end
   
+  # Clicks the specified Topic and instantiates
+  # the ViewTopic Class.
   def open_topic(topic_title)
     frm.link(:text=>topic_title).click
     ViewTopic.new(@browser)
@@ -2457,16 +2521,19 @@ class NewTopic
   include ToolsMenu
   include JForumsResources
   
+  # Enters the specified string into the FCKEditor for the Message.
   def message_text=(text)
     frm.frame(:id, "message___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(:home)
     frm.frame(:id, "message___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(text)
   end
   
+  # Clicks the Submit button, then instantiates the ViewTopic Class.
   def submit
     frm.button(:value=>"Submit").click
     ViewTopic.new(@browser)
   end 
   
+  # Clicks the Preview button and instantiates the PreviewDiscussionTopic Class.
   def preview
     frm.button(:value=>"Preview").click
     PreviewDiscussionTopic.new(@browser)
@@ -3617,6 +3684,7 @@ class ConfirmModule
 
 end
 
+# Page for adding a section to a Lesson.
 class AddEditSection
   
   include PageObject
@@ -3689,6 +3757,7 @@ class ConfirmSectionAdd
 
 end
 
+# 
 class SelectingContent
   
   include PageObject
@@ -3705,6 +3774,7 @@ class SelectingContent
   end
 end
 
+# 
 class LessonAddAttachment
   
   include PageObject
@@ -3728,25 +3798,34 @@ end
 # Matrix Pages for a Portfolio Site
 #================
 
+# 
 class Matrices
   
   include PageObject
   include ToolsMenu
   
+  # Clicks the Add link and instantiates
+  # the AddEditMatrix Class.
   def add
     frm.link(:text=>"Add").click
     AddEditMatrix.new(@browser)
   end
   
+  # Clicks the "Edit" link for the specified
+  # Matrix item, then instantiates the EditMatrixCells.
   def edit(matrixname)
     frm.table(:class=>"listHier lines nolines").tr(:text=>/#{Regexp.escape(matrixname)}/).link(:text=>"Edit").click
     EditMatrixCells.new(@browser)
   end
 
+  # Clicks the "Preview" link for the specified
+  # Matrix item.
   def preview(matrixname)
     frm.table(:class=>"listHier lines nolines").tr(:text=>/#{Regexp.escape(matrixname)}/).link(:text=>"Preview").click
   end
 
+  # Clicks the "Publish" link for the specified
+  # Matrix item, then instantiates the ConfirmPublishMatrix Class.
   def publish(matrixname)
     frm.table(:class=>"listHier lines nolines").tr(:text=>/#{Regexp.escape(matrixname)}/).link(:text=>"Publish").click
     ConfirmPublishMatrix.new(@browser)
@@ -3757,31 +3836,42 @@ class Matrices
   end
 end
 
+# 
 class AddEditMatrix
   
   include PageObject
   include ToolsMenu
   
+  # Clicks the "Create Matrix" button and
+  # instantiates the Matrices Class.
   def create_matrix
     frm.button(:value=>"Create Matrix").click
     Matrices.new(@browser)
   end
 
+  # Clicks the "Save Changes" butotn and
+  # instantiates the EditMatrixCells Class.
   def save_changes
     frm.button(:value=>"Save Changes").click
     EditMatrixCells.new(@browser)
   end
 
+  # Clicks the "Select Style" link and
+  # instantiates the SelectMatrixStyle Class.
   def select_style
     frm.link(:text=>"Select Style").click
     SelectMatrixStyle.new(@browser)
   end
   
+  # Clicks the "Add Column" link and
+  # instantiates the AddEditColumn Class.
   def add_column
     frm.link(:text=>"Add Column").click
     AddEditColumn.new(@browser)
   end
   
+  # Clicks the "Add Row" link and instantiates
+  # the AddEditRow Class.
   def add_row
     frm.link(:text=>"Add Row").click
     AddEditRow.new(@browser)
@@ -3792,28 +3882,36 @@ class AddEditMatrix
   end
 end
 
+# 
 class SelectMatrixStyle
   
   include PageObject
   include ToolsMenu
   
+  # Clicks the "Go Back" button and
+  # instantiates the AddEditMatrix Class.
   def go_back
     frm.button(:value=>"Go Back").click
     AddEditMatrix.new(@browser)
   end
 
+  # Clicks the "Select" link for the specified
+  # Style, then instantiates the AddEditMatrix Class.
   def select_style(stylename)
-    frm.table(:class=>"listHier lines nolines ").tr(:text=>/#{Regexp.escape(stylename)}/).link(:text=>"Select").click
+    frm.table(:class=>/listHier lines/).tr(:text=>/#{Regexp.escape(stylename)}/).link(:text=>"Select").click
     AddEditMatrix.new(@browser)
   end
   
 end
 
+# 
 class AddEditColumn
   
   include PageObject
   include ToolsMenu
   
+  # Clicks the "Update" button, then
+  # instantiates the AddEditMatrix Class.
   def update
     frm.button(:value=>"Update").click
     AddEditMatrix.new(@browser)
@@ -3824,11 +3922,14 @@ class AddEditColumn
   end
 end
 
+# 
 class AddEditRow
   
   include PageObject
   include ToolsMenu
   
+  # Clicks the "Update" button, then
+  # instantiates the AddEditMatrix Class.
   def update
     frm.button(:value=>"Update").click
     AddEditMatrix.new(@browser)
@@ -3841,6 +3942,7 @@ class AddEditRow
   end
 end
 
+#
 class EditMatrixCells
   
   include PageObject
@@ -3861,6 +3963,8 @@ class EditMatrixCells
     EditCell.new(@browser)
   end
 
+  # Clicks the "Return to List" link and
+  # instantiates the Matrices Class.
   def return_to_list
     frm.link(:text=>"Return to List").click
     Matrices.new(@browser)
@@ -3868,16 +3972,21 @@ class EditMatrixCells
 
 end
 
+# 
 class EditCell
   
   include PageObject
   include ToolsMenu
 
+  # Clicks the "Select Evaluators" link
+  # and instantiates the SelectEvaluators Class.
   def select_evaluators
     frm.link(:text=>"Select Evaluators").click
     SelectEvaluators.new(@browser)
   end
 
+  # Clicks the Save Changes button and instantiates
+  # the EditMatrixCells Class.
   def save_changes
     frm.button(:value=>"Save Changes").click
     EditMatrixCells.new(@browser)
@@ -3895,11 +4004,14 @@ class EditCell
   end
 end
 
+# 
 class SelectEvaluators
   
   include PageObject
   include ToolsMenu
   
+  # Clicks the "Save" button and
+  # instantiates the EditCell Class.
   def save
     frm.button(:value=>"Save").click
     EditCell.new(@browser)
@@ -3917,10 +4029,13 @@ class SelectEvaluators
   end
 end
 
+# 
 class ConfirmPublishMatrix
 
   include ToolsMenu
   
+  # Clicks the "Continue" button and
+  # instantiates the Matrices Class.
   def continue
     frm.button(:value=>"Continue").click
     Matrices.new(@browser)
@@ -4642,46 +4757,53 @@ end
 # Portfolio Templates pages
 #================
 
+# 
 class PortfolioTemplates
   
   include PageObject
   include ToolsMenu
   
+  # Clicks the Add link and instantiates the
+  # AddPortfolioTemplate class.
   def add
     frm.link(:text=>"Add").click
     AddPortfolioTemplate.new(@browser)
   end
 
+  # Clicks the "Publish" link for the specified Template.
   def publish(templatename)
     frm.table(:class=>"listHier lines nolines").row(:text=>/#{Regexp.escape(templatename)}/).link(:text=>"Publish").click
   end
 
+  # Clicks the "Edit" link for the specified Template.
   def edit(templatename)
     frm.table(:class=>"listHier lines nolines").row(:text=>/#{Regexp.escape(templatename)}/).link(:text=>"Edit").click
   end
 
+  # Clicks the "Delete" link for the specified Template.
   def delete(templatename)
     frm.table(:class=>"listHier lines nolines").row(:text=>/#{Regexp.escape(templatename)}/).link(:text=>"Delete").click
   end
 
+  # Clicks the "Copy" link for the specified Template.
   def copy(templatename)
     frm.table(:class=>"listHier lines nolines").row(:text=>/#{Regexp.escape(templatename)}/).link(:text=>"Copy").click
   end
 
+  # Clicks the "Export" link for the specified Template.
   def export(templatename)
     frm.table(:class=>"listHier lines nolines").row(:text=>/#{Regexp.escape(templatename)}/).link(:text=>"Export").click
   end
 
-  in_frame(:index=>1) do |frame|
-    
-  end
 end
 
+# 
 class AddPortfolioTemplate
   
   include PageObject
   include ToolsMenu
   
+  # Clicks the Continue button and instantiates the BuildTemplate Class.
   def continue
     frm.button(:value=>"Continue").click
     BuildTemplate.new(@browser)
@@ -4694,16 +4816,21 @@ class AddPortfolioTemplate
   end
 end
 
+#
 class BuildTemplate
   
   include PageObject
   include ToolsMenu
   
+  # Clicks the Select File link and instantiates the
+  # PortfolioAttachFiles Class.
   def select_file
     frm.link(:text=>"Select File").click
     PortfolioAttachFiles.new(@browser)
   end
   
+  # Clicks the Continue button and instantiates
+  # PortfolioContent Class.
   def continue
     frm.button(:value=>"Continue").click
     PortfolioContent.new(@browser)
@@ -4714,6 +4841,7 @@ class BuildTemplate
   end
 end
 
+# 
 class PortfolioAttachFiles
   
   include PageObject
@@ -4730,6 +4858,8 @@ class PortfolioAttachFiles
     PortfoliosUploadFiles.new(@browser)
   end
   
+  # Clicks the Continue button then instantiates
+  # the appropriate class based on what page gets loaded next.
   def continue
     m_continue
     if frm.div(:class=>"portletBody").h3.text=="Select supporting files"
@@ -4747,6 +4877,8 @@ class PortfolioAttachFiles
     #FIXME
   end
   
+  # Clicks the Edit Details menu item for the specified file or folder,
+  # then instantiates the XXXX Class.
   def edit_details(name) #FIXME
     m_edit_details(name)
     #FIXME
@@ -4754,6 +4886,7 @@ class PortfolioAttachFiles
   
 end
 
+#
 class PortfoliosUploadFiles
   
   include PageObject
@@ -4770,6 +4903,8 @@ class PortfoliosUploadFiles
     @@filex+=1
   end
   
+  # Clicks the Upload Files Now button and instantiates the
+  # PortfolioAttachFiles Class.
   def upload_files_now
     frm.button(:value=>"Upload Files Now").click
     sleep 1 # FIXME
@@ -4777,17 +4912,21 @@ class PortfoliosUploadFiles
     PortfolioAttachFiles.new(@browser)
   end
   
+  # Clicks the Add Another File link.
   def add_another_file
     frm.link(:text=>"Add Another File").click
   end
   
 end
 
+# 
 class PortfolioContent
   
   include PageObject
   include ToolsMenu
 
+  # Clicks the Continue button and instantiates the
+  # SupportingFilesPortfolio Class.
   def continue
     frm.button(:value=>"Continue").click
     SupportingFilesPortfolio.new(@browser)
@@ -4803,16 +4942,21 @@ class PortfolioContent
   end
 end
 
+# 
 class SupportingFilesPortfolio
   
   include PageObject
   include ToolsMenu
   
+  # Clicks the Finish button and instantiates
+  # the PortfolioTemplates Class.
   def finish
     frm.button(:value=>"Finish").click
     PortfolioTemplates.new(@browser)
   end
   
+  # Clicks the Select File link and instantiates
+  # the PortfolioAttachFiles Class.
   def select_file
     frm.link(:text=>"Select File").click
     PortfolioAttachFiles.new(@browser)
@@ -4825,10 +4969,275 @@ class SupportingFilesPortfolio
 end
 
 
+#================
+# Sections Pages for a Site
+#================
+
+module SectionsMenu
+  
+  # Clicks the Add Sections button/link and instantiates
+  # the AddEditSections Class.
+  def add_sections
+    frm.link(:text=>"Add Sections").click
+    AddEditSections.new(@browser)
+  end
+  
+  def overview
+    frm.link(:text=>"Overview").click
+    Sections.new(@browser)
+  end
+  
+  def student_memberships
+    frm.link(:text=>"Student Memberships").click
+    StudentMemberships.new(@browser)
+  end
+  
+  def options
+    frm.link(:text=>"Options").click
+    SectionsOptions.new(@browser)
+  end
+  
+end
+
+# Topmost page for Sections in Site Management
+class Sections
+  
+  include PageObject
+  include ToolsMenu
+  include SectionsMenu
+  
+  # Clicks the Edit link for the specified section.
+  # Then instantiates the AddEditSections class.
+  def edit(title)
+    frm.table(:class=>/listHier/).row(:text=>/#{Regexp.escape(title)}/).link(:text=>/Edit/).click
+    AddEditSections.new(@browser)
+  end
+  
+  def assign_tas(title)
+    frm.table(:class=>/listHier/).row(:text=>/#{Regexp.escape(title)}/).link(:text=>/Assign TAs/).click
+    AssignTeachingAssistants.new(@browser)
+  end
+
+  def assign_students(title)
+    frm.table(:class=>/listHier/).row(:text=>/#{Regexp.escape(title)}/).link(:text=>/Assign Students/).click
+    AssignStudents.new(@browser)
+  end
+  
+  def check(title)
+    frm.table(:class=>/listHier/).row(:text=>/#{Regexp.escape(title)}/).checkbox(:name=>/remove/).set
+  end
+
+  def section_names
+    names = []
+    frm.table(:class=>/listHier/).rows.each do |row|
+      if row.td(:class=>"leftIndent").exist?
+        names << row.td(:class=>"leftIndent").div(:index=>0).text
+      end
+    end
+    return names
+  end
+
+  def remove_sections
+    frm.button(:value=>"Remove Sections").click
+    Sections.new(@browser)
+  end
+
+  # Returns the text of the Teach Assistant cell for the specified
+  # Section.
+  def tas_for(title)
+    frm.table(:class=>/listHier/).row(:text=>/#{Regexp.escape(title)}/)[1].text
+  end
+
+  #
+  def days_for(title)
+    frm.table(:class=>/listHier/).row(:text=>/#{Regexp.escape(title)}/)[2].text
+  end
+
+  #
+  def time_for(title)
+    frm.table(:class=>/listHier/).row(:text=>/#{Regexp.escape(title)}/)[3].text
+  end
+  
+  #
+  def location_for(title)
+    frm.table(:class=>/listHier/).row(:text=>/#{Regexp.escape(title)}/)[4].text
+  end
+  
+  #
+  def current_size_for(title)
+    frm.table(:class=>/listHier/).row(:text=>/#{Regexp.escape(title)}/)[5].text
+  end
+
+  #
+  def availability_for(title)
+    frm.table(:class=>/listHier/).row(:text=>/#{Regexp.escape(title)}/)[6].text
+  end
+
+  def alert_text
+    frm.div(:class=>"validation").text
+  end
+
+  def success_text
+    frm.div(:class=>"success").text
+  end
+
+end
+
+# Methods in this class currently do not support
+# adding multiple instances of sections simultaneously.
+# That will be added at some future time.
+# The same goes for adding days with different meeting times. This will hopefully
+# be supported in the future.
+class AddEditSections
+  
+  include PageObject
+  include ToolsMenu
+  include SectionsMenu
+  
+  # Clicks the Add Sections button then instantiates the Sections Class,
+  # unless there's an Alert message, in which case it will reinstantiate
+  # the class.
+  def add_sections
+    frm.button(:value=>"Add Sections").click
+    if frm.div(:class=>"validation").exist?
+      AddEditSections.new(@browser)
+    else
+      Sections.new(@browser)
+    end
+  end
+  
+  def alert_text
+    frm.div(:class=>"validation").text
+  end
+  
+  # The Update button is only available when editing an existing Sections record.
+  def update
+    frm.button(:value=>"Update").click
+    if frm.div(:class=>"validation").exist?
+      AddEditSections.new(@browser)
+    else
+      Sections.new(@browser)
+    end
+  end
+  
+  # This method takes an array object containing strings of the
+  # days of the week and then clicks the appropriate checkboxes, based
+  # on those strings.
+  def check_days(array)
+    frm.checkbox(:id=>/SectionsForm:sectionTable:0:meetingsTable:0:monday/).set if array.include?(/mon/i)
+    frm.checkbox(:id=>/SectionsForm:sectionTable:0:meetingsTable:0:tuesday/).set if array.include?(/tue/i)
+    frm.checkbox(:id=>/SectionsForm:sectionTable:0:meetingsTable:0:wednesday/).set if array.include?(/wed/i)
+    frm.checkbox(:id=>/SectionsForm:sectionTable:0:meetingsTable:0:thursday/).set if array.include?(/thu/i)
+    frm.checkbox(:id=>/SectionsForm:sectionTable:0:meetingsTable:0:friday/).set if array.include?(/fri/i) 
+    frm.checkbox(:id=>/SectionsForm:sectionTable:0:meetingsTable:0:saturday/).set if array.include?(/sat/i)
+    frm.checkbox(:id=>/SectionsForm:sectionTable:0:meetingsTable:0:sunday/).set if array.include?(/sun/i)
+  end
+  
+  in_frame(:index=>1) do |frame|
+    select_list(:category, :id=>/SectionsForm:category/, :frame=>frame)
+    text_field(:name, :id=>/SectionsForm:sectionTable:0:titleInput/, :frame=>frame)
+    checkbox(:monday, :id=>/SectionsForm:sectionTable:0:meetingsTable:0:monday/, :frame=>frame)
+    checkbox(:tuesday, :id=>/SectionsForm:sectionTable:0:meetingsTable:0:tuesday/, :frame=>frame)
+    checkbox(:wednesday, :id=>/SectionsForm:sectionTable:0:meetingsTable:0:wednesday/, :frame=>frame)
+    checkbox(:thursday, :id=>/SectionsForm:sectionTable:0:meetingsTable:0:thursday/, :frame=>frame)
+    checkbox(:friday, :id=>/SectionsForm:sectionTable:0:meetingsTable:0:friday/, :frame=>frame)
+    checkbox(:saturday, :id=>/SectionsForm:sectionTable:0:meetingsTable:0:saturday/, :frame=>frame)
+    checkbox(:sunday, :id=>/SectionsForm:sectionTable:0:meetingsTable:0:sunday/, :frame=>frame)
+    text_field(:start_time, :id=>/SectionsForm:sectionTable:0:meetingsTable:0:startTime/, :frame=>frame)
+    text_field(:end_time, :id=>/SectionsForm:sectionTable:0:meetingsTable:0:endTime/, :frame=>frame)
+    text_field(:location, :id=>/SectionsForm:sectionTable:0:meetingsTable:0:location/, :frame=>frame)
+    radio_button(:startAM) { |page| page.radio_button_element(:name=>/SectionsForm:sectionTable:0:meetingsTable:0:startTimeAm/, :index=>0, :frame=>frame) }
+    radio_button(:startPM) { |page| page.radio_button_element(:name=>/SectionsForm:sectionTable:0:meetingsTable:0:startTimeAm/, :index=>1, :frame=>frame) }
+    radio_button(:endAM) { |page| page.radio_button_element(:name=>/SectionsForm:sectionTable:0:meetingsTable:0:endTimeAm/, :index=>0, :frame=>frame) }
+    radio_button(:endPM) { |page| page.radio_button_element(:name=>/SectionsForm:sectionTable:0:meetingsTable:0:endTimeAm/, :index=>1, :frame=>frame) }
+    radio_button(:unlimited_students) { |page| page.radio_button_element(:name=>/SectionsForm:sectionTable:0:limit/, :index=>0, :frame=>frame) }
+    radio_button(:limited_students) { |page| page.radio_button_element(:name=>/SectionsForm:sectionTable:0:limit/, :index=>1, :frame=>frame) }
+    text_field(:max_students, :id=>/SectionsForm:sectionTable:0:maxEnrollmentInput/, :frame=>frame)
+  end
+end
+
+#
+class AssignTeachingAssistants
+  
+  include PageObject
+  include ToolsMenu
+  include SectionsMenu
+
+  def assign_TAs
+    frm.button(:value=>"Assign TAs").click
+    Sections.new(@browser)
+  end
+
+  in_frame(:index=>1) do |frame|
+    select_list(:available_tas, :id=>"memberForm:availableUsers", :frame=>frame)
+    select_list(:assigned_tas, :id=>"memberForm:selectedUsers", :frame=>frame)
+    button(:assign, :value=>">", :frame=>frame)
+    button(:unassign, :value=>"<", :frame=>frame)
+    button(:assign_all, :value=>">>", :frame=>frame)
+    button(:unassign_all, :value=>"<<", :frame=>frame)
+    
+  end
+end
+
+# 
+class AssignStudents
+  
+  include PageObject
+  include ToolsMenu
+  include SectionsMenu
+  
+  def assign_students
+    frm.button(:value=>"Assign students").click
+    Sections.new(@browser)
+  end
+
+  in_frame(:index=>1) do |frame|
+    select_list(:available_students, :id=>"memberForm:availableUsers", :frame=>frame)
+    select_list(:assigned_students, :id=>"memberForm:selectedUsers", :frame=>frame)
+    button(:assign, :value=>">", :frame=>frame)
+    button(:unassign, :value=>"<", :frame=>frame)
+    button(:assign_all, :value=>">>", :frame=>frame)
+    button(:unassign_all, :value=>"<<", :frame=>frame)
+    
+  end
+end
+
+# The Options page for Sections.
+class SectionsOptions
+  
+  include PageObject
+  include ToolsMenu
+  include SectionsMenu
+  
+  def update
+    frm().button(:value=>"Update").click
+    Sections.new(@browser)
+  end
+  
+  in_frame(:index=>1) do |frame|
+    checkbox(:students_can_sign_up, :id=>"optionsForm:selfRegister", :frame=>frame)
+    checkbox(:students_can_switch, :id=>"optionsForm:selfSwitch", :frame=>frame)
+  end
+  
+end
+
 
 #================
 # Site Editor Pages for an individual Site
 #================
+
+# This module contains the methods referring to the menu items
+# across the top of all the Site Editor pages.
+module SiteEditorMenu
+  
+  # Clicks the Manage Groups link and
+  # instantiates the Groups Class.
+  def manage_groups
+    frm.link(:text=>"Manage Groups").click
+    Groups.new(@browser)
+  end
+  
+end
 
 # The topmost "Site Editor" page, found in SITE MANAGEMENT
 # when you are "inside" a particular site.
@@ -4836,23 +5245,26 @@ class SiteEditor
   
   include PageObject
   include ToolsMenu
+  include SiteEditorMenu
   
-  def manage_groups
-    frm.link(:text=>"Manage Groups").click
-    Groups.new(@browser)
+  # Sets the specified role for the specified participant.
+  #
+  # Because the participant is selected using a regular expression,
+  # the "participant" string can be anything that will suffice as a
+  # unique match--i.e., last name, first name, or user id, or any combination,
+  # as long as it will match a part of the string that appears in the
+  # desired row.
+  def set_role(participant, role)
+    frm.table(:class=>/listHier lines/).row(:text=>/#{Regexp.escape(participant)}/).select(:id=>/role/).select(role)
   end
   
-  # Again we are defining the page <iframe> by its index.
-  # This is a bad way to do it, but unless there's a
-  # persistent and consistent <id> or <name> tag for the
-  # iframe then this is our best option.
+  def update_participants
+    frm.button(:value=>"Update Participants").click
+    SiteEditor.new(@browser)
+  end
+  
   in_frame(:index=>1) do |frame|
-    link(:edit_site_information, :text=>"Edit Site Information", :frame=>frame)
-    link(:edit_tools, :text=>"Edit Tools", :frame=>frame)
-    link(:add_participants, :text=>"Add Participants", :frame=>frame)
-    link(:edit_class_rosters, :text=>"Edit Class Roster(s)", :frame=>frame)
-    link(:link_to_parent_site, :text=>"Link to Parent Site", :frame=>frame)
-    link(:manage_access, :text=> "Manage Access", :frame=>frame)
+
   end
 
 end
@@ -4862,7 +5274,10 @@ class Groups
     
   include PageObject
   include ToolsMenu
+  include SiteEditorMenu
   
+  # Clicks the Create New Group link and
+  # instantiates the CreateNewGroup Class.
   def create_new_group
     frm.link(:text=>"Create New Group").click
     CreateNewGroup.new(@browser)
@@ -4881,6 +5296,7 @@ class CreateNewGroup
   include PageObject
   include ToolsMenu
   
+  # Clicks the Add button and instantiates the Groups Class.
   def add
     frm.button(:id=>"save").click
     Groups.new(@browser)
@@ -4904,11 +5320,14 @@ end
 # Styles pages in a Portfolio Site
 #================
 
+# 
 class Styles
   
   include PageObject
   include ToolsMenu
   
+  # Clicks the Add link and
+  # instantiates the AddStyle Class.
   def add
     frm.link(:text=>"Add").click
     AddStyle.new(@browser)
@@ -4919,16 +5338,21 @@ class Styles
   end
 end
 
+# 
 class AddStyle
   
   include PageObject
   include ToolsMenu
   
+  # Clicks the Add Style button and
+  # instantiates the Styles Class.
   def add_style
     frm.button(:value=>"Add Style").click
     Styles.new(@browser)
   end
   
+  # Clicks the "Select File" link and
+  # instantiates the StylesAddAttachment Class.
   def select_file
     frm.link(:text=>"Select File").click
     StylesAddAttachment.new(@browser)
@@ -4941,17 +5365,23 @@ class AddStyle
   end
 end
 
+# 
 class StylesAddAttachment
   
   include PageObject
   include ToolsMenu
   include AttachPageTools
   
+  # Clicks the Continue button and
+  # instantiates the AddStyle Class.
   def continue
     m_continue
     AddStyle.new(@browser)
   end
 
+  # Clicks the Upload Files menu item for the
+  # specified folder name. Then instantiates the
+  # StylesUploadFiles Class.
   def upload_files_to_folder(foldername)
     m_upload_files_to_folder(foldername)
     StylesUploadFiles.new(@browser)
@@ -4959,6 +5389,7 @@ class StylesAddAttachment
 
 end
 
+# 
 class StylesUploadFiles
   
   include ToolsMenu
@@ -4974,6 +5405,8 @@ class StylesUploadFiles
     @@filex+=1
   end
   
+  # Clicks the "Upload Files Now" button
+  # then instantiates the StylesAddAttachment Class.
   def upload_files_now
     frm.button(:value=>"Upload Files Now").click
     sleep 0.5
@@ -4981,6 +5414,7 @@ class StylesUploadFiles
     StylesAddAttachment.new(@browser)
   end
   
+  # Clicks the "Add Another File" link.
   def add_another_file
     frm.link(:text=>"Add Another File").click
   end
@@ -5026,24 +5460,31 @@ class Syllabus
     frm.checkbox(:index=>index).set
   end
   
+  # 
   def move_title_up(title)
     #FIXME
   end
   
+  # 
   def move_title_down(title)
     #FIXME
   end
   
+  # Clicks the "Update" button and instantiates
+  # the DeleteSyllabusItems Class.
   def update
     frm.button(:value=>"Update").click
     DeleteSyllabusItems.new(@browser)
   end
   
+  # Opens the specified item and instantiates the XXXX Class.
   def open_item(title)
     frm.link(:text=>title).click
     Class.new(@browser)
   end
   
+  # Returns an array containing the titles of the syllabus items
+  # displayed on the page.
   def syllabus_titles
     titles = []
     s_table = frm.table(:class=>"listHier lines nolines")
@@ -5055,16 +5496,21 @@ class Syllabus
   
 end
 
+# 
 class AddEditSyllabusItem
   
   include PageObject
   include ToolsMenu
   
+  # Clicks the "Post" button and instantiates
+  # the Syllabus Class.
   def post
     frm.button(:value=>"Post").click
     Syllabus.new(@browser)
   end
   
+  # Defines the text area of the FCKEditor that appears on the page for
+  # the Syllabus content.
   def editor
     if frm.div(:class=>"portletBody").h3(:index=>0).text=="Add syllabus..."
       frm.frame(:id, "_id4:_id19_textarea___Frame").td(:id, "xEditingArea").frame(:index=>0)
@@ -5073,11 +5519,13 @@ class AddEditSyllabusItem
     end
   end
   
+  # Sends the specified string to the FCKEditor text area on the page.
   def content=(text)
     editor.send_keys(text)
   end
   
-  
+  # Clicks the "Post" button and instantiates
+  # the Syllabus Class.
   def post
     frm.button(:value=>"Post").click
     Syllabus.new(@browser)

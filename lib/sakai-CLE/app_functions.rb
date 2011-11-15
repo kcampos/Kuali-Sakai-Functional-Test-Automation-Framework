@@ -170,11 +170,14 @@ module ToolsMenu
     Forums.new(@browser)
   end
   
+  # Clicks the Glossary link, then instantiates the Glossary Class.
   def glossary
     @browser.link(:text=>"Glossary").click
     Glossary.new(@browser)
   end
   
+  # Clicks the "Gradebook" link, then
+  # instantiates the Gradebook Class.
   def gradebook
     @browser.link(:text=>"Gradebook").click
     Gradebook.new(@browser)
@@ -208,6 +211,8 @@ module ToolsMenu
   link(:link_tool, :text=>"Link Tool")
   link(:live_virtual_classroom, :text=>"Live Virtual Classroom")
   
+  # Clicks the "Matrices" link, then
+  # instantiates the Matrices Class.
   def matrices
     @browser.link(:text=>"Matrices").click
     Matrices.new(@browser)
@@ -225,6 +230,9 @@ module ToolsMenu
   
   link(:my_sites, :text=>"My Sites")
   
+  # Clicks the "My Workspace" link, sets the
+  # $frame_index global variable to 0, then instantiates
+  # the MyWorkspace Class.
   def my_workspace
     @browser.link(:text=>"My Workspace").click
     $frame_index=0
@@ -240,6 +248,8 @@ module ToolsMenu
   link(:polls, :text=>"Polls")
   link(:portfolios, :text=>"Portfolios")
   
+  # Clicks the Portfolio Templates link, then
+  # instantiates the Portfolio 
   def portfolio_templates
     @browser.link(:text=>"Portfolio Templates").click
     PortfolioTemplates.new(@browser)
@@ -265,10 +275,13 @@ module ToolsMenu
   # 
   def site_management_search
     @browser.link(:class=>"icon-sakai-search").click
-    
   end
   
-  link(:sections, :text=>"Sections")
+  def sections
+    @browser.link(:class=>"icon-sakai-sections").click
+    Sections.new(@browser)
+  end
+  
   link(:site_archive, :text=>"Site Archive")
   
   # Clicks the Site Editor link, then instantiates
@@ -384,11 +397,10 @@ module AttachPageTools
   # Returns an array of the displayed folder names.
   def folder_names
     names = []
-    resources_table = frm.table(:class=>/listHier lines/)
-    1.upto(resources_table.rows.size-1) do |x|
-      if resources_table[x][0].exist? && resources_table[x][0].a.title=="Folder"
-        names << resources_table[x][0].text
-      end
+    frm.table(:class=>/listHier lines/).rows.each do |row|
+      next if row.td(:class=>"specialLink").exist? == false
+      next if row.td(:class=>"specialLink").link(:title=>"Folder").exist? == false
+      names << row.td(:class=>"specialLink").link(:title=>"Folder").text
     end
     return names
   end
@@ -399,11 +411,10 @@ module AttachPageTools
   # It excludes folder names.
   def file_names
     names = []
-    resources_table = frm.table(:class=>/listHier lines/)
-    1.upto(resources_table.rows.size-1) do |x|
-      if resources_table[x][0].a(:index=>1).exist? && resources_table[x][0].a(:index=>1).title != "Folder"
-        names << resources_table[x][0].text
-      end
+    frm.table(:class=>/listHier lines/).rows.each do |row|
+      next if row.td(:class=>"specialLink").exist? == false
+      next if row.td(:class=>"specialLink").link(:title=>"Folder").exist?
+      names << row.td(:class=>"specialLink").link(:href=>/access.content.group/, :index=>1).text
     end
     return names
   end
@@ -411,26 +422,6 @@ module AttachPageTools
   # Clicks the Select button next to the specified file.
   def select_file(filename)
     frm.table(:class=>/listHier lines/).row(:text, /#{Regexp.escape(filename)}/).link(:text=>"Select").click
-  end
-  
-  # This method returns an array of both the file and folder names
-  # currently listed on the Resources page.
-  #
-  # Note that it adds "" entries for any blank lines found
-  # so that the row index will still be accurate for the
-  # table itself. This is sometimes necessary for being
-  # able to find the correct row.
-  def resource_names
-    titles = []
-    resources_table = frm.table(:class=>/listHier lines/)
-    1.upto(resources_table.rows.size-1) do |x|
-      if resources_table[x][0].link.exist?
-        titles << resources_table[x][0].text
-      else
-        titles << ""
-      end
-    end
-    return titles
   end
 
   # Clicks the Remove button.
@@ -466,17 +457,14 @@ module AttachPageTools
   # Gets the value of the access level cell for the specified
   # file.
   def access_level(filename) 
-    index = resource_names.index(filename) #FIXME
-    frm.table(:class=>/listHier lines/)[index+1][6].text
+    frm.table(:class=>/listHier lines/).row(:text=>/#{Regexp.escape(filename)}/)[6].text
   end
   
   private
   
-  def m_edit_details(name) # This method will probably need to be fixed.
-    menus = resource_names.compact
-    index=menus.index(name)
-    frm.li(:text=>/Action/, :class=>"menuOpen", :index=>index).fire_event("onclick")
-    frm.link(:text=>"Edit Details", :index=>index).click
+  def m_edit_details(name)
+    frm.table(:class=>/listHier lines/).row(:text=>/#{Regexp.escape(name)}/).li(:text=>/Action/, :class=>"menuOpen").fire_event("onclick")
+    frm.table(:class=>/listHier lines/).row(:text=>/#{Regexp.escape(name)}/).link(:text=>"Edit Details").click
   end
   
   # Clicks the Create Folders menu item in the
@@ -528,8 +516,8 @@ module AttachPageTools
   # Clicks the Create Folders menu item in the
   # Add menu of the specified folder.
   def m_create_subfolders_in(folder_name)
-    frm.table(:class=>"listHier lines").row(:text=>/#{Regexp.escape(folder_name)}/).link(:text=>"Start Add Menu").fire_event("onfocus")
-    frm.table(:class=>"listHier lines").row(:text=>/#{Regexp.escape(folder_name)}/).link(:text=>"Create Folders").click
+    frm.table(:class=>/listHier lines/).row(:text=>/#{Regexp.escape(folder_name)}/).link(:text=>"Start Add Menu").fire_event("onfocus")
+    frm.table(:class=>/listHier lines/).row(:text=>/#{Regexp.escape(folder_name)}/).link(:text=>"Create Folders").click
   end
   
   # Takes the specified array object containing pointers

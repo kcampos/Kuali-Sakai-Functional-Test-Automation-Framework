@@ -78,7 +78,7 @@ class AddPublicResources < Test::Unit::TestCase
     filenames_1.each do |file|
       unless resources.file_names.include?(file)
         upload_files = resources.upload_files_to_folder("#{@site_name} Resources")
-        upload_files.file_to_upload=files_1[filenames_1.index(file)]
+        upload_files.file_to_upload=@files_1[filenames_1.index(file)]
         resources = upload_files.upload_files_now
       end
     end
