@@ -84,7 +84,7 @@ class TestCompleteAssignment < Test::Unit::TestCase
     assignments = confirm.back_to_list
     
     # TEST CASE: Verify assignment shows as draft in list
-    assert_equal("Draft - In progress", assignments.status_of(@assignment1_title))
+    assert_equal("Draft - In progress", assignments.status_of(@assignment_1_title))
     
     # Edit assignment
     assignment1 = assignments.open_assignment(@assignment_1_title)
@@ -125,7 +125,7 @@ class TestCompleteAssignment < Test::Unit::TestCase
     assignment2.assignment_text=@assignment_2_text2
     
     confirm = assignment2.resubmit
-    
+
     # Verify submission
     assert_equal( "You have successfully submitted your work. You will receive an email confirmation containing this information.", confirm.confirmation_text )
     

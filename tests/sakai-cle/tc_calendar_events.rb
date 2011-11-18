@@ -1,7 +1,8 @@
 # 
 # == Synopsis
 #
-# 
+# Tests basic creation and editing of a calendar event, as well
+# as the various view options of the calendar.
 # 
 # Author: Abe Heward (aheward@rSmart.com)
 gem "test-unit"
@@ -22,11 +23,34 @@ class TestCalendarEvents < Test::Unit::TestCase
     # This test case uses the logins of several users
     @instructor = @config.directory['person3']['id']
     @ipassword = @config.directory['person3']['password']
-    @student1 = @config.directory['person2']['id']
-    @spassword = @config.directory['person2']['password']
+    @student1 = @config.directory['person1']['id']
+    @spassword = @config.directory['person1']['password']
     @site_name = @config.directory['site1']['name']
     @site_id = @config.directory['site1']['id']
     @sakai = SakaiCLE.new(@browser)
+    
+    # Test case variables
+    @assignment_event = "Due #{@config.directory['site1']['assignment2']} - #{@site_name}"
+    
+    @event_title = random_alphanums # for more robust testing of the title field, see the xss test cases.
+    @event_message = %|">| + random_xss_string
+    @event_start_hour = next_hour
+    @event_start_meridian = am_or_pm
+    @event_location = random_xss_string
+    
+    @attach_file = "resources.JPG"
+    
+    @url = "http://www.rsmart.com"
+    
+    @frequency = "daily"
+    @interval = "10"
+    
+    @field_name = random_alphanums(16)
+    @new_field_text = random_string(256)
+    
+    @field_alert = "Alert: Are you sure you want to remove the following field(s):#{@field_name}? If yes, click 'Save Field Changes' to continue."
+    
+    @view_alert = "Alert: This is now the default view"
     
   end
   
@@ -40,293 +64,211 @@ class TestCalendarEvents < Test::Unit::TestCase
     # Log in to Sakai
     workspace = @sakai.login(@student1, @spassword)
     
-    calendar = home.workspace
+    calendar = workspace.calendar
+
+    calendar = calendar.next
     
+    # TEST CASE: Expected event appears on calendar
+    assert calendar.events_list.include?(@assignment_event), calendar.events_list.join("\n")
     
+    event = calendar.open_event @assignment_event
     
-    @selenium.type "eid", "student02"
-    @selenium.type "pw", "password"
-    @selenium.click "//input[@value='submit']"
-    # 
-    @selenium.click "//a[@class='icon-sakai-schedule']"
-    # 
-    @selenium.click "eventSubmit_doNext"
-    # 
-    @selenium.click "//a[contains(@title,'Due Assignment')]"
-    # 
+    # TEST CASE: Verify the event lists the expected Site.
+    assert_equal @site_name, event.details['Site']
+    
+    calendar = event.back_to_calendar
+    calendar = calendar.select_view "Calendar by Day"
+    
+    # TEST CASE: Header displays correct view type
+    assert_equal "Calendar by Day", calendar.header
+    
+    # TEST CASE: Calendar is still on the date of the event just viewed.
+    assert calendar.events_list.include?(@assignment_event), calendar.events_list.join("\n")
+    
+    add_event = calendar.add_event
+    add_event.message=@event_message
+    add_event.title=@event_title
+    add_event.start_hour=@event_start_hour
+    add_event.start_meridian=@event_start_meridian
+    
+    calendar = add_event.save_event
+
+    # Get the link's href value for verification steps later
+    @event_href = calendar.event_href @event_title
+    
+    # TEST CASE: Verify new event appears
+    assert calendar.events_list.include?("#{@event_title} - My Workspace"), calendar.events_list.join("\n")
+    assert calendar.events_list.include?(@event_href), calendar.events_list.join("\n")
+    
+    calendar = calendar.previous
+    
+    #TEST CASE: Verify the new event is not on this day
+    assert_equal false, calendar.events_list.include?(@event_href)
+    
+    calendar = calendar.next
+    
+    # TEST CASE: Verify new event is back
+    assert calendar.events_list.include?("#{@event_title} - My Workspace"), calendar.events_list.join("\n")
+    
+    calendar = calendar.select_view "Calendar by Week"
+    
+    # TEST CASE: Verify the view has switched to week
+    assert_equal "Calendar by Week", calendar.header 
+
+    calendar = calendar.previous
+    calendar = calendar.earlier
+    calendar = calendar.later
+    
+    #TEST CASE: Verify the new event is not on this week
+    assert_equal false, calendar.events_list.include?(@event_href)
+    
+    calendar = calendar.next
+    
+    # TEST CASE: Verify new event is back
     begin
-        assert @selenium.is_element_present("//th[contains(text(),'Site')]/../td[contains(text(),'1 2 3')]")
+      assert calendar.events_list.include?("#{@event_title} - My Workspace"), calendar.events_list.join("\n")
     rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
+      assert calendar.events_list.include?(@event_href), calendar.events_list.join("\n")
     end
-    @selenium.click "//input[@value='Back to Calendar']"
-    # 
+    
+    calendar = calendar.select_view "Calendar by Month"
+    
+    # TEST CASE: Verify the view has switched to week
+    assert_equal "Calendar by Month", calendar.header 
+
+    calendar = calendar.previous
+    
+    #TEST CASE: Verify the new event is not on this month
+    assert_equal false, calendar.events_list.include?(@event_href)
+    
+    calendar = calendar.next
+    
+    # TEST CASE: Verify new event is back
     begin
-        assert @selenium.is_element_present("//div/h3[contains(text(),'Calendar by Week')]")
+      assert calendar.events_list.include?("#{@event_title} - My Workspace"), calendar.events_list.join("\n")
     rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
+      assert calendar.events_list.include?(@event_href), calendar.events_list.join("\n")
     end
-    begin
-        assert @selenium.is_element_present("//img[@alt='Help']")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.select "//select[@id='view']", "label=Calendar by Day"
-    # 
-    begin
-        assert @selenium.is_element_present("//div/h3[contains(text(),'Calendar by Day')]")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.click "//a[contains(@onclick,'doNew')]"
-    # 
-    @selenium.type "//input[@id='activitytitle']", "Test1"
-    @selenium.select "//select[@id='startHour']", @selenium.get_eval("addhour()")
-    @selenium.select "//select[@id='startAmpm']", @selenium.get_eval("ampmAH()")
-    @selenium.click "//td[@class='TB_Button_Text']"
-    sleep 1
-    @selenium.type "//textarea[@class='SourceField']", "Donec nec felis nec enim porttitor euismod? Proin feugiat elit sit amet arcu. Quisque porttitor."
-    @selenium.click "//td[@class='TB_Button_Text']"
-    @selenium.type "//textarea[@id='location']", "Test location."
-    @selenium.click "//input[@accesskey='s']"
-    # 
-    begin
-        assert @selenium.is_element_present("link=Test1")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.click "//input[@value='< Previous Day']"
-    # 
-    begin
-        assert !@selenium.is_element_present("link=Test1")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.click "//input[@value='Next Day >']"
-    # 
-    begin
-        assert @selenium.is_element_present("link=Test1")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.select "//select[@id='view']", "label=Calendar by Week"
-    # 
-    begin
-        assert @selenium.is_element_present("//div/h3[contains(text(),'Calendar by Week')]")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.click "//input[@value='< Previous Week']"
-    # 
-    begin
-        assert !@selenium.is_element_present("link=Test1")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.click "//input[@value='Next Week >']"
-    # 
-    begin
-        assert @selenium.is_element_present("link=Test1")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.select "//select[@id='view']", "label=Calendar by Month"
-    # 
-    begin
-        assert @selenium.is_element_present("//input[@value='< Previous Month']")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("//input[@value='Next Month >']")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.select "//select[@id='view']", "label=Calendar by Year"
-    # 
-    begin
-        assert @selenium.is_element_present("//input[@value='< Previous Year']")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("//input[@value='Next Year >']")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.select "//select[@id='view']", "label=List of Events"
-    # 
-    @selenium.select "timeFilterOption", "label=All events"
-    # 
-    @selenium.click "link=Test1"
-    # 
-    begin
-        assert @selenium.is_element_present("//td[contains(text(),'Donec nec felis nec enim porttitor euismod? Proin feugiat elit sit amet arcu. Quisque porttitor.')]")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.click "//input[@accesskey='e']"
-    # 
-    @selenium.click "//input[@value='Add Attachments']"
-    # 
-    @selenium.click "link=Show other sites"
-    # 
-    @selenium.click "//a[contains(normalize-space(.),'1 2 3') and contains(normalize-space(.),'Resources')]"
-    # 
-    @selenium.click "link=Attach a copy"
-    # 
-    @selenium.click "//input[@value='Continue']"
-    # 
-    begin
-        assert @selenium.is_element_present("link=resources.doc")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.click "//input[@value='Add/remove attachments']"
-    # 
-    @selenium.click "//a[contains(@href,'doRemoveitem')]"
-    # 
-    @selenium.click "//input[@value='Continue']"
-    # 
-    begin
-        assert !@selenium.is_element_present("link=resources.xls")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.click "//input[@value='Add Attachments']"
-    # 
-    @selenium.type "//input[@id='url']", "http://www.rsmart.com"
-    # 
-    @selenium.click "//input[@value='Continue']"
-    # 
-    @selenium.click "//input[@value='Frequency ']"
-    # 
-    @selenium.select "//select[@id='frequencySelect']", "label=daily"
-    # 
-    @selenium.select "//select[@id='interval']", "label=10"
-    @selenium.click "//input[@accesskey='s']"
-    # 
-    @selenium.click "//input[@value='Save Event']"
-    # 
-    @selenium.click "//input[@name='eventSubmit_doToday']"
-    # 
-    begin
-        assert @selenium.is_element_present("link=Test1")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("link=Printable Version")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.click "//img[@alt='Reset']"
-    # 
-    @selenium.click "//a[contains(@onclick,'doNpagew')]"
-    # 
-    @selenium.click "//a[contains(@onclick,'doCustomize')]"
-    # 
-    begin
-        assert @selenium.is_element_present("//input[@name='eventSubmit_doAddfield']")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("eventSubmit_doUpdate")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.type "textfield", "Test Field"
-    @selenium.click "//input[@name='eventSubmit_doAddfield']"
-    # 
-    begin
-        assert @selenium.is_element_present("addedFields1")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.click "//input[@name='eventSubmit_doUpdate']"
-    # 
-    @selenium.select "//select[@id='view']", "label=List of Events"
-    # 
-    @selenium.click "link=Test1"
-    # 
-    @selenium.click "//input[@accesskey='e']"
-    # 
-    @selenium.type "//textarea[@name='Test Field']", "Ho, ho, ho"
-    @selenium.click "//input[@value='Save Event']"
-    # 
-    @selenium.click "link=Test1"
-    # 
-    begin
-        assert @selenium.is_element_present("//td[contains(text(),'Ho, ho, ho')]")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.click "//a[contains(@onclick,'doCustomize')]"
-    # 
-    @selenium.click "addedFields1"
-    @selenium.click "eventSubmit_doUpdate"
-    # 
-    begin
-        assert @selenium.is_element_present("//div[@class='alertMessage']")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.click "eventSubmit_doUpdate"
-    # 
-    begin
-        assert !@selenium.is_element_present("//td[contains(text(),'Ho, ho, ho')]")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.click "//a[@class='icon-sakai-motd']"
-    # 
-    begin
-        assert @selenium.is_element_present("link=Test1")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.click "link=Logout"
-    # 
-    @selenium.type "eid", "instructor2"
-    @selenium.type "pw", "password"
-    @selenium.click "//input[@value='submit']"
-    # 
-    @selenium.click "//a[contains(@title,'1 2 3')]"
-    # 
-    @selenium.click "//a[@class='icon-sakai-schedule']"
-    # 
-    @selenium.select "//select[@id='view']", "label=Calendar by Month"
-    # 
-    @selenium.click "link=Set as Default View"
-    # 
-    begin
-        assert @selenium.is_element_present("//div[contains(text(),'Alert:  This is now the default view')]")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("//input[@value='< Previous Month']")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.click "link=Logout"
-    # 
-    @selenium.type "eid", "student02"
-    @selenium.type "pw", "password"
-    @selenium.click "//input[@value='submit']"
-    # 
-    @selenium.click "//a[contains(@title,'1 2 3')]"
-    # 
-    @selenium.click "//a[@class='icon-sakai-schedule']"
-    # 
-    begin
-        assert @selenium.is_element_present("//input[@value='< Previous Month']")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.click "link=Logout"
-    # 
+    
+    calendar = calendar.select_view "Calendar by Year"
+    
+    # TEST CASE: Verify the view has switched to week
+    assert_equal "Calendar by Year", calendar.header
+
+    calendar = calendar.select_view "List of Events"
+    calendar.show="All events"
+    
+    event = calendar.open_event @event_title
+    
+    # TEST CASE: Contents of the Description field are as expected.
+    assert_equal @event_message, event.details['Description']
+    
+    edit_event = event.edit
+
+    attach = edit_event.add_attachments
+    
+    attach.show_other_sites
+    attach.open_folder "#{@site_name} Resources"
+    
+    attach = attach.attach_a_copy @attach_file
+    
+    edit_event = attach.continue
+    
+    # TEST CASE: Verify the file is attached.
+    assert edit_event.attachment? @attach_file
+
+    unattach = edit_event.add_remove_attachments
+    unattach.remove_item @attach_file
+    
+    edit_event = unattach.continue
+    
+    # TEST CASE: Verify the file is not attached any more
+    assert_equal false, edit_event.attachment?(@attach_file)
+
+    attach = edit_event.add_attachments
+    attach.url=@url
+    attach.add
+    
+    edit_event = attach.continue
+    
+    frequency = edit_event.frequency
+    
+    frequency.event_frequency=@frequency
+    frequency.interval=@interval
+    
+    edit_event = frequency.save_frequency
+    
+    calendar = edit_event.save_event
+    
+    # TEST CASE: Verify the event is present on the calendar.
+    assert calendar.events_list.include? @event_title
+    
+    fields = calendar.fields
+    fields.field_name=@field_name
+    fields = fields.create_field
+    
+    calendar = fields.save_field_changes
+    
+    calendar = calendar.select_view "List of Events"
+    calendar.show="All events"
+    
+    event = calendar.open_event @event_title
+    
+    edit_event = event.edit
+    
+    edit_event.custom_field_text(@field_name, @new_field_text)
+    
+    calendar = edit_event.save_event
+    
+    event = calendar.open_event @event_title
+    
+    # TEST CASE: Verify custom field contains entered text
+    assert_equal @new_field_text, event.details[@field_name]
+
+    fields = event.fields
+    fields.check_remove(@field_name)
+    
+    fields = fields.save_field_changes
+    
+    # TEST CASE: Verify warning message appears
+    assert_equal @field_alert, fields.alert_box
+    
+    event = fields.save_field_changes
+    
+    # TEST CASE: The custom field has been removed
+    assert_equal nil, event.details[@field_name]
+    
+    my_workspace = event.home
+    
+    # TEST CASE: Verify the event appears below the calendar
+    assert my_workspace.calendar_events.include?(@event_title)
+    
+    @sakai.logout
+    
+    workspace = @sakai.login(@instructor, @ipassword)
+    
+    home = workspace.open_my_site_by_name @site_name
+    
+    calendar = home.calendar
+    calendar.view="Calendar by Month"
+    calendar.set_as_default_view
+    
+    # TEST CASE: Verify alert message about default view appears.
+    assert_equal @view_alert, calendar.alert_box.text
+    
+    #@sakai.logout #FIXME
+    @browser.link(:text=>"Logout").click
+    
+    workspace = @sakai.login(@student1, @spassword)
+    
+    home = workspace.open_my_site_by_name @site_name
+    
+    calendar = home.calendar
+    
+    # TEST CASE: The default view is now by Month
+    assert_equal "Calendar by Month", calendar.header
+    
+    @sakai.logout
     
   end
   

@@ -866,7 +866,7 @@ class SiteSetup
     return titles
   end
   
-  in_frame(:index=>0) do |frame| #FIXME!
+  in_frame(:class=>"portletMainIframe") do |frame| #FIXME!
     select_list(:view, :id=>"view", :frame=>frame)
     button(:clear_search, :value=>"Clear Search", :frame=>frame)
     select_list(:select_page_size, :id=>"selectPageSize", :frame=>frame)

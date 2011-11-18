@@ -81,11 +81,17 @@ class TestGroups < Test::Unit::TestCase
       
       # Randomly pick the number of group members
       num = rand(members.length)
-      
+      if num < 2
+        num = 2
+      end
       # Add num Site Members to the new group
       num.times do |z|
         # Select the random Site Member
-        new_group.site_member_list=members[z].text
+        # The "obsolete element error" problem is forcing the use of naked
+        # Watir code here...
+        @browser.frame(:class=>"portletMainIframe").select(:name=>"siteMembers-selection").select(members[z].text)
+        #new_group.site_member_list=members[z].text
+        #new_group = CreateNewGroup.new(@browser)
       end
       
       # Click the "right" button to move the name

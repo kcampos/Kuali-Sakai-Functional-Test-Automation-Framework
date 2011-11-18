@@ -75,8 +75,8 @@ class TestAnnouncements < Test::Unit::TestCase
 
     # Add an announcement
     ancmnt1 = announcements.add
-    ancmnt1.title=@announcement_1_title
     ancmnt1.body=@announcement_1_body
+    ancmnt1.title=@announcement_1_title
     
     announcements = ancmnt1.add_announcement
     
@@ -104,8 +104,9 @@ class TestAnnouncements < Test::Unit::TestCase
     announcements = preview.return_to_list
     
     ancmnt3 = announcements.add
-    ancmnt3.title=@announcement_3_title
     ancmnt3.body=@announcement_3_body
+    ancmnt3.title=@announcement_3_title
+    
     ancmnt3.select_hide
     
     announcements = ancmnt3.add_announcement
@@ -265,8 +266,8 @@ class TestAnnouncements < Test::Unit::TestCase
     announcements = home.announcements
     
     ancmnt6 = announcements.add
-    ancmnt6.title=@announcement_6_title
     ancmnt6.body=@announcement_6_body
+    ancmnt6.title=@announcement_6_title
     ancmnt6.select_specify_dates
     ancmnt6.check_ending
     ancmnt6.ending_year=last_year
@@ -274,8 +275,8 @@ class TestAnnouncements < Test::Unit::TestCase
     announcements = ancmnt6.add_announcement
     
     ancmnt7 = announcements.add
-    ancmnt7.title=@announcement_7_title
     ancmnt7.body=@announcement_7_body
+    ancmnt7.title=@announcement_7_title
     ancmnt7.select_specify_dates
     ancmnt7.check_beginning
     ancmnt7.check_ending

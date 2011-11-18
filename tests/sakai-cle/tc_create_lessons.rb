@@ -188,7 +188,7 @@ class TestCreateLessons < Test::Unit::TestCase
     add_attach.select_file @sections[5][:file]
 
     new_section6 = add_attach.continue
-
+    
     confirm = new_section6.add
 
     lessons = confirm.finish

@@ -4,12 +4,7 @@
 # == Synopsis
 #
 # This script defines the page classes that are
-# common to both page contexts and so require mindful
-# handling of page object definition, to ensure
-# the objects can always be found regardless of the index
-# of the page frame that contains them.
-#
-# Most classes in this document should NOT use the Page-Object gem.
+# common to both page contexts--within a Site or within My Workspace.
 #
 # Author :: Abe Heward (aheward@rsmart.com)
 
@@ -288,64 +283,19 @@ class AddEditAnnouncements
 end
 
 # The page for attaching files and links to Announcements.
-class AnnouncementsAttach
+class AnnouncementsAttach < AttachPageTools
 
   include ToolsMenu
-  include AttachPageTools
   
-  # Clicks the Add Menu for the specified
-  # folder, then selects the Upload Files
-  # command in the menu that appears.
-  #
-  # It then instantiates the AnnouncementsUploadFiles class.
-  def upload_files_to_folder(folder_name)
-    m_upload_files_to_folder(folder_name)
-    AnnouncementsUploadFiles.new(@browser)
+  def initialize(browser)
+    @browser = browser
+    
+    @@classes= {
+      :this => "AnnouncementsAttach",
+      :parent => "AddEditAnnouncements"
+    }
   end
   
-  # Clicks the "Attach a copy" link for the specified
-  # file, then reinstantiates the Class.
-  # If an alert box appears, the method will call itself again.
-  # Note that this can lead to an infinite loop. Will need to fix later.
-  def attach_a_copy(file_name)
-    m_attach_a_copy(file_name)
-    AnnouncementsAttach.new(@browser)
-  end
-  
-  # Clicks the Create Folders menu item in the
-  # Add menu of the specified folder, then
-  # instantiates the AnnouncementsCreateFolders class.
-  def create_subfolders_in(folder_name)
-    m_create_subfolders_in(folder_name)
-    AnnouncementsCreateFolders.new(@browser)
-  end
-  
-  # Selects the menu of the specified resource, then
-  # clicks on the Edit Details menu item, then
-  # instantiates the AnnouncementsEditFileDetails page class.
-  def edit_details(name) #FIXME
-    m_edit_details(name)
-    AnnouncementsEditFileDetails.new(@browser)
-  end
- 
-  # Takes the specified array object containing pointers
-  # to local file resources, then uploads those files to
-  # the folder specified, checks if they all uploaded properly and
-  # if not, re-tries the ones that failed the first time.
-  #
-  # Finally, it re-instantiates the AnnouncementsAttach page class.
-  def upload_multiple_files_to_folder(folder, file_array)
-    m_upload_multiple_files_to_folder(folder, file_array)
-    AnnouncementsAttach.new(@browser)
-  end
-
-  # Clicks the Continue button, then
-  # instantiates the AddEditAnnouncements Class.
-  def continue
-    m_continue
-    AddEditAnnouncements.new(@browser)
-  end
-
 end
 
 # Page for merging announcements from other sites
@@ -375,6 +325,23 @@ end
 # Calendar Pages
 #================
 
+module CalendarTools
+  
+  #
+  def add_event
+    frm.link(:text=>"Add").click
+    frm.frame(:id, "description___Frame").td(:id, "xEditingArea").frame(:index=>0).wait_until_present
+    AddEditEvent.new(@browser)
+  end
+  
+  #
+  def fields
+    frm.link(:text=>"Fields").click
+    AddEditFields.new(@browser)
+  end
+  
+end
+
 # Top page of the Calendar
 # For now it includes all views, though that probably
 # means it will have to be re-instantiated every time
@@ -383,8 +350,20 @@ class Calendar
   
   include PageObject
   include ToolsMenu
+  include CalendarTools
+  
+  # Selects the specified item in the View select list,
+  # then reinstantiates the Class.
+  def select_view(item)
+    frm.select(:id=>"view").select(item)
+    Calendar.new(@browser)
+  end
   
   # Selects the specified item in the View select list.
+  # This is the same method as the select_view method, except
+  # that it does not reinstantiate the class. Use this if you're
+  # not concerned about throwing obsolete element errors when
+  # the page updates.
   def view=(item)
     frm.select(:id=>"view").select(item)
   end
@@ -392,6 +371,36 @@ class Calendar
   # Selects the specified item in the Show select list.
   def show=(item)
     frm.select(:id=>"timeFilterOption").select(item)
+  end
+  
+  # Returns the text of the Calendar's header.
+  def header
+    frm.div(:class=>"portletBody").h3.text
+  end
+  
+  # This is the alert box object. If you want to
+  # get the text contents of the alert box, use
+  # alert_box.text. That will get you a string object
+  # that is the text contents.
+  def alert_box
+    frm.div(:class=>"alertMessage")
+  end
+  
+  # Clicks the link to the specified event, then
+  # instantiates the EventDetail class.
+  def open_event(title)
+    truncated = title[0..5]
+    frm.link(:text=>/#{Regexp.escape(truncated)}/).click
+    EventDetail.new(@browser)
+  end
+  
+  # Returns the href value of the target link
+  # use for validation when you are testing whether the link
+  # will appear again on another screen, since often times
+  # validation by title text alone will not work.
+  def event_href(title)
+    truncated = title[0..5]
+    return frm.link(:text=>/#{Regexp.escape(truncated)}/).href
   end
   
   def show_events=(item)
@@ -443,16 +452,293 @@ class Calendar
     Calendar.new(@browser)
   end
   
-  # Returns an array of the displayed event descriptions when
-  # viewing a list of events.
+  # Returns an array of the titles of the displayed events.
+  def event_list
+    events_list
+  end
+  
+  # Returns an array for the listed events.
+  # This array contains more than simply strings of the event titles, because
+  # often the titles are truncated to fit on the screen. In addition, getting the "title"
+  # tag of the link is often problematic because titles can contain double-quotes, which
+  # will mess up the HTML of the anchor tag (there is probably an XSS vulnerability to
+  # exploit, there. This should be extensively tested.).
+  #
+  # Because of these issues, the array contains the title tag, the anchor text, and
+  # the entire href string for every event listed on the page. Having all three items
+  # available should ensure that verification steps don't give false results--especially
+  # when you are doing a negative test (checking that an event is NOT present).
   def events_list
     list = []
-    events_table = frm.table(:class=>"listHier lines nolines")
+    if frm.table(:class=>"calendar").exist?
+      events_table = frm.table(:class=>"calendar")
+    else
+      events_table = frm.table(:class=>"listHier lines nolines")
+    end
     links = events_table.links.find_all { |link| link.href=~/Description/ }
-    links.each { |link| list << link.text }
+    if links == []
+      links = events_table.links.find_all { |link| link.html=~/action.doDescription/ }
+    end
+    links.each do |link|
+      list << link.title
+      list << link.text
+      list << link.href
+      list << link.html[/(?<="location=').+doDescription/]
+    end
+    list.compact!
+    list.uniq!
     return list
   end
-   
+  
+  # Clicks the "Previous X" button, where X might be Day, Week, or Month,
+  # then reinstantiates the Calendar class to ensure against any obsolete element
+  # errors.
+  def previous
+    frm.button(:name=>"eventSubmit_doPrev").click
+    Calendar.new(@browser)
+  end
+  
+  # Clicks the "Next X" button, where X might be Day, Week, or Month,
+  # then reinstantiates the Calendar class to ensure against any obsolete element
+  # errors.
+  def next
+    frm.button(:name=>"eventSubmit_doNext").click
+    Calendar.new(@browser)
+  end
+  
+  # Clicks the "Today" button and reinstantiates the class.
+  def today
+    frm.button(:value=>"Today").click
+    Calendar.new(@browser)
+  end
+  
+  def earlier
+    frm().link(:text=>"Earlier").click
+    Calendar.new(@browser)
+  end
+  
+  def later
+    frm().link(:text=>"Later").click
+    Calendar.new(@browser)
+  end
+  
+  # Clicks the "Set as Default View" button
+  def set_as_default_view
+    frm.link(:text=>"Set as Default View").click
+  end
+  
+end
+
+# The page that appears when you click on an event in the Calendar
+class EventDetail
+  
+  include PageObject
+  include ToolsMenu
+  include CalendarTools
+  
+  # Clicks the Go to Today button, then instantiates
+  # the Calendar class.
+  def go_to_today
+    frm.button(:value=>"Go to Today").click
+    Calendar.new(@browser)
+  end
+    
+  def back_to_calendar
+    frm.button(:value=>"Back to Calendar").click
+    Calendar.new(@browser)
+  end
+
+  def last_event
+    frm().button(:value=>"< Last Event").click
+    EventDetail.new(@browser)
+  end
+  
+  def next_event
+    frm().button(:value=>"Next Event >").click
+    EventDetail.new(@browser)
+  end
+  
+  def event_title
+    frm.div(:class=>"portletBody").h3.text
+  end
+  
+  def edit
+    frm.button(:value=>"Edit").click
+    AddEditEvent.new(@browser)
+  end
+  
+  def remove_event
+    frm.button(:value=>"Remove event").click
+    DeleteConfirm.new(@browser)
+  end
+  
+  # Returns a hash object containing the contents of the event details
+  # table on the page, with each of the header column items as a Key
+  # and the associated data column as the corresponding Value.
+  def details
+    details = {}
+    frm.table(:class=>"itemSummary").rows.each do |row|
+      details.store(row.th.text, row.td.text)
+    end
+    return details
+  end
+  
+end
+
+# 
+class AddEditEvent
+  
+  include PageObject
+  include ToolsMenu
+  
+  #
+  def save_event
+    frm.button(:value=>"Save Event").click
+    Calendar.new(@browser)
+  end
+  #
+  def message=(text)
+    frm.frame(:id, "description___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(text)
+  end
+  
+  # The FCKEditor object. Use this method to set up a "wait_until_present"
+  # step, since sometimes it takes a long time for this object to load.
+  def message_editor
+    frm.frame(:id, "description___Frame").td(:id, "xEditingArea").frame(:index=>0)
+  end
+  
+  def frequency
+    frm.button(:name=>"eventSubmit_doEditfrequency").click
+    EventFrequency.new(@browser)
+  end
+  
+  def add_attachments
+    frm.button(:value=>"Add Attachments").click
+    EventAttach.new(@browser)
+  end
+  
+  def add_remove_attachments
+    frm.button(:value=>"Add/remove attachments").click
+    EventAttach.new(@browser)
+  end
+  
+  # Returns true if the page has a link with the
+  # specified file name. Use for test case asserts.
+  def attachment?(file_name)
+    frm.link(:text=>file_name).exist?
+  end
+  
+  # Use this method to enter text into custom fields
+  # on the page. The "field" variable is the name of the
+  # field, while the "text" is the string you want to put into
+  # it.
+  def custom_field_text(field, text)
+    frm.text_field(:name=>field).set(text)
+  end
+  
+  in_frame(:class=>"portletMainIframe") do |frame|
+    text_field(:title, :id=>"activitytitle", :frame=>frame)
+    select_list(:month, :id=>"month", :frame=>frame)
+    select_list(:day, :id=>"day", :frame=>frame)
+    select_list(:year, :id=>"yearSelect", :frame=>frame)
+    select_list(:start_hour, :id=>"startHour", :frame=>frame)
+    select_list(:start_minute, :id=>"startMinute", :frame=>frame)
+    select_list(:start_meridian, :id=>"startAmpm", :frame=>frame)
+    select_list(:hours, :id=>"duHour", :frame=>frame)
+    select_list(:minutes, :id=>"duMinute", :frame=>frame)
+    select_list(:end_hour, :id=>"endHour", :frame=>frame)
+    select_list(:end_minute, :id=>"endMinute", :frame=>frame)
+    select_list(:end_meridian, :id=>"endAmpm", :frame=>frame)
+    radio_button(:display_to_site, :id=>"site", :frame=>frame)
+    select_list(:event_type, :id=>"eventType", :frame=>frame)
+    text_area(:location, :name=>"location", :frame=>frame)
+  end
+end
+
+# 
+class EventAttach < AttachPageTools
+
+  include ToolsMenu
+  
+  def initialize(browser)
+    @browser = browser
+    
+    @@classes = {
+      :this=>"EventAttach",
+      :parent=>"AddEditEvent"
+    }
+  end
+
+end
+
+# The page that appears when the Frequency button is clicked on the Add/Edit
+# Event page.
+class EventFrequency
+  
+  include PageObject
+  include ToolsMenu
+  
+  def save_frequency
+    frm.button(:value=>"Save Frequency").click
+    AddEditEvent.new(@browser)
+  end
+  
+  def cancel
+    frm.button(:value=>"Cancel").click
+    AddEditEvent.new(@browser)
+  end
+
+  in_frame(:class=>"portletMainIframe") do |frame|
+    select_list(:event_frequency, :id=>"frequencySelect", :frame=>frame)
+    select_list(:interval, :id=>"interval", :frame=>frame)
+    select_list(:ends_after, :name=>"count", :frame=>frame)
+    select_list(:ends_month, :id=>"endMonth", :frame=>frame)
+    select_list(:ends_day, :id=>"endDay", :frame=>frame)
+    select_list(:ends_year, :id=>"endYear", :frame=>frame)
+    radio_button(:after, :id=>"count", :frame=>frame)
+    radio_button(:on, :id=>"till", :frame=>frame)
+    radio_button(:never, :id=>"never", :frame=>frame)
+  end
+end
+
+# 
+class AddEditFields
+  
+  include PageObject
+  include ToolsMenu
+  
+  # Clicks the Save Field Changes buton and instantiates
+  # The Calendar or EventDetail class--unless the Alert Message box appears,
+  # in which case it re-instantiates the class.
+  def save_field_changes
+    frm.button(:value=>"Save Field Changes").click
+    if frm.div(:class=>"alertMessage").exist?
+      AddEditFields.new(@browser)
+    elsif frm.button(:value=>"Back to Calendar").exist?
+      EventDetail.new(@browser)
+    else
+      Calendar.new(@browser)
+    end
+  end
+  
+  # Returns a string of the contents of the Alert box.
+  def alert_box
+    frm.div(:class=>"alertMessage").text
+  end
+  
+  def create_field
+    frm.button(:value=>"Create Field").click
+    AddEditFields.new(@browser)
+  end
+
+  # Checks the checkbox for the specified field
+  def check_remove(field_name)
+    frm.table(:class=>/listHier lines/).row(:text=>/#{Regexp.escape(field_name)}/).checkbox.set
+  end
+
+  in_frame(:class=>"portletMainIframe") do |frame|
+    text_field(:field_name, :id=>"textfield", :frame=>frame)
+  end
 end
 
 
@@ -525,10 +811,9 @@ class MyWorkspace
   # method for identifying them, but for now it's our
   # only option because both the <id> and <name>
   # tags are unique for every site.
-  in_frame(:index=>2) do |frame|
+  in_frame(:class=>"portletMainIframe") do |frame|
     # Calendar Options button
     link(:calendar_options, :text=>"Options", :frame=>frame)
-  
   end
   
   in_frame(:index=>1) do |frame|
@@ -547,6 +832,16 @@ class MyWorkspace
     button(:first, :name=>"eventSubmit_doList_first", :frame=>frame)
   end
   
+  # Returns an array of strings of the Calendar Events listed below
+  # the Calendar
+  def calendar_events
+    events = []
+    @browser.frame(:class=>"portletMainIframe", :index=>2).table(:id=>"calendarForm:datalist_event_list").rows.each do |row|
+      events << row.link.text
+    end
+    return events
+  end
+  
   # The MyWorkspace class should ONLY be instantiated when
   # the user context is NOT a given site or Administration Workspace.
   # Otherwise the frame index will not be 0, and page objects
@@ -558,52 +853,6 @@ end
 #================
 # Resources Pages 
 #================
-
-# Resources page for a given Site, in the Course Tools menu
-class Resources
-
-  include ToolsMenu
-  include AttachPageTools
-  
-  # Clicks the Add Menu for the specified
-  # folder, then selects the Upload Files
-  # command in the menu that appears.
-  #
-  # It then instantiates the ResourcesUploadFiles class.
-  def upload_files_to_folder(folder_name)
-    frm.table(:class=>"listHier lines centerLines").row(:text=>/#{Regexp.escape(folder_name)}/).link(:text=>"Start Add Menu").fire_event("onfocus")
-    frm.table(:class=>"listHier lines centerLines").row(:text=>/#{Regexp.escape(folder_name)}/).link(:text=>"Upload Files").click
-    ResourcesUploadFiles.new(@browser)
-  end
-  
-  # Clicks the Create Folders menu item in the
-  # Add menu of the specified folder, then
-  # instantiates the CreateFolders class.
-  def create_subfolders_in(folder_name)
-    m_create_subfolders_in(folder_name)
-    CreateFolders.new(@browser)
-  end
-  
-  # Selects the menu of the specified resource, then
-  # clicks on the Edit Details menu item, then
-  # instantiates the EditFileDetails page class.
-  def edit_details(name) #FIXME
-    m_edit_details(name)
-    EditFileDetails.new(@browser)
-  end
- 
-  # Takes the specified array object containing pointers
-  # to local file resources, then uploads those files to
-  # the folder specified, checks if they all uploaded properly and
-  # if not, re-tries the ones that failed the first time.
-  #
-  # Finally, it instantiates the Resources page class.
-  def upload_multiple_files_to_folder(folder, file_array)
-    m_upload_multiple_files_to_folder(folder, file_array)
-    Resources.new(@browser)
-  end
-
-end
 
 # New class template. For quick class creation...
 class ResourcesUploadFiles
@@ -710,6 +959,25 @@ class CreateFolders #FIXME - Need to add functions for adding multiple folders
     frm.text_field(:id=>"content_0").set(name)
   end
 
+end
+
+# Resources page for a given Site, in the Course Tools menu
+class Resources < AttachPageTools
+
+  include ToolsMenu
+  
+  def initialize(browser)
+    @browser = browser
+    
+    @@classes = {
+      :this=>             "Resources",
+      :parent =>          "Resources",
+      :file_details =>    "EditFileDetails",
+      :create_folders =>  "CreateFolders",
+      :upload_files =>    "ResourcesUploadFiles"
+    }
+  end
+  
 end
 
 
