@@ -1175,7 +1175,7 @@ class AssignmentAdd
     AssignmentAttachments.new(@browser)
   end
   
-  in_frame(:index=>1) do |frame|
+  in_frame(:class=>"portletMainIframe") do |frame|
     hidden_field(:assignment_id, :name=>"assignmentId", :frame=>frame)
     link(:assignment_list, :text=>"Assignment List", :frame=>frame)
     link(:grade_report, :text=>"Grade Report", :frame=>frame)
@@ -1274,50 +1274,6 @@ class AssignmentAdd
   
 end
 
-# Page for attaching files to Assignments
-class AssignmentAttachments
-  
-  include PageObject
-  include ToolsMenu
-  include AttachPageTools
-  
-  # Enters the specified file (assuming it's in the
-  # data/sakai-cle folder or a subfolder therein)
-  # into the file field, then re-instantiates the
-  # AssignmentAttachments page class to ensure
-  # against the ObsoleteElement error.
-  def upload_local_file(filename)
-    m_upload_local_file(filename)
-    AssignmentAttachments.new(@browser)
-  end
-  
-  # Clicks the Continue button then
-  # decides which page class to instantiate
-  # based on the page that appears.
-  def continue
-    frm.div(:class=>"highlightPanel").span(:id=>"submitnotifxxx").wait_while_present
-    m_continue
-    if frm.div(:class=>"portletBody").h3.text=~/In progress/
-      AssignmentStudent.new(@browser)
-    elsif frm.div(:class=>"portletBody").h3.text=~/edit/
-      AssignmentAdd.new(@browser)
-    elsif frm.form(:id=>"gradeForm").exist?
-      AssignmentSubmission.new(@browser)
-    else
-      AssignmentAdd.new(@browser)
-    end
-  end
-  
-  # Opens the file menu for the specified folder
-  # then clicks on the menu option "Upload Files",
-  # then instantiates the StylesUploadFiles page class.
-  def upload_files_to_folder(folder_name)
-    m_upload_files_to_folder(folder_name)
-    StylesUploadFiles.new(@browser)
-  end
-  
-end
-
 # Page that appears when you first click the Assignments link
 class AssignmentsList
   
@@ -1338,34 +1294,19 @@ class AssignmentsList
   # Returns an array of the displayed assignment titles.
   # Use for verification of test steps.
   def assignment_titles
-    titles = []
-    a_table = @browser.frame(:index=>1).table(:class=>"listHier lines nolines")
-    1.upto(a_table.rows.size-1) do |x|
-      titles << a_table[x][1].h4(:index=>0).text
-    end
-    return titles
+    assignments_titles
   end
   
   # Returns an array of the displayed assignment titles.
   # Use for verification of test steps.
   def assignment_list
-    titles = []
-    a_table = @browser.frame(:index=>1).table(:class=>"listHier lines nolines")
-    1.upto(a_table.rows.size-1) do |x|
-      titles << a_table[x][1].h4(:index=>0).text
-    end
-    return titles
+    assignments_titles
   end
   
   # Returns an array of the displayed assignment titles.
   # Use for verification of test steps.
   def assignments_list
-    titles = []
-    a_table = @browser.frame(:index=>1).table(:class=>"listHier lines nolines")
-    1.upto(a_table.rows.size-1) do |x|
-      titles << a_table[x][1].h4(:index=>0).text
-    end
-    return titles
+    assignments_titles
   end
   
   # Clicks the Add link, then instantiates
@@ -1442,9 +1383,10 @@ class AssignmentsList
   # view based on the landing page attributes
   def open_assignment(assignment_name)
     frm.link(:text=>assignment_name).click
-    if frm.div(:class=>"portletBody").h3.text=="Viewing assignment..."
+    if frm.div(:class=>"portletBody").h3.text=="Viewing assignment..." || frm.div(:class=>"portletBody").h3.text.include?("Submitted")
       AssignmentsPreview.new(@browser)
     else
+      frm.frame(:id, "Assignment.view_submission_text___Frame").td(:id, "xEditingArea").frame(:index=>0).wait_until_present
       AssignmentStudent.new(@browser)
     end
   end
@@ -1452,7 +1394,7 @@ class AssignmentsList
   # Gets the contents of the status column
   # for the specified assignment
   def status_of(assignment_name)
-    frm.table(:class=>"listHier lines nolines").row(:text=>/#{Regexp.escape(assignment_name)}/)[3].text
+    frm.table(:class=>/listHier lines/).row(:text=>/#{Regexp.escape(assignment_name)}/).td(:headers=>"status").text
   end
   
   # Clicks the View Submissions link for the specified
@@ -1587,64 +1529,30 @@ class AssignmentsPreview
   include PageObject
   include ToolsMenu
   
-  # Grabs the text in the created by cell.
-  def created_by
-    frm.table(:class=>"itemSummary")[0][1].text
+  # Returns the text content of the page header
+  def header
+    frm.div(:class=>"portletBody").h3.text
   end
   
-  # Grabs the text in the modified by cell.
-  def modified
-    frm.table(:class=>"itemSummary")[1][1].text
-  end
-  
-  # Grabs the text of the "Open" cell.
-  def open
-    frm.table(:class=>"itemSummary")[2][1].text
-  end
-  
-  # Grabs the text in the "Due" cell.
-  def due
-    frm.table(:class=>"itemSummary")[3][1].text
-  end
-  
-  # Grabs the text in the "Accept until" cell.
-  def accept_until
-    frm.table(:class=>"itemSummary")[4][1].text
-  end
-  
-  # Grabs the text in the "Student Submissions" cell.
-  def student_submissions
-    frm.table(:class=>"itemSummary")[5][1].text
-  end
-  
-  # Grabs the text in the "Grade Scale" cell.
-  def grade_scale
-    frm.table(:class=>"itemSummary")[6][1].text
-  end
-  
-  # Grabs the text in the "Add Due Date" cell.
-  def add_due_date
-    frm.table(:class=>"itemSummary")[7][1].text
-  end
-  
-  # Grabs the text in the "Announce Open Date" cell.
-  def announce_open_date
-    frm.table(:class=>"itemSummary")[8][1].text
-  end
-  
-  # Grabs the text in the "Honor Pledge" cell.
-  def honor_pledge
-    frm.table(:class=>"itemSummary")[9][1].text
-  end
-  
-  # Grabs the text in the "Add to Gradebook" cell.
-  def add_to_gradebook
-    frm.table(:class=>"itemSummary")[10][1].text
+  # Returns a hash object containing the contents of the Item Summary table.
+  # The hash's Key is the header column and the value is the content column.
+  def item_summary
+    hash = {}
+    frm.table(:class=>"itemSummary").rows.each do |row|
+      hash.store(row.th.text, row.td.text)
+    end
+    return hash
   end
   
   # Grabs the Assignment Instructions text.
   def assignment_instructions
     frm.div(:class=>"textPanel").text
+  end
+  
+  #
+  def back_to_list
+    frm.button(:value=>"Back to list").click
+    AssignmentsList.new(@browser)
   end
   
   # Clicks the Post button, then instantiates
@@ -1664,7 +1572,6 @@ class AssignmentsPreview
   in_frame(:index=>1) do |frame|
     hidden_field(:assignment_id, :name=>"assignmentId", :frame=>frame)
     link(:assignment_list, :text=>"Assignment List", :frame=>frame)
-    link(:student_view, :text=>"Student View", :frame=>frame)
     link(:permissions, :text=>"Permissions", :frame=>frame)
     link(:options, :text=>"Options", :frame=>frame)
     link(:hide_assignment, :href=>/doHide_preview_assignment_assignment/, :frame=>frame)
@@ -1722,29 +1629,19 @@ class AssignmentStudent
   include PageObject
   include ToolsMenu
   
-  # Grabs the "Title" cell's text.
-  def title
-    frm.table(:class=>"itemSummary")[0][1].text
+  # Returns the text content of the page header
+  def header
+    frm.div(:class=>"portletBody").h3.text
   end
   
-  # Grabs the text in the "Due" cell.
-  def due
-    frm.table(:class=>"itemSummary")[0][2].text
-  end
-  
-  # Grabs the text in the "Status" cell.
-  def status
-    frm.table(:class=>"itemSummary")[0][3].text
-  end
-  
-  # Grabs the text in the "Grade Scale" cell.
-  def grade_scale
-    frm.table(:class=>"itemSummary")[0][4].text
-  end
-  
-  # Grabs the text in the "Modified" cell.
-  def modified
-    frm.table(:class=>"itemSummary")[0][5].text
+  # Returns a hash object containing the contents of the Item Summary table.
+  # The hash's Key is the header column and the value is the content column.
+  def item_summary
+    hash = {}
+    frm.table(:class=>"itemSummary").rows.each do |row|
+      hash.store(row.th.text, row.td.text)
+    end
+    return hash
   end
   
   # Grabs the instructor comments text.
@@ -1805,12 +1702,11 @@ class AssignmentStudent
   def resubmit
     frm.button(:value=>"Resubmit").click
     @@file_number=0
-    if frm.div(:class=>"portletBody").h3.text=~/Submission Confirmation/
-      SubmissionConfirmation.new(@browser)
-    elsif frm.button(:value=>"Back to list").exist?
-      SubmissionConfirmation.new(@browser)
-    else
+    if frm.link(:text=>"Assignment title").exist?
+      puts "list..."
       AssessmentsList.new(@browser)
+    else
+      SubmissionConfirmation.new(@browser)
     end
   end
   
@@ -1921,6 +1817,7 @@ class SubmissionConfirmation
   # instantiates the AssignmentsList page class.
   def back_to_list
     frm.button(:value=>"Back to list").click
+    frm.link(:text=>"Assignment title").wait_until_present
     AssignmentsList.new(@browser)
   end
 end
@@ -1957,6 +1854,7 @@ class AssignmentSubmissionList
   # instantiates the AssignmentSubmission page class.
   def grade(student_name)
     frm.table(:class=>"listHier lines nolines").row(:text=>/#{Regexp.escape(student_name)}/).link(:text=>"Grade").click
+    frm.frame(:id, "grade_submission_feedback_comment___Frame").td(:id, "xEditingArea").frame(:index=>0).wait_until_present
     AssignmentSubmission.new(@browser)
   end
   
@@ -2045,7 +1943,7 @@ class AssignmentSubmission
     AssignmentSubmissionList.new(@browser)
   end
   
-  in_frame(:index=>1) do |frame|
+  in_frame(:class=>"portletMainIframe") do |frame|
     select_list(:select_default_grade, :name=>"grade_submission_grade", :frame=>frame)
     checkbox(:allow_resubmission, :id=>"allowResToggle", :frame=>frame)
     select_list(:num_resubmissions, :id=>"allowResubmitNumberSelect", :frame=>frame)
@@ -2055,6 +1953,7 @@ class AssignmentSubmission
     select_list(:accept_until_hour, :id=>"allow_resubmit_closeHour", :frame=>frame)
     select_list(:accept_until_min, :id=>"allow_resubmit_closeMin", :frame=>frame)
     select_list(:accept_until_meridian, :id=>"allow_resubmit_closeAMPM", :frame=>frame)
+    button(:save_and_release, :value=>"Save and Release to Student", :frame=>frame)
     button(:save_and_dont_release, :value=>"Save and Don't Release to Student", :frame=>frame)
   end
 
@@ -2103,6 +2002,23 @@ class StudentView
 
 end
 
+# Page for attaching files to Assignments
+class AssignmentAttachments < AttachPageTools
+  
+  include ToolsMenu
+  
+  def initialize(browser)
+    @browser = browser
+    
+    @@classes = {
+      :this => "AssignmentAttachments",
+      :parent => "AssignmentAdd",
+      :second => "AssignmentStudent",
+      :third => "AssignmentSubmission"
+    }
+  end
+  
+end
 
 #================
 # Blogger Pages
@@ -2818,15 +2734,16 @@ class ImportForms
   
 end
 
-class AttachFileFormImport
+class AttachFileFormImport < AttachPageTools
   
-  include PageObject
   include ToolsMenu
-  include AttachPageTools
   
-  def continue
-    m_continue
-    ImportForms.new(@browser)
+  def initialize(browser)
+    @browser = browser
+    @@classes = {
+      :this => "AttachFileFormImport",
+      :parent => "ImportForms"
+    }
   end
 
 end
@@ -3179,31 +3096,6 @@ class EditForum
   end
 end
 
-class ForumsAddAttachments
-  
-  include PageObject
-  include ToolsMenu
-  include AttachPageTools
-  
-  def continue
-    m_continue
-    sleep 2 #FIXME
-    frm.div(:class=>"portletBody").h3(:index=>0).wait_until_present
-    title = frm.div(:class=>"portletBody").h3(:index=>0).text
-    # Need logic because new page will be different
-    if title=="Topic Settings"
-      AddEditTopic.new(@browser)
-    elsif title=="Forum Settings"
-      EditForum.new(@browser)
-    end
-  end
-  
-  def upload_file=(file_name)
-    m_upload_local_file(file_name)
-  end
-
-end
-
 class AddEditTopic
   
   include PageObject
@@ -3254,6 +3146,23 @@ class AddEditTopic
     text_field(:title, :id=>"revise:topic_title", :frame=>frame)
     text_area(:short_description, :id=>"revise:topic_shortDescription", :frame=>frame)
   end
+end
+
+#
+class ForumsAddAttachments < AttachPageTools
+  
+  include ToolsMenu
+  
+  def initialize(browser)
+    @browser = browser
+    
+    @@classes = {
+      :this => "ForumsAddAttachments",
+      :parent => "AddEditTopic",
+      :second => "EditForum"
+    } 
+  end
+
 end
 
 
@@ -3348,29 +3257,6 @@ class GlossaryImport
 
 end
 
-# Page for uploading or grabbing files that will be imported to the Glossary.
-class GlossaryAttach
-  
-  include PageObject
-  include ToolsMenu
-  include AttachPageTools
-  
-  def upload_file_to_folder(folder_name)
-    m_upload_files_to_folder(folder_name)
-    GlossaryFileUpload.new(@browser)
-  end
-  
-  def continue
-    m_continue
-    if frm.div(:class=>"portletBody").h3(:text=>"Import Glossary Terms").exist?
-      GlossaryImport.new(@browser)
-    else
-      # huh?
-    end
-  end
-
-end
-
 # The file upload page for Glossary importing
 class GlossaryFileUpload
   
@@ -3396,6 +3282,25 @@ class GlossaryFileUpload
   
   def add_another_file
     frm.link(:text=>"Add Another File").click
+  end
+  
+end
+
+# Page for uploading or grabbing files that will be imported to the Glossary.
+class GlossaryAttach < AttachPageTools
+
+  include ToolsMenu
+
+  def initialize(browser)
+    @browser = browser
+    
+    @@classes = {
+      :this => "GlossaryAttach",
+      :parent => "GlossaryImport",
+      :upload_files => "GlossaryFileUpload",
+      :create_folders => "",
+      :file_details => ""
+    }
   end
   
 end
@@ -3775,24 +3680,19 @@ class SelectingContent
 end
 
 # 
-class LessonAddAttachment
-  
-  include PageObject
+class LessonAddAttachment < AttachPageTools
+
   include ToolsMenu
-  include AttachPageTools
   
-  # Clicks the Continue button on the page
-  # and instantiates the AddSection class.
-  #
-  # Note that it assumes the Continue button is present
-  # and available.
-  def continue
-    m_continue
-    AddEditSection.new(@browser)
+  def initialize(browser)
+    @browser = browser
+    @@classes = {
+      :this => "LessonAddAttachment",
+      :parent => "AddEditSection"
+    }
   end
 
 end
-
 
 #================
 # Matrix Pages for a Portfolio Site
@@ -4651,29 +4551,18 @@ class ForwardMessage
 end
 
 # The attachment page for Messages
-class MessagesAttachment
-  
-  include PageObject
-  include ToolsMenu
-  include AttachPageTools
-  
-  def continue
-    m_continue
-    # Logic for determining which class to call...
-    if frm.div(:class=>/breadCrumb/).text =~ /Messages \/ Compose/
-      ComposeMessage.new(@browser)
-    elsif frm.div(:class=>/breadCrumb/).text =~ /Reply to Message/
-      ReplyToMessage.new(@browser)
-    end
-    
-  end
-  
-  def upload_file(filename)
-    m_upload_local_file(filename)
-  end
+class MessagesAttachment < AttachPageTools
 
-  def attach_a_copy(filename)
-    m_attach_a_copy(file_name)
+  include ToolsMenu
+  
+  def initialize(browser)
+    @browser = browser
+    
+    @@classes = {
+      :this => "MessagesAttachment",
+      :parent => "ComposeMessage",
+      :second => "ReplyToMessage"
+    }
   end
 
 end
@@ -4841,51 +4730,6 @@ class BuildTemplate
   end
 end
 
-# 
-class PortfolioAttachFiles
-  
-  include PageObject
-  include ToolsMenu
-  include AttachPageTools
-  
-  # Clicks the Add Menu for the specified
-  # folder, then selects the Upload Files
-  # command in the menu that appears.
-  #
-  # It then instantiates the ResourcesUploadFiles class.
-  def upload_files_to_folder(folder_name)
-    m_upload_files_to_folder(folder_name)
-    PortfoliosUploadFiles.new(@browser)
-  end
-  
-  # Clicks the Continue button then instantiates
-  # the appropriate class based on what page gets loaded next.
-  def continue
-    m_continue
-    if frm.div(:class=>"portletBody").h3.text=="Select supporting files"
-      SupportingFilesPortfolio.new(@browser)
-    elsif frm.div(:class=>"portletBody").h3.text=="Build Template"
-      BuildTemplate.new(@browser)
-    end
-  end
-
-  # Clicks the Create Folders menu item in the
-  # Add menu of the specified folder, then
-  # instantiates the CreateFolders class.
-  def create_subfolders_in(folder_name)
-    m_create_subfolders_in(folder_name)
-    #FIXME
-  end
-  
-  # Clicks the Edit Details menu item for the specified file or folder,
-  # then instantiates the XXXX Class.
-  def edit_details(name) #FIXME
-    m_edit_details(name)
-    #FIXME
-  end
-  
-end
-
 #
 class PortfoliosUploadFiles
   
@@ -4968,6 +4812,25 @@ class SupportingFilesPortfolio
   end
 end
 
+# 
+class PortfolioAttachFiles < AttachPageTools
+
+  include ToolsMenu
+  
+  def initialize(browser)
+    @browser = browser
+    
+    @@classes = {
+      :this =>          "PortfolioAttachFiles",
+      :parent =>        "BuildTemplate",
+      :second =>        "SupportingFilesPortfolio",
+      :upload_files =>  "PortfoliosUploadFiles",
+      :create_folders =>"",
+      :file_details =>  ""
+    }
+  end
+  
+end
 
 #================
 # Sections Pages for a Site
@@ -5302,11 +5165,11 @@ class CreateNewGroup
     Groups.new(@browser)
   end
   
-  in_frame(:index=>1) do |frame|
+  in_frame(:class=>"portletMainIframe") do |frame|
     text_field(:title, :id=>"group_title", :frame=>frame)
     text_field(:description, :id=>"group_description", :frame=>frame)
-    select_list(:site_member_list, :id=>"siteMembers-selection", :frame=>frame)
-    select_list(:group_member_list, :id=>"groupMembers-selection", :frame=>frame)
+    select_list(:site_member_list, :name=>"siteMembers-selection", :frame=>frame)
+    select_list(:group_member_list, :name=>"groupMembers-selection", :frame=>frame)
     button(:right, :name=>"right", :index=>0, :frame=>frame)
     button(:left, :name=>"left", :index=>0, :frame=>frame)
     button(:all_right, :name=>"right", :index=>1, :frame=>frame)
@@ -5366,30 +5229,6 @@ class AddStyle
 end
 
 # 
-class StylesAddAttachment
-  
-  include PageObject
-  include ToolsMenu
-  include AttachPageTools
-  
-  # Clicks the Continue button and
-  # instantiates the AddStyle Class.
-  def continue
-    m_continue
-    AddStyle.new(@browser)
-  end
-
-  # Clicks the Upload Files menu item for the
-  # specified folder name. Then instantiates the
-  # StylesUploadFiles Class.
-  def upload_files_to_folder(foldername)
-    m_upload_files_to_folder(foldername)
-    StylesUploadFiles.new(@browser)
-  end
-
-end
-
-# 
 class StylesUploadFiles
   
   include ToolsMenu
@@ -5417,6 +5256,25 @@ class StylesUploadFiles
   # Clicks the "Add Another File" link.
   def add_another_file
     frm.link(:text=>"Add Another File").click
+  end
+  
+end
+
+# 
+class StylesAddAttachment < AttachPageTools
+
+  include ToolsMenu
+
+  def initialize(browser)
+    @browser = browser
+    
+    @@classes = {
+      :this => "StylesAddAttachment",
+      :parent => "AddStyle",
+      :upload_files => "StylesUploadFiles",
+      :create_folders => "",
+      :file_details => ""
+    }
   end
   
 end

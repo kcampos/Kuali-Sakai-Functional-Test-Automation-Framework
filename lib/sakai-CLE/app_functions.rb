@@ -187,10 +187,16 @@ module ToolsMenu
   link(:help, :text=>"Help")
   
   # Clicks the Home link, then instantiates the
-  # Home class.
+  # Home class--unless the target page happens to be
+  # My Workspace, in which case the MyWorkspace
+  # page is instantiated.
   def home
     @browser.link(:text, "Home").click
-    Home.new(@browser)
+    if @browser.div(:id=>"siteTitle").text == "My Workspace"
+      MyWorkspace.new(@browser)
+    else
+      Home.new(@browser)
+    end
   end
   
   # Clicks the Job Scheduler link, then
@@ -344,7 +350,7 @@ module ToolsMenu
   # Shortcut method so you don't have to type out
   # the whole string: @browser.frame(:index=>index)
   def frm
-    @browser.frame(:index=>$frame_index)
+    @browser.frame(:class=>"portletMainIframe")
   end
   
 end
@@ -390,9 +396,14 @@ end
 # File Upload and Attachment pages.
 #
 # Not every method in this module will be appropriate for every attachment page.
-module AttachPageTools
+class AttachPageTools
   
-  include PageObject
+  @@classes = { :this=>"Superclassdummy", :parent=>"Superclassdummy" }
+  
+  # Use this for debugging purposes only...
+  def what_is_parent?
+    puts @@classes[:parent]
+  end
   
   # Returns an array of the displayed folder names.
   def folder_names
@@ -429,6 +440,11 @@ module AttachPageTools
     frm.button(:value=>"Remove").click
   end
   
+  # Clicks the remove link for the specified item in the attachment list.
+  def remove_item(file_name)
+    frm.table(:class=>/listHier/).row(:text=>/#{Regexp.escape(file_name)}/).link(:href=>/doRemoveitem/).click
+  end
+  
   # Clicks the Move button.
   def move
     frm.button(:value=>"Move").click
@@ -441,7 +457,7 @@ module AttachPageTools
   
   # Clicks on the specified folder
   def open_folder(foldername)
-    frm.link(:text=>foldername).click 
+    frm.link(:text=>foldername).click
   end
   
   # Sets the URL field to the specified value.
@@ -460,18 +476,30 @@ module AttachPageTools
     frm.table(:class=>/listHier lines/).row(:text=>/#{Regexp.escape(filename)}/)[6].text
   end
   
-  private
-  
-  def m_edit_details(name)
+  def edit_details(name)
     frm.table(:class=>/listHier lines/).row(:text=>/#{Regexp.escape(name)}/).li(:text=>/Action/, :class=>"menuOpen").fire_event("onclick")
     frm.table(:class=>/listHier lines/).row(:text=>/#{Regexp.escape(name)}/).link(:text=>"Edit Details").click
+    instantiate_class(:file_details)
   end
   
   # Clicks the Create Folders menu item in the
   # Add menu of the specified folder.
-  def m_create_subfolders_in(folder_name)
+  def create_subfolders_in(folder_name)
     frm.table(:class=>/listHier lines/).row(:text=>/#{Regexp.escape(folder_name)}/).link(:text=>"Start Add Menu").fire_event("onfocus")
     frm.table(:class=>/listHier lines/).row(:text=>/#{Regexp.escape(folder_name)}/).link(:text=>"Create Folders").click
+    instantiate_class(:create_folders)
+  end
+
+  # Enters the specified file into the file field name (assuming it's in the
+  # data/sakai-cle folder or a subfolder therein)
+  #
+  # Does NOT instantiate any class, so use only when no page refresh occurs.
+  def upload_file(filename)
+    frm.file_field(:id=>"upload").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + filename)
+    if frm.div(:class=>"alertMessage").exist?
+      sleep 2
+      upload_file(filename)
+    end
   end
 
   # Enters the specified file into the file field name (assuming it's in the
@@ -479,45 +507,54 @@ module AttachPageTools
   #
   # Use this method ONLY for instances where there's a file field on the page
   # with an "upload" id.
-  def m_upload_local_file(filename)
+  def upload_local_file(filename)
     frm.file_field(:id=>"upload").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + filename)
     if frm.div(:class=>"alertMessage").exist?
       sleep 2
       upload_local_file(filename)
     end
+    instantiate_class(:this)
   end
 
   # Clicks the Add Menu for the specified
   # folder, then selects the Upload Files
   # command in the menu that appears.
-  def m_upload_files_to_folder(folder_name)
+  def upload_file_to_folder(folder_name)
+    upload_files_to_folder(folder_name)
+  end
+
+  # Clicks the Add Menu for the specified
+  # folder, then selects the Upload Files
+  # command in the menu that appears.
+  def upload_files_to_folder(folder_name)
     if frm.li(:text=>/A/, :class=>"menuOpen").exist?
       frm.table(:class=>/listHier lines/).row(:text=>/#{Regexp.escape(folder_name)}/).li(:text=>/A/, :class=>"menuOpen").fire_event("onclick")
     else
       frm.table(:class=>/listHier lines/).row(:text=>/#{Regexp.escape(folder_name)}/).link(:text=>"Start Add Menu").fire_event("onfocus")
     end
     frm.table(:class=>/listHier lines/).row(:text=>/#{Regexp.escape(folder_name)}/).link(:text=>"Upload Files").click
+    instantiate_class(:upload_files)
   end
   
   # Clicks the "Attach a copy" link for the specified
   # file, then reinstantiates the Class.
   # If an alert box appears, the method will call itself again.
   # Note that this can lead to an infinite loop. Will need to fix later.
-  def m_attach_a_copy(file_name)
+  def attach_a_copy(file_name)
     frm.table(:class=>/listHier lines/).row(:text=>/#{Regexp.escape(file_name)}/).link(:href=>/doAttachitem/).click
-    
     if frm.div(:class=>"alertMessage").exist?
       sleep 1
-      m_attach_a_copy(file_name) # FIXME
+      attach_a_copy(file_name) # FIXME
     end
-
+    instantiate_class(:this)
   end
   
   # Clicks the Create Folders menu item in the
   # Add menu of the specified folder.
-  def m_create_subfolders_in(folder_name)
+  def create_subfolders_in(folder_name)
     frm.table(:class=>/listHier lines/).row(:text=>/#{Regexp.escape(folder_name)}/).link(:text=>"Start Add Menu").fire_event("onfocus")
     frm.table(:class=>/listHier lines/).row(:text=>/#{Regexp.escape(folder_name)}/).link(:text=>"Create Folders").click
+    instantiate_class(:create_folders)
   end
   
   # Takes the specified array object containing pointers
@@ -526,7 +563,7 @@ module AttachPageTools
   # if not, re-tries the ones that failed the first time.
   #
   # Finally, it re-instantiates the AnnouncementsAttach page class.
-  def m_upload_multiple_files_to_folder(folder, file_array)
+  def upload_multiple_files_to_folder(folder, file_array)
     
     upload = upload_files_to_folder folder
     
@@ -546,13 +583,68 @@ module AttachPageTools
         resources = upload_files.upload_files_now
       end
     end
-
+    instantiate_class(:this)
   end
 
-  # Clicks the Continue button, then
-  # instantiates the AddEditAnnouncements Class.
-  def m_continue
+  # Clicks the Continue button then
+  # decides which page class to instantiate
+  # based on the page that appears. This is going to need to be fixed.
+  def continue
+    frm.div(:class=>"highlightPanel").span(:id=>"submitnotifxxx").wait_while_present
     frm.button(:value=>"Continue").click
+    page_title = @browser.div(:class=>"title").text
+    case(page_title)
+    when "Lessons"
+      instantiate_class(:parent)
+    when "Assignments"
+      if frm.div(:class=>"portletBody").h3.text=~/In progress/ || frm.div(:class=>"portletBody").h3.text == "Select supporting files"
+        instantiate_class(:second)
+      elsif frm.div(:class=>"portletBody").h3.text=~/edit/i || frm.div(:class=>"portletBody").h3.text=~/add/i
+        instantiate_class(:parent)
+      elsif frm.form(:id=>"gradeForm").exist?
+        instantiate_class(:third)
+      end
+    when "Forums"
+      if frm.div(:class=>"portletBody").h3.text == "Forum Settings"
+        instantiate_class(:second)
+      else
+        instantiate_class(:parent)
+      end
+    when "Messages"
+      if frm.div(:class=>/breadCrumb/).text =~ /Reply to Message/
+        instantiate_class(:second)
+      else
+        instantiate_class(:parent)
+      end
+    when "Calendar"
+      frm.frame(:id, "description___Frame").td(:id, "xEditingArea").frame(:index=>0).wait_until_present
+      instantiate_class(:parent)
+    else
+      instantiate_class(:parent)
+    end  
   end
   
+  private
+  
+  # This is a private method that is only used inside this superclass.
+  def instantiate_class(key)
+    eval(@@classes[key]).new(@browser)
+  end
+  
+  # This is another private method that will be used in the future
+  def set_classes_hash(hash_object)
+    @@classes = hash_object
+  end
+  
+end
+
+# Need this to extend Watir to be able to attach to Sakai's non-standard tags...
+module Watir 
+  class Element
+    # attaches to the "headers" tags inside of the assignments table.
+    def headers
+      @how = :ole_object 
+      return @o.headers
+    end 
+  end 
 end

@@ -67,8 +67,8 @@ class TestGradingAssignments < Test::Unit::TestCase
     grade_assignment = submissions.grade @student
 
     # Add comments
-    grade_assignment.student_assignment_text.send_keys @comment_string
-    grade_assignment.set_instructor_comments(@instructor_comments)
+    grade_assignment.assignment_text=@comment_string
+    grade_assignment.instructor_comments=@instructor_comments
     
     # Set failing grade
     grade_assignment.select_default_grade=@grade1
@@ -85,6 +85,8 @@ class TestGradingAssignments < Test::Unit::TestCase
     grade_assignment = attach.continue
     
     # Save and release to student
+    grade_assignment.save_and_release
+    
     submissions = grade_assignment.return_to_list
     
     # Go back to the assignments list
@@ -100,7 +102,7 @@ class TestGradingAssignments < Test::Unit::TestCase
     grade_assignment.select_default_grade=@grade2
     
     # Save and don't release
-    grade_assignment.save_dont_release
+    grade_assignment.save_and_dont_release
 
     # Log out and log back in as student user
     @sakai.logout
@@ -115,19 +117,24 @@ class TestGradingAssignments < Test::Unit::TestCase
     assignment1 = assignments.open_assignment @assignment1
     
     # TEST CASE: Verify that the assignment grade is "Fail"
-    assert_equal("Fail", info_table[-1][-1])
-    sleep 20
+    assert_equal("Fail", assignment1.item_summary["Grade"])
+
     # TEST CASE: Verify assignment 1 shows "returned"
-    assert_equal( frm.div(:class=>"portletBody").h3(:index=>0).text, "#{@assignment1} - Resubmit" )
+    assert_equal( assignment1.header, "#{@assignment1} - Resubmit" )
     
     assignments = assignment1.cancel
   
     assignment2 = assignments.open_assignment @assignment2
     
     # TEST CASE: Verify assignment 2 still shows "submitted"
-    assert_equal( frm.div(:class=>"portletBody").h3(:index=>0).text, "#{@assignment2} - Submitted" )
-    # TEST CASE: Verify the "Back to list" button is present
-    assert frm.button(:name=>"eventSubmit_doCancel_view_grade").exist?
+    assert_equal( assignment2.header, "#{@assignment2} - Submitted" )
+    
+    list = assignment2.back_to_list
+    
+    # TEST CASE: Verify assignment 2 shows as "submitted" in the assignments list.
+    assert list.status_of(@assignment2).include?("Submitted")
+    
+    
     
   end
   

@@ -197,18 +197,14 @@ class TestCreatingCourseSite < Test::Unit::TestCase
     assert @browser.text.include?(@review_text)
     assert @browser.text.include?("#{site_name}"), "Review page not showing site name #{site_name}"
 
-    review.request_site
+    site_setup = review.request_site
     
     # Create a string that will match the new Site's "creation date" string
     creation_date = @sakai.make_date(Time.now)
     
-    #Sort the list of sites so the newest site appears at the top
-    2.times {
-      @browser.frame(:index=>0).link(:href, /criterion=created%20on&panel=Main&sakai_action=doSort_sites/).click
-      sleep 0.5 # Need this due to a bug in selenium-webdriver: http://code.google.com/p/selenium/issues/detail?id=2099
-      }
+    site_setup.search(Regexp.escape(@subject))
     
-    link_text = @browser.frame(:index=>0).link(:href=>/xsl-portal.site/, :index=>0).text #FIXME
+    link_text = @browser.frame(:class=>"portletMainIframe").link(:href=>/xsl-portal.site/, :index=>0).text #FIXME
     
     #TEST CASE: Verify the creation of the site by the name
     assert_equal(link_text, site_name, "#{link_text} does not match #{site_name}")
@@ -222,7 +218,7 @@ class TestCreatingCourseSite < Test::Unit::TestCase
     #end
     
     # Get the site id for storage
-    @browser.frame(:index=>0).link(:href=>/xsl-portal.site/, :index=>0).href =~ /(?<=\/site\/).+/
+    @browser.frame(:class=>"portletMainIframe").link(:href=>/xsl-portal.site/, :index=>0).href =~ /(?<=\/site\/).+/
     @config.directory['site1']['id'] = $~.to_s
     
   end

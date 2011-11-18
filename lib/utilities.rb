@@ -83,4 +83,12 @@ module Utilities
     (Time.now + (3600*24)).strftime("%d").to_i
   end
   
+  def am_or_pm
+    if Time.now.strftime("%I").to_i > 5 && Time.now.strftime("%I").to_i < 11
+      "am"
+    else
+      "pm"
+    end
+  end
+  
 end
