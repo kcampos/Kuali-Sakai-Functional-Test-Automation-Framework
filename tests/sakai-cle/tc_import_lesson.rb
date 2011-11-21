@@ -27,7 +27,13 @@ class TestImportLesson < Test::Unit::TestCase
     @site_name = @config.directory['site1']['name']
     @site_id = @config.directory['site1']['id']
     @sakai = SakaiCLE.new(@browser)
-    @zip_file = "zips/Melete2.zip"
+    
+    # Test case variables...
+    @zip_file = "zips/Melete1.zip"
+    @import_alert = "Imported the package successfully. Modules are created at the end of existing modules."
+    @lesson_names = ["Getting Started", "Tests and Quizzes"]
+    @section_names = ["The Gateway", "Sites Link", "Getting Started FAQs", "Tests FAQs"]
+    @lesson_content = "Through this system, you need not create and maintain separate course web sites, discussion boards, and grade records. You can post files online for easy access by students, link to other online instructional tools, or incorporate existing course material."
     
   end
   
@@ -37,11 +43,6 @@ class TestImportLesson < Test::Unit::TestCase
   end
   
   def test_import_lesson
-    
-    # some code to simplify writing steps in this test case
-    def frm
-      @browser.frame(:index=>$frame_index)
-    end
     
     # Log in to Sakai
     workspace = @sakai.login(@instructor, @ipassword)
@@ -61,65 +62,42 @@ class TestImportLesson < Test::Unit::TestCase
     # File Attach
     import.upload_IMS @zip_file
     
-    sleep 30
-    begin
-        assert @selenium.is_element_present("link=Getting Started")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("link=Tests FAQs")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.click "link=Logout"
-    @selenium.wait_for_page_to_load "30000"
-    @selenium.type "eid", "student04"
-    @selenium.type "pw", "password"
-    @selenium.click "//input[@value='submit']"
-    @selenium.wait_for_page_to_load "30000"
-    @selenium.click "//a[contains(@title,'1 2 3')]"
-    @selenium.wait_for_page_to_load "30000"
-    @selenium.click "//a[@class='icon-sakai-melete']"
-    @selenium.wait_for_page_to_load "30000"
-    begin
-        assert @selenium.is_element_present("link=Getting Started")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("link=Tests and Quizzes")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.click "link=Getting Started"
-    @selenium.wait_for_page_to_load "30000"
-    begin
-        assert @selenium.is_element_present("link=The Gateway")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("link=Sites Link")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("link=Getting Started FAQs")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.click "//span[@id='viewmoduleStudentform:bottommod:nextItemMsg1']"
-    @selenium.wait_for_page_to_load "30000"
-    begin
-        assert @selenium.is_element_present("link=exact:http://sakaiproject.org")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.click "link=Table Of Contents"
-    @selenium.wait_for_page_to_load "30000"
-    @selenium.click "link=Logout"
-    @selenium.wait_for_page_to_load "30000"
+    # TEST CASE: Verify the import occurs successfully
+    assert_equal(import.alert_text, @import_alert, "Import failed")
+    
+    lessons = import.reset
+    
+    # TEST CASE: Verify imported lessons and sections appear correctly.
+    assert lessons.lessons_list.include? @lesson_names[0]
+    assert lessons.sections_list(@lesson_names[0]).include? @section_names[0]
+    assert lessons.sections_list(@lesson_names[1]).include? @section_names[3]
+    
+    @sakai.logout
+    
+    workspace = @sakai.login(@student, @spassword)
+    
+    home = workspace.open_my_site_by_name @site_name
+    
+    lessons = home.lessons
+    
+    # TEST CASE: Verify student can see lessons and sections
+    assert lessons.lessons_list.include? @lesson_names[0]
+    assert lessons.sections_list(@lesson_names[0]).include? @section_names[0]
+    assert lessons.sections_list(@lesson_names[1]).include? @section_names[3]
+    
+    lesson = lessons.open_lesson @lesson_names[0]
+    
+    # TEST CASE: Verify sections appear
+    assert lesson.sections_list.include? @section_names[0]
+    assert lesson.sections_list.include? @section_names[1]
+    assert lesson.sections_list.include? @section_names[2]
+    
+    section = lesson.next
+    
+    # TEST CASE: Verify student can see the section content
+    assert_equal @lesson_names[0], section.module_title
+    assert_equal @section_names[0], section.section_title
+    assert section.content_include? @lesson_content
     
   end
   
