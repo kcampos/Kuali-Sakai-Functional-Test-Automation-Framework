@@ -351,6 +351,8 @@ module ToolsMenu
     @browser.link(:href=>/tool-reset/).click
     page_title = @browser.div(:class=>"title").text
     case(page_title)
+    when "Lessons"
+      Lessons.new(@browser)
     when "Syllabus"
       Syllabus.new(@browser)
     # Add more cases here, as necessary...

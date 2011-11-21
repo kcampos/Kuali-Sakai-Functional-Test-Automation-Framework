@@ -3332,26 +3332,8 @@ end
 # Lesson Pages
 #================
 
-# The Lessons page in a site ("icon-sakai-melete")
-#
-# Note that this class is inclusive of both the
-# Instructor/Admin and the Student views of this page
-# many methods will error out if used when in the
-# Student view.
-class Lessons
-  
-  include PageObject
-  include ToolsMenu
-  
-  # Clicks the Add Module link, then
-  # instantiates the AddModule class.
-  #
-  # Assumes the Add Module link is present
-  # and will error out if it is not.
-  def add_module
-    frm.link(:text=>"Add Module").click
-    AddEditModule.new(@browser)
-  end
+# Contains items common to most Lessons pages.
+module LessonsMenu
   
   # Clicks on the Preferences link on the Lessons page,
   # then instantiates the LessonPreferences class.
@@ -3374,6 +3356,34 @@ class Lessons
     LessonManage.new(@browser)
   end
   
+  def author
+    #FIXME
+  end
+  
+end
+
+# The Lessons page in a site ("icon-sakai-melete")
+#
+# Note that this class is inclusive of both the
+# Instructor/Admin and the Student views of this page
+# many methods will error out if used when in the
+# Student view.
+class Lessons
+  
+  include PageObject
+  include ToolsMenu
+  include LessonsMenu
+  
+  # Clicks the Add Module link, then
+  # instantiates the AddModule class.
+  #
+  # Assumes the Add Module link is present
+  # and will error out if it is not.
+  def add_module
+    frm.link(:text=>"Add Module").click
+    AddEditModule.new(@browser)
+  end
+  
   # Clicks on the link that matches the supplied
   # name value, then instantiates the
   # AddEditLesson, or ViewLesson class, depending
@@ -3383,22 +3393,68 @@ class Lessons
   # matching link in the list.
   def open_lesson(name)
     frm.link(:text=>name).click
-    if frm.div(:class=>"meletePortletToolBarMessage").text=="Editing module..."
+    if frm.div(:class=>"meletePortletToolBarMessage").exist? && frm.div(:class=>"meletePortletToolBarMessage").text=="Editing module..."
       AddEditModule.new(@browser)
     else
       ViewModule.new(@browser)
     end
   end
+  
+  # Returns an array of the Module titles displayed on the page.
+  def lessons_list
+    list = []
+    frm.table(:id=>/lis.+module.+form:table/).links.each do |link|
+      if link.id=~/lis.+module.+form:table:.+:.+Mod/
+        list << link.text
+      end
+    end
+    return list
+  end
+  
+  # Returns and array containing the list of section titles for the
+  # specified module.
+  def sections_list(module_name)
+    list = []
+    frm.table(:id=>/lis.+module.+form:table/).row(:text=>/#{Regexp.escape(module_name)}/).table(:id=>/tablesec/).links.each do |link|
+      if link.id=~/Sec/
+        list << link.text
+      end
+    end
+    return list
+  end
 
 end
 
-# The student user's view of a Lesson Module.
+# The student user's view of a Lesson Module or Section.
 class ViewModule
   
   include PageObject
   include ToolsMenu
 
-  #FIXME
+  def sections_list
+    list = []
+    frm.table(:id=>"viewmoduleStudentform:tablesec").links.each { |link| list << link.text }
+    return list
+  end
+
+  def next
+    frm.link(:text=>"Next").click
+    ViewModule.new(@browser)
+  end
+  
+  # Returns the text of the Module title row
+  def module_title
+    frm.span(:id=>/modtitle/).text
+  end
+  
+  # Returns the text of the Section title row
+  def section_title
+    frm.span(:id=>/form:title/).text
+  end
+  
+  def content_include?(content)
+    frm.form(:id=>"viewsectionStudentform").text.include?(content)
+  end
 
 end
 
@@ -3426,6 +3482,7 @@ class LessonStudentSide
   
   include PageObject
   include ToolsMenu
+  include LessonsMenu
   
 end
 
@@ -3434,11 +3491,7 @@ class SectionStudentSide
   
   include PageObject
   include ToolsMenu
-  
-  def manage
-    frm.link(:text=>"Manage").click
-    LessonManage.new(@browser)
-  end
+  include LessonsMenu
   
 end
 
@@ -3447,6 +3500,7 @@ class LessonManage
   
   include PageObject
   include ToolsMenu
+  include LessonsMenu
   
   def manage_content
     frm.link(:text=>"Manage Content").click
@@ -3458,6 +3512,8 @@ class LessonManage
     LessonManageSort.new(@browser)
   end
 
+  # Clicks the Import/Export button and
+  # instantiates the LessonImportExport class.
   def import_export
     frm.link(:text=>"Import/Export").click
     LessonImportExport.new(@browser)
@@ -3492,21 +3548,23 @@ class LessonImportExport
   
   include PageObject
   include ToolsMenu
+  include LessonsMenu
 
   # Uploads the file specified - meaning that it enters
   # the target file information, then clicks the import
   # button.
   # 
   # Note that it pulls the file from the
-  # data folder.
-  # 
-  # The method also runs a Test::Unit assert
-  # to verify the "successful upload" message appears.
+  # data/sakai-cle folder.
   def upload_IMS(file_name)
     frm.file_field(:name, "impfile").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + file_name)
     frm.link(:id=>"importexportform:importModule").click
     frm.table(:id=>"AutoNumber1").div(:text=>"Processing...").wait_while_present
-    assert_equal(frm.span(:class=>"BlueClass").text, "Imported the package successfully. Modules are created at the end of existing modules.", "Import failed")
+  end
+  
+  # Returns the text of the alert box.
+  def alert_text
+    frm.span(:class=>"BlueClass").text
   end
 
 end
