@@ -26,6 +26,15 @@ class TestSISTemplates < Test::Unit::TestCase
     @site_id = @config.directory['site1']['id']
     @sakai = SakaiCLE.new(@browser)
     
+    # Test case variables
+    @sites = [
+      { :subject => "TST", :course => "101", :section => "100", :authorizer => "admin"}
+      { :subject => "TST", :course => "101", :section => "100", :authorizer => "admin"}
+      { :subject => "TST", :course => "101", :section => "100", :authorizer => "admin"}
+      { :subject => "TST", :course => "101", :section => "100", :authorizer => "admin"}
+      { :subject => "TST", :course => "101", :section => "100", :authorizer => "admin"}
+    ]
+    
   end
   
   def teardown
@@ -35,11 +44,6 @@ class TestSISTemplates < Test::Unit::TestCase
   
   def test_sis_templates
     
-    # some code to simplify writing steps in this test case
-    def frm
-      @browser.frame(:index=>$frame_index)
-    end
-    
     # Log in to Sakai
     workspace = @sakai.login(@admin, @password)
     # Go to Site Setup
@@ -48,55 +52,54 @@ class TestSISTemplates < Test::Unit::TestCase
     # Click New
     site_type = site_setup.new
     
-    # Get the academic term value...
+    # Need these steps in order to get the current academic term value...
     site_type.select_course_site
-    term = site_type.academic_term_element.text
+    @term = site_type.academic_term_element.text
     
     site_type.select_template_site
     site_type.select_template=/Template/
-    site_type.select_term=term
+    site_type.select_term=@term
     
     section_info = site_type.continue
     
-    section_info.subject="TST"
-    section_info.course="101"
-    section_info.section="100"
-    section_info.authorizers_username="admin"
+    section_info.subject=@sites[0][:subject]
+    section_info.course=@sites[0][:course]
+    section_info.section=@sites[0][:section]
+    section_info.authorizers_username=@sites[0][:authorizer]
     
     site_setup = section_info.done
     
     sites = site_setup.sites
     
-    sites.search_field="tst"
+    sites.search_field=Regexp.escape(@sites[0][:subject])
     sites.search_button
     
-    tst_101 = sites.click_top_item
+    test_site = sites.click_top_item
+    
+    remove = test_site.remove_site
+    
+    sites = remove.remove
+    
+    site_setup = sites.site_setup
+    
+    site_type = site_setup.new
+    
+    site_type.select_template_site
+    site_type.select_template=/Template/
+    site_type.select_term=@term
+    
+    section_info = site_type.continue
+    
+    section_info.subject=@sites[1][:subject]
+    section_info.course=@sites[1][:course]
+    section_info.section=@sites[1][:section]
+    section_info.authorizers_username=@sites[1][:authorizer]
+    
+    site_setup = section_info.done
     
     sleep 20
     
-    @selenium.click "link=Save As"
-    # 
-    @selenium.type "id", "template.course"
-    @selenium.click "eventSubmit_doSaveas"
-    # 
-    @selenium.type "search", "tst"
-    @selenium.click "//a[contains(text(),'Search')]"
-    # 
-    @selenium.click "//a[@href='" + site1 + "']"
-    # 
-    @selenium.click "link=Remove Site"
-    # 
-    @selenium.click "eventSubmit_doRemove_confirmed"
-    # 
-    # #####################################
-    @selenium.click "link=Site Setup"
-    # 
-    @selenium.click "link=New"
-    # 
-    @selenium.click "selectTerm"
-    @selenium.select "selectTerm", "label=Templates"
-    @selenium.click "eventSubmit_doSite_type"
-    # 
+    
     @selenium.type "id-Subject:1", "TST2"
     @selenium.type "id-Course:1", "201"
     @selenium.type "id-Section:1", "100"

@@ -6,3 +6,5 @@ test/
 tests/sakai-cle/test.rb
 
 config/directory.yml
+
+config/directory.yml
