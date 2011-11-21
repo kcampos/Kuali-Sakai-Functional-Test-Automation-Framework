@@ -26,8 +26,10 @@ class SakaiCLE
   end
   
   # Clicks the "(Logout)" link in the upper right of the page.
+  # Instantiates the Login class.
   def logout
     @browser.link(:text, "Logout").click
+    Login.new(@browser)
   end
   
   # Formats a date string Sakai-style.
@@ -345,7 +347,15 @@ module ToolsMenu
   link(:wiki, :text=>"Wiki")
   
   # The Page Reset button, found on all Site pages
-  link(:reset, :href=>/tool-reset/)
+  def reset
+    @browser.link(:href=>/tool-reset/).click
+    page_title = @browser.div(:class=>"title").text
+    case(page_title)
+    when "Syllabus"
+      Syllabus.new(@browser)
+    # Add more cases here, as necessary...
+    end
+  end
   
   # Shortcut method so you don't have to type out
   # the whole string: @browser.frame(:index=>index)
@@ -631,7 +641,8 @@ class AttachPageTools
     eval(@@classes[key]).new(@browser)
   end
   
-  # This is another private method that will be used in the future
+  # This is another private method--a better way to
+  # instantiate the @@classes hash variable.
   def set_classes_hash(hash_object)
     @@classes = hash_object
   end

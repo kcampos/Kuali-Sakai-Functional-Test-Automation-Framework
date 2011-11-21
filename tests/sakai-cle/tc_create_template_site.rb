@@ -137,7 +137,8 @@ class CreateSiteTemplate < Test::Unit::TestCase
     # Add Syllabus
     syllabus = list_page.syllabus
     
-    item = syllabus.create_edit
+    item_list = syllabus.create_edit
+    item = item_list.add
     item.title=@syllabus_title
     item.content=@syllabus_content
     
@@ -169,7 +170,7 @@ class CreateSiteTemplate < Test::Unit::TestCase
     section_info.section=@section
     section_info.authorizers_username=@authorizer
     
-    site_setup = section_info.done_go_to_site
+    site_setup = section_info.done
     
     site_setup = site_setup.search "#{subject} #{course} #{section}"
     

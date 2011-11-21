@@ -147,6 +147,16 @@ class SiteSummaryPage
     SearchPublicResults.new(@browser)
   end
 
+  def syllabus_attachments
+    links = []
+    @browser.frame(:id=>"ifrm").links.each do |link|
+      if link.href=~/Syllabus/
+        links << link.text
+      end
+    end
+    return links
+  end
+
 end
 
 
@@ -1017,15 +1027,12 @@ class CourseSectionInfo
     CourseSiteInfo.new(@browser)
   end
   
-  # Clicks the Done button, then instantiates
+  # Clicks the Done button (or the
+  # "Done - go to Site" button if it
+  # happens to be there), then instantiates
   # the SiteSetup Class.
   def done
-    frm.button(:value=>"Done").click
-    SiteSetup.new(@browser)
-  end
-  
-  def done_go_to_site
-    frm.button(:value=>"Done - go to site").click
+    frm.button(:value=>/Done/).click
     SiteSetup.new(@browser)
   end
   
