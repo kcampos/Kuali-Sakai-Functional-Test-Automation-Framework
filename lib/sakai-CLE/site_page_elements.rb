@@ -2332,6 +2332,7 @@ class DiscussionForum
   # then instantiates the NewTopic class
   def new_topic
     frm.image(:alt=>"New Topic").fire_event("onclick")
+    frm.frame(:id, "message___Frame").td(:id, "xEditingArea").wait_until_present
     NewTopic.new(@browser)
   end
   
@@ -3177,6 +3178,7 @@ class Glossary
   
   def add
     frm.link(:text=>"Add").click
+    frm.frame(:id, "longDescription___Frame").td(:id, "xEditingArea").wait_until_present
     AddEditTerm.new(@browser)
   end
   

@@ -25,9 +25,9 @@ class TestMasterProjectSite < Test::Unit::TestCase
     @site_name = @config.directory['site1']['name']
     @site_id = @config.directory['site1']['id']
     @sakai = SakaiCLE.new(@browser)
-    @master_project_site_id = "12345678-abcd-1234-wxyz-12ab34cd56ef"
     
     # Test case variables
+    @master_project_site_id = "12345678-abcd-1234-wxyz-12ab34cd56ef"
     @site_title = "Test Project"
     @files_to_upload = [ "documents/resources.doc", "presentations/resources.ppt", "documents/resources.txt", "spreadsheets/resources.xls", "audio/resources.mp3" ]
     @site_description = "Project site for testers."
@@ -58,7 +58,7 @@ class TestMasterProjectSite < Test::Unit::TestCase
     new_site = sites_page.new_site
     
     # Enter the master site id and other site attributes
-    @browser.frame(:index=>0).frame(:id, "description___Frame").wait_until_present
+    new_site.editor.wait_until_present
     new_site.site_id=@master_project_site_id
     new_site.title=@site_title
     new_site.type="project"
@@ -68,7 +68,7 @@ class TestMasterProjectSite < Test::Unit::TestCase
     new_site.select_public_view_yes
     
     sites_page = new_site.save
- 
+
     edit_site = sites_page.edit_site_id(@master_project_site_id)
     
     pages = edit_site.pages

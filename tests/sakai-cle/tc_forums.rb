@@ -10,7 +10,7 @@ gems.each { |gem| require gem }
 files = [ "/../../config/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-CLE/app_functions.rb", "/../../lib/sakai-CLE/admin_page_elements.rb", "/../../lib/sakai-CLE/site_page_elements.rb", "/../../lib/sakai-CLE/common_page_elements.rb" ]
 files.each { |file| require File.dirname(__FILE__) + file }
 
-class TestDiscussionForums < Test::Unit::TestCase
+class TestForums < Test::Unit::TestCase
   
   include Utilities
 
@@ -27,7 +27,7 @@ class TestDiscussionForums < Test::Unit::TestCase
     @sakai = SakaiCLE.new(@browser)
     
     # Test case variables
-    @groups = [ "Group 1", "Group 2" ]
+    @groups = [ random_alphanums, random_alphanums ]
     
     @forums = [
       {:title=>"Forum 1", :short_description=>"Test Forum", :description=>"Donec pellentesque leo in diam? Sed eget lacus sed orci rutrum porttitor. Phasellus id risus scelerisque mi consequat scelerisque. Nam at leo." },
@@ -100,7 +100,7 @@ class TestDiscussionForums < Test::Unit::TestCase
     
     # Add a file to the topic
     attach_file = add_topic.add_attachments
-    attach_file.upload_file=@topics[0][:file]
+    attach_file.upload_file @topics[0][:file]
     
     add_topic = attach_file.continue
     

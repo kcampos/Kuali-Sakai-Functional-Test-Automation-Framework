@@ -102,16 +102,16 @@ person14:
   type: guest
 site1: 
   type: course
-  name: 9VJ>MsW( g#b(?W<\ bs#1Y3nT F11
-  id: c0cdf24f-3a95-421f-9546-625da6bfc442
-  assignment1: "@M3T1wQKe3"
-  assignment2: n.YdJfwhQ7R-MKG
-  assignment3: <SCRIPT SRC=http://ha.ckers.org/xss.js?<B>
-  assignment4: bitkA#@eL-h>x?:%W!`R57y4K
-  assignment5: ;a6)ZC,Fh3/Vzv|K0sDE3J^%h|N"&*
-  quiz1: Test 1zSK9mxZEae
-  quiz2: Test 2SVxd5EzUe0
-  group0: OiTj07t/f/tc:KNpj7/OdP#eJ"s-gtza!BDDilUrsHEUt\GS}J%r{K<<-8L$.w&pf->@1H58(QC`}[&uxR$" - 201111180805
-  group1: "}i/\\JVLk\\*H3'Ved@XK%2069vz^6\\zqIaU@,Ui2o?:^n7'%bov`q[]\\.AK|lKV\"1RIlpoGm4AGoDC<`Tu0lW - 201111180807"
+  name: n7e@wUMo !Vk1\2F$ g7wA*+nd F11
+  id: 92406b17-6e50-4636-883b-5325bcaa0e30
+  assignment1: (vR.nM?,f$
+  assignment2: 5sJ0_NCP05-ywsD
+  assignment3: \";alert('XSS');//
+  assignment4: f=S^X`?V]}14tF\BP]6soN_zm
+  assignment5: h@@u1vrYH'PsAlC?:sDiYrJdQN"?m<
+  quiz1: Test 1qFhb2QYLGt
+  quiz2: Test 20w0FXnhV4y
+  group0: \y&ko53b":@1AFu30ji(lGSg$|:ondH-fQx0kb0{`Nf:0x*:^]sF2=p0]&;mi>]/lLn9X527Ra<A2lv!Z/55 - 201111211403
+  group1: )5l2tK*BbTz=Ml$uvxzQA-(*<70?<h%w\y65Yy1B@V.J<HBAv`5X@hsZC)TvtNp4UAJu[GL&*1n,Gps@=)%< - 201111211403
   section1: t/l@}nihx5
   section2: <A HREF="http://66.102.7.147/">XSS</A>
