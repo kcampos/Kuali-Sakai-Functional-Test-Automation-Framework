@@ -341,6 +341,12 @@ module CalendarTools
     AddEditFields.new(@browser)
   end
   
+  #
+  def import
+    frm.link(:text=>"Import").click
+    ImportStepOne.new(@browser)
+  end
+  
 end
 
 # Top page of the Calendar
@@ -739,6 +745,90 @@ class AddEditFields
 
   in_frame(:class=>"portletMainIframe") do |frame|
     text_field(:field_name, :id=>"textfield", :frame=>frame)
+  end
+end
+
+# 
+class ImportStepOne
+  
+  include PageObject
+  include ToolsMenu
+  
+  def continue
+    frm.button(:value=>"Continue").click
+    ImportStepTwo.new(@browser)
+  end
+
+  in_frame(:class=>"portletMainIframe") do |frame|
+    radio_button(:microsoft_outlook, :id=>"importType_Outlook", :frame=>frame)
+    radio_button(:meeting_maker, :id=>"importType_MeetingMaker", :frame=>frame)
+    radio_button(:generic_calendar_import, :id=>"importType_Generic", :frame=>frame)
+  end
+end
+
+# 
+class ImportStepTwo
+  
+  include PageObject
+  include ToolsMenu
+  
+  def continue
+    frm.button(:value=>"Continue").click
+    ImportStepThree.new(@browser)
+  end
+
+  # Enters the specified filename in the file field.
+  #
+  # Note that the file should be inside the data/sakai-cle folder.
+  # The file or folder name used for the filename variable
+  # should not include a preceding / character.
+  def import_file(filename)
+    frm.file_field(:name=>"importFile").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + filename)
+  end
+
+end
+
+# The page for reviewing activities and confirming them for import.
+class ImportStepThree
+  
+  include PageObject
+  include ToolsMenu
+  
+  def import_events
+    frm.button(:value=>"Import Events").click
+    Calendar.new(@browser)
+  end
+  
+  # Returns an array containing the list of Activity names on the page.
+  def events
+    list = []
+    frm.table(:class=>/listHier lines/).rows.each do |row|
+      if row.label(:for=>/eventSelected/).exist?
+        list << row.label.text
+      end
+    end
+    names = []
+    list.uniq!
+    list.each do | item |
+      name = item[/(?<=\s).+(?=\s\s\()/]
+      names << name
+    end
+    return names
+  end
+  
+  # Returns the date of the specified event
+  def event_date(event_name)
+    frm.table(:class=>/listHier lines/).row(:text=>/#{Regexp.escape(event_name)}/)[0].text
+  end
+  
+  # Unchecks the checkbox for the specified event
+  def uncheck_event(event_name)
+    frm.table(:class=>/listHier lines/).row(:text=>/#{Regexp.escape(event_name)}/)
+  end
+
+  in_frame(:class=>"portletMainIframe") do |frame|
+    radio_button(:import_events_for_site, :id=>"site", :frame=>frame)
+    radio_button(:import_events_for_selected_groups, :id=>"groups", :frame=>frame)
   end
 end
 

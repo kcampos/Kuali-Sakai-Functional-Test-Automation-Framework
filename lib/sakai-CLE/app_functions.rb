@@ -658,6 +658,13 @@ module Watir
     def headers
       @how = :ole_object 
       return @o.headers
-    end 
+    end
+    
+    # attaches to the "for" tags in "label" tags.
+    def for
+      @how = :ole_object 
+      return @o.for
+    end
+    
   end 
 end
