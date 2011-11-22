@@ -27,9 +27,9 @@ class TestCreateNewAssessments < Test::Unit::TestCase
     @site_id = @config.directory['site1']['id']
     @sakai = SakaiCLE.new(@browser)
     
-    @assessments = [ #FIXME - Need to correct these names when the assessment HTML escape bug is fixed.
-      {:title=>"Test 1" + random_alphanums},#random_string},
-      {:title=>"Test 2" + random_alphanums}#random_xss_string(20)}
+    @assessments = [
+      {:title=>random_string},
+      {:title=>random_xss_string(20)}
     ]
     
     @questions = [

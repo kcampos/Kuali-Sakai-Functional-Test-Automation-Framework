@@ -97,7 +97,7 @@ class TestCompleteAssignment < Test::Unit::TestCase
     
     assignments = confirm.back_to_list
     
-    submitted_date = @sakai.make_date(Time.now)
+    submitted_date = @sakai.make_date(Time.now.utc)
     
     # TEST CASE: Verify list shows assignment submitted
     assert_equal("Submitted #{submitted_date}", assignments.status_of(@assignment_1_title))

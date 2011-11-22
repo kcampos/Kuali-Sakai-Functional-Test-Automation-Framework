@@ -21,6 +21,7 @@ class Announcements
   
   def add
     frm.div(:class=>"portletBody").link(:title=>"Add").click
+    frm.frame(:id, "body___Frame").td(:id, "xEditingArea").frame(:index=>0).wait_until_present(60)
     AddEditAnnouncements.new(@browser)
   end
 

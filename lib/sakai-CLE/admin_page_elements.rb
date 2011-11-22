@@ -413,7 +413,13 @@ class EditSiteInfo
   # Enters the specified text string in the text area of
   # the FCKEditor.
   def description=(text)
-    @browser.frame(:index=>0).frame(:id, "description___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(text)
+    editor.td(:id, "xEditingArea").frame(:index=>0).send_keys(text)
+  end
+  
+  # The FCKEditor object. Use this object for
+  # wait commands when the site is slow
+  def editor
+    @browser.frame(:index=>0).frame(:id, "description___Frame")
   end
   
   # Clicks the Properties button on the page,
