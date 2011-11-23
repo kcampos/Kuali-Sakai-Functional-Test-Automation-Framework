@@ -340,6 +340,11 @@ module ToolsMenu
     x==0 ? AssessmentsList.new(@browser) : TakeAssessmentList.new(@browser)
   end
   
+  # Synonym for tests_and_quizzes method.
+  def assessments
+    tests_and_quizzes
+  end
+  
   def user_membership
     @browser.link(:class=>"icon-sakai-usermembership").click
     UserMembership.new(@browser)
@@ -470,8 +475,15 @@ class AttachPageTools
     frm.link(:text=>"Show other sites").click
   end
   
-  # Clicks on the specified folder
+  # Clicks on the specified folder image, which
+  # will open the folder tree and remain on the page.
   def open_folder(foldername)
+    frm.table(:class=>/listHier lines/).row(:text=>/#{Regexp.escape(foldername)}/).link(:title=>"Open this folder").click
+  end
+  
+  # Clicks on the specified folder name, which should open
+  # the folder contents on a refreshed page.
+  def go_to_folder(foldername)
     frm.link(:text=>foldername).click
   end
   

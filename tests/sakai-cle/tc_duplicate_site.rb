@@ -27,7 +27,7 @@ class TestDuplicateSite < Test::Unit::TestCase
     @sakai = SakaiCLE.new(@browser)
     
     # Test case variables
-    @new_site_title = random_alphanums
+    @new_site_title = "1111" + random_alphanums
     
   end
   
@@ -42,7 +42,7 @@ class TestDuplicateSite < Test::Unit::TestCase
     workspace = @sakai.login(@instructor, @ipassword)
     
     home = workspace.open_my_site_by_id(@site_id)
-    
+
     # Gather info about the current contents for verification
     # after duplication...
     
@@ -51,12 +51,22 @@ class TestDuplicateSite < Test::Unit::TestCase
     
     @announcements = announcements.subjects
     
+    #p @announcements
+    
     # Calendar
     calendar = announcements.calendar
     calendar.view="List of Events"
-    calendar.show_events="Events for this Month"
+    calendar.show_events="Events for this month"
     
     @events = calendar.events_list
+    
+    # Need to clean up the events list to get rid of
+    # list items that aren't actual event titles.
+    # Also need to remove entries for
+    # Assignments...
+    @events.delete_if { |event| event =~ /^http.+Description$/ || event =~ /^Due\s/ }
+    
+    #p @events
     
     # Discussion Forums
     discussion_forums = calendar.discussion_forums
@@ -68,11 +78,15 @@ class TestDuplicateSite < Test::Unit::TestCase
     # Messages
     messages = discussion_forums.messages
     
-    @folders = messages.folders
+    @message_folders = messages.folders
+    
+    #p @folders
     
     received = messages.received
     
     @messages = received.subjects
+    
+    #p @messages
     
     # Forums
     
@@ -103,6 +117,8 @@ class TestDuplicateSite < Test::Unit::TestCase
     
     @blogger_titles = blogger.post_titles
     
+    #p @blogger_titles
+    
     # Polls
     
     # ======================
@@ -114,6 +130,8 @@ class TestDuplicateSite < Test::Unit::TestCase
     edit = syllabus.create_edit
     
     @syllabus_items = edit.syllabus_titles
+    
+    #p @syllabus_items
     
     # Lessons
     lessons = edit.lessons
@@ -128,35 +146,56 @@ class TestDuplicateSite < Test::Unit::TestCase
     # Resources
     resources = lessons.resources
     
-    @folder_names = resources.folder_names
+    @file_folders = resources.folder_names
     
-    @folders.each { |folder| resources.open_folder(folder) }
+    #p @file_folders
+    
+    # Remove the "root" folder from the list...
+    @file_folders.delete_at(0)
+    
+    @file_folders.each { |folder| resources.open_folder(folder) }
     
     @file_names = resources.file_names
+
+    #p @file_names
     
     # Assignments
-    assignments = resources.assignments
+    assignments = home.assignments #resources.assignments
     
     @assignments = assignments.assignment_titles
+    
+    # Have to add "Draft - " to all assignment titles that don't
+    # already have that, since the new site will put all
+    # assignments into Draft status.
+    @assignments.map! do |assignment|
+      unless assignment =~ /^Draft\s-\s/
+        "Draft - " + assignment
+      else
+        assignment
+      end
+    end
+    
+    #p @assignments
     
     # Tests & Quizzes
     assessments = assignments.tests_and_quizzes
     
     @pending_assessments = assessments.pending_assessment_titles
-    @published_assessments = assessments.published_assessment_titles
-    @inactive_assessments = assessments.inactive_assessment_titles
+    
+    #p @pending_assessments 
     
     # Drop Box
     
     # ======================
     # FIXME - Need to add data gathering steps here.
     # ======================
-
     
     # Gradebook
     gradebook = assessments.gradebook
     
     @gradebook_items = gradebook.items_titles
+    
+    #p @gradebook_items
     
     # Gradebook 2
     
@@ -243,10 +282,14 @@ class TestDuplicateSite < Test::Unit::TestCase
     # Calendar
     calendar = announcements.calendar
     calendar.view="List of Events"
-    calendar.show_events="Events for this Month"
+    calendar.show_events="Events for this month"
+    
+    @new_events = calendar.events_list
+    
+    @new_events.delete_if { |event| event =~ /^http.+Description$/}
     
     # TEST CASE: All calendar items copied as expected
-    assert_equal @events, calendar.events_list
+    assert_equal @events, @new_events
     
     # Discussion Forums
     discussion_forums = calendar.discussion_forums
@@ -261,9 +304,9 @@ class TestDuplicateSite < Test::Unit::TestCase
     messages = discussion_forums.messages
     
     # TEST CASE: All Folders copied
-    assert_equal @folders, messages.folders
+    assert_equal @message_folders, messages.folders
     
-    messages = discussion_forums.messages
+    received = messages.received
     
     # TEST CASE: No messages copied
     assert_not_equal @messages, received.subjects
@@ -307,13 +350,13 @@ class TestDuplicateSite < Test::Unit::TestCase
     # Resources
     resources = lessons.resources
     
-    # Need to fix the folder name that includes the site name..
-    @folders[0] = "#{@new_site_title} #{@term} Resources"
+    @new_site_folders = resources.folder_names
+    @new_site_folders.delete_at(0)
     
     # TEST CASE: Folder names appear as expected
-    assert_equal @folders, resources.folder_names
+    assert_equal @file_folders, @new_site_folders
     
-    @folders.each { |folder| resources.open_folder(folder) }
+    @file_folders.each { |folder| resources.open_folder(folder) }
     
     # TEST CASE: File names appear as expected
     assert_equal @file_names, resources.file_names
@@ -325,20 +368,32 @@ class TestDuplicateSite < Test::Unit::TestCase
     assert_equal @assignments, assignments.assignment_titles
     
     # Tests & Quizzes
-    assessments = assignments.assessments
+    assessments = assignments.tests_and_quizzes
     
-    # TEST CASE: Assessments appear in the list as expected
+    # TEST CASE: Pending Assessments appear in the list as expected
     assert_equal @pending_assessments, assessments.pending_assessment_titles
-    assert_equal @published_assessments, assessments.published_assessment_titles
-    assert_equal @inactive_assessments, assessments.inactive_assessment_titles
+    
+    # TEST CASE: There are no published or Inactive Assessments listed.
+    assert_equal [], assessments.published_assessment_titles
+    assert_equal [], assessments.inactive_assessment_titles
     
     # Drop Box
     
     # Gradebook
     gradebook = assessments.gradebook
     
-    # TEST CASE: Gradebook items appear as expected
+    # TEST CASE: Expected Assignments appear in the list
     assert_equal @gradebook_items, gradebook.items_titles
+    
+    @gradebook_items.each do |assignment|
+      
+      # TEST CASE: The Assignment is not released to students
+      assert_equal "No", gradebook.released_to_students(assignment)
+      
+      # TEST CASE: There is no due date for the assignments
+      assert_equal "-", gradebook.due_date(assignment)
+      
+    end
     
     # Gradebook 2
     
