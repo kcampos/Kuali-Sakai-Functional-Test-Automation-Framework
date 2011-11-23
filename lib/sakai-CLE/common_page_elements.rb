@@ -785,7 +785,7 @@ class ImportStepTwo
   def import_file(filename)
     frm.file_field(:name=>"importFile").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + filename)
   end
-
+  
 end
 
 # The page for reviewing activities and confirming them for import.

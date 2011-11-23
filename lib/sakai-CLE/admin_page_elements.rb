@@ -1331,11 +1331,41 @@ class UserMembership
   include PageObject
   include ToolsMenu
   
+  # Returns an array containing the user names displayed in the search results.
+  def names
+    names = []
+    frm.table(:class=>/listHier/).rows.each do |row|
+      names << row[2].text
+    end
+    names.delete_at(0)
+    return names
+  end
+  
+  # Returns the user id of the specified user (assuming that person
+  # appears in the search results list, otherwise this method will
+  # throw an error.)
+  def user_id(name)
+    frm.table(:class=>/listHier/).row(:text=>/#{Regexp.escape(name)}/)[0].text
+  end
+  
+  # Returns the user type of the specified user (assuming that person
+  # appears in the search results list, otherwise this method will
+  # throw an error.)
+  def type(name)
+    frm.table(:class=>/listHier/).row(:text=>/#{Regexp.escape(name)}/)[4].text
+  end
+
+  # Returns the text contents of the "instruction" paragraph that
+  # appears when there are no search results.
+  def alert_text
+    frm.p(:class=>"instruction").text
+  end
+  
   in_frame(:index=>0) do |frame|
     select_list(:user_type, :id=>"userlistForm:selectType", :frame=>frame)
     select_list(:user_authority, :id=>"userlistForm:selectAuthority", :frame=>frame)
     text_field(:search_field, :id=>"userlistForm:inputSearchBox", :frame=>frame)
-    button(:search_button, :id=>"userlistForm:searchButton", :frame=>frame)
+    button(:search, :id=>"userlistForm:searchButton", :frame=>frame)
     button(:clear_search, :id=>"userlistForm:clearSearchButton", :frame=>frame)
     select_list(:page_size, :id=>"userlistForm:pager_pageSize", :frame=>frame)
     button(:export_csv, :id=>"userlistForm:exportCsv", :frame=>frame)

@@ -37,12 +37,7 @@ class TestDuplicateSite < Test::Unit::TestCase
   end
   
   def test_duplicate_site
-    
-    # some code to simplify writing steps in this test case
-    def frm
-      @browser.frame(:index=>$frame_index)
-    end
-    
+     
     # Log in to Sakai
     workspace = @sakai.login(@instructor, @ipassword)
     

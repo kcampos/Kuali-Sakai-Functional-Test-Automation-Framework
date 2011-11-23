@@ -338,10 +338,13 @@ module ToolsMenu
     @browser.link(:class, "icon-sakai-siteinfo").exist? ? x=0 : x=1
     @browser.link(:text=>"Tests & Quizzes").click
     x==0 ? AssessmentsList.new(@browser) : TakeAssessmentList.new(@browser)
-    
   end
   
-  link(:user_membership, :text=>"User Membership")
+  def user_membership
+    @browser.link(:class=>"icon-sakai-usermembership").click
+    UserMembership.new(@browser)
+  end
+  
   link(:users, :text=>"Users")
   link(:web_content, :text=>"Web Content")
   link(:wiki, :text=>"Wiki")
