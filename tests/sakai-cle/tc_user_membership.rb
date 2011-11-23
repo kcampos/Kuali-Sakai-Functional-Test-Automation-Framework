@@ -1,18 +1,16 @@
 # 
 # == Synopsis
 #
-# This is the Sakai-CLE test case template file. Use it as the starting
-# point for a new test case.
+# Tests that the user membership search page returns expected results.
 #
 # Author: Abe Heward (aheward@rSmart.com)
 gem "test-unit"
-gems = ["test/unit", "watir-webdriver"]
-gems.each { |gem| require gem }
+gems = ["test/unit", "watir-webdriver", "ci/reporter/rake/test_unit_loader"]
+gems.each { |g| require g }
 files = [ "/../../config/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-CLE/app_functions.rb", "/../../lib/sakai-CLE/admin_page_elements.rb", "/../../lib/sakai-CLE/site_page_elements.rb", "/../../lib/sakai-CLE/common_page_elements.rb" ]
 files.each { |file| require File.dirname(__FILE__) + file }
-require "ci/reporter/rake/test_unit_loader"
 
-class }}name{{ < Test::Unit::TestCase
+class TestUserMembership < Test::Unit::TestCase
   
   include Utilities
 
@@ -20,46 +18,54 @@ class }}name{{ < Test::Unit::TestCase
     @verification_errors = []
     
     # Get the test configuration data
-    config = AutoConfig.new
-    @browser = config.browser
-    @user_name = config.directory['']['username']
-    @password = config.directory['']['password']
+    @config = AutoConfig.new
+    @browser = @config.browser
+    # This test case uses the logins of several users
+    @admin = @config.directory['admin']['username']
+    @password = @config.directory['admin']['password']
+    @site_name = @config.directory['site1']['name']
+    @site_id = @config.directory['site1']['id']
     @sakai = SakaiCLE.new(@browser)
     
-    # Validation text -- These contain page content that will be used for
-    # test asserts.
+    # Test case variables
+    @search_name = "joe"
+    @full_name = "Joe Instructor"
+    @user_id = "instructor1"
+    @user_type = "maintain"
+    
+    @no_results = "No users to display"
     
   end
   
   def teardown
     # Close the browser window
     @browser.close
-    assert_equal [], @verification_errors
   end
   
-  def test_))casename((
+  def test_user_membership
     
     # Log in to Sakai
-    @sakai.login(@user_name, @password)
+    my_workspace = @sakai.login(@admin, @password)
     
-    # Go to User Membership page
+    user_membership = my_workspace.user_membership
+    user_membership.search_field=@search_name
+    user_membership.search
     
-    # TEST CASE: verify page
+    # TEST CASE: Verify user is displayed in the list.
+    assert user_membership.names.include?(@full_name)
     
-    # Search for an existing user of a membership type
+    # TEST CASE: Verify the user id is correct.
+    assert_equal @user_id, user_membership.user_id(@full_name)
     
-    # TEST CASE: verify page
+    # TEST CASE: Verify the user's type is as expected.
+    assert_equal @user_type, user_membership.type(@full_name)
     
-    # Search for an existing member of another membership type
+    user_membership.search_field=random_string(20)
+    user_membership.search
     
-    # TEST CASE: verify page
+    # TEST CASE: Verify search page reports no results found
+    assert_equal @no_results, user_membership.alert_text
     
-  end
-  
-  def verify(&blk)
-    yield
-  rescue Test::Unit::AssertionFailedError => ex
-    @verification_errors << ex
   end
   
 end
