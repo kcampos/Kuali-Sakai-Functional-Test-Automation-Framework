@@ -62,11 +62,11 @@ class AssessmentsList
   
   # Collects the titles of the Assessments listed as "Pending"
   # then returns them as an Array.
-  def pending_assessment_titles #FIXME
+  def pending_assessment_titles
     titles =[]
-    pending_table = @browser.frame(:index=>1).table(:class=>"authorIndexForm:coreAssessments")
+    pending_table = frm.table(:class=>"authorIndexForm:coreAssessments")
     1.upto(pending_table.rows.size-1) do |x|
-      titles << pending_table[x][1].span(:class=>"firstChild").link(:index=>0).text
+      titles << pending_table[x][1].span(:id=>/assessmentTitle/).text
     end
     return titles
   end
@@ -75,7 +75,7 @@ class AssessmentsList
   # then returns them as an Array.
   def published_assessment_titles
     titles =[]
-    published_table = @browser.frame(:index=>1).div(:class=>"tier2", :index=>2).table(:class=>"listHier")
+    published_table = frm.div(:class=>"tier2", :index=>2).table(:class=>"listHier" :index=>0)
     1.upto(published_table.rows.size-1) do |x|
       titles << published_table[x][1].span(:id=>/publishedAssessmentTitle/).text
     end
@@ -84,11 +84,11 @@ class AssessmentsList
   
   # Returns an Array of the inactive Assessment titles displayed
   # in the list.
-  def inactive_assessment_titles #FIXME
+  def inactive_assessment_titles
     titles =[]
-    inactive_table = @browser.frame(:index=>1).div(:class=>"tier2", :index=>2).table(:class=>"authorIndexForm:inactivePublishedAssessments")
+    inactive_table = frm.div(:class=>"tier2", :index=>2).table(:class=>"authorIndexForm:inactivePublishedAssessments")
     1.upto(inactive_table.rows.size-1) do |x|
-      titles << inactive_table[x][1].span(:class=>"firstChild").link(:index=>0).text
+      titles << inactive_table[x][1].span(:id=>/inactivePublishedAssessmentTitle/).text
     end
     return titles
   end
@@ -2020,6 +2020,14 @@ class AssignmentAttachments < AttachPageTools
   
 end
 
+
+#================
+# Blog Pages - NOT "Blogger"
+#================
+
+# 
+
+
 #================
 # Blogger Pages
 #================
@@ -2237,6 +2245,12 @@ class AddBloggerComment
 
 end
 
+
+#================
+# Chat Room Pages
+#================
+
+# 
 
 #================
 # Discussion Forums Pages
@@ -2684,6 +2698,24 @@ class Information
 
 end
 
+
+#================
+# Drop Box pages
+#================
+
+# 
+
+#================
+# Email Archive pages
+#================
+
+# 
+
+#================
+# Feedback pages
+#================
+
+#
 
 #================
 # Forms Pages - Portfolio Site
@@ -3329,6 +3361,12 @@ class Gradebook
   
 end
 
+
+#================
+# Gradebook2 Pages
+#================
+
+#
 
 #================
 # Lesson Pages
@@ -4194,15 +4232,6 @@ class MessagesReceivedList
     frm.checkbox(:name=>"prefs_pvt_form:pvtmsgs:#{index}:_id122").set 
   end
   
-  # Clicks the Messages link in the
-  # Breadcrumb bar at the top of the
-  # page, then instantiates the Messages
-  # class
-  def messages
-    frm.link(:text=>"Messages").click
-    Messages.new(@browser)
-  end
-
   # Clicks the "Mark Read" link, then
   # reinstantiates the class because
   # the page partially refreshes.
@@ -4703,6 +4732,12 @@ end
 
 
 #================
+# Podcast pages
+#================
+
+# 
+
+#================
 # Portfolio Templates pages
 #================
 
@@ -5160,6 +5195,13 @@ module SiteEditorMenu
     Groups.new(@browser)
   end
   
+  # Clicks the Duplicate Site link and instantiates
+  # the DuplicateSite class.
+  def duplicate_site
+    frm.link(:text=>"Duplicate Site").click
+    DuplicateSite.new(@browser)
+  end
+  
 end
 
 # The topmost "Site Editor" page, found in SITE MANAGEMENT
@@ -5235,6 +5277,29 @@ class CreateNewGroup
     button(:all_right, :name=>"right", :index=>1, :frame=>frame)
     button(:all_left, :name=>"left",:index=>1, :frame=>frame)
     button(:cancel, :id=>"cancel", :frame=>frame)
+  end
+end
+
+# The first page of the Duplicate Site pages in the Site Editor.
+class DuplicateSite
+  
+  include PageObject
+  include ToolsMenu
+   
+  def duplicate
+    frm.button(:value=>"Duplicate").click
+    frm.span(:class=>"submitnotif").wait_while_present(300)
+    SiteEditor.new(@browser)
+  end
+
+  # Returns the site name in the header, for verification.
+  def site_name
+    frm.div(:class=>"portletBody").h3.span(:class=>"highlight").text
+  end
+
+  in_frame(:class=>"portletMainIframe") do |frame|
+    text_field(:site_title, :id=>"title", :frame=>frame)
+    select_list(:academic_term, :id=>"selectTerm", :frame=>frame)
   end
 end
 

@@ -27,7 +27,7 @@ class TestDuplicateSite < Test::Unit::TestCase
     @sakai = SakaiCLE.new(@browser)
     
     # Test case variables
-    
+    @new_site_title = random_alphanums
     
   end
   
@@ -43,339 +43,318 @@ class TestDuplicateSite < Test::Unit::TestCase
     
     home = workspace.open_my_site_by_id(@site_id)
     
+    # Gather info about the current contents for verification
+    # after duplication...
     
-    @selenium.click "//a[@class='icon-sakai-siteinfo']"
-    # 
-    @selenium.click "link=Duplicate Site"
-    # 
-    @selenium.type "title", "4 5 6"
-    @selenium.click "duplicateSite"
-    # 
-    @selenium.click "//a[contains(@title,'4 5 6')]"
-    # 
-    @selenium.click "//a[@class='icon-sakai-announcements']"
-    # 
-    begin
-        assert @selenium.is_element_present("link=exact:Assignment: Open Date for Assignment 3")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
+    # Announcements
+    announcements = home.announcements
+    
+    @announcements = announcements.subjects
+    
+    # Calendar
+    calendar = announcements.calendar
+    calendar.view="List of Events"
+    calendar.show_events="Events for this Month"
+    
+    @events = calendar.events_list
+    
+    # Discussion Forums
+    discussion_forums = calendar.discussion_forums
+    
+    # ======================
+    # FIXME - Add steps for getting Discussions and Topic names here
+    # ======================
+    
+    # Messages
+    messages = discussion_forums.messages
+    
+    @folders = messages.folders
+    
+    received = messages.received
+    
+    @messages = received.subjects
+    
+    # Forums
+    
+    # ======================
+    # FIXME - Need to add data gathering steps here.
+    # ======================
+    
+    # Email Archive
+    
+    # ======================
+    # FIXME - Need to add data gathering steps here.
+    # ======================
+
+    # Chat Room
+    
+    # ======================
+    # FIXME - Need to add data gathering steps here.
+    # ======================
+    
+    # Blogs
+    
+    # ======================
+    # FIXME - Need to add data gathering steps here.
+    # ======================
+    
+    # Blogger
+    blogger = received.blogger
+    
+    @blogger_titles = blogger.post_titles
+    
+    # Polls
+    
+    # ======================
+    # FIXME - Need to add data gathering steps here.
+    # ======================
+    
+    # Syllabus
+    syllabus = blogger.syllabus
+    edit = syllabus.create_edit
+    
+    @syllabus_items = edit.syllabus_titles
+    
+    # Lessons
+    lessons = edit.lessons
+    
+    @lessons = lessons.lessons_list
+    
+    @sections = []
+    @lessons.each do |lesson|
+      @sections << lessons.sections_list(lesson)
     end
-    begin
-        assert @selenium.is_element_present("link=This is a Test three Edit")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
+    
+    # Resources
+    resources = lessons.resources
+    
+    @folder_names = resources.folder_names
+    
+    @folders.each { |folder| resources.open_folder(folder) }
+    
+    @file_names = resources.file_names
+    
+    # Assignments
+    assignments = resources.assignments
+    
+    @assignments = assignments.assignment_titles
+    
+    # Tests & Quizzes
+    assessments = assignments.tests_and_quizzes
+    
+    @pending_assessments = assessments.pending_assessment_titles
+    @published_assessments = assessments.published_assessment_titles
+    @inactive_assessments = assessments.inactive_assessment_titles
+    
+    # Drop Box
+    
+    # ======================
+    # FIXME - Need to add data gathering steps here.
+    # ======================
+
+    
+    # Gradebook
+    gradebook = assessments.gradebook
+    
+    @gradebook_items = gradebook.items_titles
+    
+    # Gradebook 2
+    
+    # ======================
+    # FIXME - Need to add data gathering steps here.
+    # ======================
+
+    
+    # Feedback
+    
+    # ======================
+    # FIXME - Need to add data gathering steps here.
+    # ======================
+
+    
+    # Podcasts
+    
+    # ======================
+    # FIXME - Need to add data gathering steps here.
+    # ======================
+
+    
+    # Wiki
+    
+    # ======================
+    # FIXME - Need to add data gathering steps here.
+    # ======================
+
+    
+    # News
+    
+    # ======================
+    # FIXME - Need to add data gathering steps here.
+    # ======================
+
+    
+    # Web Content
+    
+    # ======================
+    # FIXME - Need to add data gathering steps here.
+    # ======================
+
+    
+    # Basic LTI
+    
+    # ======================
+    # FIXME - Need to add data gathering steps here.
+    # ======================
+
+    
+    # Media Gallery
+    
+    # ======================
+    # FIXME - Need to add data gathering steps here.
+    # ======================
+    
+    # Go to Site Editor
+    site_editor = gradebook.site_editor
+    
+    # Duplicate the Site
+    duplicate = site_editor.duplicate_site
+    
+    # TEST CASE: Verify site name in the header is correct
+    assert_equal @site_name, duplicate.site_name
+    
+    # Get the term value for later...
+    @term = duplicate.academic_term
+    
+    duplicate.site_title=@new_site_title
+    
+    site_editor = duplicate.duplicate
+    
+    # Go to the new Site
+    home = site_editor.open_my_site_by_name @new_site_title
+    
+    # Verify that the new Site has all the expected content
+    
+    # Announcements
+    announcements = home.announcements
+    
+    # TEST CASE: All announcements are present as expected
+    assert_equal @announcements, announcements.subjects
+    
+    # Calendar
+    calendar = announcements.calendar
+    calendar.view="List of Events"
+    calendar.show_events="Events for this Month"
+    
+    # TEST CASE: All calendar items copied as expected
+    assert_equal @events, calendar.events_list
+    
+    # Discussion Forums
+    discussion_forums = calendar.discussion_forums
+    
+    # TEST CASE: All Forums copied
+    #assert_equal
+    
+    # TEST CASE: All Topics copied
+    #assert_equal
+    
+    # Messages
+    messages = discussion_forums.messages
+    
+    # TEST CASE: All Folders copied
+    assert_equal @folders, messages.folders
+    
+    messages = discussion_forums.messages
+    
+    # TEST CASE: No messages copied
+    assert_not_equal @messages, received.subjects
+    
+    # Forums
+    
+    # Email Archive
+    
+    # Chat Room
+    
+    # Blogs
+    
+    # Blogger
+    blogger = received.blogger
+    
+    # TEST CASE: Blog titles are not copied
+    assert_not_equal @blogger_titles, blogger.post_titles
+    
+    # Polls
+    
+    # Syllabus
+    syllabus = blogger.syllabus
+    edit = syllabus.create_edit
+    
+    # TEST CASE: Syllabus items appear as expected
+    assert_equal @syllabus_items, edit.syllabus_titles
+    
+    # Lessons
+    lessons = edit.lessons
+    
+    # TEST CASE: Lessons appear as expected
+    assert_equal @lessons, lessons.lessons_list
+    
+    @lessons.each_with_index do | lesson, index |
+      
+      # TEST CASE: Sections appear as expected
+      assert_equal @sections[index], lessons.sections_list(lesson)
+      
     end
-    begin
-        assert @selenium.is_element_present("link=This is a Test five")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("link=This is a Test fore!")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("link=This is a Test too")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("link=This is a Test")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.click "//a[@class='icon-sakai-schedule']"
-    # 
-    @selenium.select "view", "label=List of Events"
-    # 
-    @selenium.select "timeFilterOption", "label=All events"
-    # 
-    begin
-        assert @selenium.is_element_present("link=Spring Formal")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.click "//a[@class='icon-sakai-jforum-tool']"
-    # 
-    begin
-        assert @selenium.is_element_present("link=New Possibilities")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.click "//a[@class='icon-sakai-forums']"
-    # 
-    begin
-        assert @selenium.is_element_present("link=Forum 1")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("link=Topic 1")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("link=Forum 2")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("link=Topic For Group 2")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("link=Topic For Group 1")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.click "//a[@class='icon-sakai-chat']"
-    # 
-    @selenium.click "link=Change Room"
-    # 
-    assert !60.times{ break if (@selenium.is_element_present("link=New chat room") rescue false); sleep 1 }
-    @selenium.click "//a[@class='icon-sakai-poll']"
-    # 
-    assert !60.times{ break if (@selenium.is_element_present("link=exact:Is this the best class ever?") rescue false); sleep 1 }
-    @selenium.click "//a[@class='icon-sakai-syllabus']"
-    # 
-    @selenium.click "link=Create/Edit"
-    # 
-    @selenium.click "link=Redirect"
-    # 
-    begin
-        assert_equal "http://www.rsmart.com", @selenium.get_value("_id2:urlValue")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.click "//a[@class='icon-sakai-melete']"
-    # 
-    begin
-        assert @selenium.is_element_present("link=Lesson1-Section1")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("link=Lesson1-Section2")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("//span[contains(text(),'Lesson1-Section1')]")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("//span[contains(text(),'Lesson1-Section2')]")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("link=Lesson4-Section1")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("//span[contains(text(),'Lesson4-Section1')]")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("//span[contains(text(),'Lesson5')]")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("//span[contains(text(),'Lesson4-Section1')]")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("link=Lesson4-Section1")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("//span[contains(text(),'Lesson1-Section2')]")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("link=Getting Started")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("link=Tests FAQs")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.click "listauthmodulesform:top:viewItem"
-    # 
-    @selenium.click "link=Lesson1"
-    # 
-    begin
-        assert @selenium.is_element_present("link=Lesson1-Section1")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("link=Lesson1-Section2")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.click "link=Next"
-    # 
-    @selenium.click "link=Next"
-    # 
-    @selenium.click "link=Next"
-    # 
-    begin
-        assert @selenium.is_element_present("link=Lesson4-Section1")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.click "link=Prev"
-    # 
-    begin
-        assert @selenium.is_element_present("//a[contains(text(),'Client Login')]")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.click "link=Table Of Contents"
-    # 
-    @selenium.click "link=Lesson5"
-    # 
-    begin
-        assert @selenium.is_element_present("link=Lesson5-Section1")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.click "link=Next"
-    # 
-    begin
-        assert @selenium.is_element_present("link=resources.doc")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.click "link=Next"
-    # 
-    begin
-        assert @selenium.is_element_present("link=resources.jpg")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.click "link=Next"
-    # 
-    begin
-        assert @selenium.is_element_present("link=Lesson6-Section1")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.click "link=Next"
-    # 
-    begin
-        assert @selenium.is_element_present("link=resources.mp3")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.click "//a[@class='icon-sakai-resources']"
-    # 
-    begin
-        assert @selenium.is_element_present("link=resources.doc")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("link=resources.jpg")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("link=resources.txt")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("link=resources.mp3")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("link=resources.xls")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.click "//a[@class='icon-sakai-assignment-grades']"
-    # 
-    begin
-        assert @selenium.is_element_present("link=Draft - Assignment 2")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("link=Draft - Assignment 4")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("link=Draft - Assignment 1")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("link=Draft - Assignment 3")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("link=Draft - Assignment 5")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.click "//a[@class='icon-sakai-samigo']"
-    # 
-    begin
-        assert @selenium.is_element_present("//span[contains(text(),'Test 1')]")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("//span[contains(text(),'Test 2')]")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.click "//a[@class='icon-sakai-gradebook-tool']"
-    # 
-    # CLE-4008
-    @selenium.click "link=All Grades"
-    # 
-    begin
-        assert @selenium.is_element_present("link=Student Name")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.click "//a[@class='icon-sakai-podcasts']"
-    # 
-    # Create Podcasts in 1 2 3
-    @selenium.click "//a[@class='icon-sakai-rwiki']"
-    # 
-    # Create Wiki settings in 1 2 3
-    begin
-        assert @selenium.is_element_present("//span[contains(text(),'rSmart.com')]")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    begin
-        assert @selenium.is_element_present("//span[contains(text(),'Sakaiproject.org')]")
-    rescue Test::Unit::AssertionFailedError
-        @verification_errors << $!
-    end
-    @selenium.click "//a[@class='icon-sakai-iframe-site']"
-    # 
-    @selenium.click "link=Logout"
-    # 
+    
+    # Resources
+    resources = lessons.resources
+    
+    # Need to fix the folder name that includes the site name..
+    @folders[0] = "#{@new_site_title} #{@term} Resources"
+    
+    # TEST CASE: Folder names appear as expected
+    assert_equal @folders, resources.folder_names
+    
+    @folders.each { |folder| resources.open_folder(folder) }
+    
+    # TEST CASE: File names appear as expected
+    assert_equal @file_names, resources.file_names
+    
+    # Assignments
+    assignments = resources.assignments
+    
+    # TEST CASE: Check assignments appear as expected
+    assert_equal @assignments, assignments.assignment_titles
+    
+    # Tests & Quizzes
+    assessments = assignments.assessments
+    
+    # TEST CASE: Assessments appear in the list as expected
+    assert_equal @pending_assessments, assessments.pending_assessment_titles
+    assert_equal @published_assessments, assessments.published_assessment_titles
+    assert_equal @inactive_assessments, assessments.inactive_assessment_titles
+    
+    # Drop Box
+    
+    # Gradebook
+    gradebook = assessments.gradebook
+    
+    # TEST CASE: Gradebook items appear as expected
+    assert_equal @gradebook_items, gradebook.items_titles
+    
+    # Gradebook 2
+    
+    # Feedback
+    
+    # Podcasts
+    
+    # Wiki
+    
+    # News
+    
+    # Web Content
+    
+    # Basic LTI
+    
+    # Media Gallery
     
   end
   
