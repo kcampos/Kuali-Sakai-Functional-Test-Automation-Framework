@@ -64,7 +64,7 @@ class AssessmentsList
   # then returns them as an Array.
   def pending_assessment_titles
     titles =[]
-    pending_table = frm.table(:class=>"authorIndexForm:coreAssessments")
+    pending_table = frm.table(:id=>"authorIndexForm:coreAssessments")
     1.upto(pending_table.rows.size-1) do |x|
       titles << pending_table[x][1].span(:id=>/assessmentTitle/).text
     end
@@ -75,7 +75,7 @@ class AssessmentsList
   # then returns them as an Array.
   def published_assessment_titles
     titles =[]
-    published_table = frm.div(:class=>"tier2", :index=>2).table(:class=>"listHier" :index=>0)
+    published_table = frm.div(:class=>"tier2", :index=>2).table(:class=>"listHier", :index=>0)
     1.upto(published_table.rows.size-1) do |x|
       titles << published_table[x][1].span(:id=>/publishedAssessmentTitle/).text
     end
@@ -86,7 +86,7 @@ class AssessmentsList
   # in the list.
   def inactive_assessment_titles
     titles =[]
-    inactive_table = frm.div(:class=>"tier2", :index=>2).table(:class=>"authorIndexForm:inactivePublishedAssessments")
+    inactive_table = frm.div(:class=>"tier2", :index=>2).table(:id=>"authorIndexForm:inactivePublishedAssessments")
     1.upto(inactive_table.rows.size-1) do |x|
       titles << inactive_table[x][1].span(:id=>/inactivePublishedAssessmentTitle/).text
     end
@@ -3359,6 +3359,17 @@ class Gradebook
     return titles
   end
   
+  # Returns the value of the "Released to Students" column
+  # for the specified assignment title.
+  def released_to_students(assignment)
+    frm.table(:class=>"listHier lines nolines").row(:text=>/#{Regexp.escape(assignment)}/)[4].text
+  end
+  
+  # Returns the due date value for the specified assignment.
+  def due_date(assignment)
+    frm.table(:class=>"listHier lines nolines").row(:text=>/#{Regexp.escape(assignment)}/)[3].text
+  end
+  
 end
 
 
@@ -3444,7 +3455,7 @@ class Lessons
   def lessons_list
     list = []
     frm.table(:id=>/lis.+module.+form:table/).links.each do |link|
-      if link.id=~/lis.+module.+form:table:.+:.+Mod/
+      if link.id=~/lis.+module.+form:table:.+:.+Mod$/
         list << link.text
       end
     end
