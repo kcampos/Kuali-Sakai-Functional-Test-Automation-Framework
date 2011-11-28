@@ -122,8 +122,15 @@ module ToolsMenu
     AssignmentsList.new(@browser)
   end
   
-  link(:basic_lti, :text=>"Basic LTI")
-  link(:blogs, :text=>"Blogs")
+  def basic_lti
+    @browser.link(:class=>"icon-sakai-basiclti").click
+    BasicLTI.new(@browser)
+  end
+  
+  def blogs
+    @browser.link(:class=>"icon-sakai-blogwow").click
+    Blogs.new(@browser)
+  end
   
   # Clicks the Blogger link in the Site menu and
   # instantiates the Blogger Class.
@@ -140,7 +147,12 @@ module ToolsMenu
   end
   
   link(:certification, :text=>"Certification")
-  link(:chat_room, :text=>"Chat Room")
+  
+  def chat_room
+    @browser.link(:class=>"icon-sakai-chat").click
+    ChatRoom.new(@browser)
+  end
+
   link(:configuration_viewer, :text=>"Configuration Viewer")
   link(:customizer, :text=>"Customizer")
   
@@ -151,12 +163,26 @@ module ToolsMenu
     JForums.new(@browser)
   end
   
+  def drop_box
+    @browser.link(:class=>"icon-sakai-dropbox").click
+    DropBox.new(@browser)
+  end
+  
   link(:drop_box, :text=>"Drop Box")
   link(:email, :text=>"Email")
-  link(:email_archive, :text=>"Email Archive")
+  
+  def email_archive
+    @browser.link(:class=>"icon-sakai-mailbox").click
+    EmailArchive.new(@browser)
+  end
+  
   link(:email_template_administration, :text=>"Email Template Administration")
   link(:evaluation_system, :text=>"Evaluation System")
-  link(:feedback, :text=>"Feedback")
+  
+  def feedback
+    @browser.link(:class=>"icon-sakai-postem").click
+    Feedback.new(@browser)
+  end
   
   # Clicks the Forms link that is found in menus for
   # Portfolio sites.
@@ -185,7 +211,12 @@ module ToolsMenu
     Gradebook.new(@browser)
   end
   
-  link(:gradebook2, :text=>"Gradebook2")
+  def gradebook2
+    @browser.link(:text=>"Gradebook2").click
+    frm.div(:id=>"borderLayoutContainer").wait_until_present
+    Gradebook2.new(@browser)
+  end
+  
   link(:help, :text=>"Help")
   
   # Clicks the Home link, then instantiates the
@@ -226,7 +257,11 @@ module ToolsMenu
     Matrices.new(@browser)
   end
   
-  link(:media_gallery, :text=>"Media Gallery")
+  def media_gallery
+    @browser.link(:class=>"icon-sakai-kaltura").click
+    MediaGallery.new(@browser)
+  end
+  
   link(:membership, :text=>"Membership")
   link(:memory, :text=>"Memory")
   
@@ -247,13 +282,26 @@ module ToolsMenu
     MyWorkspace.new(@browser)
   end
   
-  link(:news, :text=>"News")
+  def news
+    @browser.link(:class=>"icon-sakai-news").click
+    News.new(@browser)
+  end
+  
   link(:online, :text=>"On-Line")
   link(:oauth_providers, :text=>"Oauth Providers")
   link(:oauth_tokens, :text=>"Oauth Tokens")
   link(:openSyllabus, :text=>"OpenSyllabus")
-  link(:podcasts, :text=>"Podcasts")
-  link(:polls, :text=>"Polls")
+  
+  def podcasts
+    @browser.link(:class=>"icon-sakai-podcasts").click
+    Podcasts.new(@browser)
+  end
+
+  def polls
+    @browser.link(:class=>"icon-sakai-poll").click
+    Polls.new(@browser)
+  end
+  
   link(:portfolios, :text=>"Portfolios")
   
   # Clicks the Portfolio Templates link, then
@@ -351,8 +399,16 @@ module ToolsMenu
   end
   
   link(:users, :text=>"Users")
-  link(:web_content, :text=>"Web Content")
-  link(:wiki, :text=>"Wiki")
+  
+  def web_content
+    @browser.link(:class=>"icon-sakai-iframe").click
+    WebContent.new(@browser)
+  end
+  
+  def wiki
+    @browser.link(:class=>"icon-sakai-rwiki").click
+    Wikis.new(@browser)
+  end
   
   # The Page Reset button, found on all Site pages
   def reset

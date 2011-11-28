@@ -67,20 +67,17 @@ class TestDuplicateSite < Test::Unit::TestCase
     @events.delete_if { |event| event =~ /^http.+Description$/ || event =~ /^Due\s/ }
     
     #p @events
-    
+   
     # Discussion Forums
-    discussion_forums = calendar.discussion_forums
+    discussion_forums = home.discussion_forums #calendar.discussion_forums
     
-    # ======================
-    # FIXME - Add steps for getting Discussions and Topic names here
-    # ======================
+    # Get the list of forums
+    @forum_list = discussion_forums.forum_list
     
     # Messages
     messages = discussion_forums.messages
     
     @message_folders = messages.folders
-    
-    #p @folders
     
     received = messages.received
     
@@ -89,44 +86,48 @@ class TestDuplicateSite < Test::Unit::TestCase
     #p @messages
     
     # Forums
+    forums = received.forums
     
-    # ======================
-    # FIXME - Need to add data gathering steps here.
-    # ======================
+    @forum_titles = forums.forum_titles
+    @topic_titles = forums.topic_titles
     
     # Email Archive
-    
-    # ======================
-    # FIXME - Need to add data gathering steps here.
-    # ======================
+    email = forums.email_archive
 
-    # Chat Room
-    
     # ======================
     # FIXME - Need to add data gathering steps here.
     # ======================
+    
+    # Chat Room
+    chat_room = email.chat_room
+    
+    @total_messages = chat_room.total_messages_shown
+    
+    p @total_messages
     
     # Blogs
+    blogs = chat_room.blogs
     
-    # ======================
-    # FIXME - Need to add data gathering steps here.
-    # ======================
+    @bloggers = blogs.blogger_list
+    
+    p @bloggers
     
     # Blogger
-    blogger = received.blogger
+    blogger = blogs.blogger
     
     @blogger_titles = blogger.post_titles
     
     #p @blogger_titles
     
     # Polls
+    polls = blogger.polls
     
-    # ======================
-    # FIXME - Need to add data gathering steps here.
-    # ======================
+    @poll_questions = polls.questions
+    
+    p @poll_questions
     
     # Syllabus
-    syllabus = blogger.syllabus
+    syllabus = polls.syllabus
     edit = syllabus.create_edit
     
     @syllabus_items = edit.syllabus_titles
@@ -160,7 +161,7 @@ class TestDuplicateSite < Test::Unit::TestCase
     #p @file_names
     
     # Assignments
-    assignments = home.assignments #resources.assignments
+    assignments = resources.assignments
     
     @assignments = assignments.assignment_titles
     
@@ -185,75 +186,42 @@ class TestDuplicateSite < Test::Unit::TestCase
     #p @pending_assessments 
     
     # Drop Box
+    drop_box = assessments.drop_box
     
-    # ======================
-    # FIXME - Need to add data gathering steps here.
-    # ======================
+    @drop_box_folders = drop_box.folder_names
+    
+    p @drop_box_folders
     
     # Gradebook
-    gradebook = assessments.gradebook
+    gradebook = drop_box.gradebook
     
     @gradebook_items = gradebook.items_titles
     
     #p @gradebook_items
-    
-    # Gradebook 2
-    
-    # ======================
-    # FIXME - Need to add data gathering steps here.
-    # ======================
 
+    # Gradebook 2
+    gradebook2 = home.gradebook2
+    
+    @gradebook2_items = gradebook2.gradebook_items
+    
+    p @gradebook2_items
     
     # Feedback
+    feedback = gradebook2.feedback
     
-    # ======================
-    # FIXME - Need to add data gathering steps here.
-    # ======================
-
+    @feedback_items = feedback.feedback_items
+    
+    p @feedback_items
     
     # Podcasts
+    podcasts = feedback.podcasts
     
-    # ======================
-    # FIXME - Need to add data gathering steps here.
-    # ======================
+    @podcasts = podcasts.podcast_titles
 
-    
-    # Wiki
-    
-    # ======================
-    # FIXME - Need to add data gathering steps here.
-    # ======================
-
-    
-    # News
-    
-    # ======================
-    # FIXME - Need to add data gathering steps here.
-    # ======================
-
-    
-    # Web Content
-    
-    # ======================
-    # FIXME - Need to add data gathering steps here.
-    # ======================
-
-    
-    # Basic LTI
-    
-    # ======================
-    # FIXME - Need to add data gathering steps here.
-    # ======================
-
-    
-    # Media Gallery
-    
-    # ======================
-    # FIXME - Need to add data gathering steps here.
-    # ======================
+    p @podcasts
     
     # Go to Site Editor
-    site_editor = gradebook.site_editor
+    site_editor = podcasts.site_editor
     
     # Duplicate the Site
     duplicate = site_editor.duplicate_site
@@ -294,11 +262,13 @@ class TestDuplicateSite < Test::Unit::TestCase
     # Discussion Forums
     discussion_forums = calendar.discussion_forums
     
-    # TEST CASE: All Forums copied
-    #assert_equal
+    # TEST CASE: The discussion forums are there (including any added ones)
+    assert_equal @forum_list, discussion_forums.forum_list
     
-    # TEST CASE: All Topics copied
-    #assert_equal
+    @forum_list.each do |forum|
+      # TEST CASE: There are no topics in the Forums
+      assert_equal "0", discussion_forums.topic_count(forum)
+    end
     
     # Messages
     messages = discussion_forums.messages
@@ -312,23 +282,45 @@ class TestDuplicateSite < Test::Unit::TestCase
     assert_not_equal @messages, received.subjects
     
     # Forums
+    forums = received.forums
+    
+    # TEST CASE: Forums not copied
+    assert_not_equal @forum_titles, forums.forum_titles
+    
+    # TEST CASE: Topics not copied
+    assert_not_equal @topic_titles, forums.topic_titles
     
     # Email Archive
+    email = forums.email_archive
+    
+    # TEST CASE: No emails copied
     
     # Chat Room
+    chat = email.chat_room
+    
+    # TEST CASE: No chat messages copied
+    assert_not_equal @total_messages, chat.total_messages_shown
     
     # Blogs
+    blogs = chat.blogs
+    
+    # TEST CASE: Blogs did not copy
+    assert_not_equal @bloggers, blogs.blogger_list
     
     # Blogger
-    blogger = received.blogger
+    blogger = blogs.blogger
     
     # TEST CASE: Blog titles are not copied
     assert_not_equal @blogger_titles, blogger.post_titles
     
     # Polls
+    polls = blogger.polls
+    
+    # TEST CASE: Polls did copy?
+    assert_equal @poll_questions, polls.questions
     
     # Syllabus
-    syllabus = blogger.syllabus
+    syllabus = polls.syllabus
     edit = syllabus.create_edit
     
     # TEST CASE: Syllabus items appear as expected
@@ -378,9 +370,13 @@ class TestDuplicateSite < Test::Unit::TestCase
     assert_equal [], assessments.inactive_assessment_titles
     
     # Drop Box
+    drop_box = assessments.drop_box
+    
+    # TEST CASE: Verify student folders didn't copy
+    assert_not_equal @drop_box_folders, drop_box.folder_names
     
     # Gradebook
-    gradebook = assessments.gradebook
+    gradebook = drop_box.gradebook
     
     # TEST CASE: Expected Assignments appear in the list
     assert_equal @gradebook_items, gradebook.items_titles
@@ -396,20 +392,22 @@ class TestDuplicateSite < Test::Unit::TestCase
     end
     
     # Gradebook 2
+    gradebook2 = gradebook.gradebook2
+    
+    # TEST CASE: Verify gradebook items appear as expected
+    assert_equal @gradebook2_items, gradebook2.gradebook_items
     
     # Feedback
+    feedback = gradebook2.feedback
+    
+    # TEST CASE: Feedback items do not appear
+    assert_not_equal @feedback_items, feedback.feedback_items
     
     # Podcasts
+    podcasts = feedback.podcasts
     
-    # Wiki
-    
-    # News
-    
-    # Web Content
-    
-    # Basic LTI
-    
-    # Media Gallery
+    # TEST CASE: Verify podcasts appear
+    assert_equal @podcasts, podcasts.podcast_titles
     
   end
   
