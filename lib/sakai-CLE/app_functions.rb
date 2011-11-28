@@ -167,8 +167,7 @@ module ToolsMenu
     @browser.link(:class=>"icon-sakai-dropbox").click
     DropBox.new(@browser)
   end
-  
-  link(:drop_box, :text=>"Drop Box")
+
   link(:email, :text=>"Email")
   
   def email_archive

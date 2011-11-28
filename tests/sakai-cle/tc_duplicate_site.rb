@@ -103,14 +103,14 @@ class TestDuplicateSite < Test::Unit::TestCase
     
     @total_messages = chat_room.total_messages_shown
     
-    p @total_messages
+    #p @total_messages
     
     # Blogs
     blogs = chat_room.blogs
     
     @bloggers = blogs.blogger_list
     
-    p @bloggers
+    #p @bloggers
     
     # Blogger
     blogger = blogs.blogger
@@ -124,7 +124,7 @@ class TestDuplicateSite < Test::Unit::TestCase
     
     @poll_questions = polls.questions
     
-    p @poll_questions
+    #p @poll_questions
     
     # Syllabus
     syllabus = polls.syllabus
@@ -190,7 +190,7 @@ class TestDuplicateSite < Test::Unit::TestCase
     
     @drop_box_folders = drop_box.folder_names
     
-    p @drop_box_folders
+    #p @drop_box_folders
     
     # Gradebook
     gradebook = drop_box.gradebook
@@ -204,21 +204,21 @@ class TestDuplicateSite < Test::Unit::TestCase
     
     @gradebook2_items = gradebook2.gradebook_items
     
-    p @gradebook2_items
+    #p @gradebook2_items
     
     # Feedback
     feedback = gradebook2.feedback
     
     @feedback_items = feedback.feedback_items
     
-    p @feedback_items
+    #p @feedback_items
     
     # Podcasts
     podcasts = feedback.podcasts
     
     @podcasts = podcasts.podcast_titles
 
-    p @podcasts
+    #p @podcasts
     
     # Go to Site Editor
     site_editor = podcasts.site_editor
@@ -284,11 +284,16 @@ class TestDuplicateSite < Test::Unit::TestCase
     # Forums
     forums = received.forums
     
-    # TEST CASE: Forums not copied
-    assert_not_equal @forum_titles, forums.forum_titles
+    # TEST CASE: Forums copied
+    assert_equal @forum_titles, forums.forum_titles
     
-    # TEST CASE: Topics not copied
-    assert_not_equal @topic_titles, forums.topic_titles
+    # TEST CASE: Topics copied
+    assert_equal @topic_titles, forums.topic_titles
+    
+    # TEST CASE: Forums have "DRAFT" in front of them.
+    @forum_titles.each do |title|
+      assert forums.draft?(title)
+    end
     
     # Email Archive
     email = forums.email_archive

@@ -2052,8 +2052,9 @@ class Blogs
   def blogger_list
     bloggers = []
     frm.table(:class=>"listHier lines").rows.each do |row|
-      bloggers << row[1].link.text
+      bloggers << row[1].text
     end
+    bloggers.delete_at(0)
     return bloggers
   end
 
@@ -3009,7 +3010,13 @@ class Forums
   
   include PageObject
   include ToolsMenu
-
+  
+  # Pass this method a string that matches
+  # the title of a Forum on the page, it returns
+  # True if the specified forum row has "DRAFT" in it.
+  def draft?(title)
+    frm.table(:id=>"msgForum:forums").row(:text=>/#{Regexp.escape(title)}/).span(:text=>"DRAFT").exist?
+  end
   
   def new_forum
     frm.link(:text=>"New Forum").click
