@@ -33,7 +33,7 @@ class TestMasterCourseSite < Test::Unit::TestCase
     @course = "101"
     @section = "100"
     @authorizer = "admin"
-    @email = "tst100"
+    @email = random_alphanums
     @url = "http://www.rsmart.com"
     
     @job_name = "SIS" + random_alphanums

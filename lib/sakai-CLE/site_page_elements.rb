@@ -2022,10 +2022,46 @@ end
 
 
 #================
+# Basic LTI Pages
+#================
+
+# 
+class BasicLTI
+  
+  include PageObject
+  include ToolsMenu
+
+  in_frame(:class=>"portletMainIframe") do |frame|
+    
+  end
+end
+
+
+#================
 # Blog Pages - NOT "Blogger"
 #================
 
 # 
+class Blogs
+  
+  include PageObject
+  include ToolsMenu
+
+  # Returns an array containing the list of Bloggers
+  # in the "All the blogs" table.
+  def blogger_list
+    bloggers = []
+    frm.table(:class=>"listHier lines").rows.each do |row|
+      bloggers << row[1].link.text
+    end
+    return bloggers
+  end
+
+  in_frame(:class=>"portletMainIframe") do |frame|
+    
+  end
+end
+
 
 
 #================
@@ -2251,6 +2287,20 @@ end
 #================
 
 # 
+class ChatRoom
+  
+  include PageObject
+  include ToolsMenu
+  
+  def total_messages_shown
+    @browser.frame(:class=>"wcwmenu").div(:id=>"chat2_messages_shown_total").text
+  end
+
+  in_frame(:class=>"wcwmenu") do |frame|
+    
+  end
+end
+
 
 #================
 # Discussion Forums Pages
@@ -2330,6 +2380,23 @@ class JForums
   def open_topic(topic_title)
     frm.link(:text=>topic_title).click
     ViewTopic.new(@browser)
+  end
+  
+  # Returns an array containing the names of the Forums listed on the page.
+  def forum_list
+    list = frm.table(:class=>"forumline").links.map do |link|
+      if link.href =~ /forums\/show\//
+        link.text
+      end
+    end
+    list.compact!
+    return list
+  end
+  
+  # Returns the displayed count of topics for the specified
+  # Forum.
+  def topic_count(forum_name)
+    frm.table(:class=>"forumline").row(:text=>/#{Regexp.escape(forum_name)}/)[2].text
   end
 
 end
@@ -2704,18 +2771,93 @@ end
 #================
 
 # 
+class DropBox < AttachPageTools
+  
+  include ToolsMenu
+  
+  def initialize(browser)
+    @browser = browser
+    
+    @@classes = {
+      :this => "DropBox",
+      :parent => "DropBox",
+      :second => "",
+      :third => ""
+    }
+  end
+  
+end
+
 
 #================
 # Email Archive pages
 #================
 
 # 
+class EmailArchive
+  
+  include PageObject
+  include ToolsMenu
+  
+  def options
+    frm.link(:text=>"Options").click
+    EmailArchiveOptions.new(@browser)
+  end
+  
+  # Returns an array containing the 
+  def email_list
+  end
+
+  in_frame(:class=>"portletMainIframe") do |frame|
+    text_field(:search_field, :id=>"search", :frame=>frame)
+    button(:search_button, :value=>"Search", :frame=>frame)
+  end
+end
+
 
 #================
 # Feedback pages
 #================
 
-#
+# 
+class Feedback
+  
+  include PageObject
+  include ToolsMenu
+  
+  def add
+    frm.link(:text=>"Add").click
+    AddUpdateFeedback.new(@browser)
+  end
+  
+  # Returns an array containing the titles
+  # of the Feedback items listed on the page.
+  def feedback_items
+    items = []
+    frm.table(:class=>"listHier lines nolines").rows.each_with_index do |row, index|
+      next if index == 0
+      items << row[0].text
+    end
+    return items
+  end
+
+  in_frame(:class=>"portletMainIframe") do |frame|
+    
+  end
+end
+
+# 
+class AddUpdateFeedback
+  
+  include PageObject
+  include ToolsMenu
+
+  in_frame(:class=>"portletMainIframe") do |frame|
+    text_field(:title, :id=>"_idJsp1:title", :frame=>frame)
+  end
+end
+
+
 
 #================
 # Forms Pages - Portfolio Site
@@ -3377,7 +3519,28 @@ end
 # Gradebook2 Pages
 #================
 
-#
+# 
+class Gradebook2
+  
+  include PageObject
+  include ToolsMenu
+
+  # Returns an array of names of Gradebook items
+  def gradebook_items
+    items = []
+    frm.div(:class=>"x-grid3-scroller").spans.each do |span|
+      if span.class_name =~ /^x-tree3-node-text/
+        items << span.text
+      end
+    end
+    return items
+  end
+
+  in_frame(:class=>"portletMainIframe") do |frame|
+    
+  end
+end
+
 
 #================
 # Lesson Pages
@@ -4051,6 +4214,23 @@ class ConfirmPublishMatrix
   end
 
 end
+
+
+#================
+# Media Gallery Pages
+#================
+
+# 
+class MediaGallery
+  
+  include PageObject
+  include ToolsMenu
+
+  in_frame(:class=>"portletMainIframe") do |frame|
+    
+  end
+end
+
 
 
 #================
@@ -4743,10 +4923,124 @@ end
 
 
 #================
+# News pages
+#================
+
+# 
+class News
+  
+  include PageObject
+  include ToolsMenu
+
+  in_frame(:class=>"portletMainIframe") do |frame|
+    
+  end
+end
+
+
+
+#================
 # Podcast pages
 #================
 
 # 
+class Podcasts
+  
+  include PageObject
+  include ToolsMenu
+  
+  def add
+    frm.link(:text=>"Add").click
+    AddEditPodcast.new(@browser)
+  end
+
+  def podcast_titles
+    titles = []
+      frm.spans.each do |span|
+        if span.class_name == "podTitleFormat"
+          titles << span.text
+        end
+      end
+    return titles
+  end
+
+  in_frame(:class=>"portletMainIframe") do |frame|
+    
+  end
+end
+
+
+
+#================
+# Polls pages
+#================
+
+# 
+class Polls
+  
+  include PageObject
+  include ToolsMenu
+  
+  def add
+    frm.link(:text=>"Add").click
+    AddEditPolls.new(@browser)
+  end
+  
+  def questions
+    questions = []
+      frm.table(:id=>"sortableTable").rows.each do |row|
+        questions << row[0].link.text
+      end
+    return questions
+  end
+
+  in_frame(:class=>"portletMainIframe") do |frame|
+    
+  end
+end
+
+# 
+class AddEditPoll
+  
+  include PageObject
+  include ToolsMenu
+
+  def additional_instructions=(text)
+    frm.frame(:id, "newpolldescr::input___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(text)
+  end
+  
+  def save_and_add_options
+    frm.button(:value=>"Save and add options").click
+    AddAnOption.new(@browser)
+  end
+
+  in_frame(:class=>"portletMainIframe") do |frame|
+    text_field(:question, :id=>"new-poll-text", :frame=>frame)
+  end
+end
+
+# 
+class AddAnOption
+  
+  include PageObject
+  include ToolsMenu
+  
+  def answer_option=(text)
+    frm.frame(:id, "optText::input___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(text)
+  end
+
+  def save
+    frm.button(:value=>"Save").click
+    AddEditPoll.new(@browser)
+  end
+  
+  def save_and_add_options
+    frm.button(:value=>"Save and add options").click
+    AddAnOption.new(@browser)
+  end
+  
+end
+
 
 #================
 # Portfolio Templates pages
@@ -5643,4 +5937,36 @@ class SyllabusAttach < AttachPageTools
     set_classes_hash(@the_classes)
   end
   
+end
+
+
+#================
+# Web Content pages in a Site
+#================
+
+# 
+class WebContent
+  
+  include PageObject
+  include ToolsMenu
+
+  in_frame(:class=>"portletMainIframe") do |frame|
+    
+  end
+end
+
+
+#================
+# Wikis pages in a Site
+#================
+
+# 
+class Wikis
+  
+  include PageObject
+  include ToolsMenu
+  
+  in_frame(:class=>"portletMainIframe") do |frame|
+    
+  end
 end
