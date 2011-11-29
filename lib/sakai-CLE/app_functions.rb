@@ -176,7 +176,11 @@ module ToolsMenu
   end
   
   link(:email_template_administration, :text=>"Email Template Administration")
-  link(:evaluation_system, :text=>"Evaluation System")
+  
+  def evaluation_system
+    @browser.link(:class=>"icon-sakai-rsf-evaluation").click
+    EvaluationSystem.new(@browser)
+  end
   
   def feedback
     @browser.link(:class=>"icon-sakai-postem").click

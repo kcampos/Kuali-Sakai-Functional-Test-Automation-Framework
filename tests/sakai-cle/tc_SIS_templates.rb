@@ -99,14 +99,14 @@ class TestSISTemplates < Test::Unit::TestCase
     
     sleep 20
     
-    
+    # Create site
     @selenium.type "id-Subject:1", "TST2"
     @selenium.type "id-Course:1", "201"
     @selenium.type "id-Section:1", "100"
     @selenium.click "addButton"
     # 
     @selenium.click "continueButton"
-    # 
+    # Add tools
     @selenium.click "sakai.announcements"
     @selenium.click "sakai.assignment.grades"
     @selenium.click "sakai.schedule"
@@ -123,11 +123,11 @@ class TestSISTemplates < Test::Unit::TestCase
     @selenium.click "sakai.samigo"
     @selenium.click "sakai.iframe"
     @selenium.click "Continue"
-    # 
+    # Enter email and web address
     @selenium.type "emailId", "tst200"
     @selenium.type "//input[@value='http://']", "http://www.rsmart.com"
     @selenium.click "Continue"
-    # 
+    # Publish
     @selenium.click "publishunpublish"
     @selenium.click "eventSubmit_doUpdate_site_access"
     # 
