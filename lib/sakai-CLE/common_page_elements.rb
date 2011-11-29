@@ -834,6 +834,186 @@ end
 
 
 #================
+# Evaluation System Pages
+#================
+
+# The "Evaluations Dashboard"
+class EvaluationSystem
+  
+  include PageObject
+  include ToolsMenu
+  
+  def my_templates
+    frm.link(:text=>"My Templates").click
+    MyTemplates.new(@browser)
+  end
+  
+  def add_template
+    frm.link(:text=>"Add Template").click
+    AddTemplateTitle.new(@browser)
+  end
+
+  def take_evaluation(evaluation_name)
+    frm.div(:class=>"summaryBox").table(:text=>/#{Regexp.escape(evaluation_name)}/).link.click
+    TakeEvaluation.new(@browser)
+  end
+  
+  def status_of(evaluation_name)
+    return frm.div(:class=>"summaryBox").table(:text=>/#{Regexp.escape(evaluation_name)}/)[1][1].text
+  end
+
+  in_frame(:class=>"portletMainIframe") do |frame|
+    
+  end
+end
+
+# 
+class AddTemplateTitle
+  
+  include PageObject
+  include ToolsMenu
+  
+  def save
+    frm.button(:value=>"Save").click
+    EditTemplate.new(@browser)
+  end
+
+  in_frame(:class=>"portletMainIframe") do |frame|
+    text_field(:title, :id=>"title", :frame=>frame)
+    text_area(:description, :id=>"description", :frame=>frame)
+  end
+end
+
+# 
+class EditTemplate
+  
+  include PageObject
+  include ToolsMenu
+  
+  def item_text=(text)
+    frm.frame(:id, "item-text___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(text)
+  end
+
+  def new_evaluation
+    frm.link(:text=>"New evaluation").click
+    frm.frame(:id, "instructions:1:input___Frame").td(:id, "xEditingArea").wait_until_present
+    NewEvaluation.new(@browser)
+  end
+
+  def add
+    frm.button(:value=>"Add").click
+    frm.frame(:id, "item-text___Frame").td(:id, "xEditingArea").wait_until_present
+  end
+  
+  def save_item
+    frm.button(:value=>"Save item").click
+    frm.link(:text=>"New evaluation").wait_until_present
+    EditTemplate.new @browser
+  end
+
+  in_frame(:class=>"portletMainIframe") do |frame|
+    select_list(:item, :id=>"add-item-control::add-item-classification-selection", :frame=>frame)
+  end
+end
+
+# 
+class NewEvaluation
+  
+  include PageObject
+  include ToolsMenu
+  
+  def continue_to_settings
+    frm.button(:value=>"Continue to Settings").click
+    EvaluationSettings.new(@browser)
+  end
+  
+  def instructions=(text)
+    frm.frame(:id, "instructions:1:input___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(text)
+  end
+
+  in_frame(:class=>"portletMainIframe") do |frame|
+    text_field(:title, :id=>"title", :frame=>frame)
+  end
+end
+
+# 
+class EvaluationSettings
+  
+  include PageObject
+  include ToolsMenu
+
+  def continue_to_assign_to_courses
+    frm.button(:value=>"Continue to Assign to Courses").click
+    EditEvaluationAssignment.new(@browser)
+  end
+
+  in_frame(:class=>"portletMainIframe") do |frame|
+    
+  end
+end
+
+# 
+class EditEvaluationAssignment
+  
+  include PageObject
+  include ToolsMenu
+  
+  def save_assigned_groups
+    frm.button(:value=>"Save Assigned Groups").click
+    ConfirmEvaluation.new(@browser)
+  end
+
+  def check_group(title)
+    frm.table(:class=>"listHier lines nolines").row(:text=>/#{Regexp.escape(title)}/).checkbox(:name=>"selectedGroupIDs").set
+  end
+
+  in_frame(:class=>"portletMainIframe") do |frame|
+    
+  end
+end
+
+#
+class ConfirmEvaluation
+  
+  include PageObject
+  include ToolsMenu
+  
+  def done
+    frm.button(:value=>"Done").click
+    MyEvaluations.new(@browser)
+  end
+
+end
+
+# 
+class MyEvaluations
+  
+  include PageObject
+  include ToolsMenu
+
+  in_frame(:class=>"portletMainIframe") do |frame|
+    
+  end
+end
+
+# 
+class TakeEvaluation
+  
+  include PageObject
+  include ToolsMenu
+  
+  def submit_evaluation
+    frm.button(:value=>"Submit Evaluation").click
+    EvaluationSystem.new(@browser)
+  end
+
+  in_frame(:class=>"portletMainIframe") do |frame|
+    
+  end
+end
+
+
+#================
 # Overview-type Pages
 #================
 
