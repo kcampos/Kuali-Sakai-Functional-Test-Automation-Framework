@@ -28,7 +28,7 @@ class CreateSiteTemplate < Test::Unit::TestCase
     
     # Test case variables
     @template_site_id = "88888888-7777-6666-5555-abcdefghijklm"
-    @template_site_name = "Template - " + random_string(16)
+    @template_site_name = "Template test" #+ random_string(16)
     @term = "FALL 2011"
   
     @subject = random_string(5)
@@ -172,36 +172,35 @@ class CreateSiteTemplate < Test::Unit::TestCase
     
     site_setup = section_info.done
     
-    site_setup = site_setup.search "#{subject} #{course} #{section}"
-    
-    # Verify the new Site shows up in Site Setup list
-    assert site_setup.site_titles.include?(/#{Regexp.escape(subject)} #{Regexp.escape(course)} #{Regexp.escape(section)}/)
-    
+    site_setup = site_setup.search "#{Regexp.escape(@subject)} #{Regexp.escape(@course)} #{Regexp.escape(@section)}"
+
     # Go to the site
-    @browser.frame(:index=>0).link(:text, /#{Regexp.escape(subject)} #{Regexp.escape(course)} #{Regexp.escape(section)}/).click
+    @browser.frame(:index=>0).link(:text, /#{Regexp.escape(@subject)} #{Regexp.escape(@course)} #{Regexp.escape(@section)}/).click
     site_home = Home.new(@browser)
     
     # Verify the Site's contents are as expected...
     assignments_page = site_home.assignments
     
     # TEST CASE: Assignments
-    assert assignments_page.assignments_titles.include? @assignment_title
+    assert assignments_page.assignments_titles.include?("Draft - #{@assignment_title}"), "Unable to find draft of #{@assignment_title} in \n\n#{assignments_page.assignments_titles}"
     
     resources = assignments_page.resources
     
     # TEST CASE: Resources
-    assert resources.resource_names.include? get_filename(@files[0])
-    assert resources.resource_names.include? get_filename(@files[1])
+    assert resources.file_names.include?(get_filename(@files[0])), "Unable to find #{get_filename(@files[0])} in \n\n#{resources.file_names}"
+    assert resources.file_names.include?(get_filename(@files[1])), "Unable to find #{get_filename(@files[1])} in \n\n#{resources.file_names}"
     
     tests = resources.tests_and_quizzes
     
-    # TEST CASE: Tests
-    assert tests.published_assessment_titles.include? @test_title
+    # TEST CASE: Test is pending, not published
+    assert_equal [], tests.published_assessment_titles
+    assert tests.pending_assessment_titles.include?(@test_title), "Unable to find #{@test_title} in \n\n#{tests.pending_assessment_titles}"
     
     syllabus = tests.syllabus
+    edit_syllabus = syllabus.create_edit
     
     # TEST CASE: Syllabus
-    assert syllabus.syllabus_titles.include? @syllabus_title
+    assert edit_syllabus.syllabus_titles.include?(@syllabus_title), "Unable to find #{@syllabus_title} in \n\n#{edit_syllabus.syllabus_titles}"
     
     # ...
   end

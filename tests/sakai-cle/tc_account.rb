@@ -21,8 +21,8 @@ class UserAccountUpdate < Test::Unit::TestCase
     config = AutoConfig.new
     @browser = config.browser
     # This test case requires logging in as a student
-    @user_name = config.directory['person10']['id']
-    @password = config.directory['person10']['password']
+    @user_name = config.directory['person9']['id']
+    @password = config.directory['person9']['password']
     @sakai = SakaiCLE.new(@browser)
     
     # Test case data
@@ -101,7 +101,7 @@ class UserAccountUpdate < Test::Unit::TestCase
     assert_equal @last_name, account.last_name, "Problem with last name"
     assert_equal @first_name, account.first_name, "Problem with first name"
     assert_equal @email_address, account.email, "Problem with email address"
-    assert_equal account.modified, @sakai.make_date(Time.now)
+    assert_equal account.modified, @sakai.make_date(Time.now.utc)
     
     # Log out and log back in with new password credentials
     @sakai.logout

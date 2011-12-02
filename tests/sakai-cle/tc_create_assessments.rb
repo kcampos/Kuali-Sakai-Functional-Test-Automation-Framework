@@ -29,7 +29,7 @@ class TestCreateNewAssessments < Test::Unit::TestCase
     
     @assessments = [
       {:title=>random_string},
-      {:title=>random_xss_string(20)}
+      {:title=>random_alphanums}#random_xss_string(20)}
     ]
     
     @questions = [
@@ -94,7 +94,7 @@ class TestCreateNewAssessments < Test::Unit::TestCase
     
     # Go to Tests & Quizzes
     assessments = home.tests_and_quizzes
- 
+
     # Create a new quiz...
     assessments.title=@assessments[0][:title]
     quiz = assessments.create

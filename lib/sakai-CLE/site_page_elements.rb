@@ -56,7 +56,13 @@ class AssessmentsList
   # Clicks the Question Pools link, then instantiates
   # the QuestionPoolsList class.
   def question_pools
+    #puts "clicking question pools"
+    #10.times {frm.link(:text=>"Question Pools").flash}
     frm.link(:text=>"Question Pools").click
+    #sleep 200
+    #puts "clicked..."
+    #frm.link(:text=>"Add New Pool").wait_until_present
+    #frm.h3(:text=>"Question Pools").wait_until_present(120)
     QuestionPoolsList.new(@browser)
   end
   
@@ -784,8 +790,16 @@ class AddQuestionPool
   # Clicks the Save button, then
   # instantiates the QuestionPoolsList page class.
   def save
+    #10.times {frm.button(:id=>"questionpool:submit").flash}
     frm.button(:id=>"questionpool:submit").click
+    #sleep 180
+    #frm.button(:value=>"Create").wait_until_present(120)
     QuestionPoolsList.new(@browser)
+  end
+  
+  def cancel
+    frm.button(:value=>"Cancel").click
+    QuestionPoolsList.new @browser
   end
   
   in_frame(:index=>1) do |frame|
@@ -794,7 +808,6 @@ class AddQuestionPool
     text_area(:description, :id=>"questionpool:descfield", :frame=>frame)
     text_field(:objectives, :id=>"questionpool:objfield", :frame=>frame)
     text_field(:keywords, :id=>"questionpool:keyfield", :frame=>frame)
-    button(:cancel, :id=>"questionpool:_id11", :frame=>frame)
     
   end
 
@@ -850,7 +863,11 @@ class QuestionPoolsList
   # Clicks the Add New Pool link, then
   # instantiates the AddQuestionPool page class.
   def add_new_pool
+    #puts "clicking add new pool..."
+    #10.times {frm.link(:text=>"Add New Pool").flash}
     frm.link(:text=>"Add New Pool").click
+    #puts "clicked..."
+    #frm.text_field(:id=>"questionpool:namefield").wait_until_present(200)
     AddQuestionPool.new(@browser)
   end
   
@@ -1383,10 +1400,12 @@ class AssignmentsList
   # view based on the landing page attributes
   def open_assignment(assignment_name)
     frm.link(:text=>assignment_name).click
-    if frm.div(:class=>"portletBody").h3.text=="Viewing assignment..." || frm.div(:class=>"portletBody").h3.text.include?("Submitted")
+    if frm.div(:class=>"portletBody").p(:class=>"instruction").exist? && frm.div(:class=>"portletBody").p(:class=>"instruction").text == "Add attachment(s), then choose the appropriate button at the bottom."
+      AssignmentStudent.new(@browser)
+    elsif frm.div(:class=>"portletBody").h3.text=="Viewing assignment..." || frm.div(:class=>"portletBody").h3.text.include?("Submitted") || frm.button(:value=>"Back to list").exist?
       AssignmentsPreview.new(@browser)
     else
-      frm.frame(:id, "Assignment.view_submission_text___Frame").td(:id, "xEditingArea").frame(:index=>0).wait_until_present
+      frm.frame(:id, "Assignment.view_submission_text___Frame").td(:id, "xEditingArea").wait_until_present
       AssignmentStudent.new(@browser)
     end
   end
@@ -1547,6 +1566,11 @@ class AssignmentsPreview
   # Grabs the Assignment Instructions text.
   def assignment_instructions
     frm.div(:class=>"textPanel").text
+  end
+  
+  # Grabs the instructor comments text.
+  def instructor_comments
+    frm.div(:class=>"portletBody").div(:class=>"textPanel", :index=>2).text
   end
   
   #
@@ -2983,6 +3007,7 @@ class SelectSchemaFile
   
   def continue
     frm.button(:value=>"Continue").click
+    frm.frame(:id, "instruction___Frame").td(:id, "xEditingArea").wait_until_present
     AddForm.new(@browser)
   end
 
@@ -3625,7 +3650,7 @@ class Lessons
   def lessons_list
     list = []
     frm.table(:id=>/lis.+module.+form:table/).links.each do |link|
-      if link.id=~/lis.+module.+form:table:.+:.+Mod$/
+      if link.id=~/lis.+module.+form:table:.+:(edit|view)Mod/
         list << link.text
       end
     end
@@ -3636,9 +3661,11 @@ class Lessons
   # specified module.
   def sections_list(module_name)
     list = []
-    frm.table(:id=>/lis.+module.+form:table/).row(:text=>/#{Regexp.escape(module_name)}/).table(:id=>/tablesec/).links.each do |link|
-      if link.id=~/Sec/
-        list << link.text
+    if frm.table(:id=>/lis.+module.+form:table/).row(:text=>/#{Regexp.escape(module_name)}/).table(:id=>/tablesec/).exist?
+      frm.table(:id=>/lis.+module.+form:table/).row(:text=>/#{Regexp.escape(module_name)}/).table(:id=>/tablesec/).links.each do |link|
+        if link.id=~/Sec/
+          list << link.text
+        end
       end
     end
     return list
@@ -4990,7 +5017,13 @@ class Polls
   
   def add
     frm.link(:text=>"Add").click
-    AddEditPolls.new(@browser)
+    frm.frame(:id, "newpolldescr::input___Frame").td(:id, "xEditingArea").wait_until_present
+    AddEditPoll.new(@browser)
+  end
+  
+  #
+  def edit(poll)
+  
   end
   
   def questions
@@ -4999,6 +5032,16 @@ class Polls
         questions << row[0].link.text
       end
     return questions
+  end
+
+  # Returns an array containing the list of poll questions displayed.
+  def list
+    list = []
+    frm.table(:id=>"sortableTable").rows.each_with_index do |row, index|
+      next if index==0
+      list << row[0].link(:href=>/voteQuestion/).text
+    end
+    return list
   end
 
   in_frame(:class=>"portletMainIframe") do |frame|
@@ -5019,6 +5062,11 @@ class AddEditPoll
   def save_and_add_options
     frm.button(:value=>"Save and add options").click
     AddAnOption.new(@browser)
+  end
+  
+  def save
+    frm.button(:value=>"Save").click
+    Polls.new(@browser)
   end
 
   in_frame(:class=>"portletMainIframe") do |frame|
@@ -5493,7 +5541,7 @@ end
 
 
 #================
-# Site Editor Pages for an individual Site
+# Site Editor Pages - Need to combine with Site Setup...
 #================
 
 # This module contains the methods referring to the menu items
@@ -5512,6 +5560,11 @@ module SiteEditorMenu
   def duplicate_site
     frm.link(:text=>"Duplicate Site").click
     DuplicateSite.new(@browser)
+  end
+  
+  def add_participants
+    frm.link(:text=>"Add Participants").click
+    SiteSetupAddParticipants.new @browser
   end
   
 end
@@ -5540,7 +5593,7 @@ class SiteEditor
     SiteEditor.new(@browser)
   end
   
-  in_frame(:index=>1) do |frame|
+  in_frame(:class=>"portletMainIframe") do |frame|
 
   end
 

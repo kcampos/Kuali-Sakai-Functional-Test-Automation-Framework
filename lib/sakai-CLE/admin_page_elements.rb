@@ -599,7 +599,7 @@ end
 
 
 #================
-# Site Setup Pages in the Workspace
+# Site Setup Pages
 #================
 
 # Page for Adding Participants to a Site in Site Setup
@@ -608,14 +608,18 @@ class SiteSetupAddParticipants
   include PageObject
   include ToolsMenu
   
-  in_frame(:index=>0) do |frame|
+  def continue
+    frm.button(:value=>"Continue").click
+    SiteSetupChooseRole.new @browser
+  end
+  
+  in_frame(:class=>"portletMainIframe") do |frame|
     text_area(:official_participants, :id=>"content::officialAccountParticipant", :frame=>frame)
     text_area(:non_official_participants, :id=>"content::nonOfficialAccountParticipant", :frame=>frame)
     radio_button(:assign_all_to_same_role, :id=>"content::role-row:0:role-select", :frame=>frame)
     radio_button(:assign_each_individually, :id=>"content::role-row:1:role-select", :frame=>frame)
     radio_button(:active_status, :id=>"content::status-row:0:status-select", :frame=>frame)
     radio_button(:inactive_status, :id=>"content::status-row:1:status-select", :frame=>frame)
-    button(:continue, :id=>"content::continue", :frame=>frame)
     button(:cancel, :id=>"content::cancel", :frame=>frame)
     
   end
@@ -628,13 +632,15 @@ class SiteSetupChooseRolesIndiv
   include PageObject
   include ToolsMenu
   
-  in_frame(:index=>0) do |frame|
-    button(:continue, :name=>"command link parameters&Submitting%20control=content%3A%3Acontinue&Fast%20track%20action=siteAddParticipantHandler.processDifferentRoleContinue", :frame=>frame)
+  def continue
+    frm.button(:value=>"Continue").click
+    #SiteSetupParticipantEmail.new(@browser)
+  end
+  
+  in_frame(:class=>"portletMainIframe") do |frame|
     button(:back, :name=>"command link parameters&Submitting%20control=content%3A%3Aback&Fast%20track%20action=siteAddParticipantHandler.processDifferentRoleBack", :frame=>frame)
     button(:cancel, :name=>"command link parameters&Submitting%20control=content%3A%3Acancel&Fast%20track%20action=siteAddParticipantHandler.processCancel", :frame=>frame)
     select_list(:user_role, :id=>"content::user-row:0:role-select-selection", :frame=>frame)
-    # Note the remaining select lists are not defined here
-    # because we can't know beforehand how many there will be
   end
 
 end
@@ -645,8 +651,12 @@ class SiteSetupChooseRole
   include PageObject
   include ToolsMenu
   
-  in_frame(:index=>0) do |frame|
-    button(:continue, :name=>"command link parameters&Submitting%20control=content%3A%3Acontinue&Fast%20track%20action=siteAddParticipantHandler.processSameRoleContinue", :frame=>frame)
+  def continue
+    frm.button(:value=>"Continue").click
+    SiteSetupParticipantEmail.new(@browser)
+  end
+  
+  in_frame(:class=>"portletMainIframe") do |frame|
     button(:back, :name=>"command link parameters&Submitting%20control=content%3A%3Aback&Fast%20track%20action=siteAddParticipantHandler.processSameRoleBack", :frame=>frame)
     button(:cancel, :name=>"command link parameters&Submitting%20control=content%3A%3Acancel&Fast%20track%20action=siteAddParticipantHandler.processCancel", :frame=>frame)
     radio_button(:guest, :id=>"content::role-row:0:role-select", :frame=>frame)
@@ -664,8 +674,12 @@ class SiteSetupParticipantEmail
   include PageObject
   include ToolsMenu
   
-  in_frame(:index=>0) do |frame|
-    button(:continue, :name=>"command link parameters&Submitting%20control=content%3A%3Acontinue&Fast%20track%20action=siteAddParticipantHandler.processEmailNotiContinue", :frame=>frame)
+  def continue
+    frm.button(:value=>"Continue").click
+    SiteSetupParticipantConfirmation.new(@browser)
+  end
+  
+  in_frame(:class=>"portletMainIframe") do |frame|
     button(:back, :name=>"command link parameters&Submitting%20control=content%3A%3Acontinue&Fast%20track%20action=siteAddParticipantHandler.processEmailNotiBack", :frame=>frame)
     button(:cancel, :name=>"command link parameters&Submitting%20control=content%3A%3Acontinue&Fast%20track%20action=siteAddParticipantHandler.processEmailNotiCancel", :frame=>frame)
     radio_button(:send_now, :id=>"content::noti-row:0:noti-select", :frame=>frame)
@@ -681,8 +695,20 @@ class SiteSetupParticipantConfirmation
   include PageObject
   include ToolsMenu
   
+  def finish
+    frm.button(:value=>"Finish").click
+    SiteSetup.new(@browser)
+  end
+  
+  def id(name)
+    frm.table(:class=>"listHier").row(:text=>/#{Regexp.escape(name)}/)[1].text
+  end
+  
+  def role(name)
+    frm.table(:class=>"listHier").row(:text=>/#{Regexp.escape(name)}/)[2].text
+  end
+  
   in_frame(:index=>0) do |frame|
-    button(:finish, :name=>"command link parameters&Submitting%20control=content%3A%3Acontinue&Fast%20track%20action=siteAddParticipantHandler.processConfirmContinue", :frame=>frame)
     button(:back, :name=>"command link parameters&Submitting%20control=content%3A%3Aback&Fast%20track%20action=siteAddParticipantHandler.processConfirmBack", :frame=>frame)
     button(:cancel, :name=>"command link parameters&Submitting%20control=content%3A%3Aback&Fast%20track%20action=siteAddParticipantHandler.processConfirmCancel", :frame=>frame)
   end
@@ -1286,9 +1312,30 @@ class Users
   include PageObject
   include ToolsMenu
   
+  def new_user
+    frm.link(:text=>"New User").click
+    CreateNewUser.new @browser
+  end
+  
+  # Returns the contents of the Name cell
+  # based on the specified user ID value.
+  def name(user_id)
+    frm.table(:class=>"listHier lines").row(:text=>/#{Regexp.escape(user_id)}/i)[1].text
+  end
+  
+  # Returns the contents of the Email cell
+  # based on the specified user ID value.
+  def email(user_id)
+    frm.table(:class=>"listHier lines").row(:text=>/#{Regexp.escape(user_id)}/i)[2].text
+  end
+  
+  def search_button
+    frm.link(:text=>"Search").click
+    frm.table(:class=>"listHier lines").wait_until_present
+    Users.new @browser
+  end
+  
   in_frame(:index=>0) do |frame|
-    link(:new_user, :text=>"New User", :frame=>frame)
-    link(:search_button, :text=>"Search", :frame=>frame)
     link(:clear_search, :text=>"Clear Search", :frame=>frame)
     text_field(:search_field, :id=>"search", :frame=>frame)
     select_list(:select_page_size, :name=>"selectPageSize", :frame=>frame)
@@ -1306,6 +1353,11 @@ class CreateNewUser
   include PageObject
   include ToolsMenu
   
+  def save_details
+    frm.button(:name=>"eventSubmit_doSave").click
+    Users.new(@browser)
+  end
+  
   in_frame(:index=>0) do |frame|
     text_field(:user_id, :id=>"eid", :frame=>frame)
     text_field(:first_name, :id=>"first-name", :frame=>frame)
@@ -1314,7 +1366,6 @@ class CreateNewUser
     text_field(:create_new_password, :id=>"pw", :frame=>frame)
     text_field(:verify_new_password, :id=>"pw0", :frame=>frame)
     select_list(:type, :name=>"type", :frame=>frame)
-    button(:save_details, :name=>"eventSubmit_doSave", :frame=>frame)
     button(:cancel_changes, :name=>"eventSubmit_doCancel", :frame=>frame)
   end
   

@@ -83,12 +83,19 @@ module Utilities
     (Time.now + (3600*24)).strftime("%d").to_i
   end
   
-  def am_or_pm
-    if Time.now.strftime("%I").to_i > 5 && Time.now.strftime("%I").to_i < 11
-      "am"
-    else
-      "pm"
-    end
+  # returns a hash object containing strings that will, for example,
+  # allow creation of an event starting 15 minutes in the future.
+  def in_15_minutes
+    t = Time.now.utc+15*60
+    return {
+      :month_str => t.strftime("%^b"),
+      :month_int => t.strftime("%-m"),
+      :day =>t.strftime("%d").to_i,
+      :year =>t.strftime("%Y").to_i,
+      :hour =>t.strftime("%I").to_i,
+      :minute =>(t-t.sec-t.min%5*60).strftime("%M"),
+      :meridian =>t.strftime("%P")
+    }
   end
   
 end

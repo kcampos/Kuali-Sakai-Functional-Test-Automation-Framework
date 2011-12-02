@@ -401,7 +401,10 @@ module ToolsMenu
     UserMembership.new(@browser)
   end
   
-  link(:users, :text=>"Users")
+  def users
+    @browser.link(:class=>"icon-sakai-users").click
+    Users.new(@browser)
+  end
   
   def web_content
     @browser.link(:class=>"icon-sakai-iframe").click
@@ -504,7 +507,7 @@ class AttachPageTools
     frm.table(:class=>/listHier lines/).rows.each do |row|
       next if row.td(:class=>"specialLink").exist? == false
       next if row.td(:class=>"specialLink").link(:title=>"Folder").exist?
-      names << row.td(:class=>"specialLink").link(:href=>/access.content.group/, :index=>1).text
+      names << row.td(:class=>"specialLink").link(:href=>/access.content/, :index=>1).text
     end
     return names
   end
@@ -705,6 +708,12 @@ class AttachPageTools
     when "Calendar"
       frm.frame(:id, "description___Frame").td(:id, "xEditingArea").frame(:index=>0).wait_until_present
       instantiate_class(:parent)
+    when "Portfolio Templates"
+      if frm.div(:class=>"portletBody").h3.text=="Select supporting files"
+        instantiate_class(:second)
+      else
+        instantiate_class(:parent)
+      end
     else
       instantiate_class(:parent)
     end  

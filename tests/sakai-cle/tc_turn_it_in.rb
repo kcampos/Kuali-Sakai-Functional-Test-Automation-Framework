@@ -39,7 +39,7 @@ class TestTurnItIn < Test::Unit::TestCase
     @assignment_1_file = "documents/768.pdf"
     
     @job_1_name = "Job 1 name " + random_string
-    @job_2_name = "Job 2 name " + random_xss_string(25)
+    @job_2_name = "Job 2 name " + random_alphanums # FIXME: I believe there's a problem with XSS names, here.
     
     @trigger_1_name = random_string
     @trigger_2_name = random_xss_string(25)
