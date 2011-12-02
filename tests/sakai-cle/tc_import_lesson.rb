@@ -79,10 +79,10 @@ class TestImportLesson < Test::Unit::TestCase
     home = workspace.open_my_site_by_name @site_name
     
     lessons = home.lessons
-    
+    sleep 5
     # TEST CASE: Verify student can see lessons and sections
-    assert lessons.lessons_list.include? @lesson_names[0]
-    assert lessons.sections_list(@lesson_names[0]).include? @section_names[0]
+    assert lessons.lessons_list.include?(@lesson_names[0]), "Unable to find #{@lesson_names[0]} in \n\n #{lessons.lessons_list}"
+    assert lessons.sections_list(@lesson_names[0]).include?(@section_names[0]), "Unable to find #{@section_names[0]} in \n\n #{lessons.sections_list(@lesson_names[0])}"
     assert lessons.sections_list(@lesson_names[1]).include? @section_names[3]
     
     lesson = lessons.open_lesson @lesson_names[0]

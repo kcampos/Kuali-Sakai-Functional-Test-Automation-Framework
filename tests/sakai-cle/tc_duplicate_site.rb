@@ -139,10 +139,14 @@ class TestDuplicateSite < Test::Unit::TestCase
     
     @lessons = lessons.lessons_list
     
+    #p @lessons
+    
     @sections = []
     @lessons.each do |lesson|
       @sections << lessons.sections_list(lesson)
     end
+    
+    #p @sections
     
     # Resources
     resources = lessons.resources
@@ -392,7 +396,7 @@ class TestDuplicateSite < Test::Unit::TestCase
       assert_equal "No", gradebook.released_to_students(assignment)
       
       # TEST CASE: There is no due date for the assignments
-      assert_equal "-", gradebook.due_date(assignment)
+      assert_equal "-", gradebook.due_date(assignment) #FIXME - this will break if there are future due dates. Need to make this smarter.
       
     end
     

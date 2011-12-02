@@ -111,14 +111,12 @@ class AddSiteParticipants < Test::Unit::TestCase
         role.select_teaching_assistant
       end
       
-      role.continue
+      email = role.continue
       
       # Don't send an email
-      email = SiteSetupParticipantEmail.new(@browser)
-      email.continue
+      confirm = email.continue
       
       # Confirm selections
-      confirm = SiteSetupParticipantConfirmation.new(@browser)
       
       #===================
       # Need to add verification steps here!

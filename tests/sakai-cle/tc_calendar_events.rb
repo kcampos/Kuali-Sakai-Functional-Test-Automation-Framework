@@ -34,8 +34,12 @@ class TestCalendarEvents < Test::Unit::TestCase
     
     @event_title = random_alphanums # for more robust testing of the title field, see the xss test cases.
     @event_message = %|">| + random_xss_string
-    @event_start_hour = next_hour
-    @event_start_meridian = am_or_pm
+    @event_start_month = in_15_minutes[:month_str]
+    @event_start_day = in_15_minutes[:day]
+    @event_start_year = in_15_minutes[:year]
+    @event_start_hour = in_15_minutes[:hour]
+    @event_start_min = in_15_minutes[:minute]
+    @event_start_meridian = in_15_minutes[:meridian]
     @event_location = random_xss_string
     
     @attach_file = "resources.JPG"
@@ -88,7 +92,11 @@ class TestCalendarEvents < Test::Unit::TestCase
     add_event = calendar.add_event
     add_event.message=@event_message
     add_event.title=@event_title
+    add_event.month=@event_start_month
+    add_event.day=@event_start_day
+    add_event.year=@event_start_year
     add_event.start_hour=@event_start_hour
+    add_event.start_minute=@event_start_min
     add_event.start_meridian=@event_start_meridian
     
     calendar = add_event.save_event

@@ -102,7 +102,7 @@ class AddPublicResources < Test::Unit::TestCase
     resources = create_folder.create_folders_now
     
     # Navigate to the folder
-    resources.open_folder @folder_name
+    resources.go_to_folder @folder_name
     
     # Upload files to the folder
     resources.upload_files_to_folder @folder_name

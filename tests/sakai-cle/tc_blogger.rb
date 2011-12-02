@@ -175,7 +175,7 @@ class TestBlogger < Test::Unit::TestCase
     blogger = blogger.view_all
     
     # TEST CASE: Verify new message appears
-    assert blogger.post_titles.include?(@post_3_title)
+    assert blogger.post_titles.include?(@post_3_title), "No #{@post_3_title} present...\n\n#{blogger.post_titles}"
     
     @sakai.logout
     

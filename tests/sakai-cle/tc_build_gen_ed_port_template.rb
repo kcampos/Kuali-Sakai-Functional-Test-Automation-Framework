@@ -20,9 +20,9 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     @config = AutoConfig.new
     @browser = @config.browser
     # This test case uses the logins of several users
-    @instructor = @config.directory['person3']['id']
-    @ipassword = @config.directory['person3']['password']
-    @instructor_name = @config.directory['person3']['lastname'] + ", " + @config.directory['person3']['firstname']
+    @instructor = "instructor8"#@config.directory['person4']['id']
+    @ipassword = "password"#@config.directory['person4']['password']
+    @instructor_name = "last, first"#@config.directory['person3']['lastname'] + ", " + @config.directory['person3']['firstname']
     @instructor2 = @config.directory['person4']['id']
     @ipassword2 = @config.directory['person4']['password']
     @instructor2_name = @config.directory['person4']['lastname'] + ", " + @config.directory['person4']['firstname']
@@ -39,10 +39,10 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
       "documents/genEducation.xsd",
       "documents/reflection.xsd",
     ]
-    @folder_name = "data"
-    @portfolio_site = "123Port"
+    @folder_name = random_alphanums(5)
+    @portfolio_site = "PortCoolio"
     @schema = [ get_filename(@files[0]), get_filename(@files[1]), get_filename(@files[2]), get_filename(@files[3]) ]
-    @form_names = ["Evaluation", "Feedback for Matrix", "General Education Evidence", "Reflection for Matrix" ]
+    @form_names = ["Evaluation" + random_alphanums, "Feedback for Matrix" + random_alphanums, "General Education Evidence" + random_alphanums, "Reflection for Matrix" + random_alphanums ]
     @form_instructions = [
       "Use the Display Name to identify the purpose of your evaluation.",
       "Use the Display name to identify the purpose of your feedback.",
@@ -53,7 +53,7 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     @style_filename = get_filename(@style_file)
     @style_name = "Wacky Style"
     @style_description = "Style for general use."
-    @matrix_name = "General Education "
+    @matrix_name = "General Education"
     @column_names = [
       "Level 1",
       "Level 2",
@@ -109,7 +109,7 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
       get_filename(@files_to_upload[4]),
       get_filename(@files_to_upload[5])
     ]
-    @form_names = [ "Contact Information (#{@portfolio_site})", "Portfolio Properties (#{@portfolio_site})" ]
+    @formX_names = [ "Contact Information (#{@portfolio_site})", "Portfolio Properties (#{@portfolio_site})" ]
     @template_name = "General Education Matrix Template"
     @template_description = "Use this template to build a presentation of the works and reflections you have provided for a selected level of the General Education assessment matrix."
     @form_type = "Portfolio Properties"
@@ -148,7 +148,12 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
         :open_meridian=>"AM", :grade_scale=>"Points", :max_points=>"100",
         :student_submissions=>"Attachments only",
         :instructions=>"Fusce mollis massa nec nisi. Aliquam turpis libero, consequat quis, fringilla eget, fermentum ut, velit? Integer velit nisl, placerat non, fringilla at, pellentesque ut, odio? Cras magna ligula, tincidunt ac, iaculis in, hendrerit eu, justo. Vivamus porta. Suspendisse lorem! Donec nec libero in leo lobortis consectetuer. Vivamus quis enim? Proin viverra condimentum purus. Sed commodo.\n\nCurabitur eget velit. Curabitur eleifend libero et nisi aliquet facilisis. Integer ultricies commodo purus. Praesent velit. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Phasellus pretium. Suspendisse gravida diam. Nulla justo nulla, facilisis ut, sagittis ut, fermentum ac, elit. Morbi accumsan. Maecenas id tellus. Fusce ornare ullamcorper felis. Etiam fringilla. Maecenas in nunc nec sem sollicitudin condimentum? Nullam metus nunc, varius sit amet, consectetuer sed, vestibulum quis, est. Quisque in sapien a justo elementum iaculis?" },
-      {:title=>"Assignment 4", :grade_scale=>"Pass", :instructions=>"Integer pulvinar facilisis purus. Quisque placerat! Maecenas risus. Nam vitae lacus. Quisque euismod imperdiet ipsum. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nam vitae nulla! Duis tincidunt. Nulla id felis. Duis accumsan, est ut volutpat mollis, tellus lorem venenatis justo, eu accumsan lorem neque sit amet ante. Sed dictum. Donec nulla mi, lacinia nec; viverra nec, commodo sed, justo. Praesent fermentum vehicula dui. Sed molestie eleifend leo. Nulla et risus! Nullam ut lacus. Etiam faucibus; eros sit amet tempus consectetuer, urna est hendrerit mi, eget molestie sapien lorem non tellus. In vitae nisl. Vivamus ac lectus id pede viverra placerat.<br /><br />Morbi nec dui eget pede dapibus mollis. Mauris nisl. Donec tempor blandit diam. In hac habitasse platea dictumst. Sed vulputate ornare urna. Nulla sed."},
+      {:title=>"Assignment 4",
+        :grade_scale=>"Pass",
+        :due_year=>current_year,
+        :accept_year=>current_year,
+        :instructions=>"Integer pulvinar facilisis purus. Quisque placerat! Maecenas risus. Nam vitae lacus. Quisque euismod imperdiet ipsum. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nam vitae nulla! Duis tincidunt. Nulla id felis. Duis accumsan, est ut volutpat mollis, tellus lorem venenatis justo, eu accumsan lorem neque sit amet ante. Sed dictum. Donec nulla mi, lacinia nec; viverra nec, commodo sed, justo. Praesent fermentum vehicula dui. Sed molestie eleifend leo. Nulla et risus! Nullam ut lacus. Etiam faucibus; eros sit amet tempus consectetuer, urna est hendrerit mi, eget molestie sapien lorem non tellus. In vitae nisl. Vivamus ac lectus id pede viverra placerat.<br /><br />Morbi nec dui eget pede dapibus mollis. Mauris nisl. Donec tempor blandit diam. In hac habitasse platea dictumst. Sed vulputate ornare urna. Nulla sed."
+        },
       {:title=>"Assignment 5", :due_year=>current_year, :accept_year=>current_year, :file=>"documents/resources.txt", :instructions=>"Integer pulvinar facilisis purus. Quisque placerat! Maecenas risus. Nam vitae lacus. Quisque euismod imperdiet ipsum. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nam vitae nulla! Duis tincidunt. Nulla id felis. Duis accumsan, est ut volutpat mollis, tellus lorem venenatis justo, eu accumsan lorem neque sit amet ante. Sed dictum. Donec nulla mi, lacinia nec; viverra nec, commodo sed, justo. Praesent fermentum vehicula dui. Sed molestie eleifend leo. Nulla et risus! Nullam ut lacus. Etiam faucibus; eros sit amet tempus consectetuer, urna est hendrerit mi, eget molestie sapien lorem non tellus. In vitae nisl. Vivamus ac lectus id pede viverra placerat.\n\nMorbi nec dui eget pede dapibus mollis. Mauris nisl. Donec tempor blandit diam. In hac habitasse platea dictumst. Sed vulputate ornare urna. Nulla sed." }
     ]
     @grades = [ "B+", "A" ]
@@ -170,7 +175,6 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
 
     # Log in to Sakai
     workspace = @sakai.login(@instructor, @ipassword)
-
     resources = workspace.resources
 
     # Add Files to Repository...
@@ -197,8 +201,8 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     select_schema = select_schema.select_file @schema[0]
     
     add_form = select_schema.continue
-    add_form.name=@form_names[0]
     add_form.instruction=@form_instructions[0]
+    add_form.name=@form_names[0]
     
     forms = add_form.add_form
     
@@ -211,11 +215,11 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     schema = schema.select_file @schema[2]
     
     add_form2 = schema.continue
-    add_form2.name=@form_names[2]
     add_form2.instruction=@form_instructions[2]
-    
+    add_form2.name=@form_names[2]
+
     forms = add_form2.add_form
-    
+
     add_form3 = forms.add
     
     schema = add_form3.select_schema_file
@@ -225,8 +229,8 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     schema = schema.select_file @schema[1]
     
     add_form3 = schema.continue
-    add_form3.name=@form_names[1]
     add_form3.instruction=@form_instructions[1]
+    add_form3.name=@form_names[1]
     
     forms = add_form3.add_form
     
@@ -239,8 +243,8 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     schema = schema.select_file @schema[3]
     
     add_form4 = schema.continue
-    add_form4.name=@form_names[3]
     add_form4.instruction=@form_instructions[3]
+    add_form4.name=@form_names[3]
     
     forms = add_form4.add_form
 
@@ -260,16 +264,20 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     add_style = styles.add
     
     attach = add_style.select_file
-    attach = attach.show_other_sites
+    attach.show_other_sites
     attach.open_folder @default_folder
     
     upload = attach.upload_files_to_folder @folder_name
     upload.file_to_upload=@style_file
     
     attach = upload.upload_files_now
-    attach.open_folder @folder_name
-    attach.select_file @style_filename
-
+    
+      #sleep 15
+      #attach.open_folder @folder_name
+      #sleep 15
+      #attach.select_file @style_filename
+    sleep 15
+    
     add_style = attach.continue
     add_style.name=@style_name
     add_style.description=@style_description
@@ -711,7 +719,7 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     edit = edit_cells.edit(6, 3)
     
     # TEST CASE: Verify the title is correct
-    assert_equal edit.title_element.value, "Row: #{@row_names[5]}; Column: #{@column_names[0]}"
+    assert_equal edit.title_element.value, "Row: #{@row_names[5]}; Column: #{@column_names[2]}"
     
     edit.uncheck_use_default_reflection_form
     edit.reflection=/#{Regexp.escape(@form_names[3])}/
@@ -801,7 +809,7 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     glossary = new_term.add_term
 
     resources = glossary.resources
-    resources = resources.show_other_sites
+    resources.show_other_sites
     
     resources.open_folder @default_folder
     
@@ -821,7 +829,7 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     
     forms = import.import
     
-    publish = forms.publish @form_names[0]
+    publish = forms.publish @formX_names[0]
     
     forms = publish.yes
     
@@ -837,7 +845,7 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
 
     forms = import.import
 
-    publish = forms.publish @form_names[1]
+    publish = forms.publish @formX_names[1]
     
     forms = publish.yes
 
@@ -858,8 +866,9 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     upload.file_to_upload=@files_to_upload[2]
 
     attach = upload.upload_files_now
-    attach.open_folder @folder_name
-    attach.select_file get_filename(@files_to_upload[2])
+    #sleep 15
+    #attach.open_folder @folder_name
+    #attach.select_file get_filename(@files_to_upload[2])
 
     build = attach.continue
     build.outline_options_form_type= /#{Regexp.escape(@form_type)}/
@@ -1021,9 +1030,9 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     permissions.uncheck_organizers_share_drafts
     
     assignments = permissions.save
-    
+
     site_home = assignments.home
-    
+
     # TEST CASE: Verify assignment announcement does not appear
     assert_equal false, site_home.announcements_list.include?("Assignment: Open Date for '#{@assignments[2][:title]}'")
     
@@ -1071,11 +1080,11 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     permissions.check_organizers_share_drafts
     
     assignments = permissions.save
-    
+
     # TEST CASE: Verify the draft shows in the list
     assert assignments.assignments_titles.include?("Draft - #{@assignments[2][:title]}")
     
-    assignment3 = assignments.edit_assignment("Draft - #{Regexp.escape(@assignments[2][:title])}")
+    assignment3 = assignments.edit_assignment("Draft - #{@assignments[2][:title]}")
     assignment3.post
     
     # TEST CASE: Verify the list has updated properly
@@ -1190,7 +1199,7 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     assert_not_equal false, assignments.status_of(@assignments[0][:title])=~/Submitted/
     
     assignment3 = assignments.open_assignment @assignments[2][:title]
-    assignment3.select_file 
+    assignment3.select_file=@assignments[2][:student_file]
     
     confirm = assignment3.submit
 
@@ -1234,7 +1243,7 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
 
     workspace = @sakai.login(@student, @spassword)
     
-    home = workspace.open_my_site_by_name @portfolito_site
+    home = workspace.open_my_site_by_name @portfolio_site
     
     assignments = home.assignments
   
@@ -1257,7 +1266,7 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
 
     workspace = @sakai.login(@instructor, @ipassword)
 
-    home = workspace.open_my_site_by_name @portfolito_site
+    home = workspace.open_my_site_by_name @portfolio_site
     
     assignments = home.assignments
     
@@ -1278,7 +1287,7 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
 
     workspace = @sakai.login(@student, @spassword)
     
-    home = workspace.open_my_site_by_name @portfolito_site
+    home = workspace.open_my_site_by_name @portfolio_site
     
     assignments = home.assignments
     assignment_1 = assignments.open_assignment @assignments[0][:title]
