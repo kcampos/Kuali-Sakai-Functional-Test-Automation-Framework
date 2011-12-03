@@ -982,7 +982,7 @@ class SiteType
     end
   end
   
-  in_frame(:index=>0) do |frame|
+  in_frame(:class=>"portletMainIframe") do |frame|
     radio_button(:course_site, :id=>"course", :frame=>frame)
     radio_button(:project_site, :id=>"project", :frame=>frame)
     radio_button(:portfolio_site, :id=>"portfolio", :frame=>frame)
@@ -994,7 +994,6 @@ class SiteType
     checkbox(:copy_users, :id=>"copyUsers", :frame=>frame)
     checkbox(:copy_content, :id=>"copyContent", :frame=>frame)
   end
-  
   
 end
 
@@ -1012,7 +1011,7 @@ class AddMultipleTools
     frm.button(:value=>"Continue").click
     # Logic to determine the new page class
     if frm.div(:class=>"portletBody").text =~ /Course Site Access/
-      CourseSiteAccess.new(@browser)
+      SiteAccess.new(@browser)
     elsif frm.div(:class=>"portletBody").text =~ /^Confirming site tools edits/
       ConfirmSiteToolsEdits.new(@browser)
     else
@@ -1090,9 +1089,9 @@ class CourseSectionInfo
   
 end
 
-# The Course Site Access Page that appears during Site creation
-# immediately following the Add Multiple Tools page.
-class CourseSiteAccess
+# The Site Access Page that appears during Site creation
+# immediately following the Add Multiple Tools Options page.
+class SiteAccess
   
   include PageObject
   include ToolsMenu
@@ -1110,7 +1109,7 @@ class CourseSiteAccess
   # instantiates the ConfirmCourseSiteSetup class.
   def continue
     frm.button(:value=>"Continue").click
-    ConfirmCourseSiteSetup.new(@browser)
+    ConfirmSiteSetup.new(@browser)
   end
   
   in_frame(:index=>0) do |frame|
@@ -1126,7 +1125,7 @@ class CourseSiteAccess
 end
 
 # The Confirmation page at the end of a Course Site Setup
-class ConfirmCourseSiteSetup
+class ConfirmSiteSetup
   
   include PageObject
   include ToolsMenu
@@ -1135,6 +1134,14 @@ class ConfirmCourseSiteSetup
   # instantiates the SiteSetup Class.
   def request_site
     frm.button(:value=>"Request Site").click
+    SiteSetup.new(@browser)
+  end
+  
+  # For portfolio sites...
+  # Clicks the "Create Site" button and
+  # instantiates the SiteSetup class.
+  def create_site
+    frm.button(:value=>"Create Site").click
     SiteSetup.new(@browser)
   end
   
@@ -1170,6 +1177,65 @@ class CourseSiteInfo
   end
   
 end
+
+# 
+class PortfolioSiteInfo
+  
+  include PageObject
+  include ToolsMenu
+
+  def description=(text)
+    frm.frame(:id, "description___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(text)
+  end
+  
+  def continue
+    frm.button(:value=>"Continue").click
+    PortfolioSiteTools.new(@browser)
+  end
+
+  in_frame(:class=>"portletMainIframe") do |frame|
+    text_field(:title, :id=>"title", :frame=>frame)
+    text_field(:url_alias, :id=>"alias_0", :frame=>frame)
+    text_area(:short_description, :id=>"short_description", :frame=>frame)
+    text_field(:icon_url, :id=>"iconUrl", :frame=>frame)
+    text_field(:site_contact_name, :id=>"siteContactName", :frame=>frame)
+    text_field(:site_contact_email, :id=>"siteContactEmail", :frame=>frame)
+  end
+end
+
+# 
+class PortfolioSiteTools
+  
+  include PageObject
+  include ToolsMenu
+
+  def continue
+    frm.button(:value=>"Continue").click
+    PortfolioConfigureToolOptions.new(@browser)
+  end
+
+  in_frame(:class=>"portletMainIframe") do |frame|
+    checkbox(:all_tools, :id=>"all", :frame=>frame)
+    
+  end
+end
+
+# 
+class PortfolioConfigureToolOptions
+  
+  include PageObject
+  include ToolsMenu
+  
+  def continue
+    frm.button(:value=>"Continue").click
+    SiteAccess.new(@browser)
+  end
+
+  in_frame(:class=>"portletMainIframe") do |frame|
+    text_field(:email, :id=>"emailId", :frame=>frame)
+  end
+end
+
 
 
 #================
