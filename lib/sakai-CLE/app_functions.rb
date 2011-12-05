@@ -351,10 +351,10 @@ module ToolsMenu
   end
   
   # Clicks the Site Setup link, then instantiates
-  # The SiteSetup class.
+  # The SiteEditor class.
   def site_setup
     @browser.link(:text=>"Site Setup").click
-    SiteSetup.new(@browser)
+    SiteEditor.new(@browser)
   end
   
   link(:site_statistics, :text=>"Site Statistics")
