@@ -12,12 +12,11 @@ files = [ "/../../config/config.rb", "/../../lib/utilities.rb", "/../../lib/saka
 files.each { |file| require File.dirname(__FILE__) + file }
 require "ci/reporter/rake/test_unit_loader"
 
-class AddSiteParticipants < Test::Unit::TestCase
+class AddCourseSiteParticipants < Test::Unit::TestCase
   
   include Utilities
 
   def setup
-    @verification_errors = []
     
     # Get the test configuration data
     @config = AutoConfig.new
@@ -34,19 +33,18 @@ class AddSiteParticipants < Test::Unit::TestCase
   def teardown
     # Close the browser window
     @browser.close
-    assert_equal [], @verification_errors
   end
   
-  def test_adding_participants
-    
-    # This test case needs to check error paths.
-    # Currently it does not do any error checking.
+  def test_adding_participants_to_course
     
     # Prepare the test case data...
     # Get participants and stick them in an array
     students = []
     instructors = []
     guests = []
+    student_names = []
+    instructor_names = []
+    guest_names = []
     
     x = 1
     
@@ -54,10 +52,18 @@ class AddSiteParticipants < Test::Unit::TestCase
       
       type = @config.directory["person#{x}"]["type"]
       id = @config.directory["person#{x}"]["id"]
+      name = @config.directory["person#{x}"]["lastname"] + ", " + @config.directory["person#{x}"]["firstname"]
+      
       case(type)
-      when "registered" then students << id
-      when "guest" then guests << id
-      when "maintain" then instructors << id
+      when "registered" then
+        students << id
+        student_names << { :id=>id, :name=>name }
+      when "guest" then
+        guests << id
+        guest_names << { :id=>id, :name=>name }
+      when "maintain" then
+        instructors << id
+        instructor_names << { :id=>id, :name=>name }
       end
       
       x+=1
@@ -75,40 +81,30 @@ class AddSiteParticipants < Test::Unit::TestCase
     users = { :students=>students_list, :instructors=>instructors_list, :guests=>guests_list }
     
     # Log in to Sakai
-    @sakai.login(@user_name, @password)
+    workspace = @sakai.login(@user_name, @password)
     
     # Go to Site Setup
-    home = Home.new(@browser)
-    home.site_setup
+    site_setup = workspace.site_setup
     
-    site_setup = SiteSetup.new(@browser)
-
-    site_setup.edit(@site_name)
+    edit_site = site_setup.edit(@site_name)
 
     users.each do | user_type, user_list |
       
       next if user_list==""
       
-      edit_site = SiteSetupEdit.new(@browser)
-      
       # Add the participants
-      edit_site.add_participants
-      add_participants = SiteSetupAddParticipants.new(@browser)
+      add_participants = edit_site.add_participants
       
       # Enter the names into the official participants field
       add_participants.official_participants=user_list
-      add_participants.continue
+      role = add_participants.continue
       
       # Choose the role
-      role = SiteSetupChooseRole.new(@browser)
       
       case(user_type)
       when :guests then role.select_guest
       when :instructors then role.select_instructor
       when :students then role.select_student
-      else
-        p user_type
-        role.select_teaching_assistant
       end
       
       email = role.continue
@@ -118,17 +114,27 @@ class AddSiteParticipants < Test::Unit::TestCase
       
       # Confirm selections
       
-      #===================
-      # Need to add verification steps here!
-      #===================
+      # TEST CASE: Users are in confirmation list.
+      case(user_type)
+      when :guests
+        guest_names.each do |guest|
+          assert_equal guest[:id], confirm.id(guest[:name])
+        end
+      when :instructors
+        instructor_names.each do |instructor|
+          assert_equal instructor[:id], confirm.id(instructor[:name])
+        end
+      when :students
+        student_names.each do |student|
+          assert_equal student[:id],confirm.id(student[:name])
+        end
+      end
       
-      confirm.finish
-      
-      #===================
-      # Need to add verification steps here!
-      #===================
+      edit_site = confirm.finish
       
     end
+    
+    
     
   end
   
