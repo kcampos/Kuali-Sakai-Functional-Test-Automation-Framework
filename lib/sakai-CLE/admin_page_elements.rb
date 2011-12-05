@@ -55,7 +55,7 @@ class AliasesCreate
   include PageObject
   include ToolsMenu
   
-  in_frame(:index=>0) do |frame|
+  in_frame(:class=>"portletMainIframe") do |frame|
     text_field(:alias_name, :id=>"id", :frame=>frame)
     text_field(:target, :id=>"target", :frame=>frame)
     button(:save, :name=>"eventSubmit_doSave", :frame=>frame)
@@ -71,7 +71,7 @@ class EditAlias
   include PageObject
   include ToolsMenu
   
-  in_frame(:index=>0) do |frame|
+  in_frame(:class=>"portletMainIframe") do |frame|
     link(:remove_alias, :text=>"Remove Alias", :frame=>frame)
     text_field(:target, :id=>"target", :frame=>frame)
     button(:save, :name=>"eventSubmit_doSave", :frame=>frame)
@@ -170,7 +170,7 @@ class Realms
   include PageObject
   include ToolsMenu
   
-  in_frame(:index=>0) do |frame|
+  in_frame(:class=>"portletMainIframe") do |frame|
     link(:new_realm, :text=>"New Realm", :frame=>frame)
     link(:search, :text=>"Search", :frame=>frame)
     select_list(:select_page_size, :name=>"selectPageSize", :frame=>frame)
@@ -193,7 +193,7 @@ class AddSections
   include PageObject
   include ToolsMenu
   
-  in_frame(:index=>0) do |frame|
+  in_frame(:class=>"portletMainIframe") do |frame|
     link(:overview, :id=>"addSectionsForm:_idJsp3", :frame=>frame)
     link(:student_memberships, :id=>"addSectionsForm:_idJsp12", :frame=>frame)
     link(:options, :id=>"addSectionsForm:_idJsp17", :frame=>frame)
@@ -239,7 +239,7 @@ class EditSections
   include PageObject
   include ToolsMenu
   
-  in_frame(:index=>0) do |frame|
+  in_frame(:class=>"portletMainIframe") do |frame|
     link(:overview, :id=>"editSectionsForm:_idJsp3", :frame=>frame)
     link(:student_memberships, :id=>"editSectionsForm:_idJsp12", :frame=>frame)
     link(:options, :id=>"editSectionsForm:_idJsp17", :frame=>frame)
@@ -284,7 +284,7 @@ class SectionsOptions
   include PageObject
   include ToolsMenu
   
-  in_frame(:index=>0) do |frame|
+  in_frame(:class=>"portletMainIframe") do |frame|
     checkbox(:students_can_sign_up, :id=>"optionsForm:selfRegister", :frame=>frame)
     checkbox(:students_can_switch_sections, :id=>"optionsForm:selfSwitch", :frame=>frame)
     button(:update, :id=>"optionsForm:_idJsp50", :frame=>frame)
@@ -304,7 +304,7 @@ class SectionsOverview
   include PageObject
   include ToolsMenu
   
-  in_frame(:index=>0) do |frame|
+  in_frame(:class=>"portletMainIframe") do |frame|
     link(:add_sections, :id=>"overviewForm:_idJsp8", :frame=>frame)
     link(:student_memberships, :id=>"overviewForm:_idJsp12", :frame=>frame)
     link(:options, :id=>"overviewForm:_idJsp17", :frame=>frame)
@@ -437,7 +437,7 @@ class EditSiteInfo
     AddEditPages.new(@browser)
   end
   
-  in_frame(:index=>0) do |frame|
+  in_frame(:class=>"portletMainIframe") do |frame|
     # Non-navigating, interactive page objects go here
     text_field(:site_id, :id=>"id", :frame=>frame)
     text_field(:title, :id=>"title", :frame=>frame)
@@ -479,7 +479,7 @@ class NewPage
     AddEditTools.new(@browser)
   end
   
-  in_frame(:index=>0) do |frame|
+  in_frame(:class=>"portletMainIframe") do |frame|
     # Interactive page objects that do no navigation
     # or page refreshes go here.
     text_field(:title, :id=>"title", :frame=>frame)
@@ -522,7 +522,7 @@ class NewTool
     AddEditTools.new(@browser)
   end
   
-  in_frame(:index=>0) do |frame|
+  in_frame(:class=>"portletMainIframe") do |frame|
     # Interactive page objects that do no navigation
     # or page refreshes go here.
     text_field(:title, :id=>"title", :frame=>frame)
@@ -560,7 +560,7 @@ class SiteSaveAs
     Sites.new(@browser)
   end
   
-  in_frame(:index=>0) do |frame|
+  in_frame(:class=>"portletMainIframe") do |frame|
     text_field(:site_id, :id=>"id", :frame=>frame)
   end
   
@@ -591,7 +591,7 @@ class AddEditSiteProperties
     Sites.new(@browser)
   end
   
-  in_frame(:index=>0) do |frame|
+  in_frame(:class=>"portletMainIframe") do |frame|
     text_field(:name, :id=>"new_name", :frame=>frame)
     text_field(:value, :id=>"new_value", :frame=>frame)
   end
@@ -697,18 +697,20 @@ class SiteSetupParticipantConfirmation
   
   def finish
     frm.button(:value=>"Finish").click
-    SiteSetup.new(@browser)
+    SiteSetupEdit.new(@browser)
   end
   
+  # Returns the value of the id field for the specified name.
   def id(name)
     frm.table(:class=>"listHier").row(:text=>/#{Regexp.escape(name)}/)[1].text
   end
   
+  # Returns the value of the Role field for the specified name.
   def role(name)
     frm.table(:class=>"listHier").row(:text=>/#{Regexp.escape(name)}/)[2].text
   end
   
-  in_frame(:index=>0) do |frame|
+  in_frame(:class=>"portletMainIframe") do |frame|
     button(:back, :name=>"command link parameters&Submitting%20control=content%3A%3Aback&Fast%20track%20action=siteAddParticipantHandler.processConfirmBack", :frame=>frame)
     button(:cancel, :name=>"command link parameters&Submitting%20control=content%3A%3Aback&Fast%20track%20action=siteAddParticipantHandler.processConfirmCancel", :frame=>frame)
   end
@@ -727,11 +729,19 @@ class SiteSetupEdit
     EditSiteTools.new(@browser)
   end
   
-  in_frame(:index=>0) do |frame|
+  def add_participants
+    frm.link(:text=>"Add Participants").click
+    SiteSetupAddParticipants.new @browser
+  end
+  
+  def manage_groups
+    frm.link(:text=>"Manage Groups").clicks
+    Groups.new @browser
+  end
+  
+  in_frame(:class=>"portletMainIframe") do |frame|
     link(:edit_site_information, :text=>"Edit Site Information", :frame=>frame)
-    link(:add_participants, :text=>"Add Participants", :frame=>frame)
     link(:edit_class_rosters, :text=>"Edit Class Roster(s)", :frame=>frame)
-    link(:manage_groups, :text=>"Manage Groups", :frame=>frame)
     link(:link_to_parent_site, :text=>"Link to Parent Site", :frame=>frame)
     link(:manage_access, :text=> "Manage Access", :frame=>frame)
     link(:duplicate_site, :text=>"Duplicate Site", :frame=>frame)
@@ -774,7 +784,7 @@ class EditSiteTools
     end
   end
   
-  in_frame(:index=>0) do |frame|
+  in_frame(:class=>"portletMainIframe") do |frame|
     # This is a comprehensive list of all checkboxes and
     # radio buttons for this page, 
     # though not all will appear at one time.
@@ -1067,7 +1077,7 @@ class CourseSectionInfo
     SiteSetup.new(@browser)
   end
   
-  in_frame(:index=>0) do |frame|
+  in_frame(:class=>"portletMainIframe") do |frame|
     # Note that ONLY THE FIRST instances of the
     # subject, course, and section fields
     # are included in the page elements definitions here,
@@ -1112,7 +1122,7 @@ class SiteAccess
     ConfirmSiteSetup.new(@browser)
   end
   
-  in_frame(:index=>0) do |frame|
+  in_frame(:class=>"portletMainIframe") do |frame|
     radio_button(:publish_site, :id=>"publish", :frame=>frame)
     radio_button(:leave_as_draft, :id=>"unpublish", :frame=>frame)
     radio_button(:limited, :id=>"unjoinable", :frame=>frame)
@@ -1167,7 +1177,7 @@ class CourseSiteInfo
     frm.div(:class=>"portletBody").div(:class=>"alertMessage").text
   end
   
-  in_frame(:index=>0) do |frame|
+  in_frame(:class=>"portletMainIframe") do |frame|
     text_field(:short_description, :id=>"short_description", :frame=>frame)
     text_field(:special_instructions, :id=>"additional", :frame=>frame)
     text_field(:site_contact_name, :id=>"siteContactName", :frame=>frame)
@@ -1261,7 +1271,7 @@ class EditAccount
     end
   end
   
-  in_frame(:index=>0) do |frame|
+  in_frame(:class=>"portletMainIframe") do |frame|
     text_field(:first_name, :id=>"first-name", :frame=>frame)
     text_field(:last_name, :id=>"last-name", :frame=>frame)
     text_field(:email, :id=>"email", :frame=>frame)
@@ -1359,7 +1369,7 @@ class EditUser
   include PageObject
   include ToolsMenu
   
-  in_frame(:index=>0) do |frame|
+  in_frame(:class=>"portletMainIframe") do |frame|
     link(:remove_user, :text=>"Remove User", :frame=>frame)
     text_field(:first_name, :id=>"first-name", :frame=>frame)
     text_field(:last_name, :id=>"last-name", :frame=>frame)
@@ -1401,7 +1411,7 @@ class Users
     Users.new @browser
   end
   
-  in_frame(:index=>0) do |frame|
+  in_frame(:class=>"portletMainIframe") do |frame|
     link(:clear_search, :text=>"Clear Search", :frame=>frame)
     text_field(:search_field, :id=>"search", :frame=>frame)
     select_list(:select_page_size, :name=>"selectPageSize", :frame=>frame)
@@ -1424,7 +1434,7 @@ class CreateNewUser
     Users.new(@browser)
   end
   
-  in_frame(:index=>0) do |frame|
+  in_frame(:class=>"portletMainIframe") do |frame|
     text_field(:user_id, :id=>"eid", :frame=>frame)
     text_field(:first_name, :id=>"first-name", :frame=>frame)
     text_field(:last_name, :id=>"last-name", :frame=>frame)
@@ -1478,7 +1488,7 @@ class UserMembership
     frm.p(:class=>"instruction").text
   end
   
-  in_frame(:index=>0) do |frame|
+  in_frame(:class=>"portletMainIframe") do |frame|
     select_list(:user_type, :id=>"userlistForm:selectType", :frame=>frame)
     select_list(:user_authority, :id=>"userlistForm:selectAuthority", :frame=>frame)
     text_field(:search_field, :id=>"userlistForm:inputSearchBox", :frame=>frame)
@@ -1561,7 +1571,7 @@ class CreateNewJob
     JobList.new(@browser)
   end
   
-  in_frame(:index=>0) do |frame|
+  in_frame(:class=>"portletMainIframe") do |frame|
     text_field(:job_name, :id=>"_id2:job_name", :frame=>frame)
     select_list(:type, :name=>"_id2:_id10", :frame=>frame)
   end
