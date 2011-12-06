@@ -2,7 +2,7 @@
 # 
 # == Synopsis
 #
-# 
+# Tests the creation of a new presentation inside a Portfolio Site.
 # 
 # Author: Abe Heward (aheward@rSmart.com)
 gem "test-unit"

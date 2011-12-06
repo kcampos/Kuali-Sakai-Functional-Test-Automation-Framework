@@ -318,7 +318,11 @@ module ToolsMenu
   end
   
   link(:preferences, :text=>"Preferences")
-  link(:profile, :text=>"Profile")
+  
+  def profile
+    @browser.link(:text=>"Profile").click
+    Profile.new @browser
+  end
   link(:realms, :text=>"Realms")
   
   # Clicks the Resources link, then instantiates
