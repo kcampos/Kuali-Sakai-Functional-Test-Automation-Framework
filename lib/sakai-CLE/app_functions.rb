@@ -305,7 +305,10 @@ module ToolsMenu
     Polls.new(@browser)
   end
   
-  link(:portfolios, :text=>"Portfolios")
+  def portfolios
+    @browser.link(:class=>"icon-osp-presentation").click
+    Portfolios.new @browser
+  end
   
   # Clicks the Portfolio Templates link, then
   # instantiates the Portfolio 
@@ -354,7 +357,7 @@ module ToolsMenu
   # The SiteEditor class.
   def site_setup
     @browser.link(:text=>"Site Setup").click
-    SiteEditor.new(@browser)
+    SiteSetup.new(@browser)
   end
   
   link(:site_statistics, :text=>"Site Statistics")
@@ -425,6 +428,8 @@ module ToolsMenu
       Lessons.new(@browser)
     when "Syllabus"
       Syllabus.new(@browser)
+    when "Portfolios"
+      Portfolios.new @browser
     # Add more cases here, as necessary...
     end
   end

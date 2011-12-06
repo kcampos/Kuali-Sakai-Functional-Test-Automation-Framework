@@ -1550,7 +1550,8 @@ class SiteSetupChooseRolesIndiv
 
 end
 
-# Page for selecting the same role for All
+# Page for selecting the same role for All. This class is used for
+# both Course and Portfolio sites.
 class SiteSetupChooseRole
   
   include PageObject
@@ -1564,9 +1565,13 @@ class SiteSetupChooseRole
   in_frame(:class=>"portletMainIframe") do |frame|
     button(:back, :name=>"command link parameters&Submitting%20control=content%3A%3Aback&Fast%20track%20action=siteAddParticipantHandler.processSameRoleBack", :frame=>frame)
     button(:cancel, :name=>"command link parameters&Submitting%20control=content%3A%3Acancel&Fast%20track%20action=siteAddParticipantHandler.processCancel", :frame=>frame)
-    radio_button(:guest, :id=>"content::role-row:0:role-select", :frame=>frame)
-    radio_button(:instructor, :id=>"content::role-row:1:role-select", :frame=>frame)
-    radio_button(:student, :id=>"content::role-row:2:role-select", :frame=>frame)
+    radio_button(:guest, :value=>"Guest", :frame=>frame)
+    radio_button(:instructor, :value=>"Instructor", :frame=>frame)
+    radio_button(:student, :value=>"Student", :frame=>frame)
+    radio_button(:evaluator, :value=>"Evaluator", :frame=>frame)
+    radio_button(:organizer, :value=>"Organizer", :frame=>frame)
+    radio_button(:participant, :value=>"Participant", :frame=>frame)
+    radio_button(:reviewer, :value=>"Reviewer", :frame=>frame)
     radio_button(:teaching_assistant, :id=>"content::role-row:3:role-select", :frame=>frame)
   end
 

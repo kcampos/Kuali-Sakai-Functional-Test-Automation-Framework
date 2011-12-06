@@ -5098,6 +5098,185 @@ end
 
 
 #================
+# Portfolios pages
+#================
+
+# 
+class Portfolios
+  
+  include PageObject
+  include ToolsMenu
+  
+  def create_new_portfolio
+    frm.link(:text=>"Create New Portfolio").click
+    AddPortfolio.new(@browser)
+  end
+
+  def list
+    list = []
+    frm.table(:class=>"listHier ospTable").rows.each do |row|
+      list << row[0].text
+    end
+    list.delete_at(0)
+    return list
+  end
+  
+  def shared(portfolio_name)
+    frm.table(:class=>"listHier ospTable").row(:text=>/#{Regexp.escape(portfolio_name)}/)[5].text
+  end
+
+  in_frame(:class=>"portletMainIframe") do |frame|
+    
+  end
+end
+
+# 
+class AddPortfolio
+  
+  include PageObject
+  include ToolsMenu
+  
+  def create
+    frm.button(:value=>"Create").click
+    EditPortfolio.new(@browser)
+  end
+
+  in_frame(:class=>"portletMainIframe") do |frame|
+    text_field(:name, :name=>"presentationName", :frame=>frame)
+    radio_button(:design_your_own_portfolio, :id=>"templateId-freeForm", :frame=>frame)
+  end
+end
+
+# 
+class EditPortfolio
+  
+  include PageObject
+  include ToolsMenu
+  
+  def add_edit_content
+    frm.link(:text=>"Add/Edit Content").click
+    AddEditPortfolioContent.new @browser
+  end
+
+  in_frame(:class=>"portletMainIframe") do |frame|
+    link(:edit_title, :text=>"Edit Title", :frame=>frame)
+    link(:save_changes, :text=>"Save Changes", :frame=>frame)
+    radio_button(:active, :id=>"btnActive", :frame=>frame)
+    radio_button(:inactive, :id=>"btnInactive", :frame=>frame)
+  end
+end
+
+# 
+class AddEditPortfolioContent
+  
+  include PageObject
+  include ToolsMenu
+  
+  def add_page
+    frm.link(:text=>"Add Page").click
+    AddEditPortfolioPage.new(@browser)
+  end
+
+  def share_with_others
+    frm.link(:text=>"Share with Others").click
+    SharePortfolio.new @browser
+  end
+
+  in_frame(:class=>"portletMainIframe") do |frame|
+    button(:save_changes, :value=>"Save Changes", :frame=>frame)
+  end
+end
+
+# 
+class AddEditPortfolioPage
+  
+  include PageObject
+  include ToolsMenu
+  
+  def add_page
+    frm.button(:value=>"Add Page").click
+    AddEditPortfolioContent.new(@browser)
+  end
+  
+  def select_layout
+    frm.link(:text=>"Select Layout").click
+    ManagePortfolioLayouts.new @browser
+  end
+  
+  def select_style
+    frm.link(:text=>"Select Style").click
+    SelectPortfolioStyle.new @browser
+  end
+
+  def simple_html_content=(text)
+    frm.frame(:id, "_id1:arrange:_id49_inputRichText___Frame").div(:title=>"Select All").fire_event("onclick")
+    frm.frame(:id, "_id1:arrange:_id49_inputRichText___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys :backspace
+    frm.frame(:id, "_id1:arrange:_id49_inputRichText___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(text)
+  end
+
+  in_frame(:class=>"portletMainIframe") do |frame|
+    text_field(:title, :id=>"_id1:title", :frame=>frame)
+    text_area(:description, :id=>"_id1:description", :frame=>frame)
+    text_area(:keywords, :id=>"_id1:keywords", :frame=>frame)
+    
+  end
+end
+
+# 
+class ManagePortfolioLayouts
+  
+  include PageObject
+  include ToolsMenu
+
+  def select(layout_name)
+    frm.table(:class=>"listHier lines nolines").row(:text=>/#{Regexp.escape(layout_name)}/).link(:text=>"Select").click
+    AddEditPortfolioPage.new @browser
+  end
+
+  def go_back
+    frm.button(:value=>"Go Back").click
+    AddEditPortfolioPage.new @browser
+  end
+
+  in_frame(:class=>"portletMainIframe") do |frame|
+    
+  end
+end
+
+#
+class SharePortfolio
+  
+  include PageObject
+  include ToolsMenu
+  
+  def click_here_to_share_with_others
+    frm.link(:text=>"Click here to share with others").click
+    AddPeopleToShare.new(@browser)
+  end
+
+  def summary
+    frm.link(:text=>"Summary").click
+    EditPortfolio.new @browser
+  end
+
+  in_frame(:class=>"portletMainIframe") do |frame|
+    checkbox(:everyone_on_the_internet, :id=>"public_checkbox", :frame=>frame)
+  end
+end
+
+# 
+class AddPeopleToShare
+  
+  include PageObject
+  include ToolsMenu
+
+  in_frame(:class=>"portletMainIframe") do |frame|
+    
+  end
+end
+
+
+#================
 # Portfolio Templates pages
 #================
 
