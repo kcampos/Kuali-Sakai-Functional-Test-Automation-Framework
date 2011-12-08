@@ -323,6 +323,12 @@ module ToolsMenu
     @browser.link(:text=>"Profile").click
     Profile.new @browser
   end
+  
+  def profile2
+    @browser.link(:class=>"icon-sakai-profile2").click
+    Profile2.new @browser
+  end
+  
   link(:realms, :text=>"Realms")
   
   # Clicks the Resources link, then instantiates
@@ -332,7 +338,11 @@ module ToolsMenu
     Resources.new(@browser)
   end
   
-  link(:roster, :text=>"Roster")
+  def roster
+    @browser.link(:class=>"icon-sakai-site-roster").click
+    Roster.new @browser
+  end
+  
   link(:rsmart_support, :text=>"rSmart Support")
   
   # Because "Search" is used in many pages,
