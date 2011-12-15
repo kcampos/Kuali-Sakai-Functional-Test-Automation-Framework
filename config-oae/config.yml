@@ -1,0 +1,6 @@
+server:
+    browser: :firefox
+    url: 'http://qa.academic.rsmart.com'
+app:
+    :cle: 'sakai-cle'
+    :oae: 'sakai-oae'
