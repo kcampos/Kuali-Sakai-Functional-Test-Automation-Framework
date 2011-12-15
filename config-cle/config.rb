@@ -8,7 +8,7 @@ require 'yaml'
 
 class AutoConfig
   
-  attr_reader :web_browser, :url, :user_name, :user_pw, :site_name, :browser, :directory, :reports
+  attr_reader :url, :browser, :directory
   
   def initialize
     

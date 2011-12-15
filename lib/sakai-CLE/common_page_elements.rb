@@ -1883,9 +1883,9 @@ class CourseSectionInfo
     # or subsequent of these elements, you'll need to
     # explicitly identify/define them in the test case
     # itself.
-    text_field(:subject, :name=>"Subject:0", :frame=>frame)
-    text_field(:course, :name=>"Course:0", :frame=>frame)
-    text_field(:section, :name=>"Section:0", :frame=>frame)
+    text_field(:subject, :name=>/Subject:/, :frame=>frame)
+    text_field(:course, :name=>/Course:/, :frame=>frame)
+    text_field(:section, :name=>/Section:/, :frame=>frame)
     text_field(:authorizers_username, :id=>"uniqname", :frame=>frame)
     text_field(:special_instructions, :id=>"additional", :frame=>frame)
     select_list(:add_more_rosters, :id=>"number", :frame=>frame)

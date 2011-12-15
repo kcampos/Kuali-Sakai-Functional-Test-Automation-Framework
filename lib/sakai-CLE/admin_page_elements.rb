@@ -312,6 +312,7 @@ class Profile2
   def change_picture
     frm.div(:id=>"myPhoto").fire_event("onmouseover")
     frm.div(:id=>"myPhoto").link(:class=>"edit-image-button").click
+    sleep 0.5
     Profile2.new @browser
   end
 

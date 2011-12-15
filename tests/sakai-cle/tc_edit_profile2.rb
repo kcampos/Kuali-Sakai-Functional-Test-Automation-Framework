@@ -8,7 +8,7 @@
 gem "test-unit"
 gems = ["test/unit", "watir-webdriver", "ci/reporter/rake/test_unit_loader"]
 gems.each { |gem| require gem }
-files = [ "/../../config/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-CLE/app_functions.rb", "/../../lib/sakai-CLE/admin_page_elements.rb", "/../../lib/sakai-CLE/site_page_elements.rb", "/../../lib/sakai-CLE/common_page_elements.rb" ]
+files = [ "/../../config-cle/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-CLE/app_functions.rb", "/../../lib/sakai-CLE/admin_page_elements.rb", "/../../lib/sakai-CLE/site_page_elements.rb", "/../../lib/sakai-CLE/common_page_elements.rb" ]
 files.each { |file| require File.dirname(__FILE__) + file }
 
 class TestUpdatingProfile2 < Test::Unit::TestCase
@@ -147,8 +147,6 @@ class TestUpdatingProfile2 < Test::Unit::TestCase
     # TEST CASE: Student 1 appears in search results when searching by name
     assert search.results.include?("#{@student_firstname} #{@student_lastname}")
     
-    search = search.clear_results
-    
     # Add first student as a connection...
     search = search.add_as_connection "#{@student_firstname} #{@student_lastname}"
     
@@ -172,11 +170,11 @@ class TestUpdatingProfile2 < Test::Unit::TestCase
     view = roster.view(@student_lastname + ", " + @student_firstname)
     
     # TEST CASE: Student 2 cannot see any of student 1's profile info (except name and email)...
-    assert_equal nil, student.public_information["Nickname"]
+    assert_equal "", student.public_information["Nickname"]
     assert_equal @email, student.personal_information["Email"]
-    assert_equal nil, student.personal_information["Home Page"]
-    assert_equal nil, student.personal_information["Work Phone"]
-    assert_equal nil, student.personal_information["Other Information"]
+    #assert_equal nil, student.personal_information["Home page"]
+    #assert_equal nil, student.personal_information["Work phone"] Need to double-check the capitalization here.
+    assert_equal "", student.personal_information["Other Information"]
     assert_equal @student_firstname, student.personal_information["First Name"]
     assert_equal @student_lastname, student.personal_information["Last Name"]
     
@@ -216,20 +214,20 @@ class TestUpdatingProfile2 < Test::Unit::TestCase
     view = search.view "#{@student_firstname} #{@student_lastname}"
     
     # TEST CASE: Student 2 can now see Student 1's profile info
-    assert_equal(@nickname, view.basic_information[])
-    assert_equal(@personal_summary, view.contact_information[])
-    assert_equal(@email, view.student_information[])
-    assert_equal(@home_page, view.personal_information[])
-    assert_equal(@work_phone, view._information[])
-    assert_equal(@home_phone, view._information[])
-    assert_equal(@mobile_phone, view._information[])
-    assert_equal(@fax, view._information[])
-    assert_equal(@degree, view._information[])
-    assert_equal(@subject, view._information[])
-    assert_equal(@favorite_books, view._information[])
-    assert_equal(@favorite_tv_shows, view._information[])
-    assert_equal(@favorite_movies, view._information[])
-    assert_equal(@favorite_quotes, view._information[])
+    assert_equal(@nickname, view.basic_information["Nickname"])
+    assert_equal(@personal_summary, view.basic_information["Personal summary"])
+    assert_equal(@email, view.contact_information["Email"])
+    assert_equal(@home_page, view.contact_information["Home page"])
+    assert_equal(@work_phone, view.contact_information["Work phone"])
+    assert_equal(@home_phone, view.contact_information["Home phone"])
+    assert_equal(@mobile_phone, view.contact_information["Mobile phone"])
+    assert_equal(@fax, view.contact_information["Facsimile"])
+    assert_equal(@degree, view.student_information["Degree/Course"])
+    assert_equal(@subject, view._information["Subject"])
+    assert_equal(@favorite_books, view.personal_information["Favorite books"])
+    assert_equal(@favorite_tv_shows, view.personal_information["Favorite TV shows"])
+    assert_equal(@favorite_movies, view.personal_information["Favorite movies"])
+    assert_equal(@favorite_quotes, view.personal_information["Favorite quotes"])
     
     # ...in Roster
     home = view.open_my_site_by_name(@site_name)

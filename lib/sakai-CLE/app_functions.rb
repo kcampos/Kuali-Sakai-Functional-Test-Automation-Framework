@@ -77,7 +77,7 @@ module ToolsMenu
   #
   # Will error out if there are not matching links.
   def open_my_site_by_name(name)
-    short_name = name[0..20]
+    short_name = name[0..19]
     @browser.link(:text, "My Sites").click
     @browser.link(:text, /#{Regexp.escape(short_name)}/).click
     $frame_index=1
