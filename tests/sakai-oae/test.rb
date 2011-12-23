@@ -68,14 +68,8 @@ class TestCreateCourse < Test::Unit::TestCase
 
     membership = dashboard.my_memberships
     
-    library = membership.go_to @course_info[:title]ruby 
-    sleep 1
-    library.change_title_of "Remote"
-    sleep 1
-    library.new_title="Remote Viewing\n"
-    sleep 1
-    library.change_title "Remote Viewing"
-    library.new_title="Remote\n"
+    library = membership.go_to @course_info[:title]
+
     library.permissions_for "Remote"
     sleep 1
     library.student_permissions="Don't show"

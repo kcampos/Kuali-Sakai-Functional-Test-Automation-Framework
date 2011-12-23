@@ -110,5 +110,10 @@ module Watir
       return @o.for
     end
     
+    def hover
+      assert_exists
+      driver.action.move_to(@element).perform
+    end
+    
   end 
 end

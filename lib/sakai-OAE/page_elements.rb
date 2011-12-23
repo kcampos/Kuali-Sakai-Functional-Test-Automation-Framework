@@ -18,6 +18,16 @@ module HeaderFooterBar
   
   include PageObject
   
+  # A generic link-clicking method. It clicks on a page link with text that
+  # matches the supplied string. Since it uses Regex to find a match, the
+  # string can be a substring of the desired link's full text.
+  # This method should be used as a last resort, however, since it does not
+  # instantiate a new page class. The test script will have to instantiate
+  # the target page class explicitly, if required.
+  def click_link(string)
+    @browser.link(:text=>/#{Regexp.escape(string)}/).click
+  end
+  
   link(:help, :id=>"help_tab")
   float_menu(:my_dashboard, "You", "My Dashboard", "Add Widget", "MyDashboard")
   float_menu(:my_messages, "You", "My Messages", "Compose message", "MyMessages")
@@ -182,9 +192,14 @@ module LeftMenuBar
   end
   
   #
-  def change_title_of(page_name)
-    @browser.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).fire_event("onmouseover")
+  def change_title_of(from_string, to_string)
+    @browser.link(:class=>/lhnavigation_page_title_value/, :text=>from_string).hover
+    @browser.wait_until { @browser.link(:class=>/lhnavigation_page_title_value/, :text=>from_string).parent.div(:class=>"lhnavigation_selected_submenu_image").visible? }
+    @browser.div(:class=>"lhnavigation_selected_submenu_image").hover
+    @browser.execute_script("$('#lhnavigation_submenu').css({left:'300px', top:'300px', display: 'block'})")
+    @browser.wait_until { @browser.link(:id=>"lhavigation_submenu_edittitle").visible? }
     @browser.link(:id=>"lhavigation_submenu_edittitle").click
+    @browser.link(:class=>/lhnavigation_page_title_value/, :text=>from_string).parent.text_field(:class=>"lhnavigation_change_title").set("#{to_string}\n")
   end
   
   alias change_title change_title_of
@@ -192,12 +207,20 @@ module LeftMenuBar
   #
   def delete_page(page_name)
     @browser.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).fire_event("onmouseover")
+    @browser.wait_until { @browser.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).parent.div(:class=>"lhnavigation_selected_submenu_image").visible? }
+    @browser.div(:class=>"lhnavigation_selected_submenu_image").hover
+    @browser.execute_script("$('#lhnavigation_submenu').css({left:'300px', top:'300px', display: 'block'})")
+    @browser.wait_until { @browser.link(:id=>"lhavigation_submenu_edittitle").visible? }
     @browser.link(:id=>"lhavigation_submenu_deletepage").click
   end
   
   #
   def permissions_for(page_name)
     @browser.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).fire_event("onmouseover")
+    @browser.wait_until { @browser.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).parent.div(:class=>"lhnavigation_selected_submenu_image").visible? }
+    @browser.div(:class=>"lhnavigation_selected_submenu_image").hover
+    @browser.execute_script("$('#lhnavigation_submenu').css({left:'328px', top:'349px', display: 'block'})")
+    @browser.wait_until { @browser.link(:id=>"lhavigation_submenu_edittitle").visible? }
     @browser.link(:id=>"lhnavigation_submenu_permissions").click
     @browser.wait_until { @browser.text.include? "Area permissions for" }
     self.class.class_eval { include AreaPermissionsPopUp }
@@ -209,13 +232,15 @@ module LeftMenuBar
   #
   def view_profile_of(page_name)
     @browser.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).fire_event("onmouseover")
+    @browser.wait_until { @browser.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).parent.div(:class=>"lhnavigation_selected_submenu_image").visible? }
+    @browser.div(:class=>"lhnavigation_selected_submenu_image").hover
+    @browser.execute_script("$('#lhnavigation_submenu').css({left:'328px', top:'349px', display: 'block'})")
+    @browser.wait_until { @browser.link(:id=>"lhavigation_submenu_edittitle").visible? }
     @browser.link(:id=>"lhnavigation_submenu_profile").click
   end
   
   alias view_profile_for view_profile_of
   alias view_profile view_profile_of
-  
-  text_field(:new_title, :id=>"lhnavigation_change_title")
   
 end
 
@@ -1126,12 +1151,15 @@ class MyMemberships
   include PageObject
   include HeaderFooterBar
   
+  # Use for clicking on the name of a "World" whose page you want to navigate to.
   def go_to(item_name)
     @browser.link(:text=>item_name).click
     @browser.button(:id=>"entity_group_permissions").wait_until_present
     sleep 0.3
     GroupLibrary.new @browser
   end
+
+  alias navigate_to go_to
 
 end
 
