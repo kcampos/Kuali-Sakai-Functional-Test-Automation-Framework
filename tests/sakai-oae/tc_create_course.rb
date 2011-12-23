@@ -65,30 +65,50 @@ class TestCreateCourse < Test::Unit::TestCase
     
     # Log in to Sakai
     dashboard = @sakai.login(@instructor, @ipassword)
-
+=begin
+    dashboard.add_all_widgets
+    
+    create_course = dashboard.create_courses
+    
+    new_course_info = create_course.use_basic_template
+    new_course_info.title=@course_info[:title]
+    new_course_info.description=@course_info[:description]
+    new_course_info.tags=@course_info[:tags]
+    @suggested_url = new_course_info.suggested_url
+    
+    library = new_course_info.create_basic_course
+    
+    library.add_a_new_document @new_document
+    library.add_an_existing_document @existing_document
+    library.add_a_participant_list @participant_list
+    library.add_content_library @content_library
+    
+    @widgets.each do |widget|
+      library.add_widget widget
+    end
+    
+    #dashboard = library.my_dashboard
+    
+    # TEST CASE: Verify the new course is in recent memberships
+    #assert dashboard.recent_memberships.include?(@course_info[:title]), "Expected course title: #{@course_info[:title]}\n\nList in Widget:\n\n#{dashboard.recent_memberships.join("\n")}"
+=end
     membership = dashboard.my_memberships
     
-    library = membership.go_to @course_info[:title]ruby 
-    sleep 1
-    library.change_title_of "Remote"
-    sleep 1
-    library.new_title="Remote Viewing\n"
-    sleep 1
-    library.change_title "Remote Viewing"
-    library.new_title="Remote\n"
-    library.permissions_for "Remote"
-    sleep 1
-    library.student_permissions="Don't show"
-    sleep 1
-    library.cancel
-    sleep 1
-    library.view_profile_of "Remote"
+    library = membership.go_to @course_info[:title]
     
-    puts @browser.title
+    # TEST CASE: Verify pages are present
+    assert library.public_pages.include? @new_document[:name]
+    assert library.public_pages.include? @existing_document[:title]
+    assert library.public_pages.include? @participant_list[:name]
+    assert library.public_pages.include? @content_library[:name]
     
+    @widgets.each do |widget|
+      assert library.public_pages.include? widget[:name]
+    end
     
-    sleep 5
-
+    library.open_page("Participants", "participant")
+    
+    sleep 10
     
   end
   
