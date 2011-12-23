@@ -1,24 +1,95 @@
-module Fun
+#!/usr/bin/env ruby
+# 
+# == Synopsis
+#
+# Tests the creation of a new Course.
+# 
+# Author: Abe Heward (aheward@rSmart.com)
+gem "test-unit"
+gems = ["test/unit", "watir-webdriver", "ci/reporter/rake/test_unit_loader"]
+gems.each { |gem| require gem }
+files = [ "/../../config-oae/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-OAE/app_functions.rb", "/../../lib/sakai-OAE/page_elements.rb" ]
+files.each { |file| require File.dirname(__FILE__) + file }
 
-  def self.menu(name, menu_id, link_id, target_class)   
-    define_method(name) {
-      @browser.link(:id=>menu_id).fire_event("onmouseover")
-      @browser.link(:id=>link_id).click
-      eval(target_class).new @browser
+class TestCreateCourse < Test::Unit::TestCase
+  
+  include Utilities
+
+  def setup
+    
+    # Get the test configuration data
+    @config = AutoConfig.new
+    @browser = @config.browser
+    @instructor = @config.directory['admin']['username']
+    @ipassword = @config.directory['admin']['password']
+    @site_name = @config.directory['site1']['name']
+    @site_id = @config.directory['site1']['id']
+    @sakai = SakaiOAE.new(@browser)
+    
+    # Test case variables...
+    @course_info = {
+      :title=>"Junk Course",
+      :description=>random_string,
+      :tags=>random_string
     }
+    
+    @new_document = {:name=>"stuff", :visible=>"Visible to anyone", :pages=>"3"}
+    @existing_document = {:name=>"Syllabus", :title=>"Existing Doc", :visible =>"All participants" }
+    @participant_list = {:name=>"party", :visible=>"Visible to anyone"}
+    @content_library = {:name=>"content", :visible=>"Visible to anyone"}
+    @widgets = [
+      {:name=>"Disc",:widget=>"Discussion",:visible=>"Visible to anyone"},
+      {:name=>"Remote",:widget=>"Remote Content",:visible=>"Visible to anyone"},
+      {:name=>"Inline",:widget=>"Inline Content",:visible=>"Visible to anyone"},
+      {:name=>"Tests",:widget=>"Tests and Quizzes",:visible=>"Visible to anyone"},
+      {:name=>"Calendar",:widget=>"Calendar",:visible=>"Visible to anyone"},
+      {:name=>"Map",:widget=>"Google maps",:visible=>"Visible to anyone"},
+      {:name=>"File",:widget=>"Files and documents",:visible=>"Visible to anyone"},
+      {:name=>"Comment",:widget=>"Comments",:visible=>"Visible to anyone"},
+      {:name=>"JISC",:widget=>"JISC Content",:visible=>"Visible to anyone"},
+      {:name=>"Tasks",:widget=>"Assignments",:visible=>"Visible to anyone"},
+      {:name=>"RSS",:widget=>"RSS Feed Reader",:visible=>"Visible to anyone"},
+      {:name=>"LTI",:widget=>"Basic LTI",:visible=>"Visible to anyone"},
+      {:name=>"Gadget",:widget=>"Google Gadget",:visible=>"Visible to anyone"},
+      {:name=>"Grades",:widget=>"Gradebook",:visible=>"Visible to anyone"}
+    ]
+    
   end
+  
+  def teardown
+    # Close the browser window
+    @browser.close
+  end
+  
+  def test_create_course
+    
+    # Log in to Sakai
+    dashboard = @sakai.login(@instructor, @ipassword)
 
-  menu("my_dashboard", "navigation_you_link", "subnavigation_home_link", "MyDashboard")
-  menu("my_messages", "navigation_you_link", "subnavigation_messages_link", "MyMessages")
-  menu("my_profile", "navigation_you_link", "subnavigation_profile_link", "MyProfile")
-  menu("my_library", "navigation_you_link", "subnavigation_content_link", "MyLibrary")
-  menu("my_memberships", "navigation_you_link", "subnavigation_memberships_link", "MyMemberships") 
-  menu("my_contacts", "navigation_you_link", "subnavigation_contacts_link", "MyContacts")
-  menu("add_content", "navigation_create_and_add_link", "subnavigation_add_content_link", "AddContent")  
-  menu("add_contacts", "navigation_create_and_add_link", "subnavigation_add_contacts_link", "AddContacts")  
-  menu("create_groups", "navigation_create_and_add_link", "subnavigation_group_link", "CreateGroups")
-  menu("create_courses", "navigation_create_and_add_link", "subnavigation_courses_link", "CreateCourses")
-  menu("create_research", "navigation_create_and_add_link", "subnavigation_research_link", "CreateResearch")  
-  menu("explore_all_categories", "navigation_explore_link_dropdown", "subnavigation_explore_categories_link", "ExploreCategories")
+    membership = dashboard.my_memberships
+    
+    library = membership.go_to @course_info[:title]ruby 
+    sleep 1
+    library.change_title_of "Remote"
+    sleep 1
+    library.new_title="Remote Viewing\n"
+    sleep 1
+    library.change_title "Remote Viewing"
+    library.new_title="Remote\n"
+    library.permissions_for "Remote"
+    sleep 1
+    library.student_permissions="Don't show"
+    sleep 1
+    library.cancel
+    sleep 1
+    library.view_profile_of "Remote"
+    
+    puts @browser.title
+    
+    
+    sleep 5
 
+    
+  end
+  
 end

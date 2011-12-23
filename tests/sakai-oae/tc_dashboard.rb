@@ -20,8 +20,12 @@ class TestDashboardWidgets < Test::Unit::TestCase
     # Get the test configuration data
     @config = AutoConfig.new
     @browser = @config.browser
-
     @sakai = SakaiOAE.new(@browser)
+    
+    # Test case variables...
+    @widgets = ["My recent memberships", "My recent content", "Most popular tags"]
+    @user = @config.directory['admin']['username']
+    @password = @config.directory['admin']['password']
     
   end
   
@@ -33,7 +37,7 @@ class TestDashboardWidgets < Test::Unit::TestCase
   def test_dashboard_widgets
     
     # Log in to Sakai
-    dashboard = @sakai.login("admin", "admin")
+    dashboard = @sakai.login(@user, @password)
     
     dashboard.add_widgets
     
@@ -44,14 +48,18 @@ class TestDashboardWidgets < Test::Unit::TestCase
     # TEST CASE: All widgets removed
     assert_equal [], dashboard.displayed_widgets, "#{dashboard.displayed_widgets}"
     
-    dashboard.add_widgets
+    @widgets.each do |widget|
+      
+      dashboard.add_widgets
+      
+      dashboard.add_widget widget
+      
+      dashboard = dashboard.close_add_widget
+      
+      # TEST CASE: Widget added
+      assert dashboard.displayed_widgets.include?(widget), "#{dashboard.displayed_widgets}"
     
-    dashboard.add_widget "My recent memberships"
-    
-    dashboard = dashboard.close_add_widget
-    
-    # TEST CASE: Widget added
-    assert dashboard.displayed_widgets.include?("My recent memberships"), "#{dashboard.displayed_widgets}"
+    end
     
   end
   
