@@ -6,6 +6,7 @@
 
 #
 require 'page-object'
+require 'cgi'
 #require File.dirname(__FILE__) + "/app_functions.rb"
 
 # ======================
@@ -33,7 +34,7 @@ module HeaderFooterBar
   float_menu(:my_messages, "You", "My Messages", "Compose message", "MyMessages")
   float_menu(:my_profile, "You", "My Profile", "Given Name:", "MyProfileBasicInfo")
   float_menu(:my_library, "You", "My Library", "My Library", "MyLibrary")
-  float_menu(:my_memberships, "You", "My Memberships", "My Memberships", "MyMemberships") 
+  float_menu(:my_memberships, "You", "My Memberships", "Sort by:", "MyMemberships") 
   float_menu(:my_contacts, "You", "My Contacts", "My Contacts", "MyContacts")
   float_menu(:add_contacts, "Create + Add", "Add contacts", "Search", "AddContacts")  
   float_menu(:create_groups, "Create + Add", "Groups", "Create a Simple group", "CreateGroups")
@@ -46,6 +47,10 @@ module HeaderFooterBar
   float_menu(:explore_courses,"Explore","Courses","Sort by:","Explore")
   float_menu(:explore_research,"Explore","Research","Sort by:","Explore")
   
+  # Opens the User Options menu in the header menu bar,
+  # clicks the Preferences item, waits for the Account Preferences
+  # Pop up dialog to appear, and then includes the AccountPreferencesPopUp
+  # module in the currently instantiated Class Object.
   def my_preferences
     @browser.link(:id=>"topnavigation_user_options_name").fire_event("onmouseover")
     @browser.link(:id=>"subnavigation_preferences_link").click
@@ -53,6 +58,10 @@ module HeaderFooterBar
     self.class.class_eval { include AccountPreferencesPopUp }
   end
   
+  # Opens the Create + Add menu in the header bar,
+  # clicks on the Add Content item, waits for the Pop Up
+  # dialog to appear, then includes the AddContentContainer module
+  # in the currently instantiated Class Object.
   def add_content
     @browser.link(:title=>"Create + Add").fire_event("onmouseover")
     @browser.link(:title=>"Add content").click
@@ -60,10 +69,8 @@ module HeaderFooterBar
     self.class.class_eval { include AddContentContainer }
   end
   
-  # This button definition should work for all Cancel buttons, I hope...
   button(:cancel, :text=>"Cancel")
   
-  # This button definition should work for all save buttons, I hope...
   button(:save, :text=>"Save")
   
   # Define global search later
@@ -78,12 +85,20 @@ module HeaderBar
   
   include PageObject
   
+  # Clicks the Message button in the page header (not the
+  # Header bar, but just below that), waits for the Message Pop Up
+  # dialog to load, and then includes the SendMessagePopUp
+  # module in the currently instantiated Class Object.
   def message
     @browser.button(:text=>"Message").click
     @browser.wait_until { @browser.text.include? "Send Message" }
     self.class.class_eval { include SendMessagePopUp }
   end
   
+  # Clicks the Permissions button in the page header (below the
+  # Header bar, though), clicks "Add Content", then waits for the
+  # Add Content stuff to load, then includes the
+  # AddContentContainer module in the object's Class.
   def add_content
     @browser.button(:id=>"entity_group_permissions").click
     @browser.button(:text=>"Add content").click
@@ -91,6 +106,11 @@ module HeaderBar
     self.class.class_eval { include AddContentContainer }
   end
   
+  # Clicks the Permissions button in the page's header (distinct from
+  # the black header bar, mind you), clicks "Manage participants",
+  # waits for the Contacts and Memberships stuff to load, then
+  # includes the ManageParticipants module in the Class of the object
+  # calling the method.
   def manage_participants
     @browser.button(:id=>"entity_group_permissions").click
     @browser.button(:text=>"Manage participants").click
@@ -98,13 +118,23 @@ module HeaderBar
     self.class.class_eval { include ManageParticipants }
   end
   
+  # Clicks the Permissions button in the page's header (distinct from
+  # the black header bar, mind you), clicks "Settings",
+  # waits for the Settings stuff to load, then
+  # includes the WorldSettings module in the Class of the object
+  # calling the method.
   def settings
     @browser.button(:id=>"entity_group_permissions").click
     @browser.button(:text=>"Settings").click
     @browser.wait_until { @browser.text.include? "Apply Settings" }
     self.class.class_eval { include WorldSettings }
   end
-  
+
+  # Clicks the Permissions button in the page's header (distinct from
+  # the black header bar, mind you), clicks "Categories",
+  # waits for the Categories Pop Up to load, then
+  # includes the AddRemoveCategories module in the Class of the object
+  # calling the method.
   def categories
     @browser.button(:id=>"entity_group_permissions").click
     @browser.button(:text=>"Categories").click
@@ -112,6 +142,10 @@ module HeaderBar
     self.class.class_eval { include AddRemoveCategories }
   end
   
+  # Clicks the down arrow next to the Avatar picture in the Page Header
+  # (not the Header bar), clicks the option to change the picture,
+  # then includes the ChangePicturePopup in the Class of the object
+  # calling the method.
   def change_picture
     @browser.div(:class=>"entity_profile_picture_down_arrow").fire_event("onclick")
     @browser.link(:id=>"changepic_container_trigger").click
@@ -132,111 +166,120 @@ module LeftMenuBar
   # instantiates the appropriate page Class.
   def open_page(name, type)
     @browser.div(:id=>"lhnavigation_container").link(:text=>name).click
-    classname = case(type)
+    case(type.downcase)
     when "document"
-      @browser.button(:id=>"sakaidocs_editpage").wait_until_present
-      return "GroupDocument"
+      @browser.wait_for_ajax
+      GroupDocuments.new @browser
     when "library"
-      @browser.wait_until { @browser.div(:class=>"mylibrary_widget").visible? }
-      return "GroupLibrary"
-    when "participant"
-      @browser.wait_until { @browser.div(:class=>"participants_widget").visible? }
-      return "GroupParticipants"
+      @browser.wait_for_ajax
+      GroupLibrary.new @browser
+    when "participants"
+      @browser.wait_for_ajax
+      GroupParticipants.new @browser
     when "discussion"
-      @browser.
-      return ""
-    when "remote"
-      @browser.
-      return ""
-    when "inline"
-      @browser.
-      return ""
-    when "tests"
-      @browser.
-      return ""
+      @browser.wait_for_ajax
+      GroupDiscussions.new @browser
+    when "remote content"
+      @browser.wait_for_ajax
+      GroupDocuments.new @browser
+    when "inline content"
+      @browser.wait_for_ajax
+      InlineContent.new @browser
+    when "tests and quizzes"
+      @browser.wait_for_ajax
+      x.new @browser
     when "calendar"
-      @browser.
-      return ""
-    when "maps"
-      @browser.
-      return ""
-    when "files"
-      @browser.
-      return ""
+      @browser.wait_for_ajax
+      x.new @browser
+    when "google maps"
+      @browser.wait_for_ajax
+      GoogleMaps.new @browser
+    when "files and documents"
+      @browser.wait_for_ajax
+      x.new @browser
     when "comments"
-      @browser.
-      return ""
-    when "jisc"
-      @browser.
-      return ""
+      @browser.wait_for_ajax
+      GroupComments.new @browser
+    when "jisc content"
+      @browser.wait_for_ajax
+      x.new @browser
     when "assignments"
-      @browser.
-      return ""
-    when "rss"
-      @browser.
-      return ""
-    when "lti"
-      @browser.
-      return ""
-    when "gadget"
-      @browser.
-      return ""
+      @browser.wait_for_ajax
+      x.new @browser
+    when "rss feed reader"
+      @browser.wait_for_ajax
+      x.new @browser
+    when "basic lti"
+      @browser.wait_for_ajax
+      x.new @browser
+    when "google gadget"
+      @browser.wait_for_ajax
+      x.new @browser
     when "gradebook"
-      @browser.
-      return ""
-    when "existing"
-      @browser.wait_until { @browser.div(:class=>"sakaidocs_widget").visible? }
-      return "GroupDocument"
+      @browser.wait_for_ajax
+      x.new @browser
+    when "read_only"
+      @browser.wait_for_ajax
+      ViewDocument.new @browser
     end
-    eval(classname).new @browser
   end
   
-  #
+  # Use this to click left menu items that refer to multi-paged documents.
+  # It expands the menu to display the document's pages.
+  def expand(name)
+    @browser.div(:id=>"lhnavigation_container").link(:text=>name).click
+  end
+  
+  # Changes the title of the specified page ("from_string")
+  # to the string value specified by to_string.
   def change_title_of(from_string, to_string)
     @browser.link(:class=>/lhnavigation_page_title_value/, :text=>from_string).hover
-    @browser.wait_until { @browser.link(:class=>/lhnavigation_page_title_value/, :text=>from_string).parent.div(:class=>"lhnavigation_selected_submenu_image").visible? }
+    @browser.wait_for_ajax #.wait_until { @browser.link(:class=>/lhnavigation_page_title_value/, :text=>from_string).parent.div(:class=>"lhnavigation_selected_submenu_image").visible? }
     @browser.div(:class=>"lhnavigation_selected_submenu_image").hover
     @browser.execute_script("$('#lhnavigation_submenu').css({left:'300px', top:'300px', display: 'block'})")
-    @browser.wait_until { @browser.link(:id=>"lhavigation_submenu_edittitle").visible? }
+    @browser.wait_for_ajax #.wait_until { @browser.link(:id=>"lhavigation_submenu_edittitle").visible? }
     @browser.link(:id=>"lhavigation_submenu_edittitle").click
     @browser.link(:class=>/lhnavigation_page_title_value/, :text=>from_string).parent.text_field(:class=>"lhnavigation_change_title").set("#{to_string}\n")
   end
   
   alias change_title change_title_of
   
-  #
+  # Deletes the page specified by page_name.
   def delete_page(page_name)
     @browser.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).fire_event("onmouseover")
-    @browser.wait_until { @browser.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).parent.div(:class=>"lhnavigation_selected_submenu_image").visible? }
+    @browser.wait_for_ajax #.wait_until { @browser.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).parent.div(:class=>"lhnavigation_selected_submenu_image").visible? }
     @browser.div(:class=>"lhnavigation_selected_submenu_image").hover
     @browser.execute_script("$('#lhnavigation_submenu').css({left:'300px', top:'300px', display: 'block'})")
-    @browser.wait_until { @browser.link(:id=>"lhavigation_submenu_edittitle").visible? }
+    @browser.wait_for_ajax #.wait_until { @browser.link(:id=>"lhavigation_submenu_edittitle").visible? }
     @browser.link(:id=>"lhavigation_submenu_deletepage").click
   end
   
-  #
+  # Opens the Permissions Pop Up for the specified Page.
   def permissions_for(page_name)
     @browser.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).fire_event("onmouseover")
-    @browser.wait_until { @browser.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).parent.div(:class=>"lhnavigation_selected_submenu_image").visible? }
+    @browser.wait_for_ajax #.wait_until { @browser.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).parent.div(:class=>"lhnavigation_selected_submenu_image").visible? }
     @browser.div(:class=>"lhnavigation_selected_submenu_image").hover
     @browser.execute_script("$('#lhnavigation_submenu').css({left:'328px', top:'349px', display: 'block'})")
     @browser.wait_until { @browser.link(:id=>"lhavigation_submenu_edittitle").visible? }
     @browser.link(:id=>"lhnavigation_submenu_permissions").click
-    @browser.wait_until { @browser.text.include? "Area permissions for" }
+    @browser.wait_until { @browser.button(:id=>"entity_content_permissions").exist? }
     self.class.class_eval { include AreaPermissionsPopUp }
   end
   
   alias permissions_of permissions_for
   alias permissions permissions_for
   
-  #
+  # Opens the Profile Details for the specified Page.
   def view_profile_of(page_name)
     @browser.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).fire_event("onmouseover")
-    @browser.wait_until { @browser.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).parent.div(:class=>"lhnavigation_selected_submenu_image").visible? }
+    @browser.wait_for_ajax #.wait_until { @browser.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).parent.div(:class=>"lhnavigation_selected_submenu_image").visible? }
     @browser.div(:class=>"lhnavigation_selected_submenu_image").hover
     @browser.execute_script("$('#lhnavigation_submenu').css({left:'328px', top:'349px', display: 'block'})")
-    @browser.wait_until { @browser.link(:id=>"lhavigation_submenu_edittitle").visible? }
+    @browser.wait_for_ajax #.wait_until { @browser.link(:id=>"lhavigation_submenu_edittitle").visible? }
     @browser.link(:id=>"lhnavigation_submenu_profile").click
+    @browser.wait_for_ajax #.button(:title=>"Show debug info").wait_until_present
+    @browser.window(:title=>"rSmart | Content Profile").use
+    ContentDetailsPage.new @browser
   end
   
   alias view_profile_for view_profile_of
@@ -249,18 +292,20 @@ module YouPagesLeftMenu
   
   include PageObject
   
-  navigating_link(:basic_information, "Basic Information", "Given Name:","MyProfileBasicInfo")
-  navigating_link(:categories, "Categories", "Add or remove categories", "MyProfileCategories")
-  navigating_link(:about_me, "About Me", "Academic Interests", "MyProfileAboutMe")
-  navigating_link(:online, "Online", "Add another Online", "MyProfileOnline")
-  navigating_link(:contact_information, "Contact Information", "Add another", "MyProfileContactInfo")
-  navigating_link(:publications, "Publications", "Add another publication", "MyProfilePublications")
+  navigating_link(:basic_information, "Basic Information", "MyProfileBasicInfo")
+  navigating_link(:categories, "Categories", "MyProfileCategories")
+  navigating_link(:about_me, "About Me", "MyProfileAboutMe")
+  navigating_link(:online, "Online", "MyProfileOnline")
+  navigating_link(:contact_information, "Contact Information", "MyProfileContactInfo")
+  navigating_link(:publications, "Publications", "MyProfilePublications")
   
   permissions_menu(:about_me_permissions, "About Me")
   permissions_menu(:online_permissions, "Online")
   permissions_menu(:contact_information_permissions, "Contact Information")
   permissions_menu(:publications_permissions, "Publications")
   
+  # Opens the Pop Up dialog for changing the Avatar image for the
+  # current page.
   def change_picture
     @browser.div(:class=>"entity_profile_picture_down_arrow").fire_event("onclick")
     @browser.link(:id=>"changepic_container_trigger").click
@@ -274,9 +319,9 @@ module CreateWorldsLeftMenu
   
   include PageObject
   
-  navigating_link(:group, "Group", "Create a simple group","CreateGroups")
-  navigating_link(:course, "Course", "Add or remove categories", "MyProfileCategories")
-  navigating_link(:research, "Research", "Academic Interests", "MyProfileAboutMe")
+  navigating_link(:group, "Group", "CreateGroups")
+  navigating_link(:course, "Course", "MyProfileCategories")
+  navigating_link(:research, "Research", "MyProfileAboutMe")
   
 end
 
@@ -316,12 +361,13 @@ module WorldsLeftMenu
   # { :name=>"The name of the target document",
   #   :title=>"The placement title string",
   #   :visible=>"Who can see it" }
+  # The method adds an existing document using the specified hash contents.
   def add_an_existing_document(document)
     add_new_area
     click_sub_menu "Existing document"
     click_select
     @browser.text_field(:id=>"addarea_sakaidoc_searchfield").set(document[:name] + "\n")
-    sleep 0.2
+    @browser.wait_for_ajax #
     @browser.div(:id=>"addarea_sakaidoc_existingdocscontainer").li(:text=>/#{Regexp.escape(document[:name])}/).fire_event("onclick")
     @browser.text_field(:id=>"addarea_sakaidoc_page_name").set document[:title]
     @browser.select(:id=>"addarea_sakaidoc_permissions").select document[:visible]
@@ -331,6 +377,8 @@ module WorldsLeftMenu
   alias add_existing_document add_an_existing_document
   alias add_existing_doc add_an_existing_document
   
+  # Adds a Participant List Area to the Group/Course. The passed
+  # object needs to be a hash with :name and :visible keys and values.
   def add_participant_list(list)
     add_new_area
     click_sub_menu "Participant list"
@@ -342,6 +390,8 @@ module WorldsLeftMenu
   
   alias add_a_participant_list add_participant_list
   
+  # Adds a new Content Library area to a Group/Course.
+  # The method requires a hash for the variable, with :name and :visible keys and values.
   def add_content_library(document)
     add_new_area
     click_sub_menu "Content library"
@@ -353,6 +403,9 @@ module WorldsLeftMenu
   
   alias add_a_content_library add_content_library
   
+  # Adds a new Widget Area to a Group/Course. The method
+  # requires that the passed variable be a hash, with :name,
+  # :widget, and :visible keys and values.
   def add_widget_page(document)
     add_new_area
     click_sub_menu "Widget page"
@@ -367,6 +420,7 @@ module WorldsLeftMenu
   alias add_a_widget add_widget_page
   alias add_a_widget_page add_widget_page
   
+  # Returns an array containing the Course/Group area/page titles.
   def public_pages
     list = []
     @browser.ul(:id=>"lhnavigation_public_pages").lis.each do |li|
@@ -406,6 +460,7 @@ module ChangePicturePopUp
   
   include PageObject
   
+  # Uploads the specified file name for the Avatar photo
   def upload_a_new_picture(file_name)
     @browser.button(:text=>"Upload a new picture").wait_until_present
     @browser.button(:text=>"Upload a new picture").click
@@ -415,6 +470,7 @@ module ChangePicturePopUp
     @browser.button(:id=>"save_new_selection").wait_until_present
   end
   
+  # Clicks the Save button for the Change Picture Pop Up.
   def save_new_selection
     @browser.button(:id=>"save_new_selection").click
     @browser.button(:id=>"save_new_selection").wait_while_present
@@ -422,14 +478,12 @@ module ChangePicturePopUp
   
 end
 
-# Objects in the Pop Up dialog for setting viewing permissions
-module PermissionsPopUp
+# Objects in the Pop Up dialog for setting viewing permissions for Content
+module ContentPermissionsPopUp
   
   include PageObject
   
-  select_list(:can_be_seen_by, :id=>"userpermissions_area_general_visibility")
   
-  navigating_button(:apply_permissions, "userpermissions_apply_permissions")
   
 end
 
@@ -443,26 +497,32 @@ module AreaPermissionsPopUp
   button(:apply_permissions, :text=>"Apply permissions")
   checkbox(:all_roles, "areapermissions_check_uncheck_all")
   
+  #
   def check_student
     @browser.div(:text=>/Student/).checkbox.set
   end
   
+  #
   def check_teaching_assistant
     @browser.div(:text=>/Teaching Assistant/).checkbox.set
   end
 
+  #
   def check_lecturer
     @browser.div(:text=>/Lecturer/).checkbox.set
   end
-  
+
+  #
   def student_permissions=(perm)
     @browser.div(:text=>/Student/).select(:class=>"areapermissions_role_select").select perm
   end
   
+  #
   def teaching_assistant_permissions=(perm)
     @browser.div(:text=>/Teaching Assistant/).select(:class=>"areapermissions_role_select").select perm
   end
   
+  #
   def lecturer_permissions=(perm)
     @browser.div(:text=>/Lecturer/).select(:class=>"areapermissions_role_select").select perm
   end
@@ -479,6 +539,7 @@ module SendMessagePopUp
   text_field(:subject, :id=>"comp-subject")
   text_area(:body, :id=>"comp-body")
   
+  # Removes the recipient from the To list for the email.
   def remove_recipient(name)
     @browser.li(:text=>/#{Regexp.escape(name)}/).link(:text=>"x").click
   end
@@ -488,14 +549,14 @@ module SendMessagePopUp
   
 end
 
-#
+# Methods related to the Account Preferences Pop Up dialog.
 module AccountPreferencesPopUp
   
   include PageObject
   
 end
 
-#
+# Methods related to the Join Group Pop Up dialog.
 module JoinGroupPopUp
   
   include PageObject
@@ -504,7 +565,7 @@ module JoinGroupPopUp
   
 end
 
-# 
+# Methods related to the Pop Up Dialog for Contacts
 module AddToContactsPopUp
 
   include PageObject
@@ -525,23 +586,25 @@ module AddToContactsPopUp
   
 end
 
-#
+# Methods related to the Save Content Pop Up dialog.
 module SaveContentPopUp
   
   include PageObject
   
   select_list(:saving_to, :id=>"savecontent_select")
   button(:add, :text=>"Add")
+  button(:cancel, :class=>"savecontent_close s3d-link-button s3d-bold")
   
 end
 
-#
+# Methods related to the Pop Up for Sharing Content with others.
 module ShareWithPopUp
   
   include PageObject
   
-  text_area(:share_with, :id=>/newsharecontentcontainer\d+/)
+  text_field(:share_with, :id=>/newsharecontentcontainer\d+/)
   
+  # Clicks the arrow for adding a custom message to the share.
   def add_a_message
     @browser.span(:id=>"newsharecontent_message_arrow").fire_event('onclick')
   end
@@ -549,6 +612,7 @@ module ShareWithPopUp
   text_area(:message_text, :id=>"newsharecontent_message")
   
   button(:share, :id=>"sharecontent_send_button")
+  button(:cancel, :id=>"newsharecontent_cancel")
   
   # Gonna add the social network validations later
   
@@ -577,14 +641,29 @@ module OwnerInfoPopUp
   end
   
 end
- 
-#
+
+# Methods related to the Pop Up that appears for modifying
+# the settings for the Google Maps Widget.
+module GoogleMapsPopUp
+  
+  include PageObject
+  
+  text_field(:location, :id=>"googlemaps_input_text_location")
+  button(:search, :id=>"googlemaps_button_search")
+  button(:dont_add, :id=>"googlemaps_cancel")
+  button(:add_map, :id=>"googlemaps_save")
+  
+end
+
+# Methods related to the Pop Up that allows modifying a
+# Group's/Course's participants.
 module ManageParticipants
   
   include PageObject
   
   checkbox(:add_all_contacts, :id=>"addpeople_select_all_contacts")
   
+  # Checks the specified contact for adding.
   def add_contact(contact)
     @browser.li(:text=>contact).checkbox(:class=>"addpeople_checkbox").set
   end
@@ -594,23 +673,26 @@ module ManageParticipants
   
   button(:done_apply_settings, :text=>"Done, apply settings")
   
+  # Checks to remove the specified contact.
   def check_remove_contact(contact)
     @browser.div(:id=>"addpeople_selected_contacts_container").link(:text=>contact).parent.checkbox.set
   end
   
+  # Unchecks the remove checkbox for the specified contact
   def uncheck_remove_contact(contact)
     @browser.div(:id=>"addpeople_selected_contacts_container").link(:text=>contact).parent.checkbox.clear
   end
   
   select_list(:role_for_selected_members, :id=>"addpeople_selected_all_permissions")
   
+  # For the specified contact, updates to the specified role.fd
   def set_role_for(contact, role)
     @browser.div(:id=>"addpeople_selected_contacts_container").link(:text=>contact).parent.select(:class=>"addpeople_selected_permissions").select(role)
   end
   
 end
 
-#
+# 
 module WorldSettings
 
   include PageObject
@@ -625,15 +707,17 @@ module WorldSettings
   
 end
 
-#
+# Methods related to the Pop Up for Categories.
 module AddRemoveCategories
   
   include PageObject
   
+  # Opens the specified category tree.
   def open_tree(text)
     @browser.link(:title=>text).parent.ins.fire_event("onclick")
   end
   
+  # Checks the specified category.
   def check_category(text)
     if @browser.link(:title=>text).parent.class_name=="jstree-leaf jstree-unchecked"
       @browser.link(:title=>text).click
@@ -661,6 +745,7 @@ module AddContentContainer
   
   link(:upload_content, :text=>"Upload content")
 
+  # Enters the specified filename in the file field.
   def upload_file=(file_name)
     @browser.file_field(:id=>"multifile_upload").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-oae/" + file_name)
   end
@@ -681,10 +766,14 @@ module AddContentContainer
   link(:all_content, :text=>"All content")
   link(:add_content_my_library, :text=>"My Library")
   
+  # Enters the specified text in the Search field.
+  # Note that the method appends a line feed on the string, so the search will
+  # happen immediately when it is invoked.
   def search_for_content=(text)
     @browser.text_field(:class=>"newaddcontent_existingitems_search").set("#{text}\n")
   end
   
+  # Checks the checkbox for the specified item.
   def check_content(item)
     @browser.li(:text=>item).checkbox.set
   end
@@ -703,10 +792,12 @@ module AddContentContainer
   
   select_list(:save_all_to, :id=>"newaddcontent_saveto")
   
+  # Removes the item from the selected list.
   def remove(item)
     @browser.link(:title=>"Remove #{item}").click
   end
   
+  # Clicks the Edit Details button for the specified item.
   def edit_details(item)
     @browser.div(:id=>"newaddcontent_container_selecteditems_container").li(:text=>/#{Regexp.escape(item)}/).button(:text=>"Edit details").click
   end
@@ -717,6 +808,7 @@ module AddContentContainer
   text_area(:edit_description, :id=>"newaddcontent_selecteditems_edit_data_description")
   text_field(:edit_tags, :id=>"newaddcontent_selecteditems_edit_data_tags")
   
+  # Clicks the Add Permissions button for the specified item.
   def add_permissions(item)
     @browser.div(:id=>"newaddcontent_container_selecteditems_container").li(:text=>/#{Regexp.escape(item)}/).button(:text=>"Add permissions").click
   end 
@@ -727,6 +819,30 @@ module AddContentContainer
   button(:save, :text=>"Save")
   
   button(:done_add_collected, :class=>"s3d-button s3d-overlay-button newaddcontent_container_start_upload")
+  
+end
+
+# Methods for the 3 buttons that appear above all Document-type "Areas" in
+# Groups/Courses.
+module DocButtons
+
+  include PageObject
+  
+  # Clicks the Edit Page button.
+  def edit_page
+    @browser.button(:text=>"Edit page").click
+    self.class.class_eval { include DocumentWidget }
+  end
+  
+  # Clicks the Add Page button.
+  def add_page
+    
+  end
+  
+  # Clicks the Page Revisions button.
+  def page_revisions
+    
+  end  
   
 end
 
@@ -753,6 +869,7 @@ module ListWidget
   alias add_course add_group
   alias add_research add_group
   
+  # Clicks the specified Contact name. Obviously the name must exist in the list.
   def add_contact(name)
     @browser.li(:text=>/#{Regexp.escape(name)}/).div(:class=>/sakai_addtocontacts_overlay/).fire_event("onclick")
     @browser.wait_until { @browser.button(:text=>"Invite").visible? }
@@ -762,6 +879,7 @@ module ListWidget
   alias request_contact add_contact
   alias request_connection add_contact
   
+  # Adds the specified (listed) content to the library.
   def add_content_to_library(name)
     @browser.li(:text=>/#{Regexp.escape(name)}/).button(:title=>"Save content").click
     @browser.wait_until { @browser.text.include? "Save to" }
@@ -771,6 +889,9 @@ module ListWidget
   alias add_document add_content_to_library
   alias save_content add_content_to_library
   
+  # Clicks the specified Link (will open any link that matches the
+  # supplied text, but it's made for clicking on a Group listed on
+  # the page because it will instantiate the GroupLibrary class).
   def open_group(name)
     @browser.link(:text=>name).click
     GroupLibrary.new(@browser)
@@ -779,7 +900,10 @@ module ListWidget
   alias view_group open_group
   alias view_course open_group
   alias open_course open_group
-  
+
+  # Clicks the specified Link (will open any link that matches the
+  # supplied text, but it's made for clicking on a Research item listed on
+  # the page because it will instantiate the ResearchIntro class).
   def open_research(name)
     @browser.link(:text=>name).click
     ResearchIntro.new @browser
@@ -787,13 +911,18 @@ module ListWidget
   
   alias view_research open_research
   
+  # Clicks the specified Link (will open any link that matches the
+  # supplied text, but it's made for clicking on a Document item listed on
+  # the page because it will instantiate the ContentDetailsPage class). 
   def open_document(name)
     @browser.link(:text=>name).click
     ContentDetailsPage.new @browser
+    #@browser.wait_for_ajax
   end
   
   alias open_content open_document
   
+  # Clicks the Message button for the specified listed item.
   def message_course(name)
     @browser.li(:text=>/#{Regexp.escape(name)}/).button(:class=>/sakai_sendmessage_overlay/).click
     self.class.class_eval { include SendMessagePopUp }
@@ -803,6 +932,7 @@ module ListWidget
   alias message_person message_course
   alias message_research message_course
 
+  # Clicks to view the owner information of the specified item.
   def view_owner_information(name)
     @browser.li(:text=>/#{Regexp.escape(name)}/).button(:title=>"View owner information").click
     @browser.wait_until { @browser.text.include? "Add to contacts" }
@@ -811,6 +941,7 @@ module ListWidget
   
   alias view_owner_info view_owner_information
   
+  # Clicks to share the specified item.
   def share(item)
     @browser.li(:text=>/#{Regexp.escape(name)}/).button(:title=>"Share content").click
     @browser.wait_until { @browser.text.include? "Or, share it on a webservice:" }
@@ -819,6 +950,9 @@ module ListWidget
   
   alias share_content share
   
+  # Clicks the link of the specified name (It will click any link on the page,
+  # really, but it should be used for Person links only, because it
+  # instantiates the ViewPerson Class)
   def view_person(name)
     @browser.link(:text=>name).click
     ViewPerson.new @browser
@@ -826,21 +960,26 @@ module ListWidget
   
 end
 
-#
+# Methods related to the Library List page.
 module LibraryWidget
   
   include PageObject
   
+  # Enters the specified string in the search field.
+  # Note that it appends a line feed on the string, so the
+  # search occurs immediately.
   def search_library_for=(text)
     @browser.text_field(:id=>"mylibrary_livefilter").set("#{text}\n")
   end
   
   checkbox(:add, :id=>"mylibrary_check_all")
   
+  # Checks the specified Library item.
   def check_content(item)
     @browser.div(:class=>"fl-container fl-fix mylibrary_item", :text=>/#{Regexp.escape(item)}/).checkbox.set
   end
   
+  # Unchecks the specified library item.
   def uncheck_content(item)
     @browser.div(:class=>"fl-container fl-fix mylibrary_item", :text=>/#{Regexp.escape(item)}/).checkbox.clear
   end
@@ -854,22 +993,59 @@ module DocumentWidget
   
   include PageObject
   
+  button(:dont_save, :id=>"sakaidocs_edit_cancel_button")
+  button(:save, :id=>"sakaidocs_edit_save_button")
+  
+  # Erases the entire contents of the TinyMCE Editor, then
+  # enters the specified string into the Editor.
+  def set_content=(text)
+    @browser.frame(:id=>"elm1_ifr").body(:id=>"tinymce").fire_event("onclick")
+    @browser.frame(:id=>"elm1_ifr").send_keys( [:command, 'a'] )
+    @browser.frame(:id=>"elm1_ifr").send_keys(text)
+  end
+  
+  # Appends the specified string to the contents of the TinyMCE Editor.
+  def add_content=(text)
+    @browser.frame(:id=>"elm1_ifr").body(:id=>"tinymce").fire_event("onclick")
+    @browser.frame(:id=>"elm1_ifr").send_keys(text)
+  end
+  
+  # Selects all the contents of the TinyMCE Editor
+  def select_all
+    @browser.frame(:id=>"elm1_ifr").send_keys( [:command, 'a'] )
+  end
+  
+  # Clicks the Text Box of the TinyMCE Editor so that the edit cursor
+  # will become active in the Editor.
+  def insert
+    @browser.frame(:id=>"elm1_ifr").body(:id=>"tinymce").fire_event("onclick")
+  end
+  
+  select_list(:format, :id=>/formatselect/)
+  select_list(:font, :id=>/fontselect/)
+  select_list(:font_size, :id=>/fontsizeselect/)
+  link(:bold, :id=>/_bold/)
+  link(:italic, :id=>/_italic/)
+  link(:underline, :id=>/_underline/)
+  
+  # Other MCE Objects TBD later, though we're not in the business of testing TinyMCE...
+  
 end
 
-#
+# Methods related to the Participants "Area" or "Page" in
+# Groups/Courses.
 module ParticipantsWidget
   
   include PageObject
   
 end
 
-#
+# Methods related to the Mail Page.
 module MailWidget
   
   include PageObject
   
 end
-
 
 # ======================
 # Page Classes
@@ -881,6 +1057,7 @@ class LoginPage
   include PageObject
   include HeaderFooterBar
   
+  # Clicks the Sign Up link on the Login Page.
   def sign_up
     link(:id=>"navigation_anon_signup_link").click
     CreateNewAccount.new @browser
@@ -888,7 +1065,7 @@ class LoginPage
   
 end
 
-# The page for creating a new user account
+# Methods related to the page for creating a new user account
 class CreateNewAccount
   
   include PageObject
@@ -905,7 +1082,7 @@ class CreateNewAccount
 
 end
 
-#
+# Methods related to objects found on the Dashboard
 class MyDashboard
   
   include PageObject
@@ -921,12 +1098,15 @@ class MyDashboard
   button(:save_layout, :id=>"select-layout-finished")
   button(:add_widgets, :text=>"Add Widget")
 
+  # Clicks the Close button on the dialog for adding/removing widgets
+  # to/from the Dashboard.
   def close_add_widget
     @browser.div(:class=>"s3d-dialog-close jqmClose").fire_event("onclick")
-    sleep 1 #FIXME
+    @browser.wait_for_ajax
     MyDashboard.new @browser
   end
   
+  # Checks off all widgets listed
   def add_all_widgets
     @browser.div(:id=>"add_goodies_body").lis.each do |li|
       if li.visible? && li.id=~/_add_/
@@ -935,6 +1115,7 @@ class MyDashboard
     end
   end
   
+  # Unchecks the checkboxes for all widgets.
   def remove_all_widgets
     @browser.div(:id=>"add_goodies_body").lis.each do |li|
       if li.visible? && li.id=~/_remove_/
@@ -943,14 +1124,17 @@ class MyDashboard
     end
   end
   
+  # Checks the checkbox for the specified widget
   def add_widget(name)
     @browser.div(:id=>"add_goodies_body").li(:text=>/#{Regexp.escape(name)}/, :id=>/_add_/).button.click
   end
   
+  # Unchecks the checkbox for the specified widget.
   def remove_widget(name)
     @browser.div(:id=>"add_goodies_body").li(:text=>/#{Regexp.escape(name)}/, :id=>/_remove_/).button.click
   end
   
+  # Returns an array object containing a list of all selected widgets.
   def displayed_widgets
     list = []
     @browser.div(:class=>"fl-container-flex widget-content").divs.each do |div|
@@ -960,7 +1144,6 @@ class MyDashboard
     end
     return list
   end
-  
 
   # Returns an array containing the list of
   # recent membership items.
@@ -1153,9 +1336,9 @@ class MyMemberships
   
   # Use for clicking on the name of a "World" whose page you want to navigate to.
   def go_to(item_name)
-    @browser.link(:text=>item_name).click
+    @browser.link(:title=>item_name).click
     @browser.button(:id=>"entity_group_permissions").wait_until_present
-    sleep 0.3
+    @browser.wait_for_ajax #
     GroupLibrary.new @browser
   end
 
@@ -1168,13 +1351,18 @@ class MyContacts
 
   include PageObject
   include HeaderFooterBar
+  include AccountPreferencesPopUp
   
 
 end
 
-
 #
 class AddContacts
+  
+  include PageObject
+  include HeaderFooterBar
+  include AccountPreferencesPopUp
+  
   
 end
 
@@ -1183,7 +1371,6 @@ class CreateGroups
   
   include PageObject
   include HeaderFooterBar
-  include PermissionsPopUp
   include AccountPreferencesPopUp
   include CreateWorldsLeftMenu
   
@@ -1225,7 +1412,7 @@ class CreateABasicCourse
   
   def create_basic_course
     @browser.button(:class=>"s3d-button s3d-overlay-button newcreategroup_create_simple_group").click
-    @browser.wait_until { @browser.text.include? "Add content" }
+    @browser.wait_until(45) { @browser.text.include? "Add content" }
     GroupLibrary.new @browser
   end
   
@@ -1282,12 +1469,12 @@ class ViewPerson
     self.class.class_eval { include AddToContactsPopUp }
   end
   
-  navigating_link(:basic_information, "Basic Information", "Given Name:", "ViewPerson")
-  navigating_link(:categories, "Categories", nil, "ViewPerson")
-  navigating_link(:about_me, "About Me", nil, "ViewPerson")
-  navigating_link(:online, "Online", nil, "ViewPerson")
-  navigating_link(:contact_information, "Contact Information", nil, "ViewPerson")
-  navigating_link(:publications, "Publications", nil, "ViewPerson")
+  navigating_link(:basic_information, "Basic Information", "ViewPerson")
+  navigating_link(:categories, "Categories", "ViewPerson")
+  navigating_link(:about_me, "About Me", "ViewPerson")
+  navigating_link(:online, "Online", "ViewPerson")
+  navigating_link(:contact_information, "Contact Information", "ViewPerson")
+  navigating_link(:publications, "Publications", "ViewPerson")
   
   def users_library
     @browser.link(:class=>/s3d-bold lhnavigation_toplevel lhnavigation_page_title_value/, :text=>/Library/).click
@@ -1379,6 +1566,17 @@ class ViewPerson
 end
 
 #
+class ViewDocument
+  
+  include PageObject
+  include HeaderFooterBar
+  include WorldsLeftMenu
+  include LeftMenuBar
+  include HeaderBar
+  
+end
+
+#
 class ExploreGroups
 
 end
@@ -1410,8 +1608,6 @@ class GroupLibrary
   include LibraryWidget
   include ListWidget
   
-  
-  
 end
 
 # 
@@ -1420,8 +1616,190 @@ class GroupParticipants
   include PageObject
   include HeaderFooterBar
   include WorldsLeftMenu
+  include LeftMenuBar
   include HeaderBar
 
+  
+end
+
+#
+class GroupDocuments
+  
+  include PageObject
+  include HeaderFooterBar
+  include WorldsLeftMenu
+  include LeftMenuBar
+  include HeaderBar
+  include DocButtons
+  
+end
+
+#
+class GroupDiscussions
+  
+  include PageObject
+  include HeaderFooterBar
+  include WorldsLeftMenu
+  include LeftMenuBar
+  include HeaderBar
+  include DocButtons
+  
+  button(:add_new_topic, :id=>"discussion_add_new_topic")
+  text_field(:topic_title, :id=>"discussion_create_new_topic_title")
+  text_area(:message_text, :name=>/message.text/i)
+  text_area(:reply_text, :id=>"discussion_topic_reply_text")  
+  button(:dont_add_topic, :id=>"discussion_dont_add_topic")
+  
+  #
+  def add_topic
+    @browser.button(:id=>"discussion_add_topic").click
+    @browser.wait_for_ajax #
+    @browser.wait_until { @browser.h1(:class=>"discussion_topic_subject").parent.button(:text=>"Reply").present? }
+    @browser.wait_for_ajax #
+  end
+  
+  button(:collapse_all, :text=>"Collapse all")
+  button(:expand_all, :text=>"Expand all")
+  button(:dont_add_reply, :id=>"discussion_dont_add_reply")
+  button(:add_reply, :id=>"discussion_add_reply")
+  
+  def reply_to(message_title)
+    @browser.h1(:class=>"discussion_topic_subject", :text=>message_title).parent.button(:text=>"Reply").click
+    @browser.wait_until { @browser.h1(:class=>"discussion_topic_subject", :text=>message_title).parent.text_field(:id=>"discussion_topic_reply_text").present? }
+  end
+  
+  def quote(message_text)
+    @browser.span(:class=>"discussion_post_message", :text=>message_text).parent.parent.button(:text=>"Quote").fire_event "onclick"
+    @browser.wait_for_ajax #
+    #@browser.wait_until { @browser.textarea(:name=>"quoted_text", :text=>message_text).present? }
+  end
+  
+  def edit(message_text)
+    @browser.span(:class=>"discussion_post_message", :text=>message_text).parent.parent.button(:text=>"Edit").click
+    @browser.wait_until { @browser.textarea(:name=>"discussion_topic_reply_text", :text=>message_text).present? }
+  end
+  
+  def delete(message_text)
+    @browser.span(:class=>"discussion_post_message", :text=>message_text).parent.parent.button(:text=>"Delete").click
+  end
+  
+  button(:restore, :text=>"Restore")
+
+  def view_replies(topic_title)
+    @browser.h1(:class=>"discussion_topic_subject", :text=>topic_title).parent.button(:class=>"discussion_show_topic_replies s3d-button s3d-link-button").click
+    
+  end
+  
+  def hide_replies(topic_title)
+    @browser.h1(:class=>"discussion_topic_subject", :text=>topic_title).parent.button(:class=>"discussion_show_topic_replies s3d-button s3d-link-button").click
+    
+  end
+  
+end
+
+#
+class GroupComments
+  
+  include PageObject
+  include HeaderFooterBar
+  include WorldsLeftMenu
+  include LeftMenuBar
+  include HeaderBar
+  include DocButtons
+  
+  button(:add_comment, :text=>"Add comment")
+  
+  def submit_comment
+    @browser.button(:text=>"Submit comment").click
+    @browser.wait_for_ajax #wait_until { @browser.text.include? "about 0 seconds ago" }
+  end
+  
+  def edit_comment
+    @browser.button(:text=>"Edit comment").click
+    @browser.wait_for_ajax #wait_until { @browser.textarea(:title=>"Edit your comment").present? == false }
+  end
+  
+  button(:cancel, :id=>/comments_editComment_cancel/)
+  text_area(:comment, :id=>"comments_txtMessage")
+  text_area(:new_comment, :id=>/comments_editComment_txt_/)
+  
+  def edit(comment)
+    @browser.p(:text=>comment).parent.parent.button(:text=>"Edit").click
+    @browser.wait_for_ajax #wait_until { @browser.textarea(:title=>"Edit your comment").present? }
+  end
+  
+  def delete(comment)
+    @browser.div(:text=>comment).parent.button(:text=>"Delete").click
+    @browser.wait_for_ajax #wait_until { @browser.button(:text=>"Undelete").present? }
+  end
+  
+  button(:undelete, :text=>"Undelete")
+  
+end
+
+#
+class GoogleMaps
+  
+  include PageObject
+  include HeaderFooterBar
+  include WorldsLeftMenu
+  include LeftMenuBar
+  include HeaderBar
+  include DocButtons
+  
+  # FIXME!
+  # Methods in this class are on hold for now. Bugs in watir-webdriver are
+  # preventing them from working. It could be possible to write methods
+  # that use the tinyMCE API commands, but this will require research.
+  
+  # Clicks the Edit Page button, then opens the Map Widget's
+  # options menu and selects the "Settings" button.
+  # It then includes the GoogleMapsWidget module.
+=begin
+  def map_settings
+    edit_page
+    sleep 4
+    goog = @browser.frame(:id=>"elm1_ifr").body(:id=>"tinymce").image(:id=>/widget_googlemaps_id\d+/)
+    #puts goog.present?
+    goog.hover
+    goog.right_click
+=begin
+    goog.fire_event "onfocus"
+    goog.fire_event "onmousedown"
+    driver=@browser.driver
+    driver.action.click_and_hold(goog.wd).perform
+    sleep 1
+    driver.action.move_by(5,5).perform
+    sleep 1
+    goog.fire_event "onmouseup"
+#=end
+    #@browser.frame(:id=>"elm1_ifr").body(:id=>"tinymce").image(:id=>/widget_googlemaps_id\d+/).click
+    #@browser.execute_script("tinyMCE.get('elm1').execCommand('mceSetContent',false, 'hello world' );")
+    sleep 5
+    @browser.frame(:id=>"elm1_ifr").button(:text=>"Settings").click
+    @browser.wait_until { @browser.text_field(:id=>"googlemaps_input_text_location").visible? }
+    self.class.class_eval { include GoogleMapsPopUp }
+  end
+  
+  def remove_map
+    
+  end
+  
+  def map_wrapping
+    
+  end
+=end
+end
+
+#
+class InlineContent
+  
+  include PageObject
+  include HeaderFooterBar
+  include WorldsLeftMenu
+  include LeftMenuBar
+  include HeaderBar
+  include DocButtons
   
 end
 
@@ -1433,21 +1811,55 @@ class ResearchIntro
   
 end
 
+#
 class ContentDetailsPage
   
   include PageObject
   include HeaderFooterBar
   
-  def share
-    @browser.button(:id=>"entity_content_share").click
+  def related_content
+    list = []
+    @browser.div(:class=>"relatedcontent_list").links.each do |link|
+      list << link.title
+    end
+    return list
+  end
+  
+  def share_content
+    @browser.div(:id=>"entity_actions").span(:class=>"entity_share_content").click
     @browser.wait_until { @browser.text.include? "Who do you want to share with?" }
     self.class.class_eval { include ShareWithPopUp }
   end
   
   def add_to_library
-    @browser.button().click
+    @browser.button(:text=>"Add to library").click
     @browser.wait_until { @browser.text.include? "Save to" }
-    self.class.eval_class { include SaveContentPopUp }
+    self.class.class_eval { include SaveContentPopUp }
   end
+  
+  def edit_description
+    @browser.div(:id=>"contentmetadata_description_container").fire_event "onmouseover"
+    @browser.div(:id=>"contentmetadata_description_container").fire_event "onclick"
+  end
+  
+  text_area(:description, :id=>"contentmetadata_description_description")
+  
+  def edit_tags
+    @browser.div(:id=>"contentmetadata_tags_container").fire_event "onclick"
+  end
+  
+  def edit_copyright
+    @browser.div(:id=>"contentmetadata_copyright_container").fire_event "onclick"
+  end
+  
+  def edit_categories
+    @browser.div(:id=>"contentmetadata_locations_container").fire_event "onclick"
+    self.class.class_eval { include AddRemoveCategories }
+  end
+  
+  text_area(:comment_text, :id=>"contentcomments_txtMessage")
+  button(:comment, :text=>"Comment")
+  button(:see_more, :id=>"contentmetadata_show_more")
+  button(:see_less, :id=>"contentmetadata_show_more")
   
 end

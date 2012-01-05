@@ -28,13 +28,13 @@ class TestCreateCourse < Test::Unit::TestCase
     
     # Test case variables...
     @course_info = {
-      :title=>"Junk Course",
+      :title=>"4cz6xwm56N",#random_alphanums
       :description=>random_string,
       :tags=>random_string
     }
     
     @new_document = {:name=>"stuff", :visible=>"Visible to anyone", :pages=>"3"}
-    @existing_document = {:name=>"Syllabus", :title=>"Existing Doc", :visible =>"All participants" }
+    @existing_document = {:name=>"Syllabus", :title=>"Existing Doc", :visible =>"All participants", :example_content=>"Real and Hyperreal Numbers" }
     @participant_list = {:name=>"party", :visible=>"Visible to anyone"}
     @content_library = {:name=>"content", :visible=>"Visible to anyone"}
     @widgets = [
@@ -87,15 +87,15 @@ class TestCreateCourse < Test::Unit::TestCase
       library.add_widget widget
     end
     
-    #dashboard = library.my_dashboard
+    dashboard = library.my_dashboard
     
     # TEST CASE: Verify the new course is in recent memberships
     #assert dashboard.recent_memberships.include?(@course_info[:title]), "Expected course title: #{@course_info[:title]}\n\nList in Widget:\n\n#{dashboard.recent_memberships.join("\n")}"
 =end
     membership = dashboard.my_memberships
-    
+    #sleep 5
     library = membership.go_to @course_info[:title]
-    
+=begin
     # TEST CASE: Verify pages are present
     assert library.public_pages.include? @new_document[:name]
     assert library.public_pages.include? @existing_document[:title]
@@ -106,10 +106,69 @@ class TestCreateCourse < Test::Unit::TestCase
       assert library.public_pages.include? widget[:name]
     end
     
-    library.open_page("Participants", "participant")
+    library.open_page("Participants", "participants")
+    sleep 2
+    # TEST CASE: Participants panel appears
+    assert @browser.div(:id=>"participants_list_container").visible?
+=end
+    library.expand @new_document[:name]
+    document = library.open_page("Page 1", "document")
+=begin
+    document.edit_page
+    sleep 5
+    document.select_all
+    document.add_content=random_string(32)
+    document.select_all
+    document.format="Heading 1"
+    document.font="Comic Sans MS"
+    sleep 1
+    document.save
+=end
+    # TEST CASE HERE
     
-    sleep 10
+    document.expand @existing_document[:title]
     
+    week_1 = document.open_page("Week 1", "read_only")
+    
+    # TEST CASE HERE
+    party = week_1.open_page(@participant_list[:name], "participants")
+    
+    # TEST CASE: Participants panel appears
+    #assert @browser.div(:id=>"participants_list_container").visible? #FIXME
+
+    content = party.open_page(@content_library[:name], "library")
+    
+    # TEST CASE HERE
+    
+    comments = content.open_page(@widgets[7][:name], @widgets[7][:widget])
+    
+    comments.add_comment
+    @text=random_alphanums + " This is radio clash on pirate satellite"
+    @text2=random_alphanums + " Orbiting your living room"
+    comments.comment=@text
+    comments.submit_comment
+    comments.edit @text
+    comments.new_comment=@text2
+    comments.cancel
+    comments.edit @text
+    comments.new_comment_element.send_keys [:command, 'a']
+    comments.new_comment=@text2
+    comments.edit_comment
+    comments.delete @text2
+
+    sleep 5
+    
+=begin
+    @widgets.each do | widget |
+      
+      page = content.open_page(widget[:name], widget[:widget])
+      
+      # TEST CASE HERE
+      
+      content = page.open_page(@content_library[:name], "library")
+      
+    end
+=end 
   end
   
 end

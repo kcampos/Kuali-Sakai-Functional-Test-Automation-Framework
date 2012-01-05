@@ -63,26 +63,10 @@ class TestCreateCourse < Test::Unit::TestCase
   
   def test_create_course
     
-    # Log in to Sakai
-    dashboard = @sakai.login(@instructor, @ipassword)
-
-    membership = dashboard.my_memberships
+    @browser.goto "http://www.tinymce.com/tryit/full.php"
+    @browser.frame(:id=>"content_ifr").image(:src=>"img/tlogo.png").click
+    sleep 10
     
-    library = membership.go_to @course_info[:title]
-
-    library.permissions_for "Remote"
-    sleep 1
-    library.student_permissions="Don't show"
-    sleep 1
-    library.cancel
-    sleep 1
-    library.view_profile_of "Remote"
-    
-    puts @browser.title
-    
-    
-    sleep 5
-
     
   end
   
