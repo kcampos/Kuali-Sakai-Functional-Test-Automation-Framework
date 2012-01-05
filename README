@@ -1,3 +1,13 @@
 Functional test automation framework (Selenium) for Kuali and Sakai open source products
 
+Requirements:
+
+Ruby 1.9.2
+
+Ruby Gems:
+    Watir-Webdriver
+    Page-Object
+    Test-Unit
+    Ci_reporter
+
 ...more to come...

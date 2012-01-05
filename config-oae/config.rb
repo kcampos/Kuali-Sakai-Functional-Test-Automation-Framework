@@ -19,7 +19,10 @@ class AutoConfig
     @url          = config['server']['url']
     
     @browser = Watir::Browser.new @web_browser
-    @browser.execute_script('window.resizeTo(screen.width, screen.height)')
+    case(@web_browser)
+    when :firefox
+      @browser.window.resize_to(1400,900)
+    end
     @browser.goto @url
     @browser.button(:id=>"footer_logo_button").wait_until_present
     
