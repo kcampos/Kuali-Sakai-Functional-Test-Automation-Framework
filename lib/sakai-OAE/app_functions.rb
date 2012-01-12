@@ -19,15 +19,16 @@ class SakaiOAE
     @browser.text_field(:id=>"topnavigation_user_options_login_fields_username").set username
     @browser.text_field(:name=>"topnav_login_password").set password
     @browser.button(:id=>"topnavigation_user_options_login_button_login").click
-    @browser.div(:id=>/carousel/).wait_until_present
+    sleep 4 #FIXME
+    @browser.wait_for_ajax(10)
     MyDashboard.new @browser
-    
   end
   
   def sign_out
     @browser.link(:id=>"topnavigation_user_options_name").fire_event("onmouseover")
     @browser.link(:id=>"subnavigation_logout_link").click
-    @browser.wait_for_ajax #.div(:text=>"Recent activity").wait_until_present
+    sleep 3 # FIXME
+    @browser.wait_for_ajax(8) #.div(:text=>"Recent activity").wait_until_present
     LoginPage.new @browser
   end
   
@@ -45,12 +46,13 @@ module PageObject
     # Use this for menus that require floating the mouse
     # over the first link, before you click on the second
     # link...
-    def float_menu(name, menu_title, link_title, target_text, target_class)   
+    def float_menu(name, menu_text, link_text, target_class)   
       define_method(name) {
-        @browser.link(:title=>menu_title).fire_event("onmouseover")
-        @browser.link(:title=>link_title).click
-        @browser.wait_for_ajax #wait_until { @browser.text.include? target_text }
-        sleep 0.4
+        @browser.back_to_top
+        @browser.link(:text=>menu_text).fire_event("onmouseover")
+        @browser.link(:text=>link_text).click
+        @browser.wait_for_ajax(10) #wait_until { @browser.text.include? target_text }
+        sleep 1
         eval(target_class).new @browser
       }
     end
@@ -96,10 +98,21 @@ module Watir
   
   class Browser
     
-    def wait_for_ajax(timeout=30)
-      while !(self.execute_script("return jQuery.active == 0"));end
+    def wait_for_ajax(timeout=5)
+      end_time = Time.now + timeout
+      while self.execute_script("return jQuery.active") > 0
+        sleep 0.2
+        break if Time.now > end_time
+      end
       self.wait(timeout)
     end
+    
+    def back_to_top
+      self.execute_script("javascript:window.scrollTo(0,0)")
+    end
+    
+    alias return_to_top back_to_top
+    alias scroll_to_top back_to_top
     
   end
   
@@ -115,7 +128,12 @@ module Watir
       @how = :ole_object 
       return @o.for
     end
-    
+=begin
+    def style
+      @style = :ole_object
+      return @o.style
+    end
+=end
     def hover
      assert_exists
      driver.action.move_to(@element).perform

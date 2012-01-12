@@ -2,7 +2,7 @@
 # 
 # == Synopsis
 #
-# Tests the creation of a new Course.
+# Tests the visibility settings of Courses.
 # 
 # Author: Abe Heward (aheward@rSmart.com)
 gem "test-unit"
@@ -22,37 +22,36 @@ class TestCreateCourse < Test::Unit::TestCase
     @browser = @config.browser
     @instructor = @config.directory['admin']['username']
     @ipassword = @config.directory['admin']['password']
-    @site_name = @config.directory['site1']['name']
-    @site_id = @config.directory['site1']['id']
+    @user2 = @config.directory['person1']['username']
+    @u2password = @config.directory['person1']['password']
+    @user3 = @config.directory['person2']['username']
+    @u3password = @config.directory['person2']['password']
+    
     @sakai = SakaiOAE.new(@browser)
     
     # Test case variables...
-    @course_info = {
-      :title=>"Junk Course",
+    @public_course = {
+      :title=>random_alphanums, #
       :description=>random_string,
-      :tags=>random_string
+      :tags=>random_string,
+      :permission=>"Public"
     }
     
-    @new_document = {:name=>"stuff", :visible=>"Visible to anyone", :pages=>"3"}
-    @existing_document = {:name=>"Syllabus", :title=>"Existing Doc", :visible =>"All participants" }
-    @participant_list = {:name=>"party", :visible=>"Visible to anyone"}
-    @content_library = {:name=>"content", :visible=>"Visible to anyone"}
-    @widgets = [
-      {:name=>"Disc",:widget=>"Discussion",:visible=>"Visible to anyone"},
-      {:name=>"Remote",:widget=>"Remote Content",:visible=>"Visible to anyone"},
-      {:name=>"Inline",:widget=>"Inline Content",:visible=>"Visible to anyone"},
-      {:name=>"Tests",:widget=>"Tests and Quizzes",:visible=>"Visible to anyone"},
-      {:name=>"Calendar",:widget=>"Calendar",:visible=>"Visible to anyone"},
-      {:name=>"Map",:widget=>"Google maps",:visible=>"Visible to anyone"},
-      {:name=>"File",:widget=>"Files and documents",:visible=>"Visible to anyone"},
-      {:name=>"Comment",:widget=>"Comments",:visible=>"Visible to anyone"},
-      {:name=>"JISC",:widget=>"JISC Content",:visible=>"Visible to anyone"},
-      {:name=>"Tasks",:widget=>"Assignments",:visible=>"Visible to anyone"},
-      {:name=>"RSS",:widget=>"RSS Feed Reader",:visible=>"Visible to anyone"},
-      {:name=>"LTI",:widget=>"Basic LTI",:visible=>"Visible to anyone"},
-      {:name=>"Gadget",:widget=>"Google Gadget",:visible=>"Visible to anyone"},
-      {:name=>"Grades",:widget=>"Gradebook",:visible=>"Visible to anyone"}
-    ]
+    @logged_in_course = {
+      :title=>random_alphanums, #
+      :description=>random_string,
+      :tags=>random_string,
+      :permission=>"Logged in users"
+    }
+    
+    @participant_course = {
+      :title=>random_alphanums, #
+      :description=>random_string,
+      :tags=>random_string,
+      :permission=>"Participants only"
+    }
+    
+    @participant_name = "Student One"
     
   end
   
@@ -63,10 +62,16 @@ class TestCreateCourse < Test::Unit::TestCase
   
   def test_create_course
     
-    @browser.goto "http://www.tinymce.com/tryit/full.php"
-    @browser.frame(:id=>"content_ifr").image(:src=>"img/tlogo.png").click
-    sleep 10
+    # Log in to Sakai
+    dashboard = @sakai.login(@instructor, @ipassword)
     
+    library = dashboard.go_to_most_recent_membership
+    
+    map = library.open_page("Map", "google maps")
+    
+    map.map_settings
+    
+    sleep 20
     
   end
   

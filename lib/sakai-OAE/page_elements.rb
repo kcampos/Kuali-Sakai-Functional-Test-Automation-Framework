@@ -30,22 +30,25 @@ module HeaderFooterBar
   end
   
   link(:help, :id=>"help_tab")
-  float_menu(:my_dashboard, "You", "My Dashboard", "Add Widget", "MyDashboard")
-  float_menu(:my_messages, "You", "My Messages", "Compose message", "MyMessages")
-  float_menu(:my_profile, "You", "My Profile", "Given Name:", "MyProfileBasicInfo")
-  float_menu(:my_library, "You", "My Library", "My Library", "MyLibrary")
-  float_menu(:my_memberships, "You", "My Memberships", "Sort by:", "MyMemberships") 
-  float_menu(:my_contacts, "You", "My Contacts", "My Contacts", "MyContacts")
-  float_menu(:add_contacts, "Create + Add", "Add contacts", "Search", "AddContacts")  
-  float_menu(:create_groups, "Create + Add", "Groups", "Create a Simple group", "CreateGroups")
-  float_menu(:create_courses, "Create + Add", "Courses", "Create Courses", "CreateCourses")
-  float_menu(:create_research, "Create + Add", "Research", "Create", "CreateResearch")  
-  float_menu(:explore_all_categories, "Explore", "Browse all categories", "categories", "Explore")
-  float_menu(:explore_content,"Explore","Content", "Sort by:", "Explore")
-  float_menu(:explore_people,"Explore","People","Sort by:", "Explore")
-  float_menu(:explore_groups,"Explore","Groups","Sort by:","Explore")
-  float_menu(:explore_courses,"Explore","Courses","Sort by:","Explore")
-  float_menu(:explore_research,"Explore","Research","Sort by:","Explore")
+  float_menu(:my_dashboard, "You", "My dashboard", "MyDashboard")
+  float_menu(:my_messages, "You", "My messages", "MyMessages")
+  float_menu(:my_profile, "You", "My profile", "MyProfileBasicInfo")
+  float_menu(:my_library, "You", "My library", "MyLibrary")
+  float_menu(:my_memberships, "You", "My memberships", "MyMemberships") 
+  float_menu(:my_contacts, "You", "My contacts", "MyContacts")
+  float_menu(:add_content, "Create + Collect", "Add content", "AddContent")
+  float_menu(:add_collection, "Create + Collect", "Add collection", "AddCollection")
+  float_menu(:create_a_group, "Create + Collect", "Create a group", "CreateGroups")
+  float_menu(:create_a_course, "Create + Collect", "Create a course", "CreateCourses")
+  float_menu(:create_a_research_project, "Create + Collect", "Create a research project", "CreateResearch")  
+  float_menu(:explore_all_categories, "Explore", "Browse all categories", "ExploreAll")
+  float_menu(:explore_content,"Explore","Content", "ExploreContent")
+  float_menu(:explore_people,"Explore","People", "ExplorePeople")
+  float_menu(:explore_groups,"Explore","Groups","ExploreGroups")
+  float_menu(:explore_courses,"Explore","Courses","ExploreCourses")
+  float_menu(:explore_research,"Explore","Research projects","ExploreResearch")
+  
+  alias explore_research_projects explore_research
   
   # Opens the User Options menu in the header menu bar,
   # clicks the Preferences item, waits for the Account Preferences
@@ -167,60 +170,40 @@ module LeftMenuBar
   def open_page(name, type)
     @browser.div(:id=>"lhnavigation_container").link(:text=>name).click
     case(type.downcase)
-    when "document"
-      @browser.wait_for_ajax
-      GroupDocuments.new @browser
+    when "document" || "remote content"
+      instantiate_class("Documents") # 
     when "library"
-      @browser.wait_for_ajax
-      GroupLibrary.new @browser
+      instantiate_class("Library") #
     when "participants"
-      @browser.wait_for_ajax
-      GroupParticipants.new @browser
+      instantiate_class("Participants") #
     when "discussion"
-      @browser.wait_for_ajax
-      GroupDiscussions.new @browser
-    when "remote content"
-      @browser.wait_for_ajax
-      GroupDocuments.new @browser
+      instantiate_class("Discussions") #
     when "inline content"
-      @browser.wait_for_ajax
-      InlineContent.new @browser
+      instantiate_class("InlineContent") 
     when "tests and quizzes"
-      @browser.wait_for_ajax
-      x.new @browser
+      instantiate_class("Tests") #
     when "calendar"
-      @browser.wait_for_ajax
-      x.new @browser
+      instantiate_class("Calendar") #
     when "google maps"
-      @browser.wait_for_ajax
-      GoogleMaps.new @browser
+      instantiate_class("GoogleMaps") #
     when "files and documents"
-      @browser.wait_for_ajax
-      x.new @browser
+      instantiate_class("Files") #
     when "comments"
-      @browser.wait_for_ajax
-      GroupComments.new @browser
+      instantiate_class("Comments") #
     when "jisc content"
-      @browser.wait_for_ajax
-      x.new @browser
+      instantiate_class("JISC") #
     when "assignments"
-      @browser.wait_for_ajax
-      x.new @browser
+      instantiate_class("Tasks") #
     when "rss feed reader"
-      @browser.wait_for_ajax
-      x.new @browser
+      instantiate_class("RSS") #
     when "basic lti"
-      @browser.wait_for_ajax
-      x.new @browser
+      instantiate_class("LTI") #
     when "google gadget"
-      @browser.wait_for_ajax
-      x.new @browser
+      instantiate_class("Gadget") #
     when "gradebook"
-      @browser.wait_for_ajax
-      x.new @browser
+      instantiate_class("Gradebook") #
     when "read_only"
-      @browser.wait_for_ajax
-      ViewDocument.new @browser
+      instantiate_class("ViewDocument") #
     end
   end
   
@@ -257,7 +240,7 @@ module LeftMenuBar
   # Opens the Permissions Pop Up for the specified Page.
   def permissions_for(page_name)
     @browser.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).fire_event("onmouseover")
-    @browser.wait_for_ajax #.wait_until { @browser.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).parent.div(:class=>"lhnavigation_selected_submenu_image").visible? }
+    @browser.wait_until { @browser.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).parent.div(:class=>"lhnavigation_selected_submenu_image").visible? }
     @browser.div(:class=>"lhnavigation_selected_submenu_image").hover
     @browser.execute_script("$('#lhnavigation_submenu').css({left:'328px', top:'349px', display: 'block'})")
     @browser.wait_until { @browser.link(:id=>"lhavigation_submenu_edittitle").visible? }
@@ -285,6 +268,51 @@ module LeftMenuBar
   alias view_profile_for view_profile_of
   alias view_profile view_profile_of
   
+  # Clicks the "Add a new area" button.
+  def add_new_area
+    @browser.button(:id=>"group_create_new_area", :class=>"s3d-button s3d-header-button s3d-popout-button").click
+    @browser.wait_for_ajax(6)
+    self.class.class_eval { include AddAreasPopUp }
+  end
+  
+  alias add_a_new_area add_new_area
+  alias add_new_page add_new_area
+  
+  # Returns an array containing the Course/Group area/page titles.
+  def public_pages
+    list = []
+    @browser.div(:id=>"lhnavigation_public_pages").links.each do |link|
+      list << link.text
+    end
+    return list
+  end
+  
+  private
+  
+  def instantiate_class(clash)
+    @browser.wait_for_ajax
+    @browser.return_to_top
+    eval(clash).new @browser
+  end
+  
+end
+
+#
+module SearchBar
+  
+  include PageObject
+  
+  def search_for=(text)
+    @browser.text_field(:id=>"search_text").set("#{text}\n")
+    @browser.wait_for_ajax(10)
+  end
+  
+  alias search= search_for=
+  alias search search_for=
+  alias search_for search_for=
+  alias find search_for=
+  alias find= search_for=
+  
 end
 
 # The Left Menu Bar when in the context of the "You" pages
@@ -293,7 +321,6 @@ module YouPagesLeftMenu
   include PageObject
   
   navigating_link(:basic_information, "Basic Information", "MyProfileBasicInfo")
-  navigating_link(:categories, "Categories", "MyProfileCategories")
   navigating_link(:about_me, "About Me", "MyProfileAboutMe")
   navigating_link(:online, "Online", "MyProfileOnline")
   navigating_link(:contact_information, "Contact Information", "MyProfileContactInfo")
@@ -325,136 +352,6 @@ module CreateWorldsLeftMenu
   
 end
 
-# Module for Left Menu items that are relevant to a Course or Group or Research
-module WorldsLeftMenu
-  
-  include PageObject
-  
-  # Clicks the "Add a new area" button.
-  def add_new_area
-    @browser.button(:id=>"group_create_new_area").click
-  end
-  
-  # Clicks the create button in the Add Area flyout dialog.
-  def create
-    @browser.button(:id=>"addarea_create_new_area").click
-    @browser.button(:id=>"addarea_create_new_area").wait_while_present
-  end
-  
-  alias add_a_new_area add_new_area
-  
-  # This method expects to be passed a hash object with
-  # the following properties:
-  # {:name=> "your name string", :visible=>"string to match the select list", :pages=>"number from 1 to 4" }
-  # These values are then entered into the New Document page and the document is saved.
-  def add_a_new_document(document)
-    add_new_area
-    click_sub_menu "New document"
-    click_select
-    @browser.text_field(:id=>"addarea_pages_page_name").set document[:name]
-    @browser.select(:id=>"addarea_pages_permissions").select document[:visible]
-    @browser.select(:id=>"addarea_pages_numberofpages").select document[:pages]
-    create
-  end
-  
-  # This method expects to be passed a hash object like this:
-  # { :name=>"The name of the target document",
-  #   :title=>"The placement title string",
-  #   :visible=>"Who can see it" }
-  # The method adds an existing document using the specified hash contents.
-  def add_an_existing_document(document)
-    add_new_area
-    click_sub_menu "Existing document"
-    click_select
-    @browser.text_field(:id=>"addarea_sakaidoc_searchfield").set(document[:name] + "\n")
-    @browser.wait_for_ajax #
-    @browser.div(:id=>"addarea_sakaidoc_existingdocscontainer").li(:text=>/#{Regexp.escape(document[:name])}/).fire_event("onclick")
-    @browser.text_field(:id=>"addarea_sakaidoc_page_name").set document[:title]
-    @browser.select(:id=>"addarea_sakaidoc_permissions").select document[:visible]
-    create
-  end
-  
-  alias add_existing_document add_an_existing_document
-  alias add_existing_doc add_an_existing_document
-  
-  # Adds a Participant List Area to the Group/Course. The passed
-  # object needs to be a hash with :name and :visible keys and values.
-  def add_participant_list(list)
-    add_new_area
-    click_sub_menu "Participant list"
-    click_select
-    @browser.text_field(:id=>"addarea_participantlist_page_name").set list[:name]
-    @browser.select(:id=>"addarea_participantlist_permissions").select list[:visible]
-    create
-  end
-  
-  alias add_a_participant_list add_participant_list
-  
-  # Adds a new Content Library area to a Group/Course.
-  # The method requires a hash for the variable, with :name and :visible keys and values.
-  def add_content_library(document)
-    add_new_area
-    click_sub_menu "Content library"
-    click_select
-    @browser.text_field(:id=>"addarea_contentlibrary_page_name").set document[:name]
-    @browser.select(:id=>"addarea_contentlibrary_permissions").select document[:visible]
-    create
-  end
-  
-  alias add_a_content_library add_content_library
-  
-  # Adds a new Widget Area to a Group/Course. The method
-  # requires that the passed variable be a hash, with :name,
-  # :widget, and :visible keys and values.
-  def add_widget_page(document)
-    add_new_area
-    click_sub_menu "Widget page"
-    click_select
-    @browser.text_field(:id=>"addarea_widgetpage_page_name").set document[:name]
-    @browser.select(:id=>"addarea_widgetpage_selectwidget").select document[:widget]
-    @browser.select(:id=>"addarea_widgetpage_permissions").select document[:visible]
-    create
-  end
-  
-  alias add_widget add_widget_page
-  alias add_a_widget add_widget_page
-  alias add_a_widget_page add_widget_page
-  
-  # Returns an array containing the Course/Group area/page titles.
-  def public_pages
-    list = []
-    @browser.ul(:id=>"lhnavigation_public_pages").lis.each do |li|
-      list << li.link.text
-    end
-    return list
-  end
-
-  # =========================
-  # =========================
-  private
-  
-  def click_select
-    begin
-      @browser.button(:text=>"Select").wait_until_present(3)
-      @browser.button(:text=>"Select").click
-    rescue Watir::Wait::TimeoutError => error
-      if @browser.image(:id=>"addarea_preview_image").visible?
-        # we do nothing and move on
-      else
-        puts error
-      end
-    end
-  end
-  
-  def click_sub_menu(item)
-    @browser.li(:text=>item).fire_event("onclick")
-  end
-  
-  # =========================
-  # =========================
-
-end
-
 # Objects contained in the "Select your profile picture" pop-up dialog
 module ChangePicturePopUp
   
@@ -462,6 +359,7 @@ module ChangePicturePopUp
   
   # Uploads the specified file name for the Avatar photo
   def upload_a_new_picture(file_name)
+    @browser.back_to_top
     @browser.button(:text=>"Upload a new picture").wait_until_present
     @browser.button(:text=>"Upload a new picture").click
     @browser.file_field(:id=>"profilepicture").wait_until_present
@@ -652,6 +550,8 @@ module GoogleMapsPopUp
   button(:search, :id=>"googlemaps_button_search")
   button(:dont_add, :id=>"googlemaps_cancel")
   button(:add_map, :id=>"googlemaps_save")
+  button(:save, :id=>"sakaidocs_edit_save_button")
+  button(:dont_save, :id=>"sakaidocs_edit_cancel_button")
   
 end
 
@@ -668,10 +568,45 @@ module ManageParticipants
     @browser.li(:text=>contact).checkbox(:class=>"addpeople_checkbox").set
   end
   
+  alias check_contact add_contact
+  alias add_participant add_contact
+  
+  # Adds the specified contact to the members list (does not save, though).
+  # This method assumes the specified name will be found in the search.
+  # It makes no allowances for failing to find the target user/member.
+  def add_by_search(name)
+    name.split("", 2).each do |letter|
+      @browser.text_field(:id=>/addpeople/, :class=>"as-input").focus
+      @browser.text_field(:id=>/addpeople/, :class=>"as-input").send_keys(letter)
+      @browser.text_field(:id=>/addpeople/, :class=>"as-input").focus
+      begin
+        @browser.wait_until(0.4) { @browser.ul(:class=>"as-list").visible? }
+      rescue
+        @browser.execute_script("$('.as-results').css({display: 'block'});")
+      end
+      if @browser.li(:text=>/#{Regexp.escape(name)}/, :id=>/as-result-item-\d+/).present?
+        @browser.li(:text=>/#{Regexp.escape(name)}/, :id=>/as-result-item-\d+/).click
+        break
+      end
+    end
+  end
+  
+  alias add_contact_by_search add_by_search
+  alias add_participant_by_search add_by_search
+  alias search_and_add_participant add_by_search
+  alias add_by_search= add_by_search
+  
   checkbox(:remove_all_contacts, :id=>"addpeople_select_all_selected_contacts")
   button(:remove_selected, :text=>"Remove selected")
   
-  button(:done_apply_settings, :text=>"Done, apply settings")
+  button(:save, :class=>"s3d-button s3d-overlay-action-button addpeople_finish_adding")
+
+  alias done_apply_settings save
+  alias apply_and_save save
+  
+  button(:cancel, :class=>"s3d-link-button jqmClose s3d-bold")
+  
+  alias dont_apply cancel
   
   # Checks to remove the specified contact.
   def check_remove_contact(contact)
@@ -830,19 +765,258 @@ module DocButtons
   
   # Clicks the Edit Page button.
   def edit_page
+    @browser.back_to_top
     @browser.button(:text=>"Edit page").click
+    @browser.wait_for_ajax
     self.class.class_eval { include DocumentWidget }
   end
   
   # Clicks the Add Page button.
   def add_page
+    @browser.back_to_top
     
   end
   
   # Clicks the Page Revisions button.
   def page_revisions
+    @browser.back_to_top
     
   end  
+  
+end
+
+#
+module AppearancePopUp
+  
+  include PageObject
+  
+end
+
+#
+module AddAreasPopUp
+  
+  include PageObject
+  
+  # New...
+  button(:new_container, :text=>"New", :class=>"s3d-button s3d-link-button")
+  
+  def new_doc_name
+    @browser.text_field(:name=>"addarea_new_name", :class=>"addarea_name_field")
+  end
+  
+  def new_doc_permissions
+    @browser.select(:id=>"addarea_new_permissions")
+  end
+  
+  def number_of_pages
+    @browser.select(:id=>"addarea_new_numberofpages")
+  end
+  # Tags and categories go here
+  
+  # Currently viewing...
+  button(:currently_viewing, :text=>"Currently viewing")
+  
+  # My library...
+  button(:from_my_library, :class=>"s3d-button s3d-link-button subnav_button", :text=>"My library")
+  
+  # Everywhere...
+  button(:everywhere, :text=>"Everywhere")
+  
+  def search_everywhere
+    @browser.text_field(:id=>"addarea_existing_everywhere_search")
+  end
+  
+  def existing_doc_name
+    a = "addarea_existing_mylibrary_container"
+    b = "addarea_existing_everywhere_container"
+    c = "addarea_existing_currentlyviewing_container"
+    case
+    when @browser.div(:id=>a).visible?
+      return @browser.div(:id=>a).text_field(:name=>"addarea_existing_name")
+    when @browser.div(:id=>b).visible?
+      return @browser.div(:id=>b).text_field(:name=>"addarea_existing_name")
+    when @browser.div(:id=>c).visible?
+      return @browser.div(:id=>c).text_field(:name=>"addarea_existing_name")
+    end
+  end
+  
+  def existing_doc_permissions
+    a = "addarea_existing_mylibrary_container"
+    b = "addarea_existing_everywhere_container"
+    c = "addarea_existing_currentlyviewing_container"
+    case
+    when @browser.div(:id=>a).visible?
+      return @browser.div(:id=>a).select(:name=>"addarea_existing_permissions")
+    when @browser.div(:id=>b).visible?
+      return @browser.div(:id=>b).select(:name=>"addarea_existing_permissions")
+    when @browser.div(:id=>c).visible?
+      return @browser.div(:id=>c).select(:name=>"addarea_existing_permissions")
+    end
+  end
+  
+  def search_results
+    @browser.div(:id=>"addarea_existing_everywhere_bottom")
+  end
+  
+  # Content list...
+  button(:content_list, :text=>"Content list")
+  def content_list_name
+    @browser.text_field(:id=>"addarea_contentlist_name")
+  end
+  def content_list_permissions
+    @browser.select(:id=>"addarea_contentlist_permissions")
+  end
+  
+  # Participants list...
+  button(:participants_list, :text=>"Participants list")
+  def participants_list_name
+    @browser.text_field(:id=>"addarea_participants_name")
+  end
+  def participants_list_permissions
+    @browser.select(:id=>"addarea_participants_permissions")
+  end
+  
+  # Widgets...
+  button(:widgets, :text=>"Widgets")
+  def widget_name
+    @browser.text_field(:id=>"addarea_widgets_name")
+  end
+  def select_widget
+    @browser.select(:id=>"addarea_widgets_widget")
+  end
+  def widget_permissions
+    @browser.select(:id=>"addarea_widgets_permissions")
+  end
+  
+  button(:done_add, :id=>"addarea_create_doc_button" )
+  button(:cancel, :class=>"s3d-link-button jqmClose s3d-bold", :text=>"Cancel")
+  
+  # Clicks the "Done, add" button in the Add Area flyout dialog, then
+  # waits for the Ajax calls to drop to zero.
+  def create
+    done_add
+    @browser.wait_for_ajax(3)
+  end
+  
+  # This method expects to be passed a hash object with
+  # the following properties:
+  # {:name=> "your name string", :visible=>"string to match the select list", :pages=>"number from 1 to 4" }
+  # These values are then entered into the New Document page and the document is saved.
+  def add_a_new_document(document)
+    new_container
+    @browser.wait_until { new_doc_name.visible? }
+    new_doc_name.set document[:name]
+    new_doc_permissions.select document[:visible]
+    number_of_pages.select document[:pages]
+    # Add tags/categories here
+    create
+  end
+  
+  # This method expects to be passed a hash object like this:
+  # { :name=>"The name of the target document",
+  #   :title=>"The placement title string",
+  #   :visible=>"Who can see it" }
+  # The method adds an existing document using the specified hash contents.
+  def add_from_existing(document)
+    everywhere
+    search_everywhere.set(document[:name] + "\n")
+    @browser.wait_for_ajax #
+    search_results.li(:text=>/#{Regexp.escape(document[:name])}/).fire_event("onclick")
+    existing_doc_name.set document[:title]
+    existing_doc_permissions.select document[:visible]
+    # Add tags/categories here
+    create
+  end
+  
+  alias add_existing_document add_from_existing
+  alias add_existing_doc add_from_existing
+  alias add_an_existing_document add_from_existing
+  
+  # Adds a Participant List Area to the Group/Course. The passed
+  # object needs to be a hash with :name and :visible keys and values.
+  def add_participant_list(list)
+    participants_list
+    participants_list_name.set list[:name]
+    participants_list_permissions.select list[:visible]
+    # Add tags/cats here later.
+    create
+  end
+  
+  alias add_participants_list add_participant_list
+  
+  # Adds a new Content Library area to a Group/Course.
+  # The method requires a hash for the variable, with :name and :visible keys and values.
+  def add_content_list(document)
+    content_list
+    content_list_name.set document[:name]
+    content_list_permissions.select document[:visible]
+    create
+  end
+  
+  alias add_a_content_library add_content_list
+  alias add_content_library add_content_list
+  
+  # Adds a new Widget Area to a Group/Course. The method
+  # requires that the passed variable be a hash, with :name,
+  # :widget, and :visible keys and values.
+  def add_widget_page(document)
+    widgets
+    select_widget.select document[:widget]
+    widget_name.set document[:name]
+    widget_permissions.select document[:visible]
+    create
+  end
+  
+  alias add_widget add_widget_page
+  alias add_a_widget add_widget_page
+  alias add_a_widget_page add_widget_page
+  
+end
+
+# Methods related to the "Add widgets" pop-up on the Dashboard
+module AddRemoveWidgets
+  
+  include PageObject
+  
+  # Clicks the Close button on the dialog for adding/removing widgets
+  # to/from the Dashboard.
+  def close_add_widget
+    @browser.div(:class=>"s3d-dialog-close jqmClose").fire_event("onclick")
+    @browser.wait_for_ajax(1)
+    MyDashboard.new @browser
+  end
+  
+  # Adds all widgets to the dashboard
+  def add_all_widgets
+    array = @browser.div(:id=>"add_goodies_body").lis.select { |li| li.class_name == "add" }
+    sub_array = array.select { |li| li.visible? }
+    sub_array.each do |li|
+      li.button(:text=>"Add").click
+      @browser.wait_for_ajax(1)
+    end
+    close_add_widget
+  end
+  
+  # Removes all widgets from the dashboard
+  def remove_all_widgets
+    array = @browser.div(:id=>"add_goodies_body").lis.select { |li| li.class_name == "remove" }
+    sub_array = array.select { |li| li.visible? }
+    sub_array.each do |li|
+      li.button(:text=>"Remove").click
+      @browser.wait_for_ajax(1)
+    end
+    close_add_widget
+  end
+  
+  # Clicks the "Add" button for the specified widget
+  def add_widget(name)
+    @browser.div(:id=>"add_goodies_body").li(:text=>/#{Regexp.escape(name)}/).button.click
+  end
+  
+  # Unchecks the checkbox for the specified widget.
+  def remove_widget(name)
+    @browser.div(:id=>"add_goodies_body").li(:text=>/#{Regexp.escape(name)}/, :id=>/_remove_/).button.click
+  end
   
 end
 
@@ -894,7 +1068,7 @@ module ListWidget
   # the page because it will instantiate the GroupLibrary class).
   def open_group(name)
     @browser.link(:text=>name).click
-    GroupLibrary.new(@browser)
+    Library.new(@browser)
   end
   
   alias view_group open_group
@@ -957,6 +1131,19 @@ module ListWidget
     @browser.link(:text=>name).click
     ViewPerson.new @browser
   end
+  
+  def results_list # May want to move this if it's not universal for all lists.
+    list = []
+    @browser.ul(:class=>"s3d-search-results-container").links.each do |link|
+      list << link.title
+    end
+    list.uniq!
+    list.compact!
+    return list
+  end
+  
+  alias courses results_list
+  alias course_list results_list
   
 end
 
@@ -1033,7 +1220,8 @@ module DocumentWidget
 end
 
 # Methods related to the Participants "Area" or "Page" in
-# Groups/Courses.
+# Groups/Courses. This is not the same thing as the ManageParticipants
+# module, which relates to the "Add People" Pop Up.
 module ParticipantsWidget
   
   include PageObject
@@ -1097,42 +1285,14 @@ class MyDashboard
   radio_button(:three_column, :id=>"layout-picker-threecolumn")
   button(:save_layout, :id=>"select-layout-finished")
   button(:add_widgets, :text=>"Add Widget")
-
-  # Clicks the Close button on the dialog for adding/removing widgets
-  # to/from the Dashboard.
-  def close_add_widget
-    @browser.div(:class=>"s3d-dialog-close jqmClose").fire_event("onclick")
-    @browser.wait_for_ajax
-    MyDashboard.new @browser
+  
+  def add_widgets
+    @browser.button(:text=>"Add widget").click
+    @browser.wait_until { @browser.text.include? "Add widgets" }
+    self.class.class_eval { include AddRemoveWidgets }
   end
   
-  # Checks off all widgets listed
-  def add_all_widgets
-    @browser.div(:id=>"add_goodies_body").lis.each do |li|
-      if li.visible? && li.id=~/_add_/
-        li.button.click
-      end
-    end
-  end
-  
-  # Unchecks the checkboxes for all widgets.
-  def remove_all_widgets
-    @browser.div(:id=>"add_goodies_body").lis.each do |li|
-      if li.visible? && li.id=~/_remove_/
-        li.button.click
-      end
-    end
-  end
-  
-  # Checks the checkbox for the specified widget
-  def add_widget(name)
-    @browser.div(:id=>"add_goodies_body").li(:text=>/#{Regexp.escape(name)}/, :id=>/_add_/).button.click
-  end
-  
-  # Unchecks the checkbox for the specified widget.
-  def remove_widget(name)
-    @browser.div(:id=>"add_goodies_body").li(:text=>/#{Regexp.escape(name)}/, :id=>/_remove_/).button.click
-  end
+  alias add_widget add_widgets
   
   # Returns an array object containing a list of all selected widgets.
   def displayed_widgets
@@ -1159,7 +1319,9 @@ class MyDashboard
   
   def go_to_most_recent_membership
     @browser.link(:class=>"recentmemberships_item_link s3d-widget-links s3d-bold").click
-    CourseLibrary.new @browser
+    sleep 2 # The next line sometimes throws an "unknown javascript error" without this line.
+    @browser.wait_for_ajax(10)
+    Library.new @browser
   end
 
 end
@@ -1180,38 +1342,22 @@ class MyProfileBasicInfo
   include YouPagesLeftMenu
   
   # Basic Information
-  text_field(:given_name, :name=>"basic_elements_firstName")
-  text_field(:family_name, :id=>"profilesection_generalinfo_basic_elements_lastName")
-  text_field(:preferred_name, :id=>"profilesection_generalinfo_basic_elements_preferredName")
-  text_area(:tags, :id=>"profilesection_generalinfo_basic_elements_tags")
+  text_field(:given_name, :name=>"firstName")
+  text_field(:family_name, :id=>"lastName")
+  text_field(:preferred_name, :id=>"preferredName")
+  text_area(:tags, :name=>"tags")
+
+  def list_categories
+    @browser.button(:text=>"List categories").click
+    @browser.wait_for_ajax
+    self.class.class_eval { include AddRemoveCategories }
+  end
 
   def update
-    @browser.div(:id=>/profilesection-basic/).button(:text=>"Update").click
+    @browser.form(:id=>"displayprofilesection_form_basic").button(:text=>"Update").click
     @browser.wait_until { @browser.div(:id=>"gritter-notice-wrapper").exist? }
   end
 
-end
-
-#
-class MyProfileCategories
-  
-  include PageObject
-  include HeaderFooterBar
-  include YouPagesLeftMenu
-  include AddRemoveCategories
-  
-  # Categories
-  button(:add_or_remove_categories, :text=>"Add or remove categories")
-
-  # Returns an array of the categories shown on the Categories page itself.
-  def listed_categories
-    list = []
-    @browser.ul(:id=>"profilesection_generalinfo_locations").lis.each do |li|
-      list << li.text
-    end
-    return list
-  end
-  
 end
 
 #
@@ -1221,12 +1367,12 @@ class MyProfileAboutMe
   include HeaderFooterBar
   include YouPagesLeftMenu
   
-  text_area(:about_Me, :id=>"profilesection_generalinfo_aboutme_elements_aboutme")
-  text_area(:academic_interests, :id=>"profilesection_generalinfo_aboutme_elements_academicinterests")
-  text_area(:personal_interests, :id=>"profilesection_generalinfo_aboutme_elements_personalinterests")
+  text_area(:about_Me, :id=>"aboutme")
+  text_area(:academic_interests, :id=>"academicinterests")
+  text_area(:personal_interests, :id=>"personalinterests")
   
   def update
-    @browser.div(:id=>/profilesection-aboutme/).button(:text=>"Update").click
+    @browser.form(:id=>"displayprofilesection_form_aboutme").button(:text=>"Update").click
     @browser.wait_until { @browser.div(:id=>"gritter-notice-wrapper").exist? }
   end
 
@@ -1239,13 +1385,13 @@ class MyProfileOnline
   include HeaderFooterBar
   include YouPagesLeftMenu
   
-  button(:add_another_online, :text=>"Add another Online", :id=>/profilesection_add_link/)
+  button(:add_another_online, :text=>"Add another Online", :id=>"displayprofilesection_add_online")
   
-  text_field(:site, :title=>"Site", :index=>-1)
-  text_field(:url, :title=>"URL", :index=>-1)
+  text_field(:site, :id=>/siteOnline_\d+/, :index=>-1)
+  text_field(:url, :id=>/urlOnline_\d+/, :index=>-1)
   
   def update
-    @browser.div(:id=>/profilesection-online/).button(:text=>"Update").click
+    @browser.form(:id=>"displayprofilesection_form_online").button(:text=>"Update").click
   end
   
   # Returns a hash object, where the keys are the site names and the
@@ -1265,30 +1411,30 @@ class MyProfileOnline
   end
 end
 
-# Contact Information
+# Methods related to the My Profile: Contact Information page
 class MyProfileContactInfo
   
   include PageObject
   include HeaderFooterBar
   include YouPagesLeftMenu
   
-  button(:add_another, :text=>"Add another", :id=>/profilesection_add_link_\d/)
-  text_field(:institution, :title=>"Institution", :index=>-1)
-  text_field(:department, :title=>"Department", :index=>-1) 
-  text_field(:title_role, :title=>"Title/Role", :index=>-1) 
-  text_field(:email, :title=>"Email", :index=>-1) 
-  text_field(:instant_messaging, :title=>"Instant Messaging", :index=>-1) 
-  text_field(:phone, :title=>"Phone", :index=>-1) 
-  text_field(:mobile, :title=>"Mobile", :index=>-1) 
-  text_field(:fax, :title=>"Fax", :index=>-1) 
-  text_field(:address, :title=>"Address", :index=>-1) 
-  text_field(:city, :title=>"City", :index=>-1) 
-  text_field(:state, :title=>"State", :index=>-1)
-  text_field(:postal_code, :title=>"Postal Code", :index=>-1) 
-  text_field(:country, :title=>"Country", :index=>-1)
+  #button(:add_another, :text=>"Add another", :id=>/profilesection_add_link_\d/)
+  text_field(:institution, :name=>"college")
+  text_field(:department, :name=>"Department") 
+  text_field(:role, :name=>"role") 
+  text_field(:email, :name=>"emailContact") 
+  text_field(:instant_messaging, :name=>"imContact") 
+  text_field(:phone, :name=>"phoneContact") 
+  text_field(:mobile, :name=>"mobileContact") 
+  text_field(:fax, :name=>"faxContact") 
+  text_field(:address, :name=>"addressContact") 
+  text_field(:city, :name=>"cityContact") 
+  text_field(:state, :name=>"stateContact")
+  text_field(:postal_code, :name=>"postalContact") 
+  text_field(:country, :name=>"countryContact")
   
   def update
-    @browser.div(:id=>/profilesection-contact/).button(:text=>"Update").click
+    @browser.form(:id=>"displayprofilesection_form_contact").button(:text=>"Update").click
   end
 end
 
@@ -1299,23 +1445,23 @@ class MyProfilePublications
   include HeaderFooterBar
   include YouPagesLeftMenu
   
-  button(:add_another_publication, :text=>"Add another publication", :id=>/profilesection_add_link_\d+/)
+  button(:add_another_publication, :text=>"Add another publication", :id=>"displayprofilesection_add_publications")
   
   def update
-    @browser.div(:id=>/profilesection-publications/).button(:text=>"Update").click
+    @browser.form(:id=>"displayprofilesection_form_publications").button(:text=>"Update").click
   end
   
-  text_field(:main_title, :title=>"Main title", :index=>-1)
-  text_field(:main_author, :title=>"Main author", :index=>-1)
-  text_field(:co_authors, :title=>"Co-author(s)", :index=>-1)
-  text_field(:publisher, :title=>"Publisher", :index=>-1)
-  text_field(:place_of_publication, :title=>"Place of publication", :index=>-1)
-  text_field(:volume_title, :title=>"Volume title", :index=>-1)
-  text_field(:volume_information, :title=>"Volume information", :index=>-1)
-  text_field(:year, :title=>"Year", :index=>-1)
-  text_field(:number, :title=>"Number", :index=>-1)
-  text_field(:series_title, :title=>"Series title", :index=>-1)
-  text_field(:url, :title=>"URL", :index=>-1)
+  text_field(:main_title, :id=>/maintitle_\d+/, :index=>-1)
+  text_field(:main_author, :id=>/mainauthor_d+/, :index=>-1)
+  text_field(:co_authors, :id=>/coauthor_\d+/, :index=>-1)
+  text_field(:publisher, :id=>/publisher_\d+/, :index=>-1)
+  text_field(:place_of_publication, :id=>/placeofpublication_\d+/, :index=>-1)
+  text_field(:volume_title, :id=>/volumetitle_\d+/, :index=>-1)
+  text_field(:volume_information, :id=>/volumeinformation_\d+/, :index=>-1)
+  text_field(:year, :id=>/year_\d+/, :index=>-1)
+  text_field(:number, :id=>/number_\d+/, :index=>-1)
+  text_field(:series_title, :id=>/series.title_\d+/, :index=>-1)
+  text_field(:url, :id=>/url_\d+/, :index=>-1)
   
 end
 
@@ -1339,7 +1485,7 @@ class MyMemberships
     @browser.link(:title=>item_name).click
     @browser.button(:id=>"entity_group_permissions").wait_until_present
     @browser.wait_for_ajax #
-    GroupLibrary.new @browser
+    Library.new @browser
   end
 
   alias navigate_to go_to
@@ -1366,15 +1512,6 @@ class AddContacts
   
 end
 
-#
-class CreateGroups
-  
-  include PageObject
-  include HeaderFooterBar
-  include AccountPreferencesPopUp
-  include CreateWorldsLeftMenu
-  
-end
 
 #
 class CreateCourses
@@ -1391,13 +1528,13 @@ class CreateCourses
   def use_basic_template
     @browser.div(:class=>"selecttemplate_template_small selecttemplate_template_right").button(:text=>"Use this template").click
     @browser.wait_until { @browser.text.include? "Suggested URL:" }
-    CreateABasicCourse.new @browser
+    CreateGroups.new @browser
   end
   
 end
 
 #
-class CreateABasicCourse
+class CreateGroups
   
   include PageObject
   include HeaderFooterBar
@@ -1406,14 +1543,45 @@ class CreateABasicCourse
   text_field(:title, :id=>"newcreategroup_title")
   text_field(:suggested_url, :id=>"newcreategroup_suggested_url")
   text_area(:description, :id=>"newcreategroup_description")
-  text_area(:tags, :id=>"newcreategroup_tags")
+  text_area(:tags, :name=>"newcreategroup_tags")
   select_list(:can_be_discovered_by, :id=>"newcreategroup_can_be_found_in")
   select_list(:membership, :id=>"newcreategroup_membership")
   
+  def add_people
+    @browser.button(:text, "Add people").click
+    @browser.wait_for_ajax
+    self.class.class_eval { include ManageParticipants }
+  end
+  
+  def list_categories
+    @browser.button(:text=>"List categories").click
+    @browser.wait_for_ajax
+    self.class.class_eval { include AddRemoveCategories }
+  end
+  
   def create_basic_course
-    @browser.button(:class=>"s3d-button s3d-overlay-button newcreategroup_create_simple_group").click
+    create_thing
     @browser.wait_until(45) { @browser.text.include? "Add content" }
-    GroupLibrary.new @browser
+    @browser.button(:id=>"group_create_new_area", :class=>"s3d-button s3d-header-button s3d-popout-button").wait_until_present
+    Library.new @browser
+  end
+  
+  alias create_simple_group create_basic_course
+  alias create_research_support_group create_basic_course
+  
+  def create_research_project
+    create_thing
+    @browser.button(:id=>"group_create_new_area", :class=>"s3d-button s3d-header-button s3d-popout-button").wait_until_present
+    ResearchIntro.new @browser
+  end
+  
+  private
+  
+  def create_thing
+    @browser.button(:class=>"s3d-button s3d-overlay-button newcreategroup_create_simple_group").click
+    sleep 0.3
+    @browser.div(:id=>"sakai_progressindicator").wait_while_present
+    @browser.wait_for_ajax
   end
   
 end
@@ -1425,31 +1593,20 @@ class CreateResearch
   include HeaderFooterBar
   include CreateWorldsLeftMenu
   
+  def use_research_project_template
+    @browser.div(:class=>"selecttemplate_template_large").button(:text=>"Use this template").click
+    @browser.wait_until { @browser.text.include? "Suggested URL:" }
+    CreateGroups.new @browser
+  end
+  
+  def use_research_support_group_template
+    @browser.div(:class=>"selecttemplate_template_small selecttemplate_template_right").button(:text=>"Use this template").click
+    @browser.wait_until { @browser.text.include? "Suggested URL:" }
+    CreateGroups.new @browser
+  end
+  
 end
 
-#
-class Explore
-  
-  include PageObject
-  include HeaderFooterBar
-  include ListWidget
-  
-  def search_people_for=(text)
-    @browser.text_field(:id=>"searchpeople_text").set("#{text}\n")
-  end
-  
-  def search_content_for=(text)
-    @browser.text_field(:id=>"searchcontent_text").set("#{text}\n")
-  end
-  
-  def search_groups_for=(text)
-    @browser.text_field(:id=>"searchgroups_text").set("#{text}\n")
-  end
-  
-  alias search_courses_for= search_groups_for=
-  alias search_research_for= search_groups_for=
-  
-end
 
 #
 class ViewPerson
@@ -1570,39 +1727,90 @@ class ViewDocument
   
   include PageObject
   include HeaderFooterBar
-  include WorldsLeftMenu
   include LeftMenuBar
   include HeaderBar
   
 end
 
 #
+class ExploreAll
+
+  include PageObject
+  include HeaderFooterBar
+  include LeftMenuBar
+  include ListWidget
+  include SearchBar
+
+end
+
+#
+class ExploreContent
+
+  include PageObject
+  include HeaderFooterBar
+  include LeftMenuBar
+  include ListWidget
+  include SearchBar
+
+end
+
+#
+class ExplorePeople
+
+  include PageObject
+  include HeaderFooterBar
+  include LeftMenuBar
+  include ListWidget
+  include SearchBar
+
+end
+
+#
 class ExploreGroups
+
+  include PageObject
+  include HeaderFooterBar
+  include LeftMenuBar
+  include ListWidget
+  include SearchBar
 
 end
 
 # 
 class ExploreCourses
   
+  include PageObject
+  include HeaderFooterBar
+  include LeftMenuBar
+  include ListWidget
+  include SearchBar
+  
 end
 
 #
 class ExploreResearch
+
+  include PageObject
+  include HeaderFooterBar
+  include LeftMenuBar
+  include ListWidget
+  include SearchBar
   
 end
 
 #
 class MyPreferences
 
+  include PageObject
+
 end
 
 
 # 
-class GroupLibrary
+class Library
   
   include PageObject
   include HeaderFooterBar
-  include WorldsLeftMenu
   include HeaderBar
   include LeftMenuBar
   include LibraryWidget
@@ -1611,35 +1819,32 @@ class GroupLibrary
 end
 
 # 
-class GroupParticipants
+class Participants
   
   include PageObject
   include HeaderFooterBar
-  include WorldsLeftMenu
   include LeftMenuBar
   include HeaderBar
 
   
 end
 
-#
-class GroupDocuments
+# Methods related to the Documents "Area" in Groups/Courses.
+class Documents
   
   include PageObject
   include HeaderFooterBar
-  include WorldsLeftMenu
   include LeftMenuBar
   include HeaderBar
   include DocButtons
   
 end
 
-#
-class GroupDiscussions
+# Methods related to the Discussions "Area" in a Group/Course.
+class Discussions
   
   include PageObject
   include HeaderFooterBar
-  include WorldsLeftMenu
   include LeftMenuBar
   include HeaderBar
   include DocButtons
@@ -1650,12 +1855,12 @@ class GroupDiscussions
   text_area(:reply_text, :id=>"discussion_topic_reply_text")  
   button(:dont_add_topic, :id=>"discussion_dont_add_topic")
   
-  #
+  # Clicks the "Add topic" button.
   def add_topic
     @browser.button(:id=>"discussion_add_topic").click
     @browser.wait_for_ajax #
-    @browser.wait_until { @browser.h1(:class=>"discussion_topic_subject").parent.button(:text=>"Reply").present? }
-    @browser.wait_for_ajax #
+    #@browser.wait_until { @browser.h1(:class=>"discussion_topic_subject").parent.button(:text=>"Reply").present? }
+    #@browser.wait_for_ajax #
   end
   
   button(:collapse_all, :text=>"Collapse all")
@@ -1663,33 +1868,39 @@ class GroupDiscussions
   button(:dont_add_reply, :id=>"discussion_dont_add_reply")
   button(:add_reply, :id=>"discussion_add_reply")
   
+  # Clicks the "Reply" button for the specified message.
   def reply_to(message_title)
     @browser.h1(:class=>"discussion_topic_subject", :text=>message_title).parent.button(:text=>"Reply").click
     @browser.wait_until { @browser.h1(:class=>"discussion_topic_subject", :text=>message_title).parent.text_field(:id=>"discussion_topic_reply_text").present? }
   end
   
+  # Clicks the "Quote" button for the specified message.
   def quote(message_text)
     @browser.span(:class=>"discussion_post_message", :text=>message_text).parent.parent.button(:text=>"Quote").fire_event "onclick"
     @browser.wait_for_ajax #
     #@browser.wait_until { @browser.textarea(:name=>"quoted_text", :text=>message_text).present? }
   end
   
+  # Clicks the "Edit" button for the specified message.
   def edit(message_text)
     @browser.span(:class=>"discussion_post_message", :text=>message_text).parent.parent.button(:text=>"Edit").click
     @browser.wait_until { @browser.textarea(:name=>"discussion_topic_reply_text", :text=>message_text).present? }
   end
   
+  # Clicks the "Delete" button for a specified message.
   def delete(message_text)
     @browser.span(:class=>"discussion_post_message", :text=>message_text).parent.parent.button(:text=>"Delete").click
   end
   
   button(:restore, :text=>"Restore")
 
+  # Clicks the button that expands the thread to view the replies.
   def view_replies(topic_title)
     @browser.h1(:class=>"discussion_topic_subject", :text=>topic_title).parent.button(:class=>"discussion_show_topic_replies s3d-button s3d-link-button").click
     
   end
   
+  # Clicks the button that collapses an expanded message thread.
   def hide_replies(topic_title)
     @browser.h1(:class=>"discussion_topic_subject", :text=>topic_title).parent.button(:class=>"discussion_show_topic_replies s3d-button s3d-link-button").click
     
@@ -1697,23 +1908,24 @@ class GroupDiscussions
   
 end
 
-#
-class GroupComments
+# Methods related to the Comments "Area" in a Course/Group.
+class Comments
   
   include PageObject
   include HeaderFooterBar
-  include WorldsLeftMenu
   include LeftMenuBar
   include HeaderBar
   include DocButtons
   
   button(:add_comment, :text=>"Add comment")
   
+  # Clicks the "Submit comment" button.
   def submit_comment
     @browser.button(:text=>"Submit comment").click
     @browser.wait_for_ajax #wait_until { @browser.text.include? "about 0 seconds ago" }
   end
   
+  # Clicks the "Edit comment" button.
   def edit_comment
     @browser.button(:text=>"Edit comment").click
     @browser.wait_for_ajax #wait_until { @browser.textarea(:title=>"Edit your comment").present? == false }
@@ -1723,11 +1935,13 @@ class GroupComments
   text_area(:comment, :id=>"comments_txtMessage")
   text_area(:new_comment, :id=>/comments_editComment_txt_/)
   
+  # Clicks the "Edit button" for the specified comment.
   def edit(comment)
     @browser.p(:text=>comment).parent.parent.button(:text=>"Edit").click
     @browser.wait_for_ajax #wait_until { @browser.textarea(:title=>"Edit your comment").present? }
   end
   
+  # Deletes the specified comment.
   def delete(comment)
     @browser.div(:text=>comment).parent.button(:text=>"Delete").click
     @browser.wait_for_ajax #wait_until { @browser.button(:text=>"Undelete").present? }
@@ -1738,57 +1952,159 @@ class GroupComments
 end
 
 #
-class GoogleMaps
+class JISC
   
   include PageObject
   include HeaderFooterBar
-  include WorldsLeftMenu
   include LeftMenuBar
   include HeaderBar
   include DocButtons
   
-  # FIXME!
-  # Methods in this class are on hold for now. Bugs in watir-webdriver are
-  # preventing them from working. It could be possible to write methods
-  # that use the tinyMCE API commands, but this will require research.
+  in_frame(:index=>2) do |fr|
+    select_list(:choose_a_category, :id=>"themes", :frame=>fr)
+  end
   
-  # Clicks the Edit Page button, then opens the Map Widget's
-  # options menu and selects the "Settings" button.
-  # It then includes the GoogleMapsWidget module.
-=begin
+end
+
+#
+class RSS
+  
+  include PageObject
+  include HeaderFooterBar
+  include LeftMenuBar
+  include HeaderBar
+  include DocButtons
+  
+  button(:sort_by_source, :text=>"Sort by source")
+  button(:sort_by_date, :text=>"Sort by date")
+  
+  
+end
+
+#
+class Tasks
+  
+  include PageObject
+  include HeaderFooterBar
+  include LeftMenuBar
+  include HeaderBar
+  include DocButtons
+  
+end
+
+#
+class Tests
+  
+  include PageObject
+  include HeaderFooterBar
+  include LeftMenuBar
+  include HeaderBar
+  include DocButtons
+  
+end
+
+#
+class Calendar
+  
+  include PageObject
+  include HeaderFooterBar
+  include LeftMenuBar
+  include HeaderBar
+  include DocButtons
+  
+end
+
+#
+class Files
+  
+  include PageObject
+  include HeaderFooterBar
+  include LeftMenuBar
+  include HeaderBar
+  include DocButtons
+  
+end
+
+#
+class Gadget
+  
+  include PageObject
+  include HeaderFooterBar
+  include LeftMenuBar
+  include HeaderBar
+  include DocButtons
+  
+end
+
+#
+class Gradebook
+  
+  include PageObject
+  include HeaderFooterBar
+  include LeftMenuBar
+  include HeaderBar
+  include DocButtons
+  
+end
+
+#
+class LTI
+  
+  include PageObject
+  include HeaderFooterBar
+  include LeftMenuBar
+  include HeaderBar
+  include DocButtons
+  
+  text_field(:url, :id=>"basiclti_settings_ltiurl")
+  text_field(:key, :id=>"basiclti_settings_ltikey")
+  text_field(:secret, :id=>"basiclti_settings_ltisecret")
+  button(:advanced_settings, :id=>"basiclti_settings_advanced_toggle_settings")
+  button(:save, :id=>"basiclti_settings_insert")
+  button(:cancel, :id=>"basiclti_settings_cancel")
+  
+  
+end
+
+# Methods related to the Maps "Area" in a Course/Group.
+class GoogleMaps
+  
+  include PageObject
+  include HeaderFooterBar
+  include LeftMenuBar
+  include HeaderBar
+  include DocButtons
+  
   def map_settings
     edit_page
-    sleep 4
-    goog = @browser.frame(:id=>"elm1_ifr").body(:id=>"tinymce").image(:id=>/widget_googlemaps_id\d+/)
-    #puts goog.present?
-    goog.hover
-    goog.right_click
-=begin
-    goog.fire_event "onfocus"
-    goog.fire_event "onmousedown"
-    driver=@browser.driver
-    driver.action.click_and_hold(goog.wd).perform
-    sleep 1
-    driver.action.move_by(5,5).perform
-    sleep 1
-    goog.fire_event "onmouseup"
-#=end
-    #@browser.frame(:id=>"elm1_ifr").body(:id=>"tinymce").image(:id=>/widget_googlemaps_id\d+/).click
-    #@browser.execute_script("tinyMCE.get('elm1').execCommand('mceSetContent',false, 'hello world' );")
-    sleep 5
-    @browser.frame(:id=>"elm1_ifr").button(:text=>"Settings").click
-    @browser.wait_until { @browser.text_field(:id=>"googlemaps_input_text_location").visible? }
+    @browser.wait_for_ajax
+    @browser.execute_script(%|$("img[id*='widget_googlemaps']").click()|)# css({left:'300px', top:'250px', position: 'absolute', display: 'block'})")
+    @browser.wait_for_ajax
+    sleep 3
+    @browser.execute_script("$('#context_settings').mousedown()")
+    @browser.wait_for_ajax(15)
     self.class.class_eval { include GoogleMapsPopUp }
   end
   
   def remove_map
-    
+    edit_page
+    @browser.wait_for_ajax
+    @browser.execute_script("$('#context_menu').css({left:'450px', top:'300px', position: 'absolute', display: 'block'})")
+    @browser.button(:class=>"s3d-button s3d-action s3d-link-button", :text=>"Remove").click
+    @browser.wait_for_ajax
+    self.class.class_eval { include GoogleMapsPopUp }
   end
   
   def map_wrapping
-    
+    edit_page
+    @browser.wait_for_ajax
+    @browser.execute_script("$('#context_menu').css({left:'450px', top:'300px', position: 'absolute', display: 'block'})")
+    @browser.button(:class=>"s3d-button s3d-action s3d-link-button", :text=>"Settings").click
+    sleep 1 # FIXME
+    #@browser.wait_for_ajax
+    self.class.class_eval { include AppearancePopUp }
   end
-=end
+
 end
 
 #
@@ -1796,7 +2112,6 @@ class InlineContent
   
   include PageObject
   include HeaderFooterBar
-  include WorldsLeftMenu
   include LeftMenuBar
   include HeaderBar
   include DocButtons
@@ -1808,15 +2123,20 @@ class ResearchIntro
   
   include PageObject
   include HeaderFooterBar
+  include LeftMenuBar
+  include HeaderBar
+  include DocButtons
   
 end
 
-#
+# Methods related to the Content Details page.
 class ContentDetailsPage
   
   include PageObject
   include HeaderFooterBar
   
+  # Returns an array object containing the items displayed in
+  # "Related Content" on the page.
   def related_content
     list = []
     @browser.div(:class=>"relatedcontent_list").links.each do |link|
@@ -1825,18 +2145,21 @@ class ContentDetailsPage
     return list
   end
   
+  # Clicks on the "Share Content" button.
   def share_content
     @browser.div(:id=>"entity_actions").span(:class=>"entity_share_content").click
     @browser.wait_until { @browser.text.include? "Who do you want to share with?" }
     self.class.class_eval { include ShareWithPopUp }
   end
   
+  # Clicks on the "Add to library" button.
   def add_to_library
     @browser.button(:text=>"Add to library").click
     @browser.wait_until { @browser.text.include? "Save to" }
     self.class.class_eval { include SaveContentPopUp }
   end
   
+  # Opens the description text field for editing.
   def edit_description
     @browser.div(:id=>"contentmetadata_description_container").fire_event "onmouseover"
     @browser.div(:id=>"contentmetadata_description_container").fire_event "onclick"
@@ -1844,14 +2167,17 @@ class ContentDetailsPage
   
   text_area(:description, :id=>"contentmetadata_description_description")
   
+  # Opens the tag field for editing.
   def edit_tags
     @browser.div(:id=>"contentmetadata_tags_container").fire_event "onclick"
   end
   
+  # Opens the Copyright field for editing.
   def edit_copyright
     @browser.div(:id=>"contentmetadata_copyright_container").fire_event "onclick"
   end
   
+  # Opens the Categories field for editing.
   def edit_categories
     @browser.div(:id=>"contentmetadata_locations_container").fire_event "onclick"
     self.class.class_eval { include AddRemoveCategories }
@@ -1863,3 +2189,5 @@ class ContentDetailsPage
   button(:see_less, :id=>"contentmetadata_show_more")
   
 end
+
+# 

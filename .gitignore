@@ -1,6 +1,5 @@
 doc
 test/
-tests/sakai-cle/test.rb
-config/directory.yml
-config/config.yml
 In Progress
+config-oae/config.yml
+tests/sakai-oae/test.rb
