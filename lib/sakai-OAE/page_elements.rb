@@ -10,8 +10,14 @@ require 'cgi'
 #require File.dirname(__FILE__) + "/app_functions.rb"
 
 # ======================
+# ======================
 # Modules and namespaces
 # ======================
+# ======================
+
+# # # # # # # # # # # # 
+#  Toolbars and Menus #
+# # # # # # # # # # # # 
 
 # The Topmost Header menu bar, present on most pages,
 # plus the Footer contents, too.
@@ -124,13 +130,13 @@ module HeaderBar
   # Clicks the Permissions button in the page's header (distinct from
   # the black header bar, mind you), clicks "Settings",
   # waits for the Settings stuff to load, then
-  # includes the WorldSettings module in the Class of the object
+  # includes the SettingsPopUp module in the Class of the object
   # calling the method.
   def settings
     @browser.button(:id=>"entity_group_permissions").click
     @browser.button(:text=>"Settings").click
     @browser.wait_until { @browser.text.include? "Apply Settings" }
-    self.class.class_eval { include WorldSettings }
+    self.class.class_eval { include SettingsPopUp }
   end
 
   # Clicks the Permissions button in the page's header (distinct from
@@ -352,411 +358,6 @@ module CreateWorldsLeftMenu
   
 end
 
-# Objects contained in the "Select your profile picture" pop-up dialog
-module ChangePicturePopUp
-  
-  include PageObject
-  
-  # Uploads the specified file name for the Avatar photo
-  def upload_a_new_picture(file_name)
-    @browser.back_to_top
-    @browser.button(:text=>"Upload a new picture").wait_until_present
-    @browser.button(:text=>"Upload a new picture").click
-    @browser.file_field(:id=>"profilepicture").wait_until_present
-    @browser.file_field(:id=>"profilepicture").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-oae/" + file_name)
-    @browser.button(:id=>"profile_upload").click
-    @browser.button(:id=>"save_new_selection").wait_until_present
-  end
-  
-  # Clicks the Save button for the Change Picture Pop Up.
-  def save_new_selection
-    @browser.button(:id=>"save_new_selection").click
-    @browser.button(:id=>"save_new_selection").wait_while_present
-  end
-  
-end
-
-# Objects in the Pop Up dialog for setting viewing permissions for Content
-module ContentPermissionsPopUp
-  
-  include PageObject
-  
-  
-  
-end
-
-# The Permissions Pop Up dialog for World Area pages
-module AreaPermissionsPopUp
-  
-  include PageObject
-  
-  select_list(:can_be_seen_by, :id=>"areapermissions_area_general_visibility")
-  select_list(:selected_roles, :id=>"areapermissions_change_selected")
-  button(:apply_permissions, :text=>"Apply permissions")
-  checkbox(:all_roles, "areapermissions_check_uncheck_all")
-  
-  #
-  def check_student
-    @browser.div(:text=>/Student/).checkbox.set
-  end
-  
-  #
-  def check_teaching_assistant
-    @browser.div(:text=>/Teaching Assistant/).checkbox.set
-  end
-
-  #
-  def check_lecturer
-    @browser.div(:text=>/Lecturer/).checkbox.set
-  end
-
-  #
-  def student_permissions=(perm)
-    @browser.div(:text=>/Student/).select(:class=>"areapermissions_role_select").select perm
-  end
-  
-  #
-  def teaching_assistant_permissions=(perm)
-    @browser.div(:text=>/Teaching Assistant/).select(:class=>"areapermissions_role_select").select perm
-  end
-  
-  #
-  def lecturer_permissions=(perm)
-    @browser.div(:text=>/Lecturer/).select(:class=>"areapermissions_role_select").select perm
-  end
-  
-end
-
-# The Email message pop up dialog that appears when in the Worlds context
-# (or when you click the little envelop icon )
-module SendMessagePopUp
-  
-  include PageObject
-  
-  text_field(:send_this_message_to, :id=>"sendmessage_to_autoSuggest")
-  text_field(:subject, :id=>"comp-subject")
-  text_area(:body, :id=>"comp-body")
-  
-  # Removes the recipient from the To list for the email.
-  def remove_recipient(name)
-    @browser.li(:text=>/#{Regexp.escape(name)}/).link(:text=>"x").click
-  end
-  
-  button(:send_message, :id=>"send_message")
-  button(:dont_send, :id=>"send_message_cancel")
-  
-end
-
-# Methods related to the Account Preferences Pop Up dialog.
-module AccountPreferencesPopUp
-  
-  include PageObject
-  
-end
-
-# Methods related to the Join Group Pop Up dialog.
-module JoinGroupPopUp
-  
-  include PageObject
-  
-  button(:join_group, :text=>"Join group")
-  
-end
-
-# Methods related to the Pop Up Dialog for Contacts
-module AddToContactsPopUp
-
-  include PageObject
-  
-  button(:invite, :text=>"Invite")
-  button(:dont_invite, :text=>"Don't Invite")
-  
-  text_area(:personal_note, :id=>"addtocontacts_form_personalnote")
-  
-  checkbox(:is_my_classmate, :value=>"Classmate")
-  checkbox(:is_my_supervisor, :value=>"Supervisor")
-  checkbox(:is_being_supervised_by_me, :value=>"Supervised")
-  checkbox(:is_my_lecturer, :value=>"Lecturer")
-  checkbox(:is_my_student, :value=>"Student")
-  checkbox(:is_my_colleague, :value=>"Colleague")
-  checkbox(:is_my_college_mate, :value=>"College Mate")
-  checkbox(:shares_an_interest_with_me, :value=>"Shares Interests")
-  
-end
-
-# Methods related to the Save Content Pop Up dialog.
-module SaveContentPopUp
-  
-  include PageObject
-  
-  select_list(:saving_to, :id=>"savecontent_select")
-  button(:add, :text=>"Add")
-  button(:cancel, :class=>"savecontent_close s3d-link-button s3d-bold")
-  
-end
-
-# Methods related to the Pop Up for Sharing Content with others.
-module ShareWithPopUp
-  
-  include PageObject
-  
-  text_field(:share_with, :id=>/newsharecontentcontainer\d+/)
-  
-  # Clicks the arrow for adding a custom message to the share.
-  def add_a_message
-    @browser.span(:id=>"newsharecontent_message_arrow").fire_event('onclick')
-  end
-  
-  text_area(:message_text, :id=>"newsharecontent_message")
-  
-  button(:share, :id=>"sharecontent_send_button")
-  button(:cancel, :id=>"newsharecontent_cancel")
-  
-  # Gonna add the social network validations later
-  
-end
-
-#
-module OwnerInfoPopUp
-  
-  include PageObject
-  
-  button(:close_owner_info, :id=>"personinfo_close_button")
-  
-  def message_owner
-    @browser.button(:text=>"Message").click
-    self.class.class_eval { include SendMessagePopUp }
-  end
-  
-  def add_to_contacts
-    @browser.button(:text=>"Add to contacts").click
-    self.class.class_eval { include AddToContactsPopUp }
-  end
-  
-  def view_owner_profile
-    @browser.span(:id=>"personinfo_user_name").link.click
-    ViewPerson.new @browser
-  end
-  
-end
-
-# Methods related to the Pop Up that appears for modifying
-# the settings for the Google Maps Widget.
-module GoogleMapsPopUp
-  
-  include PageObject
-  
-  text_field(:location, :id=>"googlemaps_input_text_location")
-  button(:search, :id=>"googlemaps_button_search")
-  button(:dont_add, :id=>"googlemaps_cancel")
-  button(:add_map, :id=>"googlemaps_save")
-  button(:save, :id=>"sakaidocs_edit_save_button")
-  button(:dont_save, :id=>"sakaidocs_edit_cancel_button")
-  
-end
-
-# Methods related to the Pop Up that allows modifying a
-# Group's/Course's participants.
-module ManageParticipants
-  
-  include PageObject
-  
-  checkbox(:add_all_contacts, :id=>"addpeople_select_all_contacts")
-  
-  # Checks the specified contact for adding.
-  def add_contact(contact)
-    @browser.li(:text=>contact).checkbox(:class=>"addpeople_checkbox").set
-  end
-  
-  alias check_contact add_contact
-  alias add_participant add_contact
-  
-  # Adds the specified contact to the members list (does not save, though).
-  # This method assumes the specified name will be found in the search.
-  # It makes no allowances for failing to find the target user/member.
-  def add_by_search(name)
-    name.split("", 2).each do |letter|
-      @browser.text_field(:id=>/addpeople/, :class=>"as-input").focus
-      @browser.text_field(:id=>/addpeople/, :class=>"as-input").send_keys(letter)
-      @browser.text_field(:id=>/addpeople/, :class=>"as-input").focus
-      begin
-        @browser.wait_until(0.4) { @browser.ul(:class=>"as-list").visible? }
-      rescue
-        @browser.execute_script("$('.as-results').css({display: 'block'});")
-      end
-      if @browser.li(:text=>/#{Regexp.escape(name)}/, :id=>/as-result-item-\d+/).present?
-        @browser.li(:text=>/#{Regexp.escape(name)}/, :id=>/as-result-item-\d+/).click
-        break
-      end
-    end
-  end
-  
-  alias add_contact_by_search add_by_search
-  alias add_participant_by_search add_by_search
-  alias search_and_add_participant add_by_search
-  alias add_by_search= add_by_search
-  
-  checkbox(:remove_all_contacts, :id=>"addpeople_select_all_selected_contacts")
-  button(:remove_selected, :text=>"Remove selected")
-  
-  button(:save, :class=>"s3d-button s3d-overlay-action-button addpeople_finish_adding")
-
-  alias done_apply_settings save
-  alias apply_and_save save
-  
-  button(:cancel, :class=>"s3d-link-button jqmClose s3d-bold")
-  
-  alias dont_apply cancel
-  
-  # Checks to remove the specified contact.
-  def check_remove_contact(contact)
-    @browser.div(:id=>"addpeople_selected_contacts_container").link(:text=>contact).parent.checkbox.set
-  end
-  
-  # Unchecks the remove checkbox for the specified contact
-  def uncheck_remove_contact(contact)
-    @browser.div(:id=>"addpeople_selected_contacts_container").link(:text=>contact).parent.checkbox.clear
-  end
-  
-  select_list(:role_for_selected_members, :id=>"addpeople_selected_all_permissions")
-  
-  # For the specified contact, updates to the specified role.fd
-  def set_role_for(contact, role)
-    @browser.div(:id=>"addpeople_selected_contacts_container").link(:text=>contact).parent.select(:class=>"addpeople_selected_permissions").select(role)
-  end
-  
-end
-
-# 
-module WorldSettings
-
-  include PageObject
-  
-  text_field(:title, :id=>"worldsettings_title")
-  text_area(:description, :id=>"worldsettings_description")
-  text_area(:tags, :id=>"worldsettings_tags")
-  select_list(:can_be_discovered_by, :id=>"worldsettings_can_be_found_in")
-  select_list(:membership, :id=>"worldsettings_membership")
-  
-  button(:apply_settings, :text=>"Apply Settings")
-  
-end
-
-# Methods related to the Pop Up for Categories.
-module AddRemoveCategories
-  
-  include PageObject
-  
-  # Opens the specified category tree.
-  def open_tree(text)
-    @browser.link(:title=>text).parent.ins.fire_event("onclick")
-  end
-  
-  # Checks the specified category.
-  def check_category(text)
-    if @browser.link(:title=>text).parent.class_name=="jstree-leaf jstree-unchecked"
-      @browser.link(:title=>text).click
-    end
-  end
-  
-  # Returns an array of the categories selected in the pop-up container.
-  def selected_categories
-    list = []
-    @browser.div(:id=>"assignlocation_jstree_selected_container").lis.each do |li|
-      list << li.text
-    end
-    return list
-  end
-  
-  button(:save_categories, :text=>"Save")
-  button(:dont_save, :text=>"Don't save")
-  
-end
-
-# Page objects in the Add content dialog box
-module AddContentContainer
-  
-  include PageObject
-  
-  link(:upload_content, :text=>"Upload content")
-
-  # Enters the specified filename in the file field.
-  def upload_file=(file_name)
-    @browser.file_field(:id=>"multifile_upload").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-oae/" + file_name)
-  end
-  
-  text_field(:file_title, :id=>"newaddcontent_upload_content_title")
-  text_area(:file_description, :id=>"newaddcontent_upload_content_description")
-  text_field(:file_tags, :id=>"newaddcontent_upload_content_tags")
-  select_list(:who_can_see_file, :id=>"newaddcontent_upload_content_permissions")
-  select_list(:file_copyright, :id=>"newaddcontent_upload_content_copyright")
-  
-  link(:create_new_document, :text=>"Create new document")
-  
-  text_field(:name_document, :id=>"newaddcontent_add_document_title")
-  text_area(:document_description, :id=>"newaddcontent_add_document_description")
-  text_field(:document_tags, :id=>"newaddcontent_add_document_tags")
-  select_list(:who_can_see_document, :id=>"newaddcontent_add_document_permissions")
-  
-  link(:all_content, :text=>"All content")
-  link(:add_content_my_library, :text=>"My Library")
-  
-  # Enters the specified text in the Search field.
-  # Note that the method appends a line feed on the string, so the search will
-  # happen immediately when it is invoked.
-  def search_for_content=(text)
-    @browser.text_field(:class=>"newaddcontent_existingitems_search").set("#{text}\n")
-  end
-  
-  # Checks the checkbox for the specified item.
-  def check_content(item)
-    @browser.li(:text=>item).checkbox.set
-  end
-  
-  alias check_item check_content
-  alias check_document check_content
-  
-  link(:add_link, :text=>"Add link")
-  
-  text_field(:paste_link_address, :id=>"newaddcontent_add_link_url")
-  text_field(:link_title, :id=>"newaddcontent_add_link_title")
-  text_area(:link_description, :id=>"newaddcontent_add_link_description")
-  text_field(:link_tags, :id=>"newaddcontent_add_link_tags")
-  
-  button(:add, :text=>"Add")
-  
-  select_list(:save_all_to, :id=>"newaddcontent_saveto")
-  
-  # Removes the item from the selected list.
-  def remove(item)
-    @browser.link(:title=>"Remove #{item}").click
-  end
-  
-  # Clicks the Edit Details button for the specified item.
-  def edit_details(item)
-    @browser.div(:id=>"newaddcontent_container_selecteditems_container").li(:text=>/#{Regexp.escape(item)}/).button(:text=>"Edit details").click
-  end
-  
-  alias edit_item_details edit_details
-  
-  text_field(:edit_title, :id=>"newaddcontent_selecteditems_edit_data_title")
-  text_area(:edit_description, :id=>"newaddcontent_selecteditems_edit_data_description")
-  text_field(:edit_tags, :id=>"newaddcontent_selecteditems_edit_data_tags")
-  
-  # Clicks the Add Permissions button for the specified item.
-  def add_permissions(item)
-    @browser.div(:id=>"newaddcontent_container_selecteditems_container").li(:text=>/#{Regexp.escape(item)}/).button(:text=>"Add permissions").click
-  end 
-  
-  select_list(:edit_who_can_see_it, :id=>"newaddcontent_selecteditems_edit_permissions_permissions")
-  select_list(:edit_copyright, :id=>"newaddcontent_selecteditems_edit_permissions_copyright")
-  
-  button(:save, :text=>"Save")
-  
-  button(:done_add_collected, :class=>"s3d-button s3d-overlay-button newaddcontent_container_start_upload")
-  
-end
-
 # Methods for the 3 buttons that appear above all Document-type "Areas" in
 # Groups/Courses.
 module DocButtons
@@ -785,8 +386,12 @@ module DocButtons
   
 end
 
-#
-module AppearancePopUp
+# # # # # # # # # # # # 
+#    Pop-Up Dialogs   #
+# # # # # # # # # # # # 
+
+# Methods related to the Account Preferences Pop Up dialog.
+module AccountPreferencesPopUp
   
   include PageObject
   
@@ -973,6 +578,121 @@ module AddAreasPopUp
   
 end
 
+# Page objects in the Add content dialog box
+module AddContentContainer
+  
+  include PageObject
+  
+  link(:upload_content, :text=>"Upload content")
+
+  # Enters the specified filename in the file field.
+  def upload_file=(file_name)
+    @browser.file_field(:id=>"multifile_upload").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-oae/" + file_name)
+  end
+  
+  text_field(:file_title, :id=>"newaddcontent_upload_content_title")
+  text_area(:file_description, :id=>"newaddcontent_upload_content_description")
+  text_field(:file_tags, :id=>"newaddcontent_upload_content_tags")
+  select_list(:who_can_see_file, :id=>"newaddcontent_upload_content_permissions")
+  select_list(:file_copyright, :id=>"newaddcontent_upload_content_copyright")
+  
+  link(:create_new_document, :text=>"Create new document")
+  
+  text_field(:name_document, :id=>"newaddcontent_add_document_title")
+  text_area(:document_description, :id=>"newaddcontent_add_document_description")
+  text_field(:document_tags, :id=>"newaddcontent_add_document_tags")
+  select_list(:who_can_see_document, :id=>"newaddcontent_add_document_permissions")
+  
+  link(:all_content, :text=>"All content")
+  link(:add_content_my_library, :text=>"My Library")
+  
+  # Enters the specified text in the Search field.
+  # Note that the method appends a line feed on the string, so the search will
+  # happen immediately when it is invoked.
+  def search_for_content=(text)
+    @browser.text_field(:class=>"newaddcontent_existingitems_search").set("#{text}\n")
+  end
+  
+  # Checks the checkbox for the specified item.
+  def check_content(item)
+    @browser.li(:text=>item).checkbox.set
+  end
+  
+  alias check_item check_content
+  alias check_document check_content
+  
+  link(:add_link, :text=>"Add link")
+  
+  text_field(:paste_link_address, :id=>"newaddcontent_add_link_url")
+  text_field(:link_title, :id=>"newaddcontent_add_link_title")
+  text_area(:link_description, :id=>"newaddcontent_add_link_description")
+  text_field(:link_tags, :id=>"newaddcontent_add_link_tags")
+  
+  button(:add, :text=>"Add")
+  
+  select_list(:save_all_to, :id=>"newaddcontent_saveto")
+  
+  # Removes the item from the selected list.
+  def remove(item)
+    @browser.link(:title=>"Remove #{item}").click
+  end
+  
+  # Clicks the Edit Details button for the specified item.
+  def edit_details(item)
+    @browser.div(:id=>"newaddcontent_container_selecteditems_container").li(:text=>/#{Regexp.escape(item)}/).button(:text=>"Edit details").click
+  end
+  
+  alias edit_item_details edit_details
+  
+  text_field(:edit_title, :id=>"newaddcontent_selecteditems_edit_data_title")
+  text_area(:edit_description, :id=>"newaddcontent_selecteditems_edit_data_description")
+  text_field(:edit_tags, :id=>"newaddcontent_selecteditems_edit_data_tags")
+  
+  # Clicks the Add Permissions button for the specified item.
+  def add_permissions(item)
+    @browser.div(:id=>"newaddcontent_container_selecteditems_container").li(:text=>/#{Regexp.escape(item)}/).button(:text=>"Add permissions").click
+  end 
+  
+  select_list(:edit_who_can_see_it, :id=>"newaddcontent_selecteditems_edit_permissions_permissions")
+  select_list(:edit_copyright, :id=>"newaddcontent_selecteditems_edit_permissions_copyright")
+  
+  button(:save, :text=>"Save")
+  
+  button(:done_add_collected, :class=>"s3d-button s3d-overlay-button newaddcontent_container_start_upload")
+  
+end
+
+# Methods related to the Pop Up for Categories.
+module AddRemoveCategories
+  
+  include PageObject
+  
+  # Opens the specified category tree.
+  def open_tree(text)
+    @browser.link(:title=>text).parent.ins.fire_event("onclick")
+  end
+  
+  # Checks the specified category.
+  def check_category(text)
+    if @browser.link(:title=>text).parent.class_name=="jstree-leaf jstree-unchecked"
+      @browser.link(:title=>text).click
+    end
+  end
+  
+  # Returns an array of the categories selected in the pop-up container.
+  def selected_categories
+    list = []
+    @browser.div(:id=>"assignlocation_jstree_selected_container").lis.each do |li|
+      list << li.text
+    end
+    return list
+  end
+  
+  button(:save_categories, :text=>"Save")
+  button(:dont_save, :text=>"Don't save")
+  
+end
+
 # Methods related to the "Add widgets" pop-up on the Dashboard
 module AddRemoveWidgets
   
@@ -1020,9 +740,356 @@ module AddRemoveWidgets
   
 end
 
-# =========
-# "Widget" Modules--meaning helper tools for the right-hand pane on site pages...
-# =========
+# Methods related to the Pop Up Dialog for Contacts
+module AddToContactsPopUp
+
+  include PageObject
+  
+  button(:invite, :text=>"Invite")
+  button(:dont_invite, :text=>"Don't Invite")
+  
+  text_area(:personal_note, :id=>"addtocontacts_form_personalnote")
+  
+  checkbox(:is_my_classmate, :value=>"Classmate")
+  checkbox(:is_my_supervisor, :value=>"Supervisor")
+  checkbox(:is_being_supervised_by_me, :value=>"Supervised")
+  checkbox(:is_my_lecturer, :value=>"Lecturer")
+  checkbox(:is_my_student, :value=>"Student")
+  checkbox(:is_my_colleague, :value=>"Colleague")
+  checkbox(:is_my_college_mate, :value=>"College Mate")
+  checkbox(:shares_an_interest_with_me, :value=>"Shares Interests")
+  
+end
+
+#
+module AppearancePopUp
+  
+  include PageObject
+  
+end
+
+# The Permissions Pop Up dialog for World Area pages
+module AreaPermissionsPopUp
+  
+  include PageObject
+  
+  select_list(:can_be_seen_by, :id=>"areapermissions_area_general_visibility")
+  select_list(:selected_roles, :id=>"areapermissions_change_selected")
+  button(:apply_permissions, :text=>"Apply permissions")
+  checkbox(:all_roles, "areapermissions_check_uncheck_all")
+  
+  #
+  def check_student
+    @browser.div(:text=>/Student/).checkbox.set
+  end
+  
+  #
+  def check_teaching_assistant
+    @browser.div(:text=>/Teaching Assistant/).checkbox.set
+  end
+
+  #
+  def check_lecturer
+    @browser.div(:text=>/Lecturer/).checkbox.set
+  end
+
+  #
+  def student_permissions=(perm)
+    @browser.div(:text=>/Student/).select(:class=>"areapermissions_role_select").select perm
+  end
+  
+  #
+  def teaching_assistant_permissions=(perm)
+    @browser.div(:text=>/Teaching Assistant/).select(:class=>"areapermissions_role_select").select perm
+  end
+  
+  #
+  def lecturer_permissions=(perm)
+    @browser.div(:text=>/Lecturer/).select(:class=>"areapermissions_role_select").select perm
+  end
+  
+end
+
+# Objects contained in the "Select your profile picture" pop-up dialog
+module ChangePicturePopUp
+  
+  include PageObject
+  
+  # Uploads the specified file name for the Avatar photo
+  def upload_a_new_picture(file_name)
+    @browser.back_to_top
+    @browser.button(:text=>"Upload a new picture").wait_until_present
+    @browser.button(:text=>"Upload a new picture").click
+    @browser.file_field(:id=>"profilepicture").wait_until_present
+    @browser.file_field(:id=>"profilepicture").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-oae/" + file_name)
+    @browser.button(:id=>"profile_upload").click
+    @browser.button(:id=>"save_new_selection").wait_until_present
+  end
+  
+  # Clicks the Save button for the Change Picture Pop Up.
+  def save_new_selection
+    @browser.button(:id=>"save_new_selection").click
+    @browser.button(:id=>"save_new_selection").wait_while_present
+  end
+  
+end
+
+#
+module CommentsPopUp
+  
+  include PageObject
+  
+end
+
+# Objects in the Pop Up dialog for setting viewing permissions for Content
+module ContentPermissionsPopUp
+  
+  include PageObject
+  
+  
+  
+end
+
+#
+module DiscussionPopUp
+  
+  include PageObject
+  
+end
+
+#
+module ExportAsTemplate
+  
+  include PageObject
+  
+end
+#
+module FilesAndDocsPopUp
+  
+  include PageObject
+  
+  link(:display_settings, :id=>"embedcontent_tab_display")
+  
+end
+
+#
+module GoogleGadgetPopUp
+  
+  include PageObject
+  
+end
+
+# Methods related to the Pop Up that appears for modifying
+# the settings for the Google Maps Widget.
+module GoogleMapsPopUp
+  
+  include PageObject
+  
+  text_field(:location, :id=>"googlemaps_input_text_location")
+  button(:search, :id=>"googlemaps_button_search")
+  button(:dont_add, :id=>"googlemaps_cancel")
+  button(:add_map, :id=>"googlemaps_save")
+  button(:save, :id=>"sakaidocs_edit_save_button")
+  button(:dont_save, :id=>"sakaidocs_edit_cancel_button")
+  
+end
+
+#
+module InlineContentPopUp
+  
+  include PageObject
+  
+end
+
+# Methods related to the Join Group Pop Up dialog.
+module JoinGroupPopUp
+  
+  include PageObject
+  
+  button(:join_group, :text=>"Join group")
+  
+end
+
+# Methods related to the Pop Up that allows modifying a
+# Group's/Course's participants.
+module ManageParticipants
+  
+  include PageObject
+  
+  checkbox(:add_all_contacts, :id=>"addpeople_select_all_contacts")
+  
+  # Checks the specified contact for adding.
+  def add_contact(contact)
+    @browser.li(:text=>contact).checkbox(:class=>"addpeople_checkbox").set
+  end
+  
+  alias check_contact add_contact
+  alias add_participant add_contact
+  
+  # Adds the specified contact to the members list (does not save, though).
+  # This method assumes the specified name will be found in the search.
+  # It makes no allowances for failing to find the target user/member.
+  def add_by_search(name)
+    name.split("", 2).each do |letter|
+      @browser.text_field(:id=>/addpeople/, :class=>"as-input").focus
+      @browser.text_field(:id=>/addpeople/, :class=>"as-input").send_keys(letter)
+      @browser.text_field(:id=>/addpeople/, :class=>"as-input").focus
+      begin
+        @browser.wait_until(0.4) { @browser.ul(:class=>"as-list").visible? }
+      rescue
+        @browser.execute_script("$('.as-results').css({display: 'block'});")
+      end
+      if @browser.li(:text=>/#{Regexp.escape(name)}/, :id=>/as-result-item-\d+/).present?
+        @browser.li(:text=>/#{Regexp.escape(name)}/, :id=>/as-result-item-\d+/).click
+        break
+      end
+    end
+  end
+  
+  alias add_contact_by_search add_by_search
+  alias add_participant_by_search add_by_search
+  alias search_and_add_participant add_by_search
+  alias add_by_search= add_by_search
+  
+  checkbox(:remove_all_contacts, :id=>"addpeople_select_all_selected_contacts")
+  button(:remove_selected, :text=>"Remove selected")
+  
+  button(:save, :class=>"s3d-button s3d-overlay-action-button addpeople_finish_adding")
+
+  alias done_apply_settings save
+  alias apply_and_save save
+  
+  button(:cancel, :class=>"s3d-link-button jqmClose s3d-bold")
+  
+  alias dont_apply cancel
+  
+  # Checks to remove the specified contact.
+  def check_remove_contact(contact)
+    @browser.div(:id=>"addpeople_selected_contacts_container").link(:text=>contact).parent.checkbox.set
+  end
+  
+  # Unchecks the remove checkbox for the specified contact
+  def uncheck_remove_contact(contact)
+    @browser.div(:id=>"addpeople_selected_contacts_container").link(:text=>contact).parent.checkbox.clear
+  end
+  
+  select_list(:role_for_selected_members, :id=>"addpeople_selected_all_permissions")
+  
+  # For the specified contact, updates to the specified role.fd
+  def set_role_for(contact, role)
+    @browser.div(:id=>"addpeople_selected_contacts_container").link(:text=>contact).parent.select(:class=>"addpeople_selected_permissions").select(role)
+  end
+  
+end
+
+#
+module OwnerInfoPopUp
+  
+  include PageObject
+  
+  button(:close_owner_info, :id=>"personinfo_close_button")
+  
+  def message_owner
+    @browser.button(:text=>"Message").click
+    self.class.class_eval { include SendMessagePopUp }
+  end
+  
+  def add_to_contacts
+    @browser.button(:text=>"Add to contacts").click
+    self.class.class_eval { include AddToContactsPopUp }
+  end
+  
+  def view_owner_profile
+    @browser.span(:id=>"personinfo_user_name").link.click
+    ViewPerson.new @browser
+  end
+  
+end
+
+#
+module RemoteContentPopUp
+  
+  include PageObject
+  
+end
+
+#
+module RSSFeedPopUp
+  
+  include PageObject
+  
+end
+
+# Methods related to the Save Content Pop Up dialog.
+module SaveContentPopUp
+  
+  include PageObject
+  
+  select_list(:saving_to, :id=>"savecontent_select")
+  button(:add, :text=>"Add")
+  button(:cancel, :class=>"savecontent_close s3d-link-button s3d-bold")
+  
+end
+
+# The Email message pop up dialog that appears when in the Worlds context
+# (or when you click the little envelop icon )
+module SendMessagePopUp
+  
+  include PageObject
+  
+  text_field(:send_this_message_to, :id=>"sendmessage_to_autoSuggest")
+  text_field(:subject, :id=>"comp-subject")
+  text_area(:body, :id=>"comp-body")
+  
+  # Removes the recipient from the To list for the email.
+  def remove_recipient(name)
+    @browser.li(:text=>/#{Regexp.escape(name)}/).link(:text=>"x").click
+  end
+  
+  button(:send_message, :id=>"send_message")
+  button(:dont_send, :id=>"send_message_cancel")
+  
+end
+
+# 
+module SettingsPopUp
+
+  include PageObject
+  
+  text_field(:title, :id=>"worldsettings_title")
+  text_area(:description, :id=>"worldsettings_description")
+  text_area(:tags, :id=>"worldsettings_tags")
+  select_list(:can_be_discovered_by, :id=>"worldsettings_can_be_found_in")
+  select_list(:membership, :id=>"worldsettings_membership")
+  
+  button(:apply_settings, :text=>"Apply Settings")
+  
+end
+
+# Methods related to the Pop Up for Sharing Content with others.
+module ShareWithPopUp
+  
+  include PageObject
+  
+  text_field(:share_with, :id=>/newsharecontentcontainer\d+/)
+  
+  # Clicks the arrow for adding a custom message to the share.
+  def add_a_message
+    @browser.span(:id=>"newsharecontent_message_arrow").fire_event('onclick')
+  end
+  
+  text_area(:message_text, :id=>"newsharecontent_message")
+  
+  button(:share, :id=>"sharecontent_send_button")
+  button(:cancel, :id=>"newsharecontent_cancel")
+  
+  # Gonna add the social network validations later
+  
+end
+
+# # # # # # # # # # # # 
+#       Widgets       #
+# # # # # # # # # # # # 
 
 # Inclusive of all methods having to do with lists of Content,
 # Groups, Contacts, etc.
@@ -1182,6 +1249,7 @@ module DocumentWidget
   
   button(:dont_save, :id=>"sakaidocs_edit_cancel_button")
   button(:save, :id=>"sakaidocs_edit_save_button")
+  button(:insert, :id=>"sakaidocs_insert_dropdown_button")
   
   # Erases the entire contents of the TinyMCE Editor, then
   # enters the specified string into the Editor.
@@ -1204,7 +1272,7 @@ module DocumentWidget
   
   # Clicks the Text Box of the TinyMCE Editor so that the edit cursor
   # will become active in the Editor.
-  def insert
+  def insert_text
     @browser.frame(:id=>"elm1_ifr").body(:id=>"tinymce").fire_event("onclick")
   end
   
@@ -1215,6 +1283,20 @@ module DocumentWidget
   link(:italic, :id=>/_italic/)
   link(:underline, :id=>/_underline/)
   
+  # These methods click the Insert button (you must be editing the document first),
+  # then select the specified menu item, to bring up the Widget settings dialog.
+  # The first argument is the method name, the second is the id of the target
+  # button in the Insert menu, and the last argument is the name of the module
+  # to be included in the current Class object.
+  insert_button(:insert_files_and_documents, "embedcontent", "FilesAndDocsPopUp")
+  insert_button(:insert_discussion, "discussion", "Discussion")
+  insert_button(:insert_remote_content, "remotecontent", "RemoteContentPopUp" )
+  insert_button(:insert_inline_content, "inlinecontent", "InlineContentPopUp" )
+  insert_button(:insert_google_maps, "googlemaps", "GoogleMapsPopUp" )
+  insert_button(:insert_comments, "comments", "CommentsPopUp" )
+  insert_button(:insert_rss_feed_reader, "rss", "RSSFeedPopUp" )
+  insert_button(:insert_google_gadget, "ggadget", "GoogleGadgetPopUp" )
+
   # Other MCE Objects TBD later, though we're not in the business of testing TinyMCE...
   
 end
@@ -1236,7 +1318,9 @@ module MailWidget
 end
 
 # ======================
+# ======================
 # Page Classes
+# ======================
 # ======================
 
 # The Login page for OAE.
@@ -2076,12 +2160,45 @@ class GoogleMaps
   include DocButtons
   
   def map_settings
+bring_up_menu=<<fun
+var $context_menu = $("#context_menu");
+var $context_settings = $("#context_settings");
+var ed = tinyMCE.get('elm1');
+$context_menu.hide();
+var selected = ed.selection.getNode();
+$context_settings.show();
+var pos = tinymce.DOM.getPos(selected);
+$context_menu.css({"top": pos.y + $("#elm1_ifr").position().top + 15 + "px", "left": pos.x + $("#elm1_ifr").position().left + 15 + "px", "position": "absolute"}).show();
+fun
+
+click_settings=<<fun
+var ed = tinyMCE.get('elm1');
+var selected = ed.selection.getNode();
+$("#dialog_content").hide();
+$("#context_settings").show();
+var id = selected.getAttribute("id");
+var split = id.split("_");
+var type = split[1];
+var uid = split[2];
+var length = split[0].length + 1 + split[1].length + 1 + split[2].length + 1;
+var placement = id.substring(length);
+var widgetSettingsWidth = 650;
+$("#dialog_content").hide();
+$("#dialog_title").html("Google maps");
+sakai.api.Widgets.widgetLoader.insertWidgets("dialog_content", true, currentPageShown.pageSavePath + "/", null, {currentPageShown:currentPageShown});
+$("#dialog_content").show();
+$('#insert_dialog').css({'width':widgetSettingsWidth + "px", 'margin-left':-(widgetSettingsWidth/2) + "px"}).jqmShow();
+window.scrollTo(0,0);
+$("#context_menu").hide();
+fun
+
     edit_page
     @browser.wait_for_ajax
-    @browser.execute_script(%|$("img[id*='widget_googlemaps']").click()|)# css({left:'300px', top:'250px', position: 'absolute', display: 'block'})")
+    #@browser.execute_script(bring_up_menu)
+    @browser.execute_script(bring_up_menu)
     @browser.wait_for_ajax
-    sleep 3
-    @browser.execute_script("$('#context_settings').mousedown()")
+    sleep 5
+    @browser.execute_script(click_settings)
     @browser.wait_for_ajax(15)
     self.class.class_eval { include GoogleMapsPopUp }
   end
@@ -2098,7 +2215,7 @@ class GoogleMaps
   def map_wrapping
     edit_page
     @browser.wait_for_ajax
-    @browser.execute_script("$('#context_menu').css({left:'450px', top:'300px', position: 'absolute', display: 'block'})")
+    @browser.execute_script("$('#context_menu').show()")
     @browser.button(:class=>"s3d-button s3d-action s3d-link-button", :text=>"Settings").click
     sleep 1 # FIXME
     #@browser.wait_for_ajax
