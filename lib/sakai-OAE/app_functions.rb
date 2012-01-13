@@ -90,6 +90,17 @@ module PageObject
       }
     end
     
+    def insert_button(name, id, module_name)
+      define_method(name) {
+        @browser.button(:id=>"sakaidocs_insert_dropdown_button").click
+        sleep 0.1
+        @browser.button(:id=>id).click
+        self.class.class_eval { include eval(module_name) }
+        sleep 0.4
+        @browser.wait_for_ajax
+      }
+    end
+    
   end 
 end
 
