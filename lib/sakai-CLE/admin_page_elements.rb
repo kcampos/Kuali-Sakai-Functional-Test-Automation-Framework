@@ -1342,6 +1342,7 @@ class JobList
   # then instantiates the EditTriggers Class.
   def triggers(job_name)
     frm.div(:class=>"portletBody").table(:class=>"listHier lines").row(:text=>/#{Regexp.escape(job_name)}/).link(:text=>/Triggers/).click
+    sleep 1
     EditTriggers.new(@browser)
   end
   

@@ -50,7 +50,7 @@ class TestCreatingCourseSite < Test::Unit::TestCase
   
   def teardown
     # Save new site info for later scripts to use
-    File.open("#{File.dirname(__FILE__)}/../../config/directory.yml", "w+") { |out|
+    File.open("#{File.dirname(__FILE__)}/../../config-cle/directory.yml", "w+") { |out|
       YAML::dump(@config.directory, out)
     }
     # Close the browser window
@@ -183,7 +183,7 @@ class TestCreatingCourseSite < Test::Unit::TestCase
     # because of an inexplicable ObsoleteElementError occuring in Selenium-Webdriver
     @browser.frame(:index=>0).button(:name, "Continue").click
     
-    access = CourseSiteAccess.new(@browser)
+    access = SiteAccess.new(@browser)
     
     # TEST CASE: Joiner Role selection list is not visible by default
     assert_equal false, access.joiner_role_div.visible?

@@ -44,7 +44,7 @@ class CreateUsers < Test::Unit::TestCase
     my_workspace.users
     
     #Hash of user information to use
-    people = YAML.load_file("#{File.dirname(__FILE__)}/../../config/directory.yml")
+    people = YAML.load_file("#{File.dirname(__FILE__)}/../../config-cle/directory.yml")
     
     # Get a count of how many users will be added
     count = 1

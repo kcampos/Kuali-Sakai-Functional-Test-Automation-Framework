@@ -61,7 +61,7 @@ class TestSectionCreation < Test::Unit::TestCase
     @config.directory["site1"]["section2"] = @sections[1][:name]
     
     # Save new assignment info for later scripts to use
-    File.open("#{File.dirname(__FILE__)}/../../config/directory.yml", "w+") { |out|
+    File.open("#{File.dirname(__FILE__)}/../../config-cle/directory.yml", "w+") { |out|
       YAML::dump(@config.directory, out)
     }
     # Close the browser window

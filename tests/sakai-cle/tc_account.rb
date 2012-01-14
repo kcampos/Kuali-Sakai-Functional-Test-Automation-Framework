@@ -21,14 +21,14 @@ class UserAccountUpdate < Test::Unit::TestCase
     config = AutoConfig.new
     @browser = config.browser
     # This test case requires logging in as a student
-    @user_name = config.directory['person9']['id']
-    @password = config.directory['person9']['password']
+    @user_name = config.directory['person7']['id']
+    @password = config.directory['person7']['password']
     @sakai = SakaiCLE.new(@browser)
     
     # Test case data
     @first_name = random_string(99)
     @last_name = random_string(99)
-    @email_address = "#{random_nicelink(20)}@#{random_nicelink(20)}.com"
+    @email_address = "a#{random_nicelink(20)}a@a#{random_nicelink(20)}.com"
     @new_password = random_string(32)
     
     # Validation text -- These contain page content that will be used for

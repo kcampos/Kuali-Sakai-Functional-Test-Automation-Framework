@@ -102,19 +102,19 @@ person14:
   type: guest
 site1: 
   type: course
-  name: Intro to ART Lec1 Fall 2011
-  id: afcf2240-ac11-4911-9dc3-1ee6f03a4a4d
-  assignment1: 3@5IpR3sen
-  assignment2: E6NRJer8X0PH3XW
-  assignment3: <SCRIPT SRC=//ha.ckers.org/.j>
-  assignment4: "#DC65@7h^v+d:PJCJcYr9JjB#"
-  assignment5: ?k:*W\O`7WtI6*\JkIO?kFF:GC&QJe
-  quiz1: =fl9>rgR>0
-  quiz2: 0Jhfyz6n2d
-  group0: "}T8h?L!4TD!JE..qPGxUh\\9yJs%%uoto6LrYV9p=|{Zs&RwES9jIM):2wm_J]`sxBl%$AVU$wgRKi\\/&kaEN - 201111300811"
-  group1: o\(Ge!&q{u6cR:+UQrbEoaZ?5N96hbfI(!|&Z%#k&QrPso61/_}^clFZ%R83sIh9rs.YX2#&t4h;3IrSIG,5 - 201111300811
-  section1: i1gk=nH>t8
-  section2: <IMG LOWSRC="javascript:alert('XSS')">
+  name: E>Sq*Na4 T/GgZ)W% cO7\0|m; W12
+  id: ede8f51b-3cfd-4453-8e4e-fc899652be33
+  assignment1: u0,%*iy6Xd
+  assignment2: y42UqV6qEVQuqkd
+  assignment3: <SCRIPT>a=/XSS/ alert(a.source)</SCRIPT>
+  assignment4: f|.I7^.}e$[X-Ff/6gh8*PpN#
+  assignment5: g41`J/R:GOe^G4U}w)BXI+DH;P>k.;
+  quiz1: kWcFdC5,i&
+  quiz2: 50Q0UbZzn8
+  group0: 3d+av[5&rqz7zmevdQW'DtF^VXk.m:NQvk9h"b7i0{NLWx]Pmp*>tD;K$DoM[P[<a1qus{Mu0[U3^BXEgQnj - 201201131247
+  group1: a]2_pXA+jzLsM^Rp}&Sh0u*bx/Im}kmKAN_h3#Fwfi.OaN&!x;!`@GC`c|K,)c]tF}Ddyjf;cj/&K(lXP=|T - 201201131247
+  section1: _XCPYIII&Q
+  section2: <IMG SRC=javascript:alert('XSS')>
 site2: 
   type: portfolio
   name: a8XexahsxC

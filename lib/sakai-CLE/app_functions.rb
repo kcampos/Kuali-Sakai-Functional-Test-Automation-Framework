@@ -753,6 +753,19 @@ class AttachPageTools
   
 end
 
+# Methods to extend the page-object gem...
+module PageObject
+  module Elements
+    class Element
+      
+      def disabled?
+        @element.disabled?
+      end
+      
+    end
+  end
+end
+
 # Need this to extend Watir to be able to attach to Sakai's non-standard tags...
 module Watir 
   class Element

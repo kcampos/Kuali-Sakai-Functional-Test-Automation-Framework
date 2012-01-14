@@ -121,7 +121,7 @@ class TestDuplicateSite < Test::Unit::TestCase
     
     # Polls
     polls = blogger.polls
-    
+
     @poll_questions = polls.questions
     
     #p @poll_questions
