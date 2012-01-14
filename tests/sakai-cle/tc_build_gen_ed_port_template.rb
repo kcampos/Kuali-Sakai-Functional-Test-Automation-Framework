@@ -20,9 +20,9 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     @config = AutoConfig.new
     @browser = @config.browser
     # This test case uses the logins of several users
-    @instructor = "instructor8"#@config.directory['person4']['id']
-    @ipassword = "password"#@config.directory['person4']['password']
-    @instructor_name = "last, first"#@config.directory['person3']['lastname'] + ", " + @config.directory['person3']['firstname']
+    @instructor = @config.directory['person4']['id']
+    @ipassword = @config.directory['person4']['password']
+    @instructor_name = @config.directory['person3']['lastname'] + ", " + @config.directory['person3']['firstname']
     @instructor2 = @config.directory['person4']['id']
     @ipassword2 = @config.directory['person4']['password']
     @instructor2_name = @config.directory['person4']['lastname'] + ", " + @config.directory['person4']['firstname']
@@ -40,7 +40,7 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
       "documents/reflection.xsd",
     ]
     @folder_name = random_alphanums(5)
-    @portfolio_site = "PortCoolio"
+    @portfolio_site = "PortfolioAdmin"
     @schema = [ get_filename(@files[0]), get_filename(@files[1]), get_filename(@files[2]), get_filename(@files[3]) ]
     @form_names = ["Evaluation" + random_alphanums, "Feedback for Matrix" + random_alphanums, "General Education Evidence" + random_alphanums, "Reflection for Matrix" + random_alphanums ]
     @form_instructions = [
@@ -276,7 +276,7 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
       #attach.open_folder @folder_name
       #sleep 15
       #attach.select_file @style_filename
-    sleep 15
+    sleep 25
     
     add_style = attach.continue
     add_style.name=@style_name

@@ -40,7 +40,7 @@ class TestCreatingPortfolioSite < Test::Unit::TestCase
   
   def teardown
     # Save new site info for later scripts to use
-    File.open("#{File.dirname(__FILE__)}/../../config/directory.yml", "w+") { |out|
+    File.open("#{File.dirname(__FILE__)}/../../config-cle/directory.yml", "w+") { |out|
       YAML::dump(@config.directory, out)
     }
     # Close the browser window

@@ -29,7 +29,7 @@ class CreateSiteTemplate < Test::Unit::TestCase
     # Test case variables
     @template_site_id = "88888888-7777-6666-5555-abcdefghijklm"
     @template_site_name = "Template test" #+ random_string(16)
-    @term = "FALL 2011"
+    @term = "WINTER 2012"
   
     @subject = random_string(5)
     @course = random_string(5)

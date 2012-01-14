@@ -30,7 +30,7 @@ class CreateUsers < Test::Unit::TestCase
     @browser.close
   end
   
-  def test_create_users
+  def test_create_more_users
  
     # Log in to Sakai
     workspace = @sakai.login(@user_name, @password)

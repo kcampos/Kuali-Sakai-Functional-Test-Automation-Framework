@@ -34,7 +34,7 @@ class TestDashboardWidgets < Test::Unit::TestCase
     @browser.close
   end
   
-  def test_dashboard_widgets
+  def test_adding_dashboard_widgets
     
     # Log in to Sakai
     dashboard = @sakai.login(@user, @password)
