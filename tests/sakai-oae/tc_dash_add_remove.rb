@@ -2,7 +2,7 @@
 # 
 # == Synopsis
 #
-# 
+# Tests the removal and re-adding of all dashboard widgets.
 # 
 # Author: Abe Heward (aheward@rSmart.com)
 gem "test-unit"

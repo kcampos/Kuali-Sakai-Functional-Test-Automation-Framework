@@ -115,7 +115,7 @@ module Watir
         sleep 0.2
         break if Time.now > end_time
       end
-      self.wait(timeout)
+      self.wait(timeout + 10)
     end
     
     def back_to_top
