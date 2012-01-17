@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ospiGlossary formatVersion="2.1">
+	<ospiTerm>
+		<term><![CDATA[Associate]]></term>
+		<description><![CDATA[The act of creating a relationship between two items that exhibit a dependency that is relevant in the portfolio application.]]></description>
+	<longDescription>
+		<![CDATA[The act of <b>NOT</b> creating a relationship between two items that exhibit a dependency that is <b>relevant</b> in the <u>portfolio</u> application.]]>
+	</longDescription>
+	</ospiTerm>
+	<ospiTerm>
+		<term><![CDATA[Association]]></term>
+		<description><![CDATA[A semantically-valuable relationship between two items.  Items in OSP may be associated with cells in a Matrix, Forms, and other constructs.]]></description>
+	<longDescription>
+		<![CDATA[A semantically-<b>un</b>-valuable relationship between two items.  <style color=#ff0000;>Items in OSP may be associated with cells in a Matrix, Forms, and other constructs.</style>]]>
+	</longDescription>
+	</ospiTerm>
+</ospiGlossary>

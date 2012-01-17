@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2006 rel. 3 U (http://www.altova.com) by George (The rSmart Group) -->
+<!-- edited with XMLSPY v2004 rel. 4 U (http://www.xmlspy.com) by Baldur Benediktsson (the r-smart group) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+	<xs:element name="reflection">
+		<xs:annotation>
+			<xs:documentation>Reflection</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="explainOrigins" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation source="ospi.label">Explain the origins of your work.</xs:documentation>
+						<xs:documentation source="ospi.description"/>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="1000"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="describeChose" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation source="ospi.label">Describe why you chose the subject matter.</xs:documentation>
+						<xs:documentation source="ospi.description"/>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="1000"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="explainFulfills" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation source="ospi.label">Explain how the work fulfills the standard.</xs:documentation>
+						<xs:documentation source="ospi.description"/>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="1000"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="challenged" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation source="ospi.label">How has the work challenged you to grow personally, academically, and professionally?</xs:documentation>
+						<xs:documentation source="ospi.description"/>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="1000"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="contribute" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation source="ospi.label">How might the work could contribute to your life long learning?</xs:documentation>
+						<xs:documentation source="ospi.description"/>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="1000"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

@@ -1,0 +1,152 @@
+/*
+	KCC light blue: #4186C5
+*/
+
+body {
+	font-family : Arial, Helvetica, sans-serif;
+}
+table#tabmenu {
+	margin-bottom: 1em;
+}
+td.tab, td.selectedtab, td.tabspacer, td#contentscell {
+	/* border: 1px solid Gray; */
+}
+td.tabspacer {
+	border-width: 0 0 1px;
+}
+td.tab, td.selectedtab {
+	width: 20%;
+	padding: 2px 5px;
+}
+td.tab {
+	background: Silver;
+	cursor: pointer;
+}
+td.selectedtab {
+	border-bottom: 0;
+}
+td.selectedtab, td#contentscell {
+	background: White;
+}
+td#contentscell {
+	border-width: 0 1px 1px;
+	padding: 5px;
+}
+div.contents {
+	display: none;
+}
+div.selectedcontents {
+	display: block;
+}
+td.introheader {
+	color : #4186C5;
+	font-size : 1.8em;
+	font-weight : bold;
+	font-family : "Times New Roman", Times, serif;
+}
+span#maintitle {
+	font-size : 1.6em;
+	font-weight : bold;
+	color : #4186C5;
+	font-family : "Times New Roman", Times, serif;
+}
+span#subtitle {
+	font-size : 1.0em;
+	font-weight : bold;
+	color : Black;
+}
+div#footer {
+	font-size : 0.6em;
+	color : Gray;
+	text-align : right;
+}
+td.navTD, td.navTDnoLink {
+	border: 1px solid Gray;
+	background : #EEEEEE;
+	font-size: 0.8em;
+	width: 14%;
+}
+td.navTDnoLink {
+	color: #4186C5;
+	font-weight: bold;
+}
+.contentImg {
+	border: 1px solid Black;
+}
+span#contactinfo {
+	color : Black;
+	font-size: 0.8em;
+	font-weight: normal;
+}
+.imgcaption {
+	color : Black;
+	font-size : 0.7em;
+	font-weight : bold;
+	text-align : center;
+	width: 50%;
+}
+ a:visited, a:link {
+	color: #4186C5;
+}
+a:hover {
+	color: #FF6600;
+}
+.contentTable {
+	border: 1px solid Gray;
+}
+.contentLabel {
+	color : Black;
+	font-size : 0.7em;
+	font-weight: normal;
+	vertical-align: top;
+	border-right: 1px solid Gray;
+	background : #EEEEEE;
+	width: 25%;
+	text-align: right;
+}
+.contentText {
+	color : Black;
+	font-size : 0.7em;
+	font-weight: normal;
+	vertical-align: top;
+}
+div.contentsubheader {
+	color: #4186C5;
+	font-family : "Times New Roman", Times, serif;
+	font-size : 1.4em;
+	font-weight: bold;
+}
+div.contentsubheader2 {
+	color: Black;
+	font-family : "Times New Roman", Times, serif;
+	font-size : 1.0em;
+	font-weight: bold;
+}
+div.ospComments {
+	font-family : Verdana, Tahoma, Arial, Helvetica, sans-serif;
+	font-size : 0.8em;
+	background-color: #F2F2F2;
+	margin: 15px;
+	padding: 10px;
+	vertical-align: top;
+	border: 1px dashed #999999;
+}
+h2 {
+	font-size: 1.2em;
+	font-weight: bold;
+	color: #666666;
+}
+
+h3 {
+	font-size: 1.0em;
+	font-weight: bold;
+	color: #666666;
+}
+.chefLabel {
+	font-size: 0.8em;
+	font-family : Tahoma, Verdana, Geneva, Arial, Helvetica, sans-serif;
+	color : Black;
+	margin: 0px;
+	padding: 0px;
+	vertical-align: top;	
+}

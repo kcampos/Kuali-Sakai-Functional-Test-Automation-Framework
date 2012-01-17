@@ -1,0 +1,6 @@
+doc
+test/
+In Progress
+config-oae/config.yml
+config-oae/directory.yml
+tests/sakai-oae/test.rb

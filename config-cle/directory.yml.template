@@ -1,0 +1,30 @@
+--- 
+admin: 
+  username: # enter an administrator username here
+  password: # enter the admin user's password here
+person1: 
+  id: # user's Sakai login id
+  firstname: # user's first name
+  lastname: # user's last name
+  email: # user's email address
+  password: # user's Sakai password
+  type: registered # The type of user--generally "registered", "guest", or "maintain"
+person2: # an arbitrary number of users can go in this file, using the "personX:" format
+  id: id
+  firstname: firstname
+  lastname: lastname
+  email: email@email.com
+  password: password
+  type: user_type
+site1: 
+  type: # Enter the site type here--either course, portfolio, or project
+  name: # Enter the test site name here.
+  id: # Enter the test site id here.
+  assignment1: # Test assignment ids go here. They generally will be updated automatically
+  assignment2: 
+  assignment3: 
+  assignment4: 
+  assignment5: 
+  quiz1: # Quiz names are entered here by test scripts automatically
+  quiz2:
+  group1: # Group names are entered here by test scripts automatically

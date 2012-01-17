@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2006 rel. 3 U (http://www.altova.com) by George (The rSmart Group) -->
+<!-- edited with XMLSPY v2004 rel. 4 U (http://www.xmlspy.com) by Baldur Benediktsson (the r-smart group) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+	<xs:element name="evaluation">
+		<xs:annotation>
+			<xs:documentation>Evaluation</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="evaluationLevel" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation source="ospi.label">Evaluation Level.</xs:documentation>
+						<xs:documentation source="ospi.description"/>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="50"/>
+							<xs:enumeration value="Exceeds Expectations"/>
+							<xs:enumeration value="Meets Expectations"/>
+							<xs:enumeration value="Needs More Work"/>
+							<xs:enumeration value="Incomplete"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="comments" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation source="ospi.label">Comments</xs:documentation>
+						<xs:documentation source="ospi.description"/>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="4000"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>
