@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="accomplishment">
+		<xs:annotation>
+			<xs:documentation source="ospi.label">Accomplishment</xs:documentation>
+			<xs:documentation source="ospi.description"/>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="nameAccomplishment" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation source="ospi.label">Name of Accomplishment</xs:documentation>
+						<xs:documentation source="ospi.description"/>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="50"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="dateAccomplishment" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation source="ospi.label">Date(s) of Accomplishment</xs:documentation>
+						<xs:documentation source="ospi.description"/>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="50"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="briefDescAccomplishment" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation source="ospi.label">Brief Description</xs:documentation>
+						<xs:documentation source="ospi.description"/>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="500"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="fullDescAccomplishment" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation source="ospi.label">Description</xs:documentation>
+						<xs:documentation source="ospi.description"/>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="4000"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="reflAccomplishment" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation source="ospi.label">Reflection</xs:documentation>
+						<xs:documentation source="ospi.description"/>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="4000"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+
+<xs:element name="academicPeriod" minOccurs="0" maxOccurs="1">
+  <xs:annotation>
+    <xs:documentation source="ospi.label">Academic Period</xs:documentation>
+    <xs:documentation source="ospi.description">An academic period identifies a
+        measure of time that describes the duration of an academic activity
+        (i.e., quarter, semester, trimester, intersession).</xs:documentation>
+    <xs:documentation source="ospi.usage">enter</xs:documentation>
+  </xs:annotation>
+  <xs:simpleType>
+    <xs:restriction base="xs:string">
+      <xs:length value="100"/>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:element>
+
+<xs:element name="date" minOccurs="0" maxOccurs="4">
+  <xs:annotation>
+    <xs:documentation source="ospi.label">Date</xs:documentation>
+    <xs:documentation source="ospi.description">Date is used to reference a single calendar date field. This is
+          often used to track when an event took place (e.g. birthdate, wedding date). The date is represented
+          through a date selector and includes MM/DD/YYYY selection tool.</xs:documentation>
+  </xs:annotation>
+  <xs:simpleType>
+    <xs:restriction base="xs:date">
+    </xs:restriction>
+  </xs:simpleType>
+</xs:element>
+
+<xs:element name="scoreBoolean" minOccurs="0" maxOccurs="1">
+  <xs:annotation>
+    <xs:documentation source="ospi.label">Score Boolean</xs:documentation>
+    <xs:documentation source="ospi.description">Score Boolean is used to reference a short text statement. In
+          responding to the statement, the person indicates whether the statement is true or false (i.e., Attended
+          TRIO orientation session).</xs:documentation>
+  </xs:annotation>
+  <xs:simpleType>
+    <xs:restriction base="xs:boolean">
+    </xs:restriction>
+  </xs:simpleType>
+</xs:element>
+
+<xs:element name="scoreSet" minOccurs="0" maxOccurs="1">
+  <xs:annotation>
+    <xs:documentation source="ospi.label">Score Set</xs:documentation>
+    <xs:documentation source="ospi.description">Score set is used to reference a defined set of short text scoring
+          values allowable for the item. This is used when the scoring values for an item are explicitly determined
+          (e.g., A-F, 0 - 100, NA/Does Not Meet, Meets/Exceeds). The score values within the set are typically
+          determined by the CIG coordinator when creating a form that uses an element with a score
+          field.</xs:documentation>
+  </xs:annotation>
+  <xs:simpleType>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Score1"></xs:enumeration>
+      <xs:enumeration value="Score2"></xs:enumeration>
+      <xs:enumeration value="Score3"></xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:element>
+
+<xs:element name="summary" minOccurs="0" maxOccurs="1">
+  <xs:annotation>
+    <xs:documentation source="ospi.label">Summary</xs:documentation>
+    <xs:documentation source="ospi.description">Summary is used to reference an extended text explanation for the
+          item. This is often used to provide more detailed descriptions that are relevant to the item being
+          described (e.g. summary of accomplishments, summary of an experience, textual
+          reflection).</xs:documentation>
+  </xs:annotation>
+  <xs:simpleType>
+    <xs:restriction base="xs:string">
+      <xs:maxLength value="5000"></xs:maxLength>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:element>
+
+<xs:element name="filePath" minOccurs="0" maxOccurs="unbounded">
+  <xs:annotation>
+    <xs:documentation source="ospi.label">File Path</xs:documentation>
+    <xs:documentation source="ospi.description">File path is used to reference a local file location
+          or URI used to identify the storage location for an application file. This field is represented
+          through a file selector tool.</xs:documentation>
+  </xs:annotation>
+  <xs:simpleType>
+    <xs:restriction base="xs:anyURI">
+    </xs:restriction>
+  </xs:simpleType>
+</xs:element>
+
+<xs:element name="compensation" minOccurs="0" maxOccurs="unbounded">
+  <xs:annotation>
+    <xs:documentation source="ospi.label">Compensation</xs:documentation>
+    <xs:documentation source="ospi.description">Compensation represents a monetary value assigned to an
+          item. This is most aoften associated with an activity or an award.</xs:documentation>
+  </xs:annotation>
+  <xs:simpleType>
+    <xs:restriction base="xs:decimal">
+      <xs:totalDigits value="10"></xs:totalDigits>
+      <xs:fractionDigits value="2"></xs:fractionDigits>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:element>
+
+<xs:element name="description" minOccurs="0" maxOccurs="1">
+  <xs:annotation>
+    <xs:documentation source="ospi.label">Description</xs:documentation>
+    <xs:documentation source="ospi.description">Description is used to reference a short text explanation for
+          the item. This is often used to provide additional context regarding the content of the item or a brief
+          reason the item is being included (e.g. 'This wedding date is the date my uncle and aunt were married.',
+          'The following work position describes my first job with General Industries. My responsibilities during
+          this period show the breadth of work experience to which I have been exposed.').</xs:documentation>
+    <xs:documentation source="ospi.isRichText">true</xs:documentation>
+  </xs:annotation>
+  <xs:simpleType>
+    <xs:restriction base="xs:string">
+      <xs:maxLength value="5000"></xs:maxLength>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:element>
+
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>
