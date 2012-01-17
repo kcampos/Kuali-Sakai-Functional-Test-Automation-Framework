@@ -25,6 +25,14 @@ module Utilities
     end
   end
   
+  # A random string creator that draws from all printable ASCII and High ASCII characters
+  # from 33 to 256.
+  def random_high_ascii(length=10, s="")
+    length.enum_for(:times).inject(s) do |result, index|
+      s << rand(223) + 33 
+    end
+  end
+  
   def random_nicelink(length=10)  # A "friendlier" version of the above. No characters need to be escaped for valid URLs.
     # Uses no Reserved or "Unsafe" characters.
     # Also excludes the comma, the @ sign and the plus sign, so it can be used to build email addresses.

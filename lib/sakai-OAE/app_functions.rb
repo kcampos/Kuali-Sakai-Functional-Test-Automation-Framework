@@ -19,7 +19,7 @@ class SakaiOAE
     @browser.text_field(:id=>"topnavigation_user_options_login_fields_username").set username
     @browser.text_field(:name=>"topnav_login_password").set password
     @browser.button(:id=>"topnavigation_user_options_login_button_login").click
-    sleep 4 #FIXME
+    sleep 1 #FIXME
     @browser.wait_for_ajax(10)
     MyDashboard.new @browser
   end
@@ -27,7 +27,7 @@ class SakaiOAE
   def sign_out
     @browser.link(:id=>"topnavigation_user_options_name").fire_event("onmouseover")
     @browser.link(:id=>"subnavigation_logout_link").click
-    sleep 3 # FIXME
+    sleep 1 # FIXME
     @browser.wait_for_ajax(8) #.div(:text=>"Recent activity").wait_until_present
     LoginPage.new @browser
   end
