@@ -60,10 +60,10 @@ module HeaderFooterBar
   # clicks the Preferences item, waits for the Account Preferences
   # Pop up dialog to appear, and then includes the AccountPreferencesPopUp
   # module in the currently instantiated Class Object.
-  def my_preferences
+  def my_account
     @browser.link(:id=>"topnavigation_user_options_name").fire_event("onmouseover")
     @browser.link(:id=>"subnavigation_preferences_link").click
-    @browser.wait_until { @browser.text.include? "Account preferences" }
+    @browser.wait_for_ajax
     self.class.class_eval { include AccountPreferencesPopUp }
   end
   
@@ -337,10 +337,12 @@ module YouPagesLeftMenu
   permissions_menu(:contact_information_permissions, "Contact Information")
   permissions_menu(:publications_permissions, "Publications")
   
+  div(:profile_pic_arrow, :class=>"s3d-dropdown-menu-arrow entity_profile_picture_down_arrow")
+  
   # Opens the Pop Up dialog for changing the Avatar image for the
   # current page.
   def change_picture
-    @browser.div(:class=>"entity_profile_picture_down_arrow").fire_event("onclick")
+    profile_pic_arrow_element.fire_event("onclick")
     @browser.link(:id=>"changepic_container_trigger").click
     self.class.class_eval { include ChangePicturePopUp }
   end
@@ -390,10 +392,30 @@ end
 #    Pop-Up Dialogs   #
 # # # # # # # # # # # # 
 
-# Methods related to the Account Preferences Pop Up dialog.
+# Methods related to the My Account Pop Up dialog.
 module AccountPreferencesPopUp
   
   include PageObject
+  
+  button(:preferences, :id=>"accountpreferences_preferences_tab")
+  button(:privacy_settings, :id=>"accountpreferences_privacy_tab")
+  button(:password, :id=>"accountpreferences_password_tab")
+  
+  text_field(:current_password, :id=>"curr_pass")
+  text_field(:new_password, :id=>"new_pass")
+  text_field(:retype_password, :id=>"retype_pass")
+  
+  button(:save_new_password, :text=>"Save new password")
+  button(:cancel, :class=>"s3d-link-button s3d-bold accountpreferences_cancel")
+  
+  div(:notification, :class=>"gritter-with-image")
+  span(:new_password_error, :id=>"new_pass_error")
+  span(:retype_password_error, :id=>"retype_pass_error")
+  
+  def close_notification
+    notification_element.fire_event "onmouseover"
+    @browser.div(:class=>"gritter-close").fire_event "onclick"
+  end
   
 end
 
@@ -583,6 +605,7 @@ module AddContentContainer
   
   include PageObject
   
+  # Upload content tab...
   link(:upload_content, :text=>"Upload content")
 
   # Enters the specified filename in the file field.
@@ -596,6 +619,7 @@ module AddContentContainer
   select_list(:who_can_see_file, :id=>"newaddcontent_upload_content_permissions")
   select_list(:file_copyright, :id=>"newaddcontent_upload_content_copyright")
   
+  # Create new document tab...
   link(:create_new_document, :text=>"Create new document")
   
   text_field(:name_document, :id=>"newaddcontent_add_document_title")
@@ -603,6 +627,7 @@ module AddContentContainer
   text_field(:document_tags, :id=>"newaddcontent_add_document_tags")
   select_list(:who_can_see_document, :id=>"newaddcontent_add_document_permissions")
   
+  # Use existing content tab...
   link(:all_content, :text=>"All content")
   link(:add_content_my_library, :text=>"My Library")
   
@@ -621,6 +646,7 @@ module AddContentContainer
   alias check_item check_content
   alias check_document check_content
   
+  # Add link tab...
   link(:add_link, :text=>"Add link")
   
   text_field(:paste_link_address, :id=>"newaddcontent_add_link_url")
@@ -630,6 +656,7 @@ module AddContentContainer
   
   button(:add, :text=>"Add")
   
+  # Collected items column...
   select_list(:save_all_to, :id=>"newaddcontent_saveto")
   
   # Removes the item from the selected list.
@@ -637,26 +664,7 @@ module AddContentContainer
     @browser.link(:title=>"Remove #{item}").click
   end
   
-  # Clicks the Edit Details button for the specified item.
-  def edit_details(item)
-    @browser.div(:id=>"newaddcontent_container_selecteditems_container").li(:text=>/#{Regexp.escape(item)}/).button(:text=>"Edit details").click
-  end
-  
-  alias edit_item_details edit_details
-  
-  text_field(:edit_title, :id=>"newaddcontent_selecteditems_edit_data_title")
-  text_area(:edit_description, :id=>"newaddcontent_selecteditems_edit_data_description")
-  text_field(:edit_tags, :id=>"newaddcontent_selecteditems_edit_data_tags")
-  
-  # Clicks the Add Permissions button for the specified item.
-  def add_permissions(item)
-    @browser.div(:id=>"newaddcontent_container_selecteditems_container").li(:text=>/#{Regexp.escape(item)}/).button(:text=>"Add permissions").click
-  end 
-  
-  select_list(:edit_who_can_see_it, :id=>"newaddcontent_selecteditems_edit_permissions_permissions")
-  select_list(:edit_copyright, :id=>"newaddcontent_selecteditems_edit_permissions_copyright")
-  
-  button(:save, :text=>"Save")
+  button(:list_categories, :text=>"List categories")
   
   button(:done_add_collected, :class=>"s3d-button s3d-overlay-button newaddcontent_container_start_upload")
   
@@ -815,21 +823,31 @@ module ChangePicturePopUp
   
   include PageObject
   
+  h1(:pop_up_title, :class=>"s3d-dialog-header")
+  file_field(:pic_file, :id=>"profilepicture")
+  button(:upload, :id=>"profile_upload")
+  button(:save, :id=>"save_new_selection")
+  button(:cancel, :text=>"Cancel")
+  div(:error_message, :id=>"changepic_nofile_error")
+  image(:thumbnail, :id=>"thumbnail_img")
+  
   # Uploads the specified file name for the Avatar photo
   def upload_a_new_picture(file_name)
     @browser.back_to_top
-    @browser.button(:text=>"Upload a new picture").wait_until_present
-    @browser.button(:text=>"Upload a new picture").click
-    @browser.file_field(:id=>"profilepicture").wait_until_present
-    @browser.file_field(:id=>"profilepicture").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-oae/" + file_name)
-    @browser.button(:id=>"profile_upload").click
-    @browser.button(:id=>"save_new_selection").wait_until_present
+    #puts(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-oae/" + file_name)
+    pic_file_element.when_visible { @browser.file_field(:id=>"profilepicture").set("/Users/abrahamheward/Work/Kuali-Sakai-Functional-Test-Automation-Framework/data/sakai-oae/Mercury.gif") }#File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-oae/" + file_name) }
+    upload
+    sleep 5 
   end
   
   # Clicks the Save button for the Change Picture Pop Up.
   def save_new_selection
-    @browser.button(:id=>"save_new_selection").click
-    @browser.button(:id=>"save_new_selection").wait_while_present
+    save_element.when_visible { save }
+    @browser.wait_for_ajax
+  end
+  
+  def thumbnail_source
+    thumbnail_element.src
   end
   
 end
@@ -1335,6 +1353,12 @@ class LoginPage
     CreateNewAccount.new @browser
   end
   
+  button(:sign_in_menu, :id=>"topnavigation_user_options_login")
+  text_field(:username, :id=>"topnavigation_user_options_login_fields_username")
+  text_field(:password, :id=>"topnavigation_user_options_login_fields_password")
+  button(:sign_in, :id=>"topnavigation_user_options_login_button_login")
+  span(:login_error, :id=>"topnav_login_username_error")
+  
 end
 
 # Methods related to the page for creating a new user account
@@ -1369,6 +1393,7 @@ class MyDashboard
   radio_button(:three_column, :id=>"layout-picker-threecolumn")
   button(:save_layout, :id=>"select-layout-finished")
   button(:add_widgets, :text=>"Add Widget")
+  image(:profile_pic, :id=>"entity_profile_picture")
   
   def add_widgets
     @browser.button(:text=>"Add widget").click

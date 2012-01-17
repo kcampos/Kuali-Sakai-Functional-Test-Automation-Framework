@@ -81,11 +81,19 @@ class TestEditProfilePrivacy < Test::Unit::TestCase
 #=begin
     dashboard.change_picture
     dashboard.upload_a_new_picture @files[0]
+    @thumb = dashboard.thumbnail_source
     dashboard.save_new_selection
+    
+    # TEST CASE: Profile image is updated
+    assert_equal(@thumb, dashboard.profile_pic_element.src, "#{@thumb}\nnot the same as:\n#{dashboard.profile_pic_element.src}")
     
     dashboard.change_picture
     dashboard.upload_a_new_picture @files[1]
+    @thumb = dashboard.thumbnail_source
     dashboard.save_new_selection
+
+    # TEST CASE: Profile image is updated
+    assert_equal(@thumb, dashboard.profile_pic_element.src, "#{@thumb}\nnot the same as:\n#{dashboard.profile_pic_element.src}")
 
     my_profile = dashboard.my_profile
     my_profile.given_name=@basic[:given]
