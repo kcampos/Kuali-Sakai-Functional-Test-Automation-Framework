@@ -94,12 +94,16 @@ module HeaderBar
   
   include PageObject
   
+  button(:join_group, :class=>"s3d-button s3d-header-button joinrequestbuttons_join")
+  button(:request_to_join_group, :class=>"s3d-button s3d-header-button joinrequestbuttons_request")
+  button(:message, :text=>"Message")
+  
   # Clicks the Message button in the page header (not the
   # Header bar, but just below that), waits for the Message Pop Up
   # dialog to load, and then includes the SendMessagePopUp
   # module in the currently instantiated Class Object.
   def message
-    @browser.button(:text=>"Message").click
+    message
     @browser.wait_until { @browser.text.include? "Send Message" }
     self.class.class_eval { include SendMessagePopUp }
   end
@@ -160,6 +164,8 @@ module HeaderBar
     @browser.link(:id=>"changepic_container_trigger").click
     self.class.class_eval { include ChangePicturePopup }
   end
+  
+  
   
 end
 
@@ -1117,6 +1123,10 @@ module ListWidget
   
   select_list(:sort_by, :id=>/sortby/)
   select_list(:filter_by, :id=>"facted_select")
+  
+  def join_button_for(group)
+    
+  end
   
   # Clicks on the plus sign image for the specified group in the list.
   def add_group(name)

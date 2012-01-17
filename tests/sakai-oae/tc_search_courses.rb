@@ -12,7 +12,7 @@
 gem "test-unit"
 gems = ["test/unit", "watir-webdriver", "ci/reporter/rake/test_unit_loader"]
 gems.each { |gem| require gem }
-files = [ "/../../config-oae/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-OAE/app_functions.rb", "/../../lib/sakai-OAE/page_elements.rb" ]
+files = [ "/../../config/OAE/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-OAE/app_functions.rb", "/../../lib/sakai-OAE/page_elements.rb" ]
 files.each { |file| require File.dirname(__FILE__) + file }
 
 class TestCourseVisibility < Test::Unit::TestCase
@@ -108,8 +108,6 @@ class TestCourseVisibility < Test::Unit::TestCase
     expl_course = login_page.explore_courses
     
     expl_course.search_for=@public_course[:title]
-    
-    p expl_course.results_list
     
     # TEST CASE: Public course displays while logged out
     assert expl_course.results_list.include?(@public_course[:title]), "#{@public_course[:title]} not found in:\n\n#{expl_course.results_list.join("\n")}"
