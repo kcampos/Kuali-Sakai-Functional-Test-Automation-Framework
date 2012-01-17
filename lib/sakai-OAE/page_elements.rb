@@ -20,7 +20,9 @@ require 'cgi'
 # # # # # # # # # # # # 
 
 # The Topmost Header menu bar, present on most pages,
-# plus the Footer contents, too.
+# plus the Footer contents, too. This module also contains
+# references to the notification pop-ups that appear in the upper
+# right.
 module HeaderFooterBar
   
   include PageObject
@@ -82,6 +84,13 @@ module HeaderFooterBar
   
   button(:save, :text=>"Save")
   
+  div(:notification, :class=>"gritter-with-image")
+  
+  def close_notification
+    notification_element.fire_event "onmouseover"
+    @browser.div(:class=>"gritter-close").fire_event "onclick"
+  end
+  
   # Define global search later
   
   # Define footer items later
@@ -94,8 +103,9 @@ module HeaderBar
   
   include PageObject
   
-  button(:join_group, :class=>"s3d-button s3d-header-button joinrequestbuttons_join")
-  button(:request_to_join_group, :class=>"s3d-button s3d-header-button joinrequestbuttons_request")
+  button(:join_group, :id=>/joinrequestbuttons_join_.*/)
+  button(:request_to_join_group, :id=>/joinrequestbuttons_request_.*/)
+  button(:request_pending, :id=>/joinrequestbuttons_pending_.*/)
   button(:message, :text=>"Message")
   
   # Clicks the Message button in the page header (not the
@@ -414,15 +424,9 @@ module AccountPreferencesPopUp
   button(:save_new_password, :text=>"Save new password")
   button(:cancel, :class=>"s3d-link-button s3d-bold accountpreferences_cancel")
   
-  div(:notification, :class=>"gritter-with-image")
   span(:new_password_error, :id=>"new_pass_error")
   span(:retype_password_error, :id=>"retype_pass_error")
-  
-  def close_notification
-    notification_element.fire_event "onmouseover"
-    @browser.div(:class=>"gritter-close").fire_event "onclick"
-  end
-  
+
 end
 
 #
@@ -925,15 +929,6 @@ module InlineContentPopUp
   
 end
 
-# Methods related to the Join Group Pop Up dialog.
-module JoinGroupPopUp
-  
-  include PageObject
-  
-  button(:join_group, :text=>"Join group")
-  
-end
-
 # Methods related to the Pop Up that allows modifying a
 # Group's/Course's participants.
 module ManageParticipants
@@ -1124,19 +1119,19 @@ module ListWidget
   select_list(:sort_by, :id=>/sortby/)
   select_list(:filter_by, :id=>"facted_select")
   
-  def join_button_for(group)
-    
+  def join_button_for(name)
+    @browser.li(:text=>/#{Regexp.escape(name)}/).div(:class=>/searchgroups_result_left_filler/)
   end
   
   # Clicks on the plus sign image for the specified group in the list.
   def add_group(name)
-    @browser.li(:text=>/#{Regexp.escape(name)}/).div(:class=>/sakai_joingroup_overlay/).fire_event("onclick")
-    @browser.wait_until { @browser.button(:text=>"Join group").visible? }
-    self.class.eval_class { include JoinGroupPopUp }
+    @browser.li(:text=>/#{Regexp.escape(name)}/).div(:class=>/searchgroups_result_left_filler/).fire_event("onclick")
   end
   
   alias add_course add_group
   alias add_research add_group
+  alias join_course add_group
+  alias join_group add_group
   
   # Clicks the specified Contact name. Obviously the name must exist in the list.
   def add_contact(name)
@@ -1162,7 +1157,10 @@ module ListWidget
   # supplied text, but it's made for clicking on a Group listed on
   # the page because it will instantiate the GroupLibrary class).
   def open_group(name)
-    @browser.link(:text=>name).click
+    @browser.link(:text=>/#{Regexp.escape(name)}/i).click
+    sleep 1
+    @browser.wait_for_ajax
+    @browser.execute_script("$('#joinrequestbuttons_widget').css({display: 'block'})")
     Library.new(@browser)
   end
   
@@ -1450,6 +1448,15 @@ class MyMessages
   
   include HeaderFooterBar
   include YouPagesLeftMenu
+  
+  # Returns an Array containing the list of Email subjects.
+  def message_subjects
+    list = []
+    @browser.divs(:class=>"inbox_subject").each do |div|
+      list << div.text
+    end
+    return list
+  end
  
 end
 
@@ -1933,7 +1940,6 @@ class Library
   include HeaderBar
   include LeftMenuBar
   include LibraryWidget
-  include ListWidget
   
 end
 
