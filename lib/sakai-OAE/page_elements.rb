@@ -31,10 +31,11 @@ module HeaderFooterBar
   # matches the supplied string. Since it uses Regex to find a match, the
   # string can be a substring of the desired link's full text.
   # This method should be used as a last resort, however, since it does not
-  # instantiate a new page class. The test script will have to instantiate
-  # the target page class explicitly, if required.
+  # instantiate a new page class. You will have to instantiate
+  # the target page class explicitly in the test script itself, if required.
   def click_link(string)
     @browser.link(:text=>/#{Regexp.escape(string)}/).click
+    @browser.wait_for_ajax
   end
   
   link(:help, :id=>"help_tab")
@@ -103,17 +104,27 @@ module HeaderBar
   
   include PageObject
   
-  button(:join_group, :id=>/joinrequestbuttons_join_.*/)
-  button(:request_to_join_group, :id=>/joinrequestbuttons_request_.*/)
-  button(:request_pending, :id=>/joinrequestbuttons_pending_.*/)
-  button(:message, :text=>"Message")
+  button(:join_group_button, :id=>/joinrequestbuttons_join_.*/)
+  button(:request_to_join_group_button, :id=>/joinrequestbuttons_request_.*/)
+  button(:request_pending_button, :id=>/joinrequestbuttons_pending_.*/)
+  button(:message_button, :text=>"Message")
+  
+  def join_group
+    join_group_button
+    @browser.wait_until { notification_element.exists? }
+  end
+  
+  def request_to_join_group
+    request_to_join_group_button
+    @browser.wait_until { notification_element.exists? }
+  end
   
   # Clicks the Message button in the page header (not the
   # Header bar, but just below that), waits for the Message Pop Up
   # dialog to load, and then includes the SendMessagePopUp
   # module in the currently instantiated Class Object.
   def message
-    message
+    message_button
     @browser.wait_until { @browser.text.include? "Send Message" }
     self.class.class_eval { include SendMessagePopUp }
   end
@@ -1172,7 +1183,10 @@ module ListWidget
   # supplied text, but it's made for clicking on a Research item listed on
   # the page because it will instantiate the ResearchIntro class).
   def open_research(name)
-    @browser.link(:text=>name).click
+    @browser.link(:text=>/#{Regexp.escape(name)}/i).click
+    sleep 1
+    @browser.wait_for_ajax
+    @browser.execute_script("$('#joinrequestbuttons_widget').css({display: 'block'})")
     ResearchIntro.new @browser
   end
   
@@ -1693,6 +1707,7 @@ class CreateGroups
   end
   
   alias create_simple_group create_basic_course
+  alias create_group create_basic_course
   alias create_research_support_group create_basic_course
   
   def create_research_project

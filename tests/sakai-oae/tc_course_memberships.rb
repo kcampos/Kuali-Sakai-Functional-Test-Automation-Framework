@@ -113,9 +113,9 @@ class TestCourseMemberships < Test::Unit::TestCase
     course = explore.open_course @managers_course[:title]
 
     # TEST CASE: Verify "Managers Add" Course does not show buttons to join
-    assert course.join_group_element.exists?
-    assert_equal false, course.join_group_element.visible?
-    assert_equal false, course.request_to_join_group_element.visible?
+    assert course.join_group_button_element.exists?
+    assert_equal false, course.join_group_button_element.visible?
+    assert_equal false, course.request_to_join_group_button_element.visible?
     
     explore = course.explore_courses
     explore.search=@auto_course[:title]
@@ -123,7 +123,7 @@ class TestCourseMemberships < Test::Unit::TestCase
     course = explore.open_course @auto_course[:title]
     
     # TEST CASE: Verify button (Join Group) displays for "Automatically joinable" Course
-    assert course.join_group_element.visible?
+    assert course.join_group_button_element.visible?
     
     course.join_group
     sleep 0.2
@@ -139,7 +139,7 @@ class TestCourseMemberships < Test::Unit::TestCase
     course = explore.open_course @request_course[:title]
     
     # TEST CASE: Verify button (Request to Join) displays for "Request" Course
-    assert course.request_to_join_group_element.visible?
+    assert course.request_to_join_group_button_element.visible?
     
     course.request_to_join_group
     sleep 0.2
