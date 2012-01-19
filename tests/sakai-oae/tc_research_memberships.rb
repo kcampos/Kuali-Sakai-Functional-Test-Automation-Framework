@@ -240,7 +240,6 @@ class TestGroupMemberships < Test::Unit::TestCase
     assert inbox.message_subjects.include?(@email_subject_prefix + @request_res1[:title]), "'#{@email_subject_prefix + @request_res1[:title]}'\nemail not found in list:\n#{inbox.message_subjects.join("\n")}"
     assert inbox.message_subjects.include?(@email_subject_prefix + @request_res2[:title]), "'#{@email_subject_prefix + @request_res2[:title]}'\nemail not found in list:\n#{inbox.message_subjects.join("\n")}"
 
-
   end
   
 end

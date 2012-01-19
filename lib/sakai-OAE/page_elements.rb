@@ -82,7 +82,10 @@ module HeaderFooterBar
   end
   
   button(:cancel, :text=>"Cancel")
-  
+  # Don't use this button directly when opening the collector. Instead, use the "toggle_collector" method
+  # so that the Collector Widget module will be included in the object's Class.
+  # You *can* use this, however, to close the collector.
+  button(:collector, :class=>"topnavigation_menuitem_counts_container collector_toggle")
   button(:save, :text=>"Save")
   
   div(:notification, :class=>"gritter-with-image")
@@ -90,6 +93,12 @@ module HeaderFooterBar
   def close_notification
     notification_element.fire_event "onmouseover"
     @browser.div(:class=>"gritter-close").fire_event "onclick"
+  end
+  
+  def toggle_collector
+    collector
+    @browser.wait_for_ajax
+    self.class.class_eval { include CollectorWidget }
   end
   
   # Define global search later
@@ -186,8 +195,6 @@ module HeaderBar
     self.class.class_eval { include ChangePicturePopup }
   end
   
-  
-  
 end
 
 # The generic Left Menu Bar.
@@ -203,7 +210,9 @@ module LeftMenuBar
   def open_page(name, type)
     @browser.div(:id=>"lhnavigation_container").link(:text=>name).click
     case(type.downcase)
-    when "document" || "remote content"
+    when "document"
+      instantiate_class("Documents")
+    when "remote content"
       instantiate_class("Documents") # 
     when "library"
       instantiate_class("Library") #
@@ -310,6 +319,7 @@ module LeftMenuBar
   
   alias add_a_new_area add_new_area
   alias add_new_page add_new_area
+  alias add add_new_area
   
   # Returns an array containing the Course/Group area/page titles.
   def public_pages
@@ -411,7 +421,59 @@ module DocButtons
   def page_revisions
     @browser.back_to_top
     
-  end  
+  end
+  
+  private
+  
+  # The generic method for editing widget settings.
+  def widget_settings
+    # jQuery
+    click_settings=%|$("#context_settings").trigger("mousedown");|
+    
+    # watir-webdriver
+    edit_page
+    open_widget_menu
+    @browser.execute_script(click_settings)
+    @browser.wait_for_ajax(1)
+  end
+  
+  # The generic method for removing widgets.
+  def remove_widget
+    # JQuery
+    jq_remove = %|$("#context_remove").trigger("mousedown");|
+    
+    # watir-webdriver
+    edit_page
+    open_widget_menu
+    @browser.execute_script(jq_remove)
+    @browser.wait_for_ajax(1)
+  end
+  
+  # The generic method for editing widget wrappings.
+  def widget_wrapping
+    #jQuery
+    jq_wrapping = %|$("#context_appearance_trigger").trigger("mousedown");|
+    
+    #watir-webdriver
+    edit_page
+    open_widget_menu
+    @browser.execute_script(jq_wrapping)
+    @browser.wait_for_ajax(1)
+    self.class.class_eval { include AppearancePopUp }
+  end
+  
+  def open_widget_menu(number=0)
+    # jQuery commands
+    click_widget=%|tinyMCE.get("elm1").selection.select(tinyMCE.get("elm1").dom.select('.widget_inline')[#{number}]);|
+    node_change=%|tinyMCE.get("elm1").nodeChanged();|
+    
+    # watir-webdriver
+    @browser.wait_for_ajax
+    @browser.execute_script(click_widget)
+    @browser.wait_for_ajax(1)
+    @browser.execute_script(node_change)
+    @browser.wait_for_ajax(1)
+  end
   
 end
 
@@ -445,21 +507,23 @@ module AddAreasPopUp
   
   include PageObject
   
+  # Common elements...
+  def list_categories
+    list_categories_button
+    @browser.wait_for_ajax
+    self.class.class_eval { include AddRemoveCategories }
+  end
+  
+  button(:done_add_button, :id=>"addarea_create_doc_button" )
+  button(:cancel, :class=>"s3d-link-button jqmClose s3d-bold", :text=>"Cancel")
+  
   # New...
   button(:new_container, :text=>"New", :class=>"s3d-button s3d-link-button")
-  
-  def new_doc_name
-    @browser.text_field(:name=>"addarea_new_name", :class=>"addarea_name_field")
-  end
-  
-  def new_doc_permissions
-    @browser.select(:id=>"addarea_new_permissions")
-  end
-  
-  def number_of_pages
-    @browser.select(:id=>"addarea_new_numberofpages")
-  end
-  # Tags and categories go here
+  text_field(:new_doc_name, :name=>"addarea_new_name", :class=>"addarea_name_field")
+  select_list(:new_doc_permissions, :id=>"addarea_new_permissions")
+  select_list(:number_of_pages, :id=>"addarea_new_numberofpages")
+  text_area(:new_doc_tags_and_categories, :name=>"addarea_new_tagsandcategories")
+  button(:list_categories_button, :text=>"List categories")
   
   # Currently viewing...
   button(:currently_viewing, :text=>"Currently viewing")
@@ -536,29 +600,14 @@ module AddAreasPopUp
     @browser.select(:id=>"addarea_widgets_permissions")
   end
   
-  button(:done_add, :id=>"addarea_create_doc_button" )
-  button(:cancel, :class=>"s3d-link-button jqmClose s3d-bold", :text=>"Cancel")
-  
   # Clicks the "Done, add" button in the Add Area flyout dialog, then
   # waits for the Ajax calls to drop to zero.
   def create
-    done_add
+    done_add_button
     @browser.wait_for_ajax(3)
   end
   
-  # This method expects to be passed a hash object with
-  # the following properties:
-  # {:name=> "your name string", :visible=>"string to match the select list", :pages=>"number from 1 to 4" }
-  # These values are then entered into the New Document page and the document is saved.
-  def add_a_new_document(document)
-    new_container
-    @browser.wait_until { new_doc_name.visible? }
-    new_doc_name.set document[:name]
-    new_doc_permissions.select document[:visible]
-    number_of_pages.select document[:pages]
-    # Add tags/categories here
-    create
-  end
+  alias done_add create
   
   # This method expects to be passed a hash object like this:
   # { :name=>"The name of the target document",
@@ -572,7 +621,7 @@ module AddAreasPopUp
     search_results.li(:text=>/#{Regexp.escape(document[:name])}/).fire_event("onclick")
     existing_doc_name.set document[:title]
     existing_doc_permissions.select document[:visible]
-    # Add tags/categories here
+    
     create
   end
   
@@ -586,7 +635,7 @@ module AddAreasPopUp
     participants_list
     participants_list_name.set list[:name]
     participants_list_permissions.select list[:visible]
-    # Add tags/cats here later.
+    
     create
   end
   
@@ -703,6 +752,12 @@ module AddRemoveCategories
   
   # Checks the specified category.
   def check_category(text)
+    if @browser.link(:title=>text).exists? == false
+      puts "\nCategory...\n#{text}\n...not found in list!\n\nPlease check for typos in your test data.\n"
+    end
+    if @browser.link(:title=>text).visible? == false
+      @browser.link(:title=>text).parent.parent.parent.ins.click
+    end
     if @browser.link(:title=>text).parent.class_name=="jstree-leaf jstree-unchecked"
       @browser.link(:title=>text).click
     end
@@ -717,7 +772,7 @@ module AddRemoveCategories
     return list
   end
   
-  button(:save_categories, :text=>"Save")
+  button(:save_categories, :text=>"Assign and save")
   button(:dont_save, :text=>"Don't save")
   
 end
@@ -925,11 +980,16 @@ module GoogleMapsPopUp
   include PageObject
   
   text_field(:location, :id=>"googlemaps_input_text_location")
-  button(:search, :id=>"googlemaps_button_search")
+  button(:search_button, :id=>"googlemaps_button_search")
   button(:dont_add, :id=>"googlemaps_cancel")
   button(:add_map, :id=>"googlemaps_save")
-  button(:save, :id=>"sakaidocs_edit_save_button")
-  button(:dont_save, :id=>"sakaidocs_edit_cancel_button")
+  radio_button(:large, :id=>"googlemaps_radio_large")
+  radio_button(:small, :id=>"googlemaps_radio_small")
+  
+  def search
+    search_button
+    sleep 2
+  end
   
 end
 
@@ -1121,6 +1181,106 @@ end
 #       Widgets       #
 # # # # # # # # # # # # 
 
+#
+module CollectorWidget
+  
+  include PageObject
+  
+end
+
+#
+module DocumentWidget
+  
+  include PageObject
+  
+  button(:dont_save, :id=>"sakaidocs_edit_cancel_button")
+  button(:save_button, :id=>"sakaidocs_edit_save_button")
+  button(:insert, :id=>"sakaidocs_insert_dropdown_button")
+  
+  def save
+    save_button
+    sleep 1
+    @browser.wait_for_ajax
+  end
+  
+  # Erases the entire contents of the TinyMCE Editor, then
+  # enters the specified string into the Editor.
+  def set_content=(text)
+    @browser.frame(:id=>"elm1_ifr").body(:id=>"tinymce").fire_event("onclick")
+    @browser.frame(:id=>"elm1_ifr").send_keys( [:command, 'a'] )
+    @browser.frame(:id=>"elm1_ifr").send_keys(text)
+  end
+  
+  # Appends the specified string to the contents of the TinyMCE Editor.
+  def add_content=(text)
+    @browser.frame(:id=>"elm1_ifr").body(:id=>"tinymce").fire_event("onclick")
+    @browser.frame(:id=>"elm1_ifr").send_keys(text)
+  end
+  
+  # Selects all the contents of the TinyMCE Editor
+  def select_all
+    @browser.frame(:id=>"elm1_ifr").send_keys( [:command, 'a'] )
+  end
+  
+  # Clicks the Text Box of the TinyMCE Editor so that the edit cursor
+  # will become active in the Editor.
+  def insert_text
+    @browser.frame(:id=>"elm1_ifr").body(:id=>"tinymce").fire_event("onclick")
+  end
+  
+  select_list(:format, :id=>/formatselect/)
+  select_list(:font, :id=>/fontselect/)
+  select_list(:font_size, :id=>/fontsizeselect/)
+  link(:bold, :id=>/_bold/)
+  link(:italic, :id=>/_italic/)
+  link(:underline, :id=>/_underline/)
+  
+  # These methods click the Insert button (you must be editing the document first),
+  # then select the specified menu item, to bring up the Widget settings dialog.
+  # The first argument is the method name, the second is the id of the target
+  # button in the Insert menu, and the last argument is the name of the module
+  # to be included in the current Class object.
+  insert_button(:insert_files_and_documents, "embedcontent", "FilesAndDocsPopUp")
+  insert_button(:insert_discussion, "discussion", "Discussion")
+  insert_button(:insert_remote_content, "remotecontent", "RemoteContentPopUp" )
+  insert_button(:insert_inline_content, "inlinecontent", "InlineContentPopUp" )
+  insert_button(:insert_google_maps, "googlemaps", "GoogleMapsPopUp" )
+  insert_button(:insert_comments, "comments", "CommentsPopUp" )
+  insert_button(:insert_rss_feed_reader, "rss", "RSSFeedPopUp" )
+  insert_button(:insert_google_gadget, "ggadget", "GoogleGadgetPopUp" )
+
+  # Other MCE Objects TBD later, though we're not in the business of testing TinyMCE...
+  
+end
+
+# Methods related to the Library List page.
+module LibraryWidget
+  
+  include PageObject
+  
+  # Enters the specified string in the search field.
+  # Note that it appends a line feed on the string, so the
+  # search occurs immediately.
+  def search_library_for=(text)
+    @browser.text_field(:id=>"mylibrary_livefilter").set("#{text}\n")
+  end
+  
+  checkbox(:add, :id=>"mylibrary_check_all")
+  
+  # Checks the specified Library item.
+  def check_content(item)
+    @browser.div(:class=>"fl-container fl-fix mylibrary_item", :text=>/#{Regexp.escape(item)}/).checkbox.set
+  end
+  
+  # Unchecks the specified library item.
+  def uncheck_content(item)
+    @browser.div(:class=>"fl-container fl-fix mylibrary_item", :text=>/#{Regexp.escape(item)}/).checkbox.clear
+  end
+  
+  checkbox(:remove_all_library_items, :id=>"mylibrary_check_all")
+  
+end
+
 # Inclusive of all methods having to do with lists of Content,
 # Groups, Contacts, etc.
 module ListWidget
@@ -1239,13 +1399,26 @@ module ListWidget
     ViewPerson.new @browser
   end
   
-  def results_list # May want to move this if it's not universal for all lists.
+  # Returns an array containing the text of the links (for Groups, Courses, etc.) listed
+  def results_list
     list = []
-    @browser.ul(:class=>"s3d-search-results-container").links.each do |link|
-      list << link.title
+    target_elements = case
+    # My Memberships Page
+    when @browser.ul(:id=>"mymemberships_items").exist?
+      @browser.ul(:id=>"mymemberships_items").spans(:class=>"s3d-search-result-name")
+    # My Library Page
+    when @browser.ul(:id=>"mylibrary_items").exist?
+      @browser.ul(:id=>"mylibrary_items").spans(:class=>"s3d-search-result-name")
+    # My Contacts Page
+    when @browser.ul(:id=>"contacts_container_list").exist?
+      @browser.ul(:id=>"contacts_container_list").spans(:class=>"s3d-search-result-name")
+    # Search Results Page
+    when @browser.ul(:id=>"searchgroups_results_container").exist?
+      @browser.ul(:id=>"searchgroups_results_container").spans(:class=>"s3d-search-result-name")
     end
-    list.uniq!
-    list.compact!
+    target_elements.each do |element|
+      list << element.text
+    end
     return list
   end
   
@@ -1254,90 +1427,10 @@ module ListWidget
   
 end
 
-# Methods related to the Library List page.
-module LibraryWidget
+# Methods related to the Mail Page.
+module MailWidget
   
   include PageObject
-  
-  # Enters the specified string in the search field.
-  # Note that it appends a line feed on the string, so the
-  # search occurs immediately.
-  def search_library_for=(text)
-    @browser.text_field(:id=>"mylibrary_livefilter").set("#{text}\n")
-  end
-  
-  checkbox(:add, :id=>"mylibrary_check_all")
-  
-  # Checks the specified Library item.
-  def check_content(item)
-    @browser.div(:class=>"fl-container fl-fix mylibrary_item", :text=>/#{Regexp.escape(item)}/).checkbox.set
-  end
-  
-  # Unchecks the specified library item.
-  def uncheck_content(item)
-    @browser.div(:class=>"fl-container fl-fix mylibrary_item", :text=>/#{Regexp.escape(item)}/).checkbox.clear
-  end
-  
-  checkbox(:remove_all_library_items, :id=>"mylibrary_check_all")
-  
-end
-
-#
-module DocumentWidget
-  
-  include PageObject
-  
-  button(:dont_save, :id=>"sakaidocs_edit_cancel_button")
-  button(:save, :id=>"sakaidocs_edit_save_button")
-  button(:insert, :id=>"sakaidocs_insert_dropdown_button")
-  
-  # Erases the entire contents of the TinyMCE Editor, then
-  # enters the specified string into the Editor.
-  def set_content=(text)
-    @browser.frame(:id=>"elm1_ifr").body(:id=>"tinymce").fire_event("onclick")
-    @browser.frame(:id=>"elm1_ifr").send_keys( [:command, 'a'] )
-    @browser.frame(:id=>"elm1_ifr").send_keys(text)
-  end
-  
-  # Appends the specified string to the contents of the TinyMCE Editor.
-  def add_content=(text)
-    @browser.frame(:id=>"elm1_ifr").body(:id=>"tinymce").fire_event("onclick")
-    @browser.frame(:id=>"elm1_ifr").send_keys(text)
-  end
-  
-  # Selects all the contents of the TinyMCE Editor
-  def select_all
-    @browser.frame(:id=>"elm1_ifr").send_keys( [:command, 'a'] )
-  end
-  
-  # Clicks the Text Box of the TinyMCE Editor so that the edit cursor
-  # will become active in the Editor.
-  def insert_text
-    @browser.frame(:id=>"elm1_ifr").body(:id=>"tinymce").fire_event("onclick")
-  end
-  
-  select_list(:format, :id=>/formatselect/)
-  select_list(:font, :id=>/fontselect/)
-  select_list(:font_size, :id=>/fontsizeselect/)
-  link(:bold, :id=>/_bold/)
-  link(:italic, :id=>/_italic/)
-  link(:underline, :id=>/_underline/)
-  
-  # These methods click the Insert button (you must be editing the document first),
-  # then select the specified menu item, to bring up the Widget settings dialog.
-  # The first argument is the method name, the second is the id of the target
-  # button in the Insert menu, and the last argument is the name of the module
-  # to be included in the current Class object.
-  insert_button(:insert_files_and_documents, "embedcontent", "FilesAndDocsPopUp")
-  insert_button(:insert_discussion, "discussion", "Discussion")
-  insert_button(:insert_remote_content, "remotecontent", "RemoteContentPopUp" )
-  insert_button(:insert_inline_content, "inlinecontent", "InlineContentPopUp" )
-  insert_button(:insert_google_maps, "googlemaps", "GoogleMapsPopUp" )
-  insert_button(:insert_comments, "comments", "CommentsPopUp" )
-  insert_button(:insert_rss_feed_reader, "rss", "RSSFeedPopUp" )
-  insert_button(:insert_google_gadget, "ggadget", "GoogleGadgetPopUp" )
-
-  # Other MCE Objects TBD later, though we're not in the business of testing TinyMCE...
   
 end
 
@@ -1350,12 +1443,6 @@ module ParticipantsWidget
   
 end
 
-# Methods related to the Mail Page.
-module MailWidget
-  
-  include PageObject
-  
-end
 
 # ======================
 # ======================
@@ -1610,7 +1697,7 @@ class MyLibrary
   
   include PageObject
   include HeaderFooterBar
-  
+  include ListWidget
 
 end
 
@@ -1619,6 +1706,7 @@ class MyMemberships
 
   include PageObject
   include HeaderFooterBar
+  include ListWidget
   
   # Use for clicking on the name of a "World" whose page you want to navigate to.
   def go_to(item_name)
@@ -1629,6 +1717,12 @@ class MyMemberships
   end
 
   alias navigate_to go_to
+  
+  # Returns the specified item's "type", as shown next to the item name--i.e.,
+  # "GROUP", "COURSE", etc.
+  def group_type(item)
+    @browser.span(:class=>"s3d-search-result-name",:text=>item).parent.span(:class=>"mymemberships_item_grouptype").text
+  end
 
 end
 
@@ -1637,8 +1731,7 @@ class MyContacts
 
   include PageObject
   include HeaderFooterBar
-  include AccountPreferencesPopUp
-  
+  include ListWidget
 
 end
 
@@ -1925,6 +2018,21 @@ class ExploreCourses
   include LeftMenuBar
   include ListWidget
   include SearchBar
+  
+  def courses_count
+    #TBD
+  end
+  
+  def filter_by=(selection)
+    @browser.select(:id=>"facted_select").select(selection)
+    @browser.wait_for_ajax
+  end
+  
+  def sort_by=(selection)
+    @browser.div(:class=>"s3d-search-sort").select().select(selection)
+    @browser.wait_for_ajax
+  end
+  
   
 end
 
@@ -2215,67 +2323,27 @@ class GoogleMaps
   include HeaderBar
   include DocButtons
   
+  # Defines the Google Maps image as an object.
+  # Use this for verifying the presence of any text it's supposed to
+  # contain (like the specified address it's supposed to be showing).
+  def map_frame
+    @browser.frame(:id, "googlemaps_iframe_map")
+  end
+  
+  # Edits the page, then opens the Google Maps widget's Settings Dialog.
   def map_settings
-bring_up_menu=<<fun
-var $context_menu = $("#context_menu");
-var $context_settings = $("#context_settings");
-var ed = tinyMCE.get('elm1');
-$context_menu.hide();
-var selected = ed.selection.getNode();
-$context_settings.show();
-var pos = tinymce.DOM.getPos(selected);
-$context_menu.css({"top": pos.y + $("#elm1_ifr").position().top + 15 + "px", "left": pos.x + $("#elm1_ifr").position().left + 15 + "px", "position": "absolute"}).show();
-fun
-
-click_settings=<<fun
-var ed = tinyMCE.get('elm1');
-var selected = ed.selection.getNode();
-$("#dialog_content").hide();
-$("#context_settings").show();
-var id = selected.getAttribute("id");
-var split = id.split("_");
-var type = split[1];
-var uid = split[2];
-var length = split[0].length + 1 + split[1].length + 1 + split[2].length + 1;
-var placement = id.substring(length);
-var widgetSettingsWidth = 650;
-$("#dialog_content").hide();
-$("#dialog_title").html("Google maps");
-sakai.api.Widgets.widgetLoader.insertWidgets("dialog_content", true, currentPageShown.pageSavePath + "/", null, {currentPageShown:currentPageShown});
-$("#dialog_content").show();
-$('#insert_dialog').css({'width':widgetSettingsWidth + "px", 'margin-left':-(widgetSettingsWidth/2) + "px"}).jqmShow();
-window.scrollTo(0,0);
-$("#context_menu").hide();
-fun
-
-    edit_page
-    @browser.wait_for_ajax
-    #@browser.execute_script(bring_up_menu)
-    @browser.execute_script(bring_up_menu)
-    @browser.wait_for_ajax
-    sleep 5
-    @browser.execute_script(click_settings)
-    @browser.wait_for_ajax(15)
-    self.class.class_eval { include GoogleMapsPopUp }
+    widget_settings
+    @browser.text_field(:id=>"googlemaps_input_text_location").when_present { self.class.class_eval { include GoogleMapsPopUp } }
   end
   
+  # Edits the page, then removes the widget from it.
   def remove_map
-    edit_page
-    @browser.wait_for_ajax
-    @browser.execute_script("$('#context_menu').css({left:'450px', top:'300px', position: 'absolute', display: 'block'})")
-    @browser.button(:class=>"s3d-button s3d-action s3d-link-button", :text=>"Remove").click
-    @browser.wait_for_ajax
-    self.class.class_eval { include GoogleMapsPopUp }
+    remove_widget
   end
   
+  # Edits the page, then opens the "Appearance" pop-up dialog.
   def map_wrapping
-    edit_page
-    @browser.wait_for_ajax
-    @browser.execute_script("$('#context_menu').show()")
-    @browser.button(:class=>"s3d-button s3d-action s3d-link-button", :text=>"Settings").click
-    sleep 1 # FIXME
-    #@browser.wait_for_ajax
-    self.class.class_eval { include AppearancePopUp }
+    widget_wrapping
   end
 
 end
