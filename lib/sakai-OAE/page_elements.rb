@@ -213,7 +213,7 @@ module LeftMenuBar
     when "document"
       instantiate_class("Documents")
     when "remote content"
-      instantiate_class("Documents") # 
+      instantiate_class("Remote") # 
     when "library"
       instantiate_class("Library") #
     when "participants"
@@ -235,7 +235,7 @@ module LeftMenuBar
     when "jisc content"
       instantiate_class("JISC") #
     when "assignments"
-      instantiate_class("Tasks") #
+      instantiate_class("Assignments") #
     when "rss feed reader"
       instantiate_class("RSS") #
     when "basic lti"
@@ -963,6 +963,13 @@ module FilesAndDocsPopUp
   include PageObject
   
   link(:display_settings, :id=>"embedcontent_tab_display")
+  text_field(:name, :class=>"as-input")
+  button(:dont_add_button, :class=>"s3d-link-button s3d-bold embedcontent_dont_add")
+  
+  def dont_add
+    dont_add_button
+    @browser.wait_for_ajax
+  end
   
 end
 
@@ -1515,24 +1522,15 @@ class MyDashboard
   # Returns an array object containing a list of all selected widgets.
   def displayed_widgets
     list = []
-    @browser.div(:class=>"fl-container-flex widget-content").divs.each do |div|
-      if div.class_name=="s3d-contentpage-title"
-        list << div.text
-      end
+    @browser.div(:class=>"fl-container-flex widget-content").divs(:class=>"s3d-contentpage-title").each do |div|
+      list << div.text
     end
     return list
   end
 
-  # Returns an array containing the list of
-  # recent membership items.
-  def recent_memberships
-    list = []
-    @browser.div(:class=>"recentmemberships_widget").links.each do |link|
-      if link.class_name=~/recentmemberships_item_link/
-        list << link.text
-      end
-    end
-    return list
+  # Returns the name of the recent membership item displayed.
+  def recent_membership_item
+    @browser.div(:class=>"recentmemberships_widget").link(:class=>/recentmemberships_item_link/).text
   end
   
   def go_to_most_recent_membership
@@ -1541,6 +1539,16 @@ class MyDashboard
     @browser.wait_for_ajax(10)
     Library.new @browser
   end
+
+  # Returns an array containing all the items listed in the "My memberships" dashboard widget.
+  def my_memberships_list
+    list = []
+    @browser.ul(:class=>"mygroup_items_list").spans(:class=>"mygroups_ellipsis_text").each do |span|
+      list << span.text
+    end
+    return list
+  end
+  
 
 end
 
@@ -1794,9 +1802,11 @@ class CreateGroups
   
   def create_basic_course
     create_thing
-    @browser.wait_until(45) { @browser.text.include? "Add content" }
-    @browser.button(:id=>"group_create_new_area", :class=>"s3d-button s3d-header-button s3d-popout-button").wait_until_present
-    Library.new @browser
+    unless url_error_element.visible?
+      @browser.wait_until(45) { @browser.text.include? "Add content" }
+      @browser.button(:id=>"group_create_new_area", :class=>"s3d-button s3d-header-button s3d-popout-button").wait_until_present
+      Library.new @browser
+    end
   end
   
   alias create_simple_group create_basic_course
@@ -1805,9 +1815,13 @@ class CreateGroups
   
   def create_research_project
     create_thing
-    @browser.button(:id=>"group_create_new_area", :class=>"s3d-button s3d-header-button s3d-popout-button").wait_until_present
-    ResearchIntro.new @browser
+    unless url_error_element.visible?
+      @browser.button(:id=>"group_create_new_area", :class=>"s3d-button s3d-header-button s3d-popout-button").wait_until_present
+      ResearchIntro.new @browser
+    end
   end
+  
+  span(:url_error, :id=>"newcreategroup_suggested_url_error")
   
   private
   
@@ -2074,6 +2088,7 @@ class Participants
   include LeftMenuBar
   include HeaderBar
 
+  text_field(:search_participants, :id=>"participants_search_field")
   
 end
 
@@ -2208,8 +2223,12 @@ class JISC
   include HeaderBar
   include DocButtons
   
-  in_frame(:index=>2) do |fr|
-    select_list(:choose_a_category, :id=>"themes", :frame=>fr)
+  def jisc_frame
+    @browser.frame(:title=>"JISC content")
+  end
+  
+  in_frame(:title=>"JISC content") do |f|
+    select_list(:choose_a_category, :id=>"themes", :frame=>f)
   end
   
 end
@@ -2229,14 +2248,18 @@ class RSS
   
 end
 
-#
-class Tasks
+# Methods for the Assignments Widget page.
+class Assignments
   
   include PageObject
   include HeaderFooterBar
   include LeftMenuBar
   include HeaderBar
   include DocButtons
+  
+  def cle_frame
+    @browser.frame(:src=>/sakai2assignments.launch.html/)
+  end
   
 end
 
@@ -2249,6 +2272,10 @@ class Tests
   include HeaderBar
   include DocButtons
   
+  def tests_frame
+    @browser.frame(:src=>/sakai2samigo.launch.html/)
+  end
+  
 end
 
 #
@@ -2259,6 +2286,10 @@ class Calendar
   include LeftMenuBar
   include HeaderBar
   include DocButtons
+  
+  def calendar_frame
+    @browser.frame(:src=>/sakai2calendar.launch.html/)
+  end
   
 end
 
@@ -2271,6 +2302,20 @@ class Files
   include HeaderBar
   include DocButtons
   
+  # Edits the page, then opens the File Settings pop up.
+  def files_settings
+    widget_settings
+    @browser.text_field(:class=>"as-input").when_present { self.class.class_eval { include FilesAndDocsPopUp } }
+  end
+  
+  def remove_files_widget
+    remove_widget
+  end
+  
+  def files_wrapping
+    widget_wrapping
+  end
+  
 end
 
 #
@@ -2282,6 +2327,12 @@ class Gadget
   include HeaderBar
   include DocButtons
   
+  def gadget_frame
+    @browser.frame(:id=>"ggadget_remotecontent_settings_preview_frame")
+  end
+  
+  
+  
 end
 
 #
@@ -2292,6 +2343,10 @@ class Gradebook
   include LeftMenuBar
   include HeaderBar
   include DocButtons
+  
+  def gradebook_frame
+    @browser.frame(:src=>/sakai2gradebook.launch.html/)
+  end
   
 end
 
@@ -2356,6 +2411,28 @@ class InlineContent
   include LeftMenuBar
   include HeaderBar
   include DocButtons
+  
+  select_list(:year, :id=>"inlinecontent_settings_option1")
+  select_list(:paper, :id=>"inlinecontent_settings_option2")
+  button(:save, :id=>"inlinecontent_settings_insert")
+  button(:cancel, :id=>"inlinecontent_settings_cancel")
+  
+end
+
+#
+class Remote
+  
+  include PageObject
+  include HeaderFooterBar
+  include LeftMenuBar
+  include HeaderBar
+  include DocButtons
+  
+  def remote_frame
+    @browser.frame(:id=>"remotecontent_settings_preview_frame")
+  end
+  
+  
   
 end
 
