@@ -197,9 +197,9 @@ module HeaderBar
   
 end
 
-# The generic Left Menu Bar.
-# Methods here are specifically geared toward menu
-# items that are customized/customizable
+# Modules for the most robust Left Menu Bar--the one that has context menus
+# attached to each of the bar's items, and is found in the context of a particular
+# Course, Group, or Research.
 module LeftMenuBar
   
   include PageObject
@@ -330,6 +330,9 @@ module LeftMenuBar
     return list
   end
   
+  alias pages public_pages
+  alias areas public_pages
+  
   private
   
   def instantiate_class(clash)
@@ -340,26 +343,22 @@ module LeftMenuBar
   
 end
 
-#
-module SearchBar
+# The left menu when on any of the "Explore" pages.
+module LeftMenuBarSearch
   
   include PageObject
   
-  def search_for=(text)
-    @browser.text_field(:id=>"search_text").set("#{text}\n")
-    @browser.wait_for_ajax(10)
-  end
-  
-  alias search= search_for=
-  alias search search_for=
-  alias search_for search_for=
-  alias find search_for=
-  alias find= search_for=
+  navigating_link(:all_types, "All types", "ExploreAll")
+  navigating_link(:content, "Content", "ExploreContent")
+  navigating_link(:people, "People", "ExplorePeople")
+  navigating_link(:groups, "Groups", "ExploreGroups")
+  navigating_link(:courses, "Courses", "ExploreCourses")
+  navigating_link(:research_projects, "Research projects", "ExploreResearch")
   
 end
 
 # The Left Menu Bar when in the context of the "You" pages
-module YouPagesLeftMenu
+module LeftMenuBarYou
   
   include PageObject
   
@@ -387,13 +386,31 @@ module YouPagesLeftMenu
 end
 
 # The left menu bar when creating Groups, Courses, or Research
-module CreateWorldsLeftMenu
+module LeftMenuBarCreateWorlds
   
   include PageObject
   
   navigating_link(:group, "Group", "CreateGroups")
   navigating_link(:course, "Course", "MyProfileCategories")
   navigating_link(:research, "Research", "MyProfileAboutMe")
+  
+end
+
+#
+module SearchBar
+  
+  include PageObject
+  
+  def search_for=(text)
+    @browser.text_field(:id=>"search_text").set("#{text}\n")
+    @browser.wait_for_ajax(10)
+  end
+  
+  alias search= search_for=
+  alias search search_for=
+  alias search_for search_for=
+  alias find search_for=
+  alias find= search_for=
   
 end
 
@@ -758,7 +775,7 @@ module AddRemoveCategories
     if @browser.link(:title=>text).visible? == false
       @browser.link(:title=>text).parent.parent.parent.ins.click
     end
-    if @browser.link(:title=>text).parent.class_name=="jstree-leaf jstree-unchecked"
+    if @browser.link(:title=>text).parent.class_name =~ /jstree-unchecked/
       @browser.link(:title=>text).click
     end
   end
@@ -1188,14 +1205,14 @@ end
 #       Widgets       #
 # # # # # # # # # # # # 
 
-#
+# Methods related to the expandable Collector item that can appear at the top of any page.
 module CollectorWidget
   
   include PageObject
   
 end
 
-#
+# Methods associated with documents that use the TinyMCE Editor.
 module DocumentWidget
   
   include PageObject
@@ -1288,14 +1305,115 @@ module LibraryWidget
   
 end
 
-# Inclusive of all methods having to do with lists of Content,
-# Groups, Contacts, etc.
+# Contains methods common to all Results lists
 module ListWidget
   
   include PageObject
   
   select_list(:sort_by, :id=>/sortby/)
   select_list(:filter_by, :id=>"facted_select")
+  
+  # Returns an array containing the text of the links (for Groups, Courses, etc.) listed
+  def results_list
+    list = []
+    @browser.spans(:class=>"s3d-search-result-name").each do |element|
+      list << element.text
+    end
+    return list
+  end
+  
+  alias courses results_list
+  alias course_list results_list
+  alias groups_list results_list
+  alias groups results_list
+  alias documents results_list
+  alias documents_list results_list
+  alias content_list results_list
+  
+end
+
+# Methods related to lists of Collections
+module ListCollections
+  
+  include PageObject
+  
+end
+
+# Methods related to lists of Content-type objects
+module ListContent
+  
+  include PageObject
+  
+  # Clicks the specified Link (will open any link that matches the
+  # supplied text, but it's made for clicking on a Document item listed on
+  # the page because it will instantiate the ContentDetailsPage class). 
+  def open_document(name)
+    @browser.link(:text=>name).click
+    ContentDetailsPage.new @browser
+    #@browser.wait_for_ajax
+  end
+  
+  alias open_content open_document
+  
+  # Clicks to share the specified item.
+  def share(item)
+    @browser.li(:text=>/#{Regexp.escape(name)}/).button(:title=>"Share content").click
+    @browser.wait_until { @browser.text.include? "Or, share it on a webservice:" }
+    self.class.class_eval { include ShareWithPopUp }
+  end
+  
+  alias share_content share
+  
+  # Adds the specified (listed) content to the library.
+  def add_content_to_library(name)
+    @browser.li(:text=>/#{Regexp.escape(name)}/).button(:title=>"Save content").click
+    @browser.wait_until { @browser.text.include? "Save to" }
+    self.class.eval_class { include SaveContentPopUp }
+  end
+  
+  alias add_document add_content_to_library
+  alias save_content add_content_to_library
+  
+  # Clicks to view the owner information of the specified item.
+  def view_owner_information(name)
+    @browser.button(:title=>"View owner information for #{name}").click
+    @browser.wait_until { @browser.text.include? "Add to contacts" }
+    self.class.eval_class { include OwnerInfoPopUp }
+  end
+  
+  alias view_owner_info view_owner_information
+  
+end
+
+# Methods related to lists of People/Participants
+module ListPeople
+  
+  include PageObject
+  
+  # Clicks the link of the specified name (It will click any link on the page,
+  # really, but it should be used for Person links only, because it
+  # instantiates the ViewPerson Class)
+  def view_person(name)
+    @browser.link(:text=>name).click
+    ViewPerson.new @browser
+  end
+  
+  # Clicks the specified Contact name. Obviously the name must exist in the list.
+  def add_contact(name)
+    @browser.li(:text=>/#{Regexp.escape(name)}/).div(:class=>/sakai_addtocontacts_overlay/).fire_event("onclick")
+    @browser.wait_until { @browser.button(:text=>"Invite").visible? }
+    self.class.eval_class { include AddToContactsPopUp }
+  end
+  
+  alias request_contact add_contact
+  alias request_connection add_contact
+  
+end
+
+# Methods related to lists of Groups/Courses
+module ListGroups
+  
+  include PageObject
   
   def join_button_for(name)
     @browser.li(:text=>/#{Regexp.escape(name)}/).div(:class=>/searchgroups_result_left_filler/)
@@ -1311,26 +1429,6 @@ module ListWidget
   alias join_course add_group
   alias join_group add_group
   
-  # Clicks the specified Contact name. Obviously the name must exist in the list.
-  def add_contact(name)
-    @browser.li(:text=>/#{Regexp.escape(name)}/).div(:class=>/sakai_addtocontacts_overlay/).fire_event("onclick")
-    @browser.wait_until { @browser.button(:text=>"Invite").visible? }
-    self.class.eval_class { include AddToContactsPopUp }
-  end
-  
-  alias request_contact add_contact
-  alias request_connection add_contact
-  
-  # Adds the specified (listed) content to the library.
-  def add_content_to_library(name)
-    @browser.li(:text=>/#{Regexp.escape(name)}/).button(:title=>"Save content").click
-    @browser.wait_until { @browser.text.include? "Save to" }
-    self.class.eval_class { include SaveContentPopUp }
-  end
-  
-  alias add_document add_content_to_library
-  alias save_content add_content_to_library
-  
   # Clicks the specified Link (will open any link that matches the
   # supplied text, but it's made for clicking on a Group listed on
   # the page because it will instantiate the GroupLibrary class).
@@ -1345,7 +1443,30 @@ module ListWidget
   alias view_group open_group
   alias view_course open_group
   alias open_course open_group
+  
+  # Returns the specified item's "type", as shown next to the item name--i.e.,
+  # "GROUP", "COURSE", etc.
+  def group_type(item)
+    @browser.span(:class=>"s3d-search-result-name",:text=>item).parent.span(:class=>"mymemberships_item_grouptype").text
+  end
+  
+  # Clicks the Message button for the specified listed item.
+  def message_course(name)
+    @browser.li(:text=>/#{Regexp.escape(name)}/).button(:class=>/sakai_sendmessage_overlay/).click
+    self.class.class_eval { include SendMessagePopUp }
+  end
+  
+  alias message_group message_course
+  alias message_person message_course
+  alias message_research message_course
+  
+end
 
+# Methods related to lists of Research Projects
+module ListProjects
+  
+  include PageObject
+  
   # Clicks the specified Link (will open any link that matches the
   # supplied text, but it's made for clicking on a Research item listed on
   # the page because it will instantiate the ResearchIntro class).
@@ -1358,83 +1479,11 @@ module ListWidget
   end
   
   alias view_research open_research
-  
-  # Clicks the specified Link (will open any link that matches the
-  # supplied text, but it's made for clicking on a Document item listed on
-  # the page because it will instantiate the ContentDetailsPage class). 
-  def open_document(name)
-    @browser.link(:text=>name).click
-    ContentDetailsPage.new @browser
-    #@browser.wait_for_ajax
-  end
-  
-  alias open_content open_document
-  
-  # Clicks the Message button for the specified listed item.
-  def message_course(name)
-    @browser.li(:text=>/#{Regexp.escape(name)}/).button(:class=>/sakai_sendmessage_overlay/).click
-    self.class.class_eval { include SendMessagePopUp }
-  end
-  
-  alias message_group message_course
-  alias message_person message_course
-  alias message_research message_course
-
-  # Clicks to view the owner information of the specified item.
-  def view_owner_information(name)
-    @browser.li(:text=>/#{Regexp.escape(name)}/).button(:title=>"View owner information").click
-    @browser.wait_until { @browser.text.include? "Add to contacts" }
-    self.class.eval_class { include OwnerInfoPopUp }
-  end
-  
-  alias view_owner_info view_owner_information
-  
-  # Clicks to share the specified item.
-  def share(item)
-    @browser.li(:text=>/#{Regexp.escape(name)}/).button(:title=>"Share content").click
-    @browser.wait_until { @browser.text.include? "Or, share it on a webservice:" }
-    self.class.class_eval { include ShareWithPopUp }
-  end
-  
-  alias share_content share
-  
-  # Clicks the link of the specified name (It will click any link on the page,
-  # really, but it should be used for Person links only, because it
-  # instantiates the ViewPerson Class)
-  def view_person(name)
-    @browser.link(:text=>name).click
-    ViewPerson.new @browser
-  end
-  
-  # Returns an array containing the text of the links (for Groups, Courses, etc.) listed
-  def results_list
-    list = []
-    target_elements = case
-    # My Memberships Page
-    when @browser.ul(:id=>"mymemberships_items").exist?
-      @browser.ul(:id=>"mymemberships_items").spans(:class=>"s3d-search-result-name")
-    # My Library Page
-    when @browser.ul(:id=>"mylibrary_items").exist?
-      @browser.ul(:id=>"mylibrary_items").spans(:class=>"s3d-search-result-name")
-    # My Contacts Page
-    when @browser.ul(:id=>"contacts_container_list").exist?
-      @browser.ul(:id=>"contacts_container_list").spans(:class=>"s3d-search-result-name")
-    # Search Results Page
-    when @browser.ul(:id=>"searchgroups_results_container").exist?
-      @browser.ul(:id=>"searchgroups_results_container").spans(:class=>"s3d-search-result-name")
-    end
-    target_elements.each do |element|
-      list << element.text
-    end
-    return list
-  end
-  
-  alias courses results_list
-  alias course_list results_list
+  alias open_project open_research
   
 end
 
-# Methods related to the Mail Page.
+# Methods related to the Mail Pages.
 module MailWidget
   
   include PageObject
@@ -1475,6 +1524,33 @@ class LoginPage
   button(:sign_in, :id=>"topnavigation_user_options_login_button_login")
   span(:login_error, :id=>"topnav_login_username_error")
   
+  # Returns an array containing the titles of the items
+  # displayed in the "Recent activity" box on the login page.
+  def recent_activity_list
+    list = []
+    @browser.div(:id=>"recentactivity_activity_container").links(:class=>"recentactivity_activity_item_title recentactivity_activity_item_text s3d-regular-links s3d-bold").each do |link|
+      list << link.text
+    end
+    return list.uniq!
+  end
+  
+  def featured_content_list
+    list = []
+    @browser.div(:id=>"featuredcontent_content_container").links(:class=>/featuredcontent_content_title/).each do |link|
+      list << link.text
+    end
+    return list
+  end
+  
+  # Opens page/document items that are listed on the page--for example
+  # in the Recent activity box.
+  def open_page(name)
+    @browser.link(:text=>name).click 
+    @browser.wait_for_ajax
+    @browser.window(:title=>"rSmart | Content Profile").use
+    ContentDetailsPage.new @browser
+  end
+  
 end
 
 # Methods related to the page for creating a new user account
@@ -1499,8 +1575,7 @@ class MyDashboard
   
   include PageObject
   include HeaderFooterBar
-  include LeftMenuBar
-  include YouPagesLeftMenu
+  include LeftMenuBarYou
   include ChangePicturePopUp
 
   button(:edit_layout, :text=>"Edit Layout")
@@ -1556,7 +1631,7 @@ end
 class MyMessages
   
   include HeaderFooterBar
-  include YouPagesLeftMenu
+  include LeftMenuBarYou
   
   # Returns an Array containing the list of Email subjects.
   def message_subjects
@@ -1574,7 +1649,7 @@ class MyProfileBasicInfo
   
   include PageObject
   include HeaderFooterBar
-  include YouPagesLeftMenu
+  include LeftMenuBarYou
   
   # Basic Information
   text_field(:given_name, :name=>"firstName")
@@ -1600,7 +1675,7 @@ class MyProfileAboutMe
 
   include PageObject
   include HeaderFooterBar
-  include YouPagesLeftMenu
+  include LeftMenuBarYou
   
   text_area(:about_Me, :id=>"aboutme")
   text_area(:academic_interests, :id=>"academicinterests")
@@ -1618,7 +1693,7 @@ class MyProfileOnline
   
   include PageObject
   include HeaderFooterBar
-  include YouPagesLeftMenu
+  include LeftMenuBarYou
   
   button(:add_another_online, :text=>"Add another Online", :id=>"displayprofilesection_add_online")
   
@@ -1651,7 +1726,7 @@ class MyProfileContactInfo
   
   include PageObject
   include HeaderFooterBar
-  include YouPagesLeftMenu
+  include LeftMenuBarYou
   
   #button(:add_another, :text=>"Add another", :id=>/profilesection_add_link_\d/)
   text_field(:institution, :name=>"college")
@@ -1678,7 +1753,7 @@ class MyProfilePublications
   
   include PageObject
   include HeaderFooterBar
-  include YouPagesLeftMenu
+  include LeftMenuBarYou
   
   button(:add_another_publication, :text=>"Add another publication", :id=>"displayprofilesection_add_publications")
   
@@ -1706,6 +1781,7 @@ class MyLibrary
   include PageObject
   include HeaderFooterBar
   include ListWidget
+  include LeftMenuBarYou
 
 end
 
@@ -1715,22 +1791,11 @@ class MyMemberships
   include PageObject
   include HeaderFooterBar
   include ListWidget
-  
-  # Use for clicking on the name of a "World" whose page you want to navigate to.
-  def go_to(item_name)
-    @browser.link(:title=>item_name).click
-    @browser.button(:id=>"entity_group_permissions").wait_until_present
-    @browser.wait_for_ajax #
-    Library.new @browser
-  end
+  include ListGroups
+  include LeftMenuBarYou
 
-  alias navigate_to go_to
-  
-  # Returns the specified item's "type", as shown next to the item name--i.e.,
-  # "GROUP", "COURSE", etc.
-  def group_type(item)
-    @browser.span(:class=>"s3d-search-result-name",:text=>item).parent.span(:class=>"mymemberships_item_grouptype").text
-  end
+  alias go_to open_group
+  alias navigate_to open_group
 
 end
 
@@ -1740,26 +1805,16 @@ class MyContacts
   include PageObject
   include HeaderFooterBar
   include ListWidget
+  include LeftMenuBarYou
 
 end
-
-#
-class AddContacts
-  
-  include PageObject
-  include HeaderFooterBar
-  include AccountPreferencesPopUp
-  
-  
-end
-
 
 #
 class CreateCourses
   
   include PageObject
   include HeaderFooterBar
-  include CreateWorldsLeftMenu
+  include LeftMenuBarCreateWorlds
   
   def use_math_template
     @browser.div(:class=>"selecttemplate_template_large").button(:text=>"Use this template").click
@@ -1779,7 +1834,7 @@ class CreateGroups
   
   include PageObject
   include HeaderFooterBar
-  include CreateWorldsLeftMenu
+  include LeftMenuBarCreateWorlds
   
   text_field(:title, :id=>"newcreategroup_title")
   text_field(:suggested_url, :id=>"newcreategroup_suggested_url")
@@ -1839,7 +1894,7 @@ class CreateResearch
   
   include PageObject
   include HeaderFooterBar
-  include CreateWorldsLeftMenu
+  include LeftMenuBarCreateWorlds
   
   def use_research_project_template
     @browser.div(:class=>"selecttemplate_template_large").button(:text=>"Use this template").click
@@ -1985,8 +2040,13 @@ class ExploreAll
 
   include PageObject
   include HeaderFooterBar
-  include LeftMenuBar
+  include LeftMenuBarSearch
   include ListWidget
+  include ListCollections
+  include ListContent
+  include ListGroups
+  include ListPeople
+  include ListProjects
   include SearchBar
 
 end
@@ -1996,8 +2056,9 @@ class ExploreContent
 
   include PageObject
   include HeaderFooterBar
-  include LeftMenuBar
+  include LeftMenuBarSearch
   include ListWidget
+  Include ListContent
   include SearchBar
 
 end
@@ -2007,8 +2068,9 @@ class ExplorePeople
 
   include PageObject
   include HeaderFooterBar
-  include LeftMenuBar
+  include LeftMenuBarSearch
   include ListWidget
+  include ListPeople
   include SearchBar
 
 end
@@ -2018,8 +2080,9 @@ class ExploreGroups
 
   include PageObject
   include HeaderFooterBar
-  include LeftMenuBar
+  include LeftMenuBarSearch
   include ListWidget
+  include ListGroups
   include SearchBar
 
 end
@@ -2029,8 +2092,9 @@ class ExploreCourses
   
   include PageObject
   include HeaderFooterBar
-  include LeftMenuBar
+  include LeftMenuBarSearch
   include ListWidget
+  include ListGroups
   include SearchBar
   
   def courses_count
@@ -2055,8 +2119,8 @@ class ExploreResearch
 
   include PageObject
   include HeaderFooterBar
-  include LeftMenuBar
-  include ListWidget
+  include LeftMenuBarSearch
+  include ListResearch
   include SearchBar
   
 end
@@ -2499,6 +2563,15 @@ class ContentDetailsPage
   def edit_categories
     @browser.div(:id=>"contentmetadata_locations_container").fire_event "onclick"
     self.class.class_eval { include AddRemoveCategories }
+  end
+  
+  # Returns an array containing the tags and categories listed on the page.
+  def tags_and_categories_list
+    list =[]
+    @browser.div(:id=>"contentmetadata_tags_container").links.each do |link|
+      list << link.text
+    end
+    return list
   end
   
   text_area(:comment_text, :id=>"contentcomments_txtMessage")
