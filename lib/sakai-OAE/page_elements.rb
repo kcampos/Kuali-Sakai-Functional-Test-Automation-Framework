@@ -27,17 +27,7 @@ module HeaderFooterBar
   
   include PageObject
   
-  # A generic link-clicking method. It clicks on a page link with text that
-  # matches the supplied string. Since it uses Regex to find a match, the
-  # string can be a substring of the desired link's full text.
-  # This method should be used as a last resort, however, since it does not
-  # instantiate a new page class. You will have to instantiate
-  # the target page class explicitly in the test script itself, if required.
-  def click_link(string)
-    @browser.link(:text=>/#{Regexp.escape(string)}/).click
-    @browser.wait_for_ajax
-  end
-  
+  # Page Object Definitions
   link(:help, :id=>"help_tab")
   float_menu(:my_dashboard, "You", "My dashboard", "MyDashboard")
   float_menu(:my_messages, "You", "My messages", "MyMessages")
@@ -56,8 +46,29 @@ module HeaderFooterBar
   float_menu(:explore_groups,"Explore","Groups","ExploreGroups")
   float_menu(:explore_courses,"Explore","Courses","ExploreCourses")
   float_menu(:explore_research,"Explore","Research projects","ExploreResearch")
+  button(:cancel, :text=>"Cancel")
+  # Don't use this button directly when opening the collector. Instead, use the "toggle_collector" method
+  # so that the Collector Widget module will be included in the object's Class.
+  # You *can* use this, however, to close the collector.
+  button(:collector, :class=>"topnavigation_menuitem_counts_container collector_toggle")
+  button(:save, :text=>"Save")
   
+  div(:notification, :class=>"gritter-with-image")
   alias explore_research_projects explore_research
+  
+  # Custom Methods
+  
+  # A generic link-clicking method. It clicks on a page link with text that
+  # matches the supplied string. Since it uses Regex to find a match, the
+  # string can be a substring of the desired link's full text.
+  #
+  # This method should be used as AN ABSOLUTE LAST RESORT, however, since it does not
+  # instantiate a new page class. You will have to instantiate
+  # the target page class explicitly in the test script itself, if required.
+  def click_link(string)
+    @browser.link(:text=>/#{Regexp.escape(string)}/).click
+    @browser.wait_for_ajax
+  end
   
   # Opens the User Options menu in the header menu bar,
   # clicks the Preferences item, waits for the Account Preferences
@@ -80,15 +91,6 @@ module HeaderFooterBar
     @browser.wait_until { @browser.text.include? "Collected items" }
     self.class.class_eval { include AddContentContainer }
   end
-  
-  button(:cancel, :text=>"Cancel")
-  # Don't use this button directly when opening the collector. Instead, use the "toggle_collector" method
-  # so that the Collector Widget module will be included in the object's Class.
-  # You *can* use this, however, to close the collector.
-  button(:collector, :class=>"topnavigation_menuitem_counts_container collector_toggle")
-  button(:save, :text=>"Save")
-  
-  div(:notification, :class=>"gritter-with-image")
   
   def close_notification
     notification_element.fire_event "onmouseover"
@@ -113,10 +115,13 @@ module HeaderBar
   
   include PageObject
   
+  # Page Object Definitions
   button(:join_group_button, :id=>/joinrequestbuttons_join_.*/)
   button(:request_to_join_group_button, :id=>/joinrequestbuttons_request_.*/)
   button(:request_pending_button, :id=>/joinrequestbuttons_pending_.*/)
   button(:message_button, :text=>"Message")
+  
+  # Custom Methods
   
   def join_group
     join_group_button
@@ -204,6 +209,11 @@ module LeftMenuBar
   
   include PageObject
   
+  # Page Object Definitions
+  # ...none yet
+  
+  # Custom Methods
+  
   # Clicks the specified link in the left menu
   # list, then, based on the supplied page type,
   # instantiates the appropriate page Class.
@@ -277,10 +287,12 @@ module LeftMenuBar
     @browser.execute_script("$('#lhnavigation_submenu').css({left:'300px', top:'300px', display: 'block'})")
     @browser.wait_for_ajax #.wait_until { @browser.link(:id=>"lhavigation_submenu_edittitle").visible? }
     @browser.link(:id=>"lhavigation_submenu_deletepage").click
+    @browser.wait_for_ajax
+    self.class.class_eval { include DeletePagePopUp }
   end
   
   # Opens the Permissions Pop Up for the specified Page.
-  def permissions_for(page_name)
+  def permissions_for_page(page_name)
     @browser.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).fire_event("onmouseover")
     @browser.wait_until { @browser.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).parent.div(:class=>"lhnavigation_selected_submenu_image").visible? }
     @browser.div(:class=>"lhnavigation_selected_submenu_image").hover
@@ -291,11 +303,11 @@ module LeftMenuBar
     self.class.class_eval { include AreaPermissionsPopUp }
   end
   
-  alias permissions_of permissions_for
-  alias permissions permissions_for
+  alias permissions_of_page permissions_for_page
+  alias page_permissions permissions_for_page
   
   # Opens the Profile Details for the specified Page.
-  def view_profile_of(page_name)
+  def view_profile_of_page(page_name)
     @browser.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).fire_event("onmouseover")
     @browser.wait_for_ajax #.wait_until { @browser.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).parent.div(:class=>"lhnavigation_selected_submenu_image").visible? }
     @browser.div(:class=>"lhnavigation_selected_submenu_image").hover
@@ -307,8 +319,8 @@ module LeftMenuBar
     ContentDetailsPage.new @browser
   end
   
-  alias view_profile_for view_profile_of
-  alias view_profile view_profile_of
+  alias view_profile_for_page view_profile_of_page
+  alias view_page_profile view_profile_of_page
   
   # Clicks the "Add a new area" button.
   def add_new_area
@@ -320,6 +332,7 @@ module LeftMenuBar
   alias add_a_new_area add_new_area
   alias add_new_page add_new_area
   alias add add_new_area
+  alias add_page add_new_area
   
   # Returns an array containing the Course/Group area/page titles.
   def public_pages
@@ -348,6 +361,7 @@ module LeftMenuBarSearch
   
   include PageObject
   
+  # Page Object Definitions...
   navigating_link(:all_types, "All types", "ExploreAll")
   navigating_link(:content, "Content", "ExploreContent")
   navigating_link(:people, "People", "ExplorePeople")
@@ -362,6 +376,7 @@ module LeftMenuBarYou
   
   include PageObject
   
+  # Page Object Definitions
   navigating_link(:basic_information, "Basic Information", "MyProfileBasicInfo")
   navigating_link(:about_me, "About Me", "MyProfileAboutMe")
   navigating_link(:online, "Online", "MyProfileOnline")
@@ -374,6 +389,8 @@ module LeftMenuBarYou
   permissions_menu(:publications_permissions, "Publications")
   
   div(:profile_pic_arrow, :class=>"s3d-dropdown-menu-arrow entity_profile_picture_down_arrow")
+  
+  # Custom Methods
   
   # Opens the Pop Up dialog for changing the Avatar image for the
   # current page.
@@ -390,6 +407,7 @@ module LeftMenuBarCreateWorlds
   
   include PageObject
   
+  # Page Object Definitions
   navigating_link(:group, "Group", "CreateGroups")
   navigating_link(:course, "Course", "MyProfileCategories")
   navigating_link(:research, "Research", "MyProfileAboutMe")
@@ -400,6 +418,8 @@ end
 module SearchBar
   
   include PageObject
+  
+  # Custom Methods...
   
   def search_for=(text)
     @browser.text_field(:id=>"search_text").set("#{text}\n")
@@ -419,6 +439,8 @@ end
 module DocButtons
 
   include PageObject
+  
+  # Custom Methods...
   
   # Clicks the Edit Page button.
   def edit_page
@@ -503,6 +525,7 @@ module AccountPreferencesPopUp
   
   include PageObject
   
+  # Page Object Definitions
   button(:preferences, :id=>"accountpreferences_preferences_tab")
   button(:privacy_settings, :id=>"accountpreferences_privacy_tab")
   button(:password, :id=>"accountpreferences_password_tab")
@@ -524,13 +547,9 @@ module AddAreasPopUp
   
   include PageObject
   
-  # Common elements...
-  def list_categories
-    list_categories_button
-    @browser.wait_for_ajax
-    self.class.class_eval { include AddRemoveCategories }
-  end
+  # Page Object Definitions...
   
+  # Common elements...
   button(:done_add_button, :id=>"addarea_create_doc_button" )
   button(:cancel, :class=>"s3d-link-button jqmClose s3d-bold", :text=>"Cancel")
   
@@ -550,6 +569,23 @@ module AddAreasPopUp
   
   # Everywhere...
   button(:everywhere, :text=>"Everywhere")
+  
+  # Content list...
+  button(:content_list, :text=>"Content list")
+  
+  # Participants list...
+  button(:participants_list, :text=>"Participants list")
+  
+  # Widgets...
+  button(:widgets, :text=>"Widgets")
+  
+  # Custom Methods...
+  
+  def list_categories
+    list_categories_button
+    @browser.wait_for_ajax
+    self.class.class_eval { include AddRemoveCategories }
+  end
   
   def search_everywhere
     @browser.text_field(:id=>"addarea_existing_everywhere_search")
@@ -587,26 +623,22 @@ module AddAreasPopUp
     @browser.div(:id=>"addarea_existing_everywhere_bottom")
   end
   
-  # Content list...
-  button(:content_list, :text=>"Content list")
   def content_list_name
     @browser.text_field(:id=>"addarea_contentlist_name")
   end
+  
   def content_list_permissions
     @browser.select(:id=>"addarea_contentlist_permissions")
   end
   
-  # Participants list...
-  button(:participants_list, :text=>"Participants list")
   def participants_list_name
     @browser.text_field(:id=>"addarea_participants_name")
   end
+  
   def participants_list_permissions
     @browser.select(:id=>"addarea_participants_permissions")
   end
   
-  # Widgets...
-  button(:widgets, :text=>"Widgets")
   def widget_name
     @browser.text_field(:id=>"addarea_widgets_name")
   end
@@ -778,6 +810,7 @@ module AddRemoveCategories
     if @browser.link(:title=>text).parent.class_name =~ /jstree-unchecked/
       @browser.link(:title=>text).click
     end
+    sleep 0.3
   end
   
   # Returns an array of the categories selected in the pop-up container.
@@ -961,10 +994,37 @@ module ContentPermissionsPopUp
   
 end
 
+# Methods for the "Delete" Pop-up dialog.
+module DeletePagePopUp
+  
+  include PageObject
+  
+  # Page Objects
+  button(:delete_button, :id=>"lhnavigation_delete_confirm")
+  button(:dont_delete_button, :class=>"s3d-link-button s3d-bold jqmClose")
+  
+  # Custom Methods
+  
+  def delete
+    delete_button
+    @browser.wait_for_ajax
+  end
+  
+  def dont_delete
+    dont_delete_button
+    @browser.wait_for_ajax
+  end
+  
+end
+
 #
 module DiscussionPopUp
   
   include PageObject
+  
+  # Page Objects
+  
+  # Custom Methods
   
 end
 
@@ -973,15 +1033,22 @@ module ExportAsTemplate
   
   include PageObject
   
+  # Page Objects
+  
+  # Custom Methods
+  
 end
 #
 module FilesAndDocsPopUp
   
   include PageObject
   
+  # Page Objects
   link(:display_settings, :id=>"embedcontent_tab_display")
   text_field(:name, :class=>"as-input")
   button(:dont_add_button, :class=>"s3d-link-button s3d-bold embedcontent_dont_add")
+  
+  # Custom Methods...
   
   def dont_add
     dont_add_button
@@ -995,6 +1062,10 @@ module GoogleGadgetPopUp
   
   include PageObject
   
+  # Page Objects
+  
+  # Custom Methods
+  
 end
 
 # Methods related to the Pop Up that appears for modifying
@@ -1003,12 +1074,15 @@ module GoogleMapsPopUp
   
   include PageObject
   
+  # Page Objects
   text_field(:location, :id=>"googlemaps_input_text_location")
   button(:search_button, :id=>"googlemaps_button_search")
   button(:dont_add, :id=>"googlemaps_cancel")
   button(:add_map, :id=>"googlemaps_save")
   radio_button(:large, :id=>"googlemaps_radio_large")
   radio_button(:small, :id=>"googlemaps_radio_small")
+  
+  # Custom Methods...
   
   def search
     search_button
@@ -1021,7 +1095,11 @@ end
 module InlineContentPopUp
   
   include PageObject
+
+  # Page Objects
   
+  # Custom Methods
+
 end
 
 # Methods related to the Pop Up that allows modifying a
@@ -1030,7 +1108,15 @@ module ManageParticipants
   
   include PageObject
   
+  # Page Objects
   checkbox(:add_all_contacts, :id=>"addpeople_select_all_contacts")
+  checkbox(:remove_all_contacts, :id=>"addpeople_select_all_selected_contacts")
+  button(:remove_selected, :text=>"Remove selected")
+  button(:save, :class=>"s3d-button s3d-overlay-action-button addpeople_finish_adding")
+  button(:cancel, :class=>"s3d-link-button jqmClose s3d-bold")
+  select_list(:role_for_selected_members, :id=>"addpeople_selected_all_permissions")
+  
+  # Custom Methods
   
   # Checks the specified contact for adding.
   def add_contact(contact)
@@ -1065,15 +1151,8 @@ module ManageParticipants
   alias search_and_add_participant add_by_search
   alias add_by_search= add_by_search
   
-  checkbox(:remove_all_contacts, :id=>"addpeople_select_all_selected_contacts")
-  button(:remove_selected, :text=>"Remove selected")
-  
-  button(:save, :class=>"s3d-button s3d-overlay-action-button addpeople_finish_adding")
-
   alias done_apply_settings save
   alias apply_and_save save
-  
-  button(:cancel, :class=>"s3d-link-button jqmClose s3d-bold")
   
   alias dont_apply cancel
   
@@ -1087,7 +1166,6 @@ module ManageParticipants
     @browser.div(:id=>"addpeople_selected_contacts_container").link(:text=>contact).parent.checkbox.clear
   end
   
-  select_list(:role_for_selected_members, :id=>"addpeople_selected_all_permissions")
   
   # For the specified contact, updates to the specified role.fd
   def set_role_for(contact, role)
@@ -1101,7 +1179,10 @@ module OwnerInfoPopUp
   
   include PageObject
   
+  # Page Objects
   button(:close_owner_info, :id=>"personinfo_close_button")
+  
+  # Custom Methods
   
   def message_owner
     @browser.button(:text=>"Message").click
@@ -1326,9 +1407,11 @@ module ListWidget
   alias course_list results_list
   alias groups_list results_list
   alias groups results_list
+  alias projects results_list
   alias documents results_list
   alias documents_list results_list
   alias content_list results_list
+  alias results results_list
   
 end
 
@@ -1348,12 +1431,14 @@ module ListContent
   # supplied text, but it's made for clicking on a Document item listed on
   # the page because it will instantiate the ContentDetailsPage class). 
   def open_document(name)
-    @browser.link(:text=>name).click
+    @browser.link(:text=>/#{Regexp.escape(name)}/).click
+    sleep 1
+    @browser.wait_for_ajax
     ContentDetailsPage.new @browser
-    #@browser.wait_for_ajax
   end
   
   alias open_content open_document
+  alias view_document open_document
   
   # Clicks to share the specified item.
   def share(item)
@@ -2058,7 +2143,7 @@ class ExploreContent
   include HeaderFooterBar
   include LeftMenuBarSearch
   include ListWidget
-  Include ListContent
+  include ListContent
   include SearchBar
 
 end
@@ -2120,7 +2205,7 @@ class ExploreResearch
   include PageObject
   include HeaderFooterBar
   include LeftMenuBarSearch
-  include ListResearch
+  include ListProjects
   include SearchBar
   
 end
@@ -2578,6 +2663,9 @@ class ContentDetailsPage
   button(:comment, :text=>"Comment")
   button(:see_more, :id=>"contentmetadata_show_more")
   button(:see_less, :id=>"contentmetadata_show_more")
+  
+  span(:name, :id=>"entity_name")
+  span(:type, :id=>"entity_type")
   
 end
 
