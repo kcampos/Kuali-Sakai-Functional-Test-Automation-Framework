@@ -7,7 +7,7 @@
 gem "test-unit"
 gems = ["test/unit", "watir-webdriver", "ci/reporter/rake/test_unit_loader"]
 gems.each { |gem| require gem }
-files = [ "/../../config-cle/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-CLE/app_functions.rb", "/../../lib/sakai-CLE/admin_page_elements.rb", "/../../lib/sakai-CLE/site_page_elements.rb", "/../../lib/sakai-CLE/common_page_elements.rb" ]
+files = [ "/../../config/CLE/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-CLE/app_functions.rb", "/../../lib/sakai-CLE/admin_page_elements.rb", "/../../lib/sakai-CLE/site_page_elements.rb", "/../../lib/sakai-CLE/common_page_elements.rb" ]
 files.each { |file| require File.dirname(__FILE__) + file }
 
 class CreateUsers < Test::Unit::TestCase
@@ -44,7 +44,7 @@ class CreateUsers < Test::Unit::TestCase
     my_workspace.users
     
     #Hash of user information to use
-    people = YAML.load_file("#{File.dirname(__FILE__)}/../../config-cle/directory.yml")
+    people = YAML.load_file("#{File.dirname(__FILE__)}/../../config/CLE/directory.yml")
     
     # Get a count of how many users will be added
     count = 1
