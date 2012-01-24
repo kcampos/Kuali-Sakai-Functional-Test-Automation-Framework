@@ -165,8 +165,6 @@ class TestCourseAddingPages < Test::Unit::TestCase
     # TEST CASE: Page name appears in left-menu bar
     assert library.areas.include? @doc_cancel_delete
     
-    sleep 10
-    
   end
 
 end

@@ -299,8 +299,8 @@ module LeftMenuBar
     @browser.execute_script("$('#lhnavigation_submenu').css({left:'328px', top:'349px', display: 'block'})")
     @browser.wait_until { @browser.link(:id=>"lhavigation_submenu_edittitle").visible? }
     @browser.link(:id=>"lhnavigation_submenu_permissions").click
-    @browser.wait_until { @browser.button(:id=>"entity_content_permissions").exist? }
-    self.class.class_eval { include AreaPermissionsPopUp }
+    @browser.wait_for_ajax
+    self.class.class_eval { include PermissionsPopUp }
   end
   
   alias permissions_of_page permissions_for_page
@@ -345,6 +345,15 @@ module LeftMenuBar
   
   alias pages public_pages
   alias areas public_pages
+  
+  def menu_available?(page_name)
+    @browser.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).fire_event("onmouseover")
+    if @browser.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).parent.div(:class=>"lhnavigation_selected_submenu_image").visible?
+      return true
+    else
+      return false
+    end
+  end
   
   private
   
@@ -414,13 +423,17 @@ module LeftMenuBarCreateWorlds
   
 end
 
-#
+# The Search field that will appear above some list pages
 module SearchBar
   
   include PageObject
   
   # Custom Methods...
   
+  # Enters the specified text string in the search field.
+  # Includes a trailing line feed character so that the search
+  # will occur immediately, meaning you don't have to include a
+  # line in the script for clicking on the search button.
   def search_for=(text)
     @browser.text_field(:id=>"search_text").set("#{text}\n")
     @browser.wait_for_ajax(10)
@@ -464,7 +477,7 @@ module DocButtons
   
   private
   
-  # The generic method for editing widget settings.
+  # The generic method for editing widget settings. DO NOT USE!
   def widget_settings
     # jQuery
     click_settings=%|$("#context_settings").trigger("mousedown");|
@@ -476,7 +489,7 @@ module DocButtons
     @browser.wait_for_ajax(1)
   end
   
-  # The generic method for removing widgets.
+  # The generic method for removing widgets. DO NOT USE!
   def remove_widget
     # JQuery
     jq_remove = %|$("#context_remove").trigger("mousedown");|
@@ -488,8 +501,9 @@ module DocButtons
     @browser.wait_for_ajax(1)
   end
   
-  # The generic method for editing widget wrappings.
+  # The generic method for editing widget wrappings. DO NOT USE!
   def widget_wrapping
+    
     #jQuery
     jq_wrapping = %|$("#context_appearance_trigger").trigger("mousedown");|
     
@@ -501,6 +515,7 @@ module DocButtons
     self.class.class_eval { include AppearancePopUp }
   end
   
+  # The generic method for opening the widget menu. DO NOT USE!
   def open_widget_menu(number=0)
     # jQuery commands
     click_widget=%|tinyMCE.get("elm1").selection.select(tinyMCE.get("elm1").dom.select('.widget_inline')[#{number}]);|
@@ -542,7 +557,10 @@ module AccountPreferencesPopUp
 
 end
 
-#
+# Page Objects and Methods for the Add Areas Pop up dialog.
+# Many page objects in this module are NOT defined using the
+# Page Object gem, so they will need to be handled differently
+# than usual. See the descriptions of the methods for more detail.
 module AddAreasPopUp
   
   include PageObject
@@ -581,16 +599,25 @@ module AddAreasPopUp
   
   # Custom Methods...
   
+  # Clicks the list categories link.
   def list_categories
     list_categories_button
     @browser.wait_for_ajax
     self.class.class_eval { include AddRemoveCategories }
   end
   
+  # The "Search Everywhere" text field. Due to a strange bug with
+  # Watir-webdriver and/or PageObject, we're using this method for the
+  # a definition of the field, so if you need to enter a text string into it
+  # you'll need to use Watir-webdriver's ".set" method, like this:
+  # page_object.search_everywhere.set "text string"
   def search_everywhere
     @browser.text_field(:id=>"addarea_existing_everywhere_search")
   end
   
+  # Defines the Existing Document Name field based on the currently
+  # selected tab. Test script steps will need to use Watir's .set method
+  # for entering text strings into the fields.
   def existing_doc_name
     a = "addarea_existing_mylibrary_container"
     b = "addarea_existing_everywhere_container"
@@ -605,6 +632,10 @@ module AddAreasPopUp
     end
   end
   
+  # Defines the Existing Doc Permissions select list field.
+  # To select an item from this field you'll need to include Watir's
+  # .select method in your test script step, like this:
+  # page_object.existing_doc_permissions.select "option"
   def existing_doc_permissions
     a = "addarea_existing_mylibrary_container"
     b = "addarea_existing_everywhere_container"
@@ -619,22 +650,41 @@ module AddAreasPopUp
     end
   end
   
+  # The div containing the search results list.
+  # This method is primarily for use in the procedural methods
+  # in this module rather than for steps in a test script.
   def search_results
     @browser.div(:id=>"addarea_existing_everywhere_bottom")
   end
   
+  # The name field for adding a Content List page. Use of this method
+  # in a test script will require including a Watir method. For example,
+  # if you want to send the field a text string, you'll use the .set
+  # method, like this: page_object.content_list_name.set "Name"
   def content_list_name
     @browser.text_field(:id=>"addarea_contentlist_name")
   end
   
+  # The permissions field for adding a Content List page. Use of this method
+  # in a test script will require including a Watir method. For example,
+  # if you want to send the field a text string, you'll use the .set
+  # method, like this: page_object.content_list_permissions.select "Option"
   def content_list_permissions
     @browser.select(:id=>"addarea_contentlist_permissions")
   end
   
+  # The name field for adding a Participant List page. Use of this method
+  # in a test script will require including a Watir method. For example,
+  # if you want to send the field a text string, you'll use the .set
+  # method, like this: page_object.participants_list_name.set "Name"
   def participants_list_name
     @browser.text_field(:id=>"addarea_participants_name")
   end
   
+  # The permissions field for adding a Participants List page. Use of this method
+  # in a test script will require including a Watir method. For example,
+  # if you want to send the field a text string, you'll use the .set
+  # method, like this: page_object.participants_list_permissions.select "Option"
   def participants_list_permissions
     @browser.select(:id=>"addarea_participants_permissions")
   end
@@ -724,14 +774,11 @@ module AddContentContainer
   
   include PageObject
   
+  # Page Objects
+  
   # Upload content tab...
   link(:upload_content, :text=>"Upload content")
 
-  # Enters the specified filename in the file field.
-  def upload_file=(file_name)
-    @browser.file_field(:id=>"multifile_upload").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-oae/" + file_name)
-  end
-  
   text_field(:file_title, :id=>"newaddcontent_upload_content_title")
   text_area(:file_description, :id=>"newaddcontent_upload_content_description")
   text_field(:file_tags, :id=>"newaddcontent_upload_content_tags")
@@ -750,6 +797,30 @@ module AddContentContainer
   link(:all_content, :text=>"All content")
   link(:add_content_my_library, :text=>"My Library")
   
+  # Add link tab...
+  link(:add_link, :text=>"Add link")
+  
+  text_field(:paste_link_address, :id=>"newaddcontent_add_link_url")
+  text_field(:link_title, :id=>"newaddcontent_add_link_title")
+  text_area(:link_description, :id=>"newaddcontent_add_link_description")
+  text_field(:link_tags, :id=>"newaddcontent_add_link_tags")
+  
+  button(:add, :text=>"Add")
+  
+  # Collected items column...
+  select_list(:save_all_to, :id=>"newaddcontent_saveto")
+  
+  button(:list_categories, :text=>"List categories")
+  
+  button(:done_add_collected, :class=>"s3d-button s3d-overlay-button newaddcontent_container_start_upload")
+  
+  # Custom Methods...
+  
+  # Removes the item from the selected list.
+  def remove(item)
+    @browser.link(:title=>"Remove #{item}").click
+  end
+  
   # Enters the specified text in the Search field.
   # Note that the method appends a line feed on the string, so the search will
   # happen immediately when it is invoked.
@@ -765,27 +836,10 @@ module AddContentContainer
   alias check_item check_content
   alias check_document check_content
   
-  # Add link tab...
-  link(:add_link, :text=>"Add link")
-  
-  text_field(:paste_link_address, :id=>"newaddcontent_add_link_url")
-  text_field(:link_title, :id=>"newaddcontent_add_link_title")
-  text_area(:link_description, :id=>"newaddcontent_add_link_description")
-  text_field(:link_tags, :id=>"newaddcontent_add_link_tags")
-  
-  button(:add, :text=>"Add")
-  
-  # Collected items column...
-  select_list(:save_all_to, :id=>"newaddcontent_saveto")
-  
-  # Removes the item from the selected list.
-  def remove(item)
-    @browser.link(:title=>"Remove #{item}").click
+  # Enters the specified filename in the file field.
+  def upload_file=(file_name)
+    @browser.file_field(:id=>"multifile_upload").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-oae/" + file_name)
   end
-  
-  button(:list_categories, :text=>"List categories")
-  
-  button(:done_add_collected, :class=>"s3d-button s3d-overlay-button newaddcontent_container_start_upload")
   
 end
 
@@ -793,6 +847,13 @@ end
 module AddRemoveCategories
   
   include PageObject
+  
+  # Page Objects
+  
+  button(:save_categories, :text=>"Assign and save")
+  button(:dont_save, :text=>"Don't save")
+  
+  # Custom Methods...
   
   # Opens the specified category tree.
   def open_tree(text)
@@ -821,9 +882,6 @@ module AddRemoveCategories
     end
     return list
   end
-  
-  button(:save_categories, :text=>"Assign and save")
-  button(:dont_save, :text=>"Don't save")
   
 end
 
@@ -900,47 +958,9 @@ module AppearancePopUp
   
   include PageObject
   
-end
-
-# The Permissions Pop Up dialog for World Area pages
-module AreaPermissionsPopUp
+  # Page Object
   
-  include PageObject
-  
-  select_list(:can_be_seen_by, :id=>"areapermissions_area_general_visibility")
-  select_list(:selected_roles, :id=>"areapermissions_change_selected")
-  button(:apply_permissions, :text=>"Apply permissions")
-  checkbox(:all_roles, "areapermissions_check_uncheck_all")
-  
-  #
-  def check_student
-    @browser.div(:text=>/Student/).checkbox.set
-  end
-  
-  #
-  def check_teaching_assistant
-    @browser.div(:text=>/Teaching Assistant/).checkbox.set
-  end
-
-  #
-  def check_lecturer
-    @browser.div(:text=>/Lecturer/).checkbox.set
-  end
-
-  #
-  def student_permissions=(perm)
-    @browser.div(:text=>/Student/).select(:class=>"areapermissions_role_select").select perm
-  end
-  
-  #
-  def teaching_assistant_permissions=(perm)
-    @browser.div(:text=>/Teaching Assistant/).select(:class=>"areapermissions_role_select").select perm
-  end
-  
-  #
-  def lecturer_permissions=(perm)
-    @browser.div(:text=>/Lecturer/).select(:class=>"areapermissions_role_select").select perm
-  end
+  # Custom Methods...
   
 end
 
@@ -949,6 +969,8 @@ module ChangePicturePopUp
   
   include PageObject
   
+  # Page Objects
+  
   h1(:pop_up_title, :class=>"s3d-dialog-header")
   file_field(:pic_file, :id=>"profilepicture")
   button(:upload, :id=>"profile_upload")
@@ -956,6 +978,8 @@ module ChangePicturePopUp
   button(:cancel, :text=>"Cancel")
   div(:error_message, :id=>"changepic_nofile_error")
   image(:thumbnail, :id=>"thumbnail_img")
+  
+  # Custom Methods...
   
   # Uploads the specified file name for the Avatar photo
   def upload_a_new_picture(file_name)
@@ -1068,7 +1092,7 @@ module GoogleGadgetPopUp
   
 end
 
-# Methods related to the Pop Up that appears for modifying
+# Page Objects and Methods related to the Pop Up that appears for modifying
 # the settings for the Google Maps Widget.
 module GoogleMapsPopUp
   
@@ -1102,7 +1126,7 @@ module InlineContentPopUp
 
 end
 
-# Methods related to the Pop Up that allows modifying a
+# Page Objects and Methods related to the Pop Up that allows modifying a
 # Group's/Course's participants.
 module ManageParticipants
   
@@ -1197,6 +1221,41 @@ module OwnerInfoPopUp
   def view_owner_profile
     @browser.span(:id=>"personinfo_user_name").link.click
     ViewPerson.new @browser
+  end
+  
+end
+
+# Objects and Methods for the Permissions Pop Up dialog
+module PermissionsPopUp
+  
+  include PageObject
+  
+  # Page Objects
+  h1(:permissions_header, :class=>"s3d-dialog-header")
+  radio_button(:anyone_public, :id=>"areapermissions_see_public")
+  radio_button(:anyone_logged_in, :id=>"areapermissions_see_loggedin")
+  radio_button(:specific_roles_only, :id=>"areapermissions_see_private")
+  
+  checkbox(:lecturers_can_see, :id=>"areapermissions_see_lecturer")
+  checkbox(:teaching_assistants_can_see, :id=>"areapermissions_see_ta")
+  checkbox(:students_can_see, :id=>"areapermissions_see_student")
+  
+  checkbox(:lecturers_can_edit, :id=>"areapermissions_edit_lecturer")
+  checkbox(:teaching_assistants_can_edit, :id=>"areapermissions_edit_ta")
+  checkbox(:students_can_edit, :id=>"areapermissions_edit_student")
+  
+  button(:cancel_button, :class=>"s3d-link-button jqmClose s3d-bold")
+  button(:apply_permissions_button, :id=>"areapermissions_apply_permissions")
+  
+  # Custom Methods
+  def apply_permissions
+    apply_permissions_button
+    @browser.wait_for_ajax
+  end
+  
+  def cancel
+    cancel_button
+    @browser.wait_for_ajax
   end
   
 end
@@ -1551,6 +1610,10 @@ end
 module ListProjects
   
   include PageObject
+  
+  # Page Objects
+  
+  # Custom Methods...
   
   # Clicks the specified Link (will open any link that matches the
   # supplied text, but it's made for clicking on a Research item listed on
