@@ -7,7 +7,7 @@
 gem "test-unit"
 gems = ["test/unit", "watir-webdriver", "ci/reporter/rake/test_unit_loader"]
 gems.each { |gem| require gem }
-files = [ "/../../config-cle/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-CLE/app_functions.rb", "/../../lib/sakai-CLE/admin_page_elements.rb", "/../../lib/sakai-CLE/site_page_elements.rb", "/../../lib/sakai-CLE/common_page_elements.rb" ]
+files = [ "/../../config/CLE/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-CLE/app_functions.rb", "/../../lib/sakai-CLE/admin_page_elements.rb", "/../../lib/sakai-CLE/site_page_elements.rb", "/../../lib/sakai-CLE/common_page_elements.rb" ]
 files.each { |file| require File.dirname(__FILE__) + file }
 
 class TestCreateNewAssessments < Test::Unit::TestCase
@@ -77,7 +77,7 @@ class TestCreateNewAssessments < Test::Unit::TestCase
   
   def teardown
     # Save new assessment info for later scripts to use
-    File.open("#{File.dirname(__FILE__)}/../../config-cle/directory.yml", "w+") { |out|
+    File.open("#{File.dirname(__FILE__)}/../../config/CLE/directory.yml", "w+") { |out|
       YAML::dump(@config.directory, out)
     }
     # Close the browser window
