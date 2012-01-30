@@ -51,7 +51,7 @@ module PageObject
         @browser.back_to_top
         @browser.link(:text=>menu_text).fire_event("onmouseover")
         @browser.link(:text=>link_text).click
-        @browser.wait_for_ajax(10) #wait_until { @browser.text.include? target_text }
+        @browser.wait_for_ajax(10) 
         sleep 1
         eval(target_class).new @browser
       }
@@ -72,8 +72,8 @@ module PageObject
     def navigating_button(name, id, class_name=nil)
       define_method(name) { 
           @browser.button(:id=>id).click
-          @browser.wait_for_ajax #.button(:id=>id).wait_while_present
-          sleep 0.2 #FIXME
+          @browser.wait_for_ajax 
+          sleep 0.2
           unless class_name==nil
             eval(class_name).new @browser
           end
@@ -83,7 +83,7 @@ module PageObject
     def navigating_link(name, link_text, class_name=nil)
       define_method(name) { 
         @browser.link(:text=>/#{Regexp.escape(link_text)}/).click
-        @browser.wait_for_ajax #wait_until { @browser.text.include? page_text }
+        @browser.wait_for_ajax 
         unless class_name==nil
           eval(class_name).new @browser
         end

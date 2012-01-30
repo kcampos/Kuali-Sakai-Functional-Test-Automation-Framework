@@ -40,7 +40,7 @@ module HeaderFooterBar
   float_menu(:create_a_group, "Create + Collect", "Create a group", "CreateGroups")
   float_menu(:create_a_course, "Create + Collect", "Create a course", "CreateCourses")
   float_menu(:create_a_research_project, "Create + Collect", "Create a research project", "CreateResearch")  
-  float_menu(:explore_all_categories, "Explore", "Browse all categories", "ExploreAll")
+  float_menu(:explore_all_categories, "Explore", "Browse all categories", "AllCategoriesPage")
   float_menu(:explore_content,"Explore","Content", "ExploreContent")
   float_menu(:explore_people,"Explore","People", "ExplorePeople")
   float_menu(:explore_groups,"Explore","Groups","ExploreGroups")
@@ -55,6 +55,15 @@ module HeaderFooterBar
   
   div(:notification, :class=>"gritter-with-image")
   alias explore_research_projects explore_research
+  
+  link(:explore, :text=>"Explore")
+  link(:browse_all_categories, :text=>"Browse all categories")
+  text_field(:header_search, :id=>"topnavigation_search_input")
+  link(:you, :text=>"You")
+  button(:messages_container_button, :id=>"topnavigation_messages_container")
+  link(:create_collect, :id=>"navigation_create_and_add_link")
+  
+  link(:see_all, :id=>"topnavigation_search_see_all")
   
   # Custom Methods
   
@@ -103,7 +112,10 @@ module HeaderFooterBar
     self.class.class_eval { include CollectorWidget }
   end
   
-  # Define global search later
+  def messages_container
+    messages_container_button
+    self.class.class_eval { include MessagesContainerPopUp }
+  end
   
   # Define footer items later
   
@@ -1453,6 +1465,10 @@ module ListWidget
   select_list(:sort_by, :id=>/sortby/)
   select_list(:filter_by, :id=>"facted_select")
   
+  # Page Objects
+  
+  # Custom Methods...
+  
   # Returns an array containing the text of the links (for Groups, Courses, etc.) listed
   def results_list
     list = []
@@ -1701,6 +1717,21 @@ class LoginPage
   
 end
 
+# Page Objects and Methods for the "All Categories" page.
+# Note that this page is distinct from the "Search => All types"
+# page.
+class AllCategoriesPage
+  
+  include PageObject
+  include HeaderFooterBar
+  
+  # Page Objects
+  div(:page_title, :class=>"s3d-contentpage-title")
+  
+  # Custom Methods...
+  
+end
+
 # Methods related to the page for creating a new user account
 class CreateNewAccount
   
@@ -1778,8 +1809,14 @@ end
 #
 class MyMessages
   
+  include PageObject
   include HeaderFooterBar
   include LeftMenuBarYou
+  
+  # Page Objects
+  span(:page_title, :id=>"inbox_box_title")
+  
+  # Custom Methods...
   
   # Returns an Array containing the list of Email subjects.
   def message_subjects
@@ -1931,6 +1968,9 @@ class MyLibrary
   include ListWidget
   include LeftMenuBarYou
 
+  # Page Objects
+  div(:page_title, :class=>"s3d-contentpage-title")
+
 end
 
 #
@@ -1941,6 +1981,11 @@ class MyMemberships
   include ListWidget
   include ListGroups
   include LeftMenuBarYou
+
+  # Page Objects
+  div(:page_title, :class=>"s3d-contentpage-title")
+  
+  # Custom methods...
 
   alias go_to open_group
   alias navigate_to open_group
@@ -1953,7 +1998,11 @@ class MyContacts
   include PageObject
   include HeaderFooterBar
   include ListWidget
+  include ListPeople
   include LeftMenuBarYou
+
+  # Page Objects
+  div(:page_title, :class=>"s3d-contentpage-title")
 
 end
 
@@ -2183,7 +2232,8 @@ class ViewDocument
   
 end
 
-#
+# Page Object and methods for the SEARCH ALL TYPES page
+# NOT the "Browse All Categories" page!
 class ExploreAll
 
   include PageObject
@@ -2197,6 +2247,13 @@ class ExploreAll
   include ListProjects
   include SearchBar
 
+  # Returns the results header title (the text prior to the count of the results returned)
+  def results_header
+    top = @browser.div(:class=>"searchall_content_main")
+    top.div(:id=>"results_header").span.text =~ /^.+(?=.\()/
+    $~.to_s
+  end
+
 end
 
 #
@@ -2208,6 +2265,13 @@ class ExploreContent
   include ListWidget
   include ListContent
   include SearchBar
+
+  # Returns the results header title (the text prior to the count of the results returned)
+  def results_header
+    top = @browser.div(:class=>"searchcontent_content_main")
+    top.div(:id=>"results_header").span.text =~ /^.+(?=.\()/
+    $~.to_s
+  end
 
 end
 
@@ -2221,6 +2285,13 @@ class ExplorePeople
   include ListPeople
   include SearchBar
 
+  # Returns the results header title (the text prior to the count of the results returned)
+  def results_header
+    top = @browser.div(:class=>"searchpeople_content_main")
+    top.div(:id=>"results_header").span.text =~ /^.+(?=.\()/
+    $~.to_s
+  end
+
 end
 
 #
@@ -2233,6 +2304,12 @@ class ExploreGroups
   include ListGroups
   include SearchBar
 
+  # Returns the results header title (the text prior to the count of the results returned)
+  def results_header
+    top = @browser.div(:id=>"searchgroups_widget", :index=>0)
+    top.div(:id=>"results_header").span(:id=>"searchgroups_type_title").text
+  end
+
 end
 
 # 
@@ -2244,6 +2321,12 @@ class ExploreCourses
   include ListWidget
   include ListGroups
   include SearchBar
+  
+  # Returns the results header title (the text prior to the count of the results returned)
+  def results_header
+    top = @browser.div(:id=>"searchgroups_widget", :index=>1)
+    top.div(:id=>"results_header").span(:id=>"searchgroups_type_title").text
+  end
   
   def courses_count
     #TBD
@@ -2259,7 +2342,6 @@ class ExploreCourses
     @browser.wait_for_ajax
   end
   
-  
 end
 
 #
@@ -2270,6 +2352,12 @@ class ExploreResearch
   include LeftMenuBarSearch
   include ListProjects
   include SearchBar
+  
+  # Returns the results header title (the text prior to the count of the results returned)
+  def results_header
+    top = @browser.div(:id=>"searchgroups_widget", :index=>2)
+    top.div(:id=>"results_header").span(:id=>"searchgroups_type_title").text
+  end
   
 end
 
