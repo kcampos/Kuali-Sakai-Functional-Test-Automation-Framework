@@ -6,7 +6,7 @@
 
 #require 'watir-webdriver'
 require 'page-object'
-require 'date'
+#require 'date'
 
 class SakaiOAE
   
@@ -136,10 +136,10 @@ module Watir
   class Browser
     
     def wait_for_ajax(timeout=5)
-      end_time = DateTime.now + timeout
+      end_time = ::Time.now + timeout
       while self.execute_script("return jQuery.active") > 0
         sleep 0.2
-        break if DateTime.now > end_time
+        break if ::Time.now > end_time
       end
       self.wait(timeout + 10)
     end
