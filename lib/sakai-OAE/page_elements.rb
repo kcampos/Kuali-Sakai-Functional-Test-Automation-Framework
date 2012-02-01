@@ -47,7 +47,7 @@ module HeaderFooterBar
   float_menu(:explore_courses,"Explore","Courses","ExploreCourses")
   float_menu(:explore_research,"Explore","Research projects","ExploreResearch")
   alias explore_research_projects explore_research
-  button(:cancel, :text=>"Cancel")
+  # button(:cancel, :text=>"Cancel") # Removing this because it fails too often. Need to explicitly define cancel buttons elsewhere.
   # Don't use this button directly when opening the collector. Instead, use the "toggle_collector" method
   # so that the Collector Widget module will be included in the object's Class.
   # You *can* use this, however, to close the collector.
@@ -71,10 +71,78 @@ module HeaderFooterBar
   text_field(:password, :id=>"topnavigation_user_options_login_fields_password")
   button(:sign_in, :id=>"topnavigation_user_options_login_button_login")
   span(:login_error, :id=>"topnav_login_username_error")
-  
   link(:sign_up_link, :id=>"navigation_anon_signup_link")
   
+  # Footer elements
+  div(:footer, :id=>/footercontainer\d+/)
+  button(:sakai_OAE_logo, :id=>"footer_logo_button")
+  link(:acknowledgements_link, :href=>"/acknowledgements") # :text=>"Created in collaboration with the Sakai Community"
+  link(:user_agreement_link, :text=>"User Agreement")
+  button(:location_button, :id=>"footer_location")
+  button(:language_button, :id=>"footer_language")
+  paragraph(:debug_info, :id=>"footer_debug_info")
+  
   # Custom Methods
+  
+  # The page object for the Explore link the footer. Defined as a custom
+  # method using Watir-webdriver, because of issues using PageObject to do it.
+  def explore_footer_link
+    @browser.span(:id=>"footer_links_right").link(:text=>"Explore")
+  end
+  
+  # Clicks the Explore button in the footer and returns the
+  # Page class for the main login page (since that's the page that loads).
+  def explore_footer
+    explore_footer_link.click
+    sleep 1
+    @browser.wait_for_ajax
+    LoginPage.new @browser
+  end
+  
+  # The page object for the Browse link the footer. Defined as a custom
+  # method because of issues using PageObject to do it.
+  def browse_footer_link
+    @browser.span(:id=>"footer_links_right").link(:text=>"Browse")
+  end
+  
+  # Clicks the Browse button in the footer
+  # And returns the AllCategories page class.
+  def browse_footer
+    browse_footer_link.click
+    sleep 1
+    @browser.wait_for_ajax
+    AllCategoriesPage.new @browser
+  end
+  
+  # Clicks the Acknowledgements link in the page Footer.
+  def acknowledgements
+    acknowledgements_link
+    sleep 1
+    @browser.wait_for_ajax
+    Acknowledgements.new @browser
+  end
+  
+  # Clicks the User Agreement link in the page footer.
+  def user_agreement
+    user_agreement_link
+    sleep 1
+    #@browser.wait_for_ajax
+    # New Class goes here.new @browser
+  end
+  
+  # Clicks the location link in the page footer
+  def change_location
+    location_button
+    @browser.wait_for_ajax
+    self.class.class_eval { include AccountPreferencesPopUp }
+  end
+  
+  # Clicks the language button in the page footer.
+  def change_language
+    language_button
+    @browser.wait_for_ajax
+    self.class.class_eval { include AccountPreferencesPopUp }
+  end
   
   # A generic link-clicking method. It clicks on a page link with text that
   # matches the supplied string. Since it uses Regex to find a match, the
@@ -132,7 +200,6 @@ module HeaderFooterBar
     CreateNewAccount.new @browser
   end
   
-  # Define footer items later
   
 end
 
@@ -578,15 +645,37 @@ module AccountPreferencesPopUp
   button(:privacy_settings, :id=>"accountpreferences_privacy_tab")
   button(:password, :id=>"accountpreferences_password_tab")
   
+  select_list(:time_zone, :id=>"time_zone")
+  select_list(:language, :id=>"pass_language")
+  
   text_field(:current_password, :id=>"curr_pass")
   text_field(:new_password, :id=>"new_pass")
   text_field(:retype_password, :id=>"retype_pass")
   
   button(:save_new_password, :text=>"Save new password")
-  button(:cancel, :class=>"s3d-link-button s3d-bold accountpreferences_cancel")
+  button(:save_preferences, :text=>"Save preferences")
+  button(:save_privacy_settings, :text=>"Save privacy settings")
   
   span(:new_password_error, :id=>"new_pass_error")
   span(:retype_password_error, :id=>"retype_pass_error")
+  
+  # Custom methods...
+  
+  # Need this custom Cancel button method because there are three different
+  # cancel buttons on this pop-up. This method will find the one that works
+  # and click on it.
+  def cancel
+    case
+    when @browser.div(:id=>"accountpreferences_preferContainer").visible?
+      @browser.div(:id=>"accountpreferences_preferContainer").button(:class=>"s3d-link-button s3d-bold accountpreferences_cancel").click
+    when @browser.div(:id=>"accountpreferences_changePrivacyContainer").visible?
+      @browser.div(:id=>"accountpreferences_changePrivacyContainer").button(:class=>"s3d-link-button s3d-bold accountpreferences_cancel").click
+    when @browser.div(:id=>"accountpreferences_changePassContainer").visible?
+      @browser.div(:id=>"accountpreferences_changePassContainer").button(:class=>"s3d-link-button s3d-bold accountpreferences_cancel").click
+    else
+      puts "\nCouldn't find the cancel button!\n"
+    end
+  end
 
 end
 
@@ -2858,4 +2947,18 @@ class ContentDetailsPage
   
 end
 
-# 
+#
+class Acknowledgements
+  
+  include PageObject
+  include HeaderFooterBar
+  
+  # Page Objects
+  div(:page_title, :class=>"s3d-bold entity_plaintitle")
+  link(:featured, :text=>"Featured")
+  link(:ui_technologies, :text=>"UI Technologies")
+  link(:back_end_technologies, :text=>"Back-end Technologies")
+  
+  # Custom Methods
+  
+end
