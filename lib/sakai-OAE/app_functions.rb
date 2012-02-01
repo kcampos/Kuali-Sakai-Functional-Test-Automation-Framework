@@ -6,6 +6,7 @@
 
 #require 'watir-webdriver'
 require 'page-object'
+#require 'date'
 
 class SakaiOAE
   
@@ -14,7 +15,6 @@ class SakaiOAE
   end
   
   def login(username, password)
-    
     @browser.div(:id=>"topnavigation_user_options_login_wrapper").fire_event("onmouseover")
     @browser.text_field(:id=>"topnavigation_user_options_login_fields_username").set username
     @browser.text_field(:name=>"topnav_login_password").set password
@@ -51,7 +51,7 @@ module PageObject
         @browser.back_to_top
         @browser.link(:text=>menu_text).fire_event("onmouseover")
         @browser.link(:text=>link_text).click
-        @browser.wait_for_ajax(10) #wait_until { @browser.text.include? target_text }
+        @browser.wait_for_ajax(10) 
         sleep 1
         eval(target_class).new @browser
       }
@@ -68,28 +68,34 @@ module PageObject
       }
     end
     
-    # 
+    # Use this for button objects that cause page navigations and thus
+    # require a new Page Object.
     def navigating_button(name, id, class_name=nil)
       define_method(name) { 
           @browser.button(:id=>id).click
-          @browser.wait_for_ajax #.button(:id=>id).wait_while_present
-          sleep 0.2 #FIXME
+          @browser.wait_for_ajax 
+          sleep 0.2
           unless class_name==nil
             eval(class_name).new @browser
           end
         }
     end
     
+    # Use this for links on the page that cause page navigations and
+    # thus require a new Page Object.
     def navigating_link(name, link_text, class_name=nil)
       define_method(name) { 
         @browser.link(:text=>/#{Regexp.escape(link_text)}/).click
-        @browser.wait_for_ajax #wait_until { @browser.text.include? page_text }
+        @browser.wait_for_ajax 
         unless class_name==nil
           eval(class_name).new @browser
         end
       }
     end
     
+    # This method is specifically for defining the contents of
+    # the Insert button, found on the Document Edit page. See the module
+    # DocumentWidget
     def insert_button(name, id, module_name)
       define_method(name) {
         @browser.button(:id=>"sakaidocs_insert_dropdown_button").click
@@ -130,10 +136,10 @@ module Watir
   class Browser
     
     def wait_for_ajax(timeout=5)
-      end_time = Time.now + timeout
+      end_time = ::Time.now + timeout
       while self.execute_script("return jQuery.active") > 0
         sleep 0.2
-        break if Time.now > end_time
+        break if ::Time.now > end_time
       end
       self.wait(timeout + 10)
     end
@@ -159,16 +165,5 @@ module Watir
       @how = :ole_object 
       return @o.for
     end
-=begin
-    def style
-      @style = :ole_object
-      return @o.style
-    end
-=end
-    def hover
-     assert_exists
-     driver.action.move_to(@element).perform
-    end
-    
   end 
 end

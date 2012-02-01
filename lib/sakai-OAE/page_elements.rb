@@ -40,13 +40,14 @@ module HeaderFooterBar
   float_menu(:create_a_group, "Create + Collect", "Create a group", "CreateGroups")
   float_menu(:create_a_course, "Create + Collect", "Create a course", "CreateCourses")
   float_menu(:create_a_research_project, "Create + Collect", "Create a research project", "CreateResearch")  
-  float_menu(:explore_all_categories, "Explore", "Browse all categories", "ExploreAll")
+  float_menu(:explore_all_categories, "Explore", "Browse all categories", "AllCategoriesPage")
   float_menu(:explore_content,"Explore","Content", "ExploreContent")
   float_menu(:explore_people,"Explore","People", "ExplorePeople")
   float_menu(:explore_groups,"Explore","Groups","ExploreGroups")
   float_menu(:explore_courses,"Explore","Courses","ExploreCourses")
   float_menu(:explore_research,"Explore","Research projects","ExploreResearch")
-  button(:cancel, :text=>"Cancel")
+  alias explore_research_projects explore_research
+  # button(:cancel, :text=>"Cancel") # Removing this because it fails too often. Need to explicitly define cancel buttons elsewhere.
   # Don't use this button directly when opening the collector. Instead, use the "toggle_collector" method
   # so that the Collector Widget module will be included in the object's Class.
   # You *can* use this, however, to close the collector.
@@ -54,9 +55,94 @@ module HeaderFooterBar
   button(:save, :text=>"Save")
   
   div(:notification, :class=>"gritter-with-image")
-  alias explore_research_projects explore_research
+  
+  link(:explore, :text=>"Explore")
+  link(:browse_all_categories, :text=>"Browse all categories")
+  text_field(:header_search, :id=>"topnavigation_search_input")
+  link(:you, :text=>"You")
+  button(:messages_container_button, :id=>"topnavigation_messages_container")
+  link(:create_collect, :id=>"navigation_create_and_add_link")
+  
+  link(:see_all, :id=>"topnavigation_search_see_all")
+  
+  # Sign-in Menu items...
+  button(:sign_in_menu, :id=>"topnavigation_user_options_login")
+  text_field(:username, :id=>"topnavigation_user_options_login_fields_username")
+  text_field(:password, :id=>"topnavigation_user_options_login_fields_password")
+  button(:sign_in, :id=>"topnavigation_user_options_login_button_login")
+  span(:login_error, :id=>"topnav_login_username_error")
+  link(:sign_up_link, :id=>"navigation_anon_signup_link")
+  
+  # Footer elements
+  div(:footer, :id=>/footercontainer\d+/)
+  button(:sakai_OAE_logo, :id=>"footer_logo_button")
+  link(:acknowledgements_link, :href=>"/acknowledgements") # :text=>"Created in collaboration with the Sakai Community"
+  link(:user_agreement_link, :text=>"User Agreement")
+  button(:location_button, :id=>"footer_location")
+  button(:language_button, :id=>"footer_language")
+  paragraph(:debug_info, :id=>"footer_debug_info")
   
   # Custom Methods
+  
+  # The page object for the Explore link the footer. Defined as a custom
+  # method using Watir-webdriver, because of issues using PageObject to do it.
+  def explore_footer_link
+    @browser.span(:id=>"footer_links_right").link(:text=>"Explore")
+  end
+  
+  # Clicks the Explore button in the footer and returns the
+  # Page class for the main login page (since that's the page that loads).
+  def explore_footer
+    explore_footer_link.click
+    sleep 1
+    @browser.wait_for_ajax
+    LoginPage.new @browser
+  end
+  
+  # The page object for the Browse link the footer. Defined as a custom
+  # method because of issues using PageObject to do it.
+  def browse_footer_link
+    @browser.span(:id=>"footer_links_right").link(:text=>"Browse")
+  end
+  
+  # Clicks the Browse button in the footer
+  # And returns the AllCategories page class.
+  def browse_footer
+    browse_footer_link.click
+    sleep 1
+    @browser.wait_for_ajax
+    AllCategoriesPage.new @browser
+  end
+  
+  # Clicks the Acknowledgements link in the page Footer.
+  def acknowledgements
+    acknowledgements_link
+    sleep 1
+    @browser.wait_for_ajax
+    Acknowledgements.new @browser
+  end
+  
+  # Clicks the User Agreement link in the page footer.
+  def user_agreement
+    user_agreement_link
+    sleep 1
+    #@browser.wait_for_ajax
+    # New Class goes here.new @browser
+  end
+  
+  # Clicks the location link in the page footer
+  def change_location
+    location_button
+    @browser.wait_for_ajax
+    self.class.class_eval { include AccountPreferencesPopUp }
+  end
+  
+  # Clicks the language button in the page footer.
+  def change_language
+    language_button
+    @browser.wait_for_ajax
+    self.class.class_eval { include AccountPreferencesPopUp }
+  end
   
   # A generic link-clicking method. It clicks on a page link with text that
   # matches the supplied string. Since it uses Regex to find a match, the
@@ -103,9 +189,17 @@ module HeaderFooterBar
     self.class.class_eval { include CollectorWidget }
   end
   
-  # Define global search later
+  def messages_container
+    messages_container_button
+    self.class.class_eval { include MessagesContainerPopUp }
+  end
   
-  # Define footer items later
+  # Clicks the "Sign up" link
+  def sign_up
+    sign_up_link
+    CreateNewAccount.new @browser
+  end
+  
   
 end
 
@@ -120,8 +214,14 @@ module HeaderBar
   button(:request_to_join_group_button, :id=>/joinrequestbuttons_request_.*/)
   button(:request_pending_button, :id=>/joinrequestbuttons_pending_.*/)
   button(:message_button, :text=>"Message")
+  #div(:page_title, :class=>"s3d-contentpage-title")
   
   # Custom Methods
+  
+  # Returns the text contents of the page title div  
+  def page_title
+    @browser.div(:id=>"s3d-page-container").div(:class=>"s3d-contentpage-title").text
+  end
   
   def join_group
     join_group_button
@@ -545,15 +645,37 @@ module AccountPreferencesPopUp
   button(:privacy_settings, :id=>"accountpreferences_privacy_tab")
   button(:password, :id=>"accountpreferences_password_tab")
   
+  select_list(:time_zone, :id=>"time_zone")
+  select_list(:language, :id=>"pass_language")
+  
   text_field(:current_password, :id=>"curr_pass")
   text_field(:new_password, :id=>"new_pass")
   text_field(:retype_password, :id=>"retype_pass")
   
   button(:save_new_password, :text=>"Save new password")
-  button(:cancel, :class=>"s3d-link-button s3d-bold accountpreferences_cancel")
+  button(:save_preferences, :text=>"Save preferences")
+  button(:save_privacy_settings, :text=>"Save privacy settings")
   
   span(:new_password_error, :id=>"new_pass_error")
   span(:retype_password_error, :id=>"retype_pass_error")
+  
+  # Custom methods...
+  
+  # Need this custom Cancel button method because there are three different
+  # cancel buttons on this pop-up. This method will find the one that works
+  # and click on it.
+  def cancel
+    case
+    when @browser.div(:id=>"accountpreferences_preferContainer").visible?
+      @browser.div(:id=>"accountpreferences_preferContainer").button(:class=>"s3d-link-button s3d-bold accountpreferences_cancel").click
+    when @browser.div(:id=>"accountpreferences_changePrivacyContainer").visible?
+      @browser.div(:id=>"accountpreferences_changePrivacyContainer").button(:class=>"s3d-link-button s3d-bold accountpreferences_cancel").click
+    when @browser.div(:id=>"accountpreferences_changePassContainer").visible?
+      @browser.div(:id=>"accountpreferences_changePassContainer").button(:class=>"s3d-link-button s3d-bold accountpreferences_cancel").click
+    else
+      puts "\nCouldn't find the cancel button!\n"
+    end
+  end
 
 end
 
@@ -843,7 +965,7 @@ module AddContentContainer
   
 end
 
-# Methods related to the Pop Up for Categories.
+# Page Objects and Methods related to the Pop Up for Categories.
 module AddRemoveCategories
   
   include PageObject
@@ -885,7 +1007,7 @@ module AddRemoveCategories
   
 end
 
-# Methods related to the "Add widgets" pop-up on the Dashboard
+# Page Objects and Methods related to the "Add widgets" pop-up on the Dashboard
 module AddRemoveWidgets
   
   include PageObject
@@ -932,7 +1054,7 @@ module AddRemoveWidgets
   
 end
 
-# Methods related to the Pop Up Dialog for Contacts
+# Page Objects and Methods related to the Pop Up Dialog for Contacts
 module AddToContactsPopUp
 
   include PageObject
@@ -964,7 +1086,7 @@ module AppearancePopUp
   
 end
 
-# Objects contained in the "Select your profile picture" pop-up dialog
+# Page Objects and Custom Methods related to the "Select your profile picture" pop-up dialog
 module ChangePicturePopUp
   
   include PageObject
@@ -1453,6 +1575,10 @@ module ListWidget
   select_list(:sort_by, :id=>/sortby/)
   select_list(:filter_by, :id=>"facted_select")
   
+  # Page Objects
+  
+  # Custom Methods...
+  
   # Returns an array containing the text of the links (for Groups, Courses, etc.) listed
   def results_list
     list = []
@@ -1471,6 +1597,7 @@ module ListWidget
   alias documents_list results_list
   alias content_list results_list
   alias results results_list
+  alias people_list results_list
   
 end
 
@@ -1538,7 +1665,8 @@ module ListPeople
   # really, but it should be used for Person links only, because it
   # instantiates the ViewPerson Class)
   def view_person(name)
-    @browser.link(:text=>name).click
+    @browser.link(:text=>/#{Regexp.escape(name)}/).click
+    @browser.wait_for_ajax
     ViewPerson.new @browser
   end
   
@@ -1660,17 +1788,16 @@ class LoginPage
   include PageObject
   include HeaderFooterBar
   
+  # Page Objects
+  div(:expand_categories, :class=>"categories_expand")
+  
+  # Custom Methods...
+  
   # Clicks the Sign Up link on the Login Page.
   def sign_up
     link(:id=>"navigation_anon_signup_link").click
     CreateNewAccount.new @browser
   end
-  
-  button(:sign_in_menu, :id=>"topnavigation_user_options_login")
-  text_field(:username, :id=>"topnavigation_user_options_login_fields_username")
-  text_field(:password, :id=>"topnavigation_user_options_login_fields_password")
-  button(:sign_in, :id=>"topnavigation_user_options_login_button_login")
-  span(:login_error, :id=>"topnav_login_username_error")
   
   # Returns an array containing the titles of the items
   # displayed in the "Recent activity" box on the login page.
@@ -1682,6 +1809,8 @@ class LoginPage
     return list.uniq!
   end
   
+  # Returns an array containing the titles of the items in the
+  # Featured Content area of the page.
   def featured_content_list
     list = []
     @browser.div(:id=>"featuredcontent_content_container").links(:class=>/featuredcontent_content_title/).each do |link|
@@ -1701,14 +1830,33 @@ class LoginPage
   
 end
 
+# Page Objects and Methods for the "All Categories" page.
+# Note that this page is distinct from the "Search => All types"
+# page.
+class AllCategoriesPage
+  
+  include PageObject
+  include HeaderFooterBar
+  
+  # Page Objects
+  div(:page_title, :class=>"s3d-contentpage-title")
+  
+  # Custom Methods...
+  
+end
+
 # Methods related to the page for creating a new user account
 class CreateNewAccount
   
   include PageObject
+  include HeaderFooterBar
   
   text_field(:user_name, :id=>"username")
   text_field(:institution, :id=>"institution")
-  text_field(:password, :id=>"password")
+  # The password field's method name needs to be
+  # "new_password" so that it doesn't conflict with
+  # the "password" field in the Sign In menu...
+  text_field(:new_password, :id=>"password")
   text_field(:retype_password, :id=>"password_repeat")
   select_list(:role, :id=>"role")
   text_field(:first_name,:id=>"firstName")
@@ -1726,6 +1874,7 @@ class MyDashboard
   include LeftMenuBarYou
   include ChangePicturePopUp
 
+  # Page Objects
   button(:edit_layout, :text=>"Edit Layout")
   radio_button(:one_column, :id=>"layout-picker-onecolumn")
   radio_button(:two_column, :id=>"layout-picker-dev")
@@ -1733,6 +1882,14 @@ class MyDashboard
   button(:save_layout, :id=>"select-layout-finished")
   button(:add_widgets, :text=>"Add Widget")
   image(:profile_pic, :id=>"entity_profile_picture")
+  #div(:page_title, :class=>"s3d-contentpage-title")
+  
+  # Custom Methods...
+
+  # Returns the text contents of the page title div  
+  def page_title
+    @browser.div(:id=>"s3d-page-container").div(:class=>"s3d-contentpage-title").text
+  end
   
   def add_widgets
     @browser.button(:text=>"Add widget").click
@@ -1778,8 +1935,14 @@ end
 #
 class MyMessages
   
+  include PageObject
   include HeaderFooterBar
   include LeftMenuBarYou
+  
+  # Page Objects
+  span(:page_title, :id=>"inbox_box_title")
+  
+  # Custom Methods...
   
   # Returns an Array containing the list of Email subjects.
   def message_subjects
@@ -1931,6 +2094,9 @@ class MyLibrary
   include ListWidget
   include LeftMenuBarYou
 
+  # Page Objects
+  div(:page_title, :class=>"s3d-contentpage-title")
+
 end
 
 #
@@ -1941,6 +2107,11 @@ class MyMemberships
   include ListWidget
   include ListGroups
   include LeftMenuBarYou
+
+  # Page Objects
+  div(:page_title, :class=>"s3d-contentpage-title")
+  
+  # Custom methods...
 
   alias go_to open_group
   alias navigate_to open_group
@@ -1953,7 +2124,11 @@ class MyContacts
   include PageObject
   include HeaderFooterBar
   include ListWidget
+  include ListPeople
   include LeftMenuBarYou
+
+  # Page Objects
+  div(:page_title, :class=>"s3d-contentpage-title")
 
 end
 
@@ -2064,18 +2239,9 @@ class ViewPerson
   
   include PageObject
   include HeaderFooterBar
+  include LeftMenuBarYou
   
-  def message
-    @browser.button(:id=>"entity_user_message").click
-    @browser.wait_until { @browser.text.include? "Send this message to:" }
-    self.class.class_eval { include SendMessagePopUp }
-  end
-  
-  def add_to_contacts
-    @browser.button(:id=>"entity_user_add_to_contacts").click
-    @browser.wait_until { @browser.text.include? "Add a personal note to the invitation:" }
-    self.class.class_eval { include AddToContactsPopUp }
-  end
+  # Page Objects
   
   navigating_link(:basic_information, "Basic Information", "ViewPerson")
   navigating_link(:categories, "Categories", "ViewPerson")
@@ -2083,6 +2249,23 @@ class ViewPerson
   navigating_link(:online, "Online", "ViewPerson")
   navigating_link(:contact_information, "Contact Information", "ViewPerson")
   navigating_link(:publications, "Publications", "ViewPerson")
+  div(:contact_name, :id=>"entity_name")
+  button(:message_button, :id=>"entity_user_message")
+  button(:add_to_contacts_button, :id=>"entity_user_add_to_contacts")
+  
+  # Custom Methods...
+  
+  def message
+    message_button
+    @browser.wait_until { @browser.text.include? "Send this message to:" }
+    self.class.class_eval { include SendMessagePopUp }
+  end
+  
+  def add_to_contacts
+    add_to_contacts_button
+    @browser.wait_until { @browser.text.include? "Add a personal note to the invitation:" }
+    self.class.class_eval { include AddToContactsPopUp }
+  end
   
   def users_library
     @browser.link(:class=>/s3d-bold lhnavigation_toplevel lhnavigation_page_title_value/, :text=>/Library/).click
@@ -2173,17 +2356,9 @@ class ViewPerson
   
 end
 
-#
-class ViewDocument
-  
-  include PageObject
-  include HeaderFooterBar
-  include LeftMenuBar
-  include HeaderBar
-  
-end
 
-#
+# Page Object and methods for the SEARCH ALL TYPES page
+# NOT the "Browse All Categories" page!
 class ExploreAll
 
   include PageObject
@@ -2197,6 +2372,13 @@ class ExploreAll
   include ListProjects
   include SearchBar
 
+  # Returns the results header title (the text prior to the count of the results returned)
+  def results_header
+    top = @browser.div(:class=>"searchall_content_main")
+    top.div(:id=>"results_header").span.text =~ /^.+(?=.\()/
+    $~.to_s
+  end
+
 end
 
 #
@@ -2208,6 +2390,13 @@ class ExploreContent
   include ListWidget
   include ListContent
   include SearchBar
+
+  # Returns the results header title (the text prior to the count of the results returned)
+  def results_header
+    top = @browser.div(:class=>"searchcontent_content_main")
+    top.div(:id=>"results_header").span.text =~ /^.+(?=.\()/
+    $~.to_s
+  end
 
 end
 
@@ -2221,6 +2410,13 @@ class ExplorePeople
   include ListPeople
   include SearchBar
 
+  # Returns the results header title (the text prior to the count of the results returned)
+  def results_header
+    top = @browser.div(:class=>"searchpeople_content_main")
+    top.div(:id=>"results_header").span.text =~ /^.+(?=.\()/
+    $~.to_s
+  end
+
 end
 
 #
@@ -2233,6 +2429,12 @@ class ExploreGroups
   include ListGroups
   include SearchBar
 
+  # Returns the results header title (the text prior to the count of the results returned)
+  def results_header
+    top = @browser.div(:id=>"searchgroups_widget", :index=>0)
+    top.div(:id=>"results_header").span(:id=>"searchgroups_type_title").text
+  end
+
 end
 
 # 
@@ -2244,6 +2446,12 @@ class ExploreCourses
   include ListWidget
   include ListGroups
   include SearchBar
+  
+  # Returns the results header title (the text prior to the count of the results returned)
+  def results_header
+    top = @browser.div(:id=>"searchgroups_widget", :index=>1)
+    top.div(:id=>"results_header").span(:id=>"searchgroups_type_title").text
+  end
   
   def courses_count
     #TBD
@@ -2259,7 +2467,6 @@ class ExploreCourses
     @browser.wait_for_ajax
   end
   
-  
 end
 
 #
@@ -2270,6 +2477,12 @@ class ExploreResearch
   include LeftMenuBarSearch
   include ListProjects
   include SearchBar
+  
+  # Returns the results header title (the text prior to the count of the results returned)
+  def results_header
+    top = @browser.div(:id=>"searchgroups_widget", :index=>2)
+    top.div(:id=>"results_header").span(:id=>"searchgroups_type_title").text
+  end
   
 end
 
@@ -2665,6 +2878,18 @@ class ContentDetailsPage
   include PageObject
   include HeaderFooterBar
   
+  # Page Objects
+  text_area(:description, :id=>"contentmetadata_description_description")
+  text_area(:comment_text, :id=>"contentcomments_txtMessage")
+  button(:comment, :text=>"Comment")
+  button(:see_more, :id=>"contentmetadata_show_more")
+  button(:see_less, :id=>"contentmetadata_show_more")
+  
+  span(:name, :id=>"entity_name")
+  span(:type, :id=>"entity_type")
+  
+  # Custom Methods...
+  
   # Returns an array object containing the items displayed in
   # "Related Content" on the page.
   def related_content
@@ -2695,8 +2920,6 @@ class ContentDetailsPage
     @browser.div(:id=>"contentmetadata_description_container").fire_event "onclick"
   end
   
-  text_area(:description, :id=>"contentmetadata_description_description")
-  
   # Opens the tag field for editing.
   def edit_tags
     @browser.div(:id=>"contentmetadata_tags_container").fire_event "onclick"
@@ -2722,14 +2945,20 @@ class ContentDetailsPage
     return list
   end
   
-  text_area(:comment_text, :id=>"contentcomments_txtMessage")
-  button(:comment, :text=>"Comment")
-  button(:see_more, :id=>"contentmetadata_show_more")
-  button(:see_less, :id=>"contentmetadata_show_more")
-  
-  span(:name, :id=>"entity_name")
-  span(:type, :id=>"entity_type")
-  
 end
 
-# 
+#
+class Acknowledgements
+  
+  include PageObject
+  include HeaderFooterBar
+  
+  # Page Objects
+  div(:page_title, :class=>"s3d-bold entity_plaintitle")
+  link(:featured, :text=>"Featured")
+  link(:ui_technologies, :text=>"UI Technologies")
+  link(:back_end_technologies, :text=>"Back-end Technologies")
+  
+  # Custom Methods
+  
+end
