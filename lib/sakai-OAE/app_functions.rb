@@ -41,6 +41,17 @@ end
 # methods that are custom to OAE.
 module PageObject
   
+  # Monkey patch helper method for links to named objects...
+  def name_link(name)
+    @browser.link(:text=>/#{Regexp.escape(name)}/i)
+  end
+  
+  # Monkey patch helper method for li elements referring to
+  # named items...
+  def name_li(name)
+    @browser.li(:text=>/#{Regexp.escape(name)}/i)
+  end
+  
   module Accessors
     
     # Use this for menus that require floating the mouse
