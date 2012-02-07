@@ -152,7 +152,7 @@ module HeaderFooterBar
   # instantiate a new page class. You will have to instantiate
   # the target page class explicitly in the test script itself, if required.
   def click_link(string)
-    @browser.link(:text=>/#{Regexp.escape(string)}/).click
+    name_link(string).click
     @browser.wait_for_ajax
   end
   
@@ -499,7 +499,22 @@ module LeftMenuBarYou
   
   div(:profile_pic_arrow, :class=>"s3d-dropdown-menu-arrow entity_profile_picture_down_arrow")
   
+  link(:inbox, :text=>"Inbox")
+  link(:invitations, :text=>"Invitations")
+  link(:sent, :text=>"Sent")
+  link(:trash, :text=>"Trash")
+  
   # Custom Methods
+  
+  # The div for the "Lock icon" next to the My messages menu
+  def my_messages_lock_icon
+    @browser.div(:text=>"My messages").div(:class=>"lhnavigation_private")
+  end
+  
+  # Expands and collapses the My Messages Tree
+  def show_hide_my_messages_tree
+    @browser.div(:id=>"lhnavigation_container").link(:text=>"My messages").click
+  end
   
   # Opens the Pop Up dialog for changing the Avatar image for the
   # current page.
@@ -628,6 +643,15 @@ module DocButtons
     @browser.execute_script(node_change)
     @browser.wait_for_ajax(1)
   end
+  
+end
+
+# Page Elements and Custom Methods that are shared among the three Error pages
+module CommonErrorElements
+  
+  include PageObject
+  
+  # TBD
   
 end
 
@@ -1059,7 +1083,8 @@ module AddToContactsPopUp
 
   include PageObject
   
-  button(:invite, :text=>"Invite")
+  # Page Object
+  button(:invite_button, :text=>"Invite")
   button(:dont_invite, :text=>"Don't Invite")
   
   text_area(:personal_note, :id=>"addtocontacts_form_personalnote")
@@ -1072,6 +1097,14 @@ module AddToContactsPopUp
   checkbox(:is_my_colleague, :value=>"Colleague")
   checkbox(:is_my_college_mate, :value=>"College Mate")
   checkbox(:shares_an_interest_with_me, :value=>"Shares Interests")
+  
+  # Custom Methods...
+  
+  def invite
+    invite_button
+    sleep 0.3
+    @browser.wait_for_ajax
+  end
   
 end
 
@@ -1390,6 +1423,25 @@ module RemoteContentPopUp
 end
 
 #
+module RemoveContactsPopUp
+  
+  include PageObject
+  
+  # Page Objects
+  button(:remove_contact_button, :id=>"contacts_delete_contact_confirm")
+  button(:cancel_button, :class=>"s3d-link-button s3d-bold jqmClose")
+  
+  # Custom Methods...
+  
+  def remove_contact
+    remove_contact_button
+    sleep 0.5
+    @browser.wait_for_ajax
+  end
+  
+end
+
+#
 module RSSFeedPopUp
   
   include PageObject
@@ -1419,7 +1471,7 @@ module SendMessagePopUp
   
   # Removes the recipient from the To list for the email.
   def remove_recipient(name)
-    @browser.li(:text=>/#{Regexp.escape(name)}/).link(:text=>"x").click
+    name_li(name).link(:text=>"x").click
   end
   
   button(:send_message, :id=>"send_message")
@@ -1572,18 +1624,21 @@ module ListWidget
   
   include PageObject
   
+  # Page Objects
   select_list(:sort_by, :id=>/sortby/)
   select_list(:filter_by, :id=>"facted_select")
-  
-  # Page Objects
   
   # Custom Methods...
   
   # Returns an array containing the text of the links (for Groups, Courses, etc.) listed
   def results_list
     list = []
-    @browser.spans(:class=>"s3d-search-result-name").each do |element|
-      list << element.text
+    begin
+      @browser.spans(:class=>"s3d-search-result-name").each do |element|
+        list << element.text
+      end
+    rescue
+      list = []
     end
     return list
   end
@@ -1598,6 +1653,7 @@ module ListWidget
   alias content_list results_list
   alias results results_list
   alias people_list results_list
+  alias contacts results_list
   
 end
 
@@ -1617,7 +1673,7 @@ module ListContent
   # supplied text, but it's made for clicking on a Document item listed on
   # the page because it will instantiate the ContentDetailsPage class). 
   def open_document(name)
-    @browser.link(:text=>/#{Regexp.escape(name)}/).click
+    name_link(name).click
     sleep 1
     @browser.wait_for_ajax
     ContentDetailsPage.new @browser
@@ -1628,7 +1684,7 @@ module ListContent
   
   # Clicks to share the specified item.
   def share(item)
-    @browser.li(:text=>/#{Regexp.escape(name)}/).button(:title=>"Share content").click
+    name_li(name).button(:title=>"Share content").click
     @browser.wait_until { @browser.text.include? "Or, share it on a webservice:" }
     self.class.class_eval { include ShareWithPopUp }
   end
@@ -1637,7 +1693,7 @@ module ListContent
   
   # Adds the specified (listed) content to the library.
   def add_content_to_library(name)
-    @browser.li(:text=>/#{Regexp.escape(name)}/).button(:title=>"Save content").click
+    name_li(name).button(:title=>"Save content").click
     @browser.wait_until { @browser.text.include? "Save to" }
     self.class.eval_class { include SaveContentPopUp }
   end
@@ -1665,20 +1721,51 @@ module ListPeople
   # really, but it should be used for Person links only, because it
   # instantiates the ViewPerson Class)
   def view_person(name)
-    @browser.link(:text=>/#{Regexp.escape(name)}/).click
+    name_link(name).click
     @browser.wait_for_ajax
     ViewPerson.new @browser
   end
   
-  # Clicks the specified Contact name. Obviously the name must exist in the list.
+  alias view_profile view_person
+  
+  # Clicks the plus sign next to the specified Contact name.
+  # Obviously the name must exist in the list.
   def add_contact(name)
-    @browser.li(:text=>/#{Regexp.escape(name)}/).div(:class=>/sakai_addtocontacts_overlay/).fire_event("onclick")
+    @browser.button(:title=>"Request connection with #{name}").click
     @browser.wait_until { @browser.button(:text=>"Invite").visible? }
-    self.class.eval_class { include AddToContactsPopUp }
+    self.class.class_eval { include AddToContactsPopUp }
   end
   
   alias request_contact add_contact
   alias request_connection add_contact
+  
+  # Clicks the X to remove the selected person from the
+  # Contacts list (in My Contacts).
+  def remove(name)
+    @browser.button(:title=>"Remove contact #{name}").click
+    @browser.wait_for_ajax
+    self.class.class_eval { include RemoveContactsPopUp }
+  end
+  
+  alias remove_contact remove
+  
+  # This method checks whether or not the listed
+  # person has the "Add contact" button available.
+  # To ensure the test case will be valid, it first
+  # makes sure the specified person is in the list.
+  # Returns true if the button is available.
+  def addable?(name)
+    if name_link(name).exists?
+      @browser.button(:title=>"Request connection with #{name}").present?
+    else
+      puts "\n#{name} isn't in the results list. Check your script.\nThis may be a false negative.\n"
+      return false
+    end
+  end
+  
+  def not_addable?(name)
+    addable?(name)== true ? false : true
+  end
   
 end
 
@@ -1688,12 +1775,12 @@ module ListGroups
   include PageObject
   
   def join_button_for(name)
-    @browser.li(:text=>/#{Regexp.escape(name)}/).div(:class=>/searchgroups_result_left_filler/)
+    name_li(name).div(:class=>/searchgroups_result_left_filler/)
   end
   
   # Clicks on the plus sign image for the specified group in the list.
   def add_group(name)
-    @browser.li(:text=>/#{Regexp.escape(name)}/).div(:class=>/searchgroups_result_left_filler/).fire_event("onclick")
+    name_li(name).div(:class=>/searchgroups_result_left_filler/).fire_event("onclick")
   end
   
   alias add_course add_group
@@ -1705,7 +1792,7 @@ module ListGroups
   # supplied text, but it's made for clicking on a Group listed on
   # the page because it will instantiate the GroupLibrary class).
   def open_group(name)
-    @browser.link(:text=>/#{Regexp.escape(name)}/i).click
+    name_link(name).click
     sleep 1
     @browser.wait_for_ajax
     @browser.execute_script("$('#joinrequestbuttons_widget').css({display: 'block'})")
@@ -1724,7 +1811,7 @@ module ListGroups
   
   # Clicks the Message button for the specified listed item.
   def message_course(name)
-    @browser.li(:text=>/#{Regexp.escape(name)}/).button(:class=>/sakai_sendmessage_overlay/).click
+    name_li(name).button(:class=>/sakai_sendmessage_overlay/).click
     self.class.class_eval { include SendMessagePopUp }
   end
   
@@ -1747,7 +1834,7 @@ module ListProjects
   # supplied text, but it's made for clicking on a Research item listed on
   # the page because it will instantiate the ResearchIntro class).
   def open_research(name)
-    @browser.link(:text=>/#{Regexp.escape(name)}/i).click
+    name_link(name).click
     sleep 1
     @browser.wait_for_ajax
     @browser.execute_script("$('#joinrequestbuttons_widget').css({display: 'block'})")
@@ -1940,19 +2027,89 @@ class MyMessages
   include LeftMenuBarYou
   
   # Page Objects
-  span(:page_title, :id=>"inbox_box_title")
+  button(:accept_invitation, :text=>"Accept invitation")
+  button(:ignore_invitation, :text=>"Ignore invitation")
   
   # Custom Methods...
+  
+  # Returns the text of the displayed page title
+  def page_title
+    active_div.span(:id=>"inbox_box_title").text
+  end
+  
+  # Clicks the "Compose message" button on any of the
+  # My messages pages.
+  def compose_message
+    active_div.link(:id=>"inbox_create_new_message").click
+  end
   
   # Returns an Array containing the list of Email subjects.
   def message_subjects
     list = []
-    @browser.divs(:class=>"inbox_subject").each do |div|
+    active_div.divs(:class=>"inbox_subject").each do |div|
       list << div.text
     end
     return list
   end
- 
+
+  # Clicks on the specified email to open it for reading
+  def open_message(subject)
+    active_div.div(:class=>"inbox_subject").link(:text=>subject).click
+    @browser.wait_for_ajax
+  end
+
+  alias read_message open_message
+  
+  # New Message page
+  
+  # Enters the specified text string into the
+  # "Send this message to" text box
+  def send_this_message_to=(text)
+    active_div.text_field(:id=>"sendmessage_to_autoSuggest").set text
+  end
+  
+  # Enters the specified text string into the
+  # "Subject" field
+  def subject=(text)
+    active_div.text_field(:id=>"comp-subject").set text
+  end
+  
+  # Enters the specified text string into the Body
+  # field.
+  def body=(text)
+    active_div.textarea(:id=>"comp-body").set text
+  end
+  
+  # Clicks the "Send message" button
+  def send_message
+    active_div.button(:id=>"send_message").click 
+  end
+  
+  # Clicks the "Don't send" button
+  def dont_send
+    active_div.button(:id=>"send_message_cancel").click 
+  end
+
+  private
+  
+  # determines which sub page is currently active,
+  # so that all the other methods in the class will work
+  # properly. 
+  def active_div
+    container_div = @browser.div(:id=>"s3d-page-container")
+    case
+    when container_div.div(:id=>/^id\d{8}$/, :class=>"inline_class_widget_nofloat", :index=>0).visible?
+      id = container_div.div(:id=>/^id\d{8}$/, :class=>"inline_class_widget_nofloat", :index=>0).parent.id
+    when container_div.div(:id=>/^id\d{8}$/, :class=>"inline_class_widget_nofloat", :index=>1).visible?
+      id = container_div.div(:id=>/^id\d{8}$/, :class=>"inline_class_widget_nofloat", :index=>1).parent.id
+    when container_div.div(:id=>/^id\d{8}$/, :class=>"inline_class_widget_nofloat", :index=>2).visible?
+      id = container_div.div(:id=>/^id\d{8}$/, :class=>"inline_class_widget_nofloat", :index=>2).parent.id
+    when container_div.div(:id=>/^id\d{8}$/, :class=>"inline_class_widget_nofloat",:index=>3).visible?
+      id = container_div.div(:id=>/^id\d{8}$/, :class=>"inline_class_widget_nofloat", :index=>3).parent.id
+    end
+    return @browser.div(:id=>id)
+  end
+  
 end
 
 #
@@ -2109,7 +2266,7 @@ class MyMemberships
   include LeftMenuBarYou
 
   # Page Objects
-  div(:page_title, :class=>"s3d-contentpage-title")
+  div(:page_title, :class=>"s3d-contentpage-title") # FIXME!
   
   # Custom methods...
 
@@ -2118,7 +2275,7 @@ class MyMemberships
 
 end
 
-#
+# Page Objects and Custom Methods for the My Contacts page.
 class MyContacts
 
   include PageObject
@@ -2128,8 +2285,53 @@ class MyContacts
   include LeftMenuBarYou
 
   # Page Objects
-  div(:page_title, :class=>"s3d-contentpage-title")
+  navigating_link(:find_and_add_people, "Find and add people", "ExplorePeople")
 
+  # Page Objects defined with Watir-webdriver...
+  
+  # The text of the Page Title. It should usually return "My contacts".
+  def page_title
+    active_div.div(:class=>"s3d-contentpage-title").text
+  end
+  
+  # This returns the the "contacts_invited" page div
+  # (as a Watir page object). This can be used to validate
+  # that there are pending invites on the page. Primarily, however, it's used
+  # by other methods in this class--to differentiate the pending list
+  # from the contacts list.
+  def pending_contacts
+    active_div.div(:id=>"contacts_invited")
+  end
+  
+  # Custom Methods...
+  
+  # Returns the list of names of people requesting
+  # contact
+  def pending_invites
+    list = []
+    pending_contacts.links(:class=>"s3d-bold s3d-regular-light-links", :title=>/View/).each { |link| list << link.text }
+    return list
+  end
+  
+  # Clicks the "accept connection" plus sign for the specified
+  # person in the Pending contacts list
+  def accept_connection(name)
+    @browser.li(:text=>/#{Regexp.escape(name)}/).button(:title=>"Accept connection").click
+    sleep 1
+    @browser.wait_for_ajax
+  end
+  
+  # Private methods...
+  
+  private
+  
+  # The top div for the contents of the page.
+  # This method is a helper method for other objects
+  # defined on the page.
+  def active_div
+    @browser.div(:id=>/^contactscontainer\d+/)
+  end
+  
 end
 
 #
@@ -2242,7 +2444,6 @@ class ViewPerson
   include LeftMenuBarYou
   
   # Page Objects
-  
   navigating_link(:basic_information, "Basic Information", "ViewPerson")
   navigating_link(:categories, "Categories", "ViewPerson")
   navigating_link(:about_me, "About Me", "ViewPerson")
@@ -2252,8 +2453,15 @@ class ViewPerson
   div(:contact_name, :id=>"entity_name")
   button(:message_button, :id=>"entity_user_message")
   button(:add_to_contacts_button, :id=>"entity_user_add_to_contacts")
+  button(:invitation_sent_button, :text=>"Contact invitation sent")
+  button(:accept_invitation_button, :id=>"entity_user_accept_invitation")
   
   # Custom Methods...
+  
+  def accept_invitation
+    accept_invitation_button
+    @browser.wait_for_ajax
+  end
   
   def message
     message_button
@@ -2960,5 +3168,32 @@ class Acknowledgements
   link(:back_end_technologies, :text=>"Back-end Technologies")
   
   # Custom Methods
+  
+end
+
+#
+class FourOhFourPage
+  
+  include PageObject
+  include HeaderFooterBar
+  include CommonErrorElements
+  
+end
+
+#
+class FourOhThreePage
+  
+  include PageObject
+  include HeaderFooterBar
+  include CommonErrorElements
+  
+end
+
+#
+class FourOhFourPage
+  
+  include PageObject
+  include HeaderFooterBar
+  include CommonErrorElements
   
 end
