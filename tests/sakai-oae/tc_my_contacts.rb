@@ -3,10 +3,7 @@
 # 
 # == Synopsis
 #
-# Tests surrounding the My Contacts page--Adding, inviting, removing, rejecting, etc.
-# Note that this test case presumes the test users don't currently have
-# any contacts at all. Please update the user test data below, or the
-# directory.yml file, with appropriate users, as necessary, before running this script.
+# Academic Smoke tests. Shallowly tests a broad range of features.
 # 
 # Author: Abe Heward (aheward@rSmart.com)
 gem "test-unit"

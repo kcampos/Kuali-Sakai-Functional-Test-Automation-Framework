@@ -55,6 +55,39 @@ module Utilities
     s.to_s
   end
   
+  # Returns a block of text (of the specified type, see below) containing
+  # the specified number of "words" (each containing between 1 and 16 chars)
+  # randomly spread across the specified number of lines (note that
+  # the method does not allow the line count to be larger than
+  # the word count and will "fix" it if it is).
+  #
+  # If no arguments are provided, the method will return two alphanumeric
+  # "words" on two lines.
+  #
+  # The last argument the method takes will determine the character content
+  # of the string, viz.:
+  #
+  # :alpha => Alphanumeric -> uses the random_alphanums method
+  # :string => uses the random_string method, so chars 33 through 128 will be included
+  # :ascii => All ASCII chars from 33 to 256 are fair game -> uses random_high_ascii
+  def random_multiline(word_count=2, line_count=2, char_type=:alpha)
+    char_methods = {:alpha=>"random_alphanums(rand(16)+1)", :string=>"random_string(rand(16)+1)", :ascii=>"random_high_ascii(rand(16)+1)"}
+    if line_count > word_count
+      line_count = word_count - 1
+    end
+    words = []
+    non_words = []
+    word_count.times { words << eval(char_methods[char_type]) } # creating the words, adding to the array
+    (line_count - 1).times { non_words << "\n" } # adding the number of line feeds
+    unless word_count==line_count
+      (word_count - line_count - 1).times { non_words << " " } # adding the right number of spaces
+    end
+    non_words.shuffle! # Have to shuffle the line feeds around!
+    array = words.zip(non_words)
+    array.flatten!
+    return array.join("")
+  end
+  
   # Picks at random from the list of XSS test strings, using
   # the provided number as size of the list to choose from.
   # It will randomly pre-pend the string with HTML closing tags.
@@ -130,17 +163,30 @@ module Utilities
   end
   
   # Takes a time object as the input (e.g., Time.now) and returns
-  # a string formatted like so:
+  # a string formatted in particular ways.
+  # When the specified "type" value is "cle" (or not specified),
+  # The returned string will look like this:
   # "Jan 9, 2012 1:12 am"
+  # When "oae-message":
+  # "2/8/2012 1:06 PM"
   # Note the lack of zero-padding for the day of the month and the
   # hour of the day. The hour value will be for a 12-hour clock.
-  def make_date(time_object)
-    month = time_object.strftime("%b ")
-    day = time_object.strftime("%d").to_i
-    year = time_object.strftime(", %Y ")
-    mins = time_object.strftime(":%M %P")
-    hour = time_object.strftime("%l").to_i
-    return month + day.to_s + year + hour.to_s + mins
+  def make_date(time_object, type="cle")
+    case(type)
+    when "cle"
+      month = time_object.strftime("%b ")
+      day = time_object.strftime("%d").to_i
+      year = time_object.strftime(", %Y ")
+      mins = time_object.strftime(":%M %P")
+      hour = time_object.strftime("%l").to_i
+      return month + day.to_s + year + hour.to_s + mins
+    when "oae-message"
+      date = time_object.strftime("%-m/%-d/%Y ")
+      hour = time_object.strftime("%l").to_i
+      mins = time_object.strftime(":%M %p")
+      return date + hour.to_s + mins
+    end
+    
   end
   
   # returns a hash object containing strings that will, for example,
