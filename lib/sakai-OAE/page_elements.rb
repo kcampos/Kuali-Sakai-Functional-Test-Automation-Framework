@@ -68,6 +68,11 @@ module GlobalMethods
   alias open_group open_library
   alias open_course open_library
   
+  # The "gritter" notification that appears to confirm
+  # when something has happened (like updating a user profile
+  # or sending a message).
+  div(:notification, :class=>"gritter-with-image")
+  
   # This method is essentially
   # identical with the
   # open_link methods listed above.
@@ -98,6 +103,11 @@ module GlobalMethods
   end
   
   alias view_profile view_person
+
+  def close_notification
+    self.notification_element.fire_event "onmouseover"
+    self.div(:class=>"gritter-close").fire_event "onclick"
+  end
 
 end
 
@@ -133,9 +143,7 @@ module HeaderFooterBar
   # You *can* use this, however, to close the collector.
   button(:collector, :class=>"topnavigation_menuitem_counts_container collector_toggle")
   button(:save, :text=>"Save")
-  
-  div(:notification, :class=>"gritter-with-image")
-  
+
   link(:explore, :text=>"Explore")
   link(:browse_all_categories, :text=>"Browse all categories")
   text_field(:header_search, :id=>"topnavigation_search_input")
@@ -260,11 +268,6 @@ module HeaderFooterBar
   
   def add_collection
     
-  end
-  
-  def close_notification
-    notification_element.fire_event "onmouseover"
-    self.div(:class=>"gritter-close").fire_event "onclick"
   end
   
   def toggle_collector
@@ -1440,15 +1443,17 @@ module ManageParticipants
   # It makes no allowances for failing to find the target user/member.
   def add_by_search(name)
     name.split("", 2).each do |letter|
-      @browser.text_field(:id=>/addpeople/, :class=>"as-input").focus
-      @browser.text_field(:id=>/addpeople/, :class=>"as-input").send_keys(letter)
-      @browser.text_field(:id=>/addpeople/, :class=>"as-input").focus
-      begin
-        @browser.wait_until(0.4) { @browser.ul(:class=>"as-list").visible? }
-      rescue
-        @browser.execute_script("$('.as-results').css({display: 'block'});")
-      end
-      if @browser.li(:text=>/#{Regexp.escape(name)}/, :id=>/as-result-item-\d+/).present?
+      self.text_field(:id=>/addpeople/, :class=>"as-input").focus
+      self.text_field(:id=>/addpeople/, :class=>"as-input").send_keys(letter)
+      #@browser.text_field(:id=>/addpeople/, :class=>"as-input").focus
+      self.wait_until { self.div(:id=>/^as-results-/).visible? }
+      next if self.li(:id=>"as-result-item-0").text=="No results found"
+      #begin
+      #  @browser.wait_until(0.4) { @browser.ul(:class=>"as-list").visible? }
+      #rescue
+      #  @browser.execute_script("$('.as-results').css({display: 'block'});")
+      #end
+      if self.li(:text=>/#{Regexp.escape(name)}/, :id=>/as-result-item-\d+/).present?
         @browser.li(:text=>/#{Regexp.escape(name)}/, :id=>/as-result-item-\d+/).click
         break
       end
@@ -1609,23 +1614,69 @@ module SaveContentPopUp
   
 end
 
-# The Email message pop up dialog that appears when in the Worlds context
-# (or when you click the little envelop icon )
+# The Email message fields in My Messages and the pop up dialog
+# that appears when in the Worlds context
+# (or when you click the little envelop icon in lists of People).
 module SendMessagePopUp
   
   include PageObject
-  
-  text_field(:send_this_message_to, :id=>"sendmessage_to_autoSuggest")
-  text_field(:subject, :id=>"comp-subject")
-  text_area(:body, :id=>"comp-body")
   
   # Removes the recipient from the To list for the email.
   def remove_recipient(name)
     name_li(name).link(:text=>"x").click
   end
   
-  button(:send_message, :id=>"send_message")
-  button(:dont_send, :id=>"send_message_cancel")
+  # Enters the specified text string into the
+  # "Send this message to" text box, then clicks
+  # The matching item in the results list box.
+  def send_this_message_to=(name)
+    #current_div.text_field(:id=>"sendmessage_to_autoSuggest").set name
+    #sleep 0.6
+    #self.li(:id=>"as-result-item-0").click
+    name.split("", 4).each do |letter|
+      current_div.text_field(:id=>"sendmessage_to_autoSuggest", :class=>"as-input").focus
+      current_div.text_field(:id=>"sendmessage_to_autoSuggest", :class=>"as-input").send_keys(letter)
+      self.wait_until { self.div(:id=>"as-results-sendmessage_to_autoSuggest").visible? }
+      next if self.li(:id=>"as-result-item-0").text=="No results found"
+      if self.li(:text=>/#{Regexp.escape(name)}/, :id=>/as-result-item-\d+/).present?
+        self.li(:text=>/#{Regexp.escape(name)}/, :id=>/as-result-item-\d+/).click
+        break
+      end
+    end
+    
+  end
+  
+  # Enters the specified text string into the
+  # "Subject" field
+  def subject=(text)
+    current_div.text_field(:id=>"comp-subject").set text
+  end
+  
+  # Enters the specified text string into the Body
+  # field.
+  def body=(text)
+    current_div.textarea(:id=>"comp-body").set text
+  end
+  
+  # Clicks the "Send message" button
+  def send_message
+    current_div.button(:id=>"send_message").click
+    self.wait_for_ajax
+  end
+  
+  # Clicks the "Don't send" button
+  def dont_send
+    current_div.button(:id=>"send_message_cancel").click
+    self.wait_for_ajax
+  end
+  
+  def current_div
+    begin 
+      return active_div
+    rescue NoMethodError
+      return self
+    end
+  end
   
 end
 
@@ -1903,6 +1954,12 @@ module ListPeople
   
   alias remove_contact remove
   
+  def send_message_to(name)
+    name_li(name).button(:class=>"s3d-link-button s3d-action-icon s3d-actions-message searchpeople_result_message_icon sakai_sendmessage_overlay").click
+    self.wait_for_ajax
+    self.class.class_eval { include SendMessagePopUp }
+  end
+  
   # This method checks whether or not the listed
   # person has the "Add contact" button available.
   # To ensure the test case will be valid, it first
@@ -2003,7 +2060,7 @@ module ListProjects
   
 end
 
-# Methods related to the Mail Pages.
+# Methods related to the Mail Pages. (Is this needed????)
 module MailWidget
   
   include PageObject
@@ -2651,6 +2708,7 @@ class MyMessages
   def compose_message
     active_div.link(:id=>"inbox_create_new_message").click
     self.wait_for_ajax
+    self.class.class_eval { include SendMessagePopUp }
   end
   
   # Returns an Array containing the list of Email subjects.
@@ -2670,42 +2728,7 @@ class MyMessages
 
   alias read_message open_message
   
-  # New Message page
-  
-  # Enters the specified text string into the
-  # "Send this message to" text box, then clicks
-  # The first item in the results box. Note that this
-  # necessitates that the first item listed will be
-  # the correct item.
-  def send_this_message_to=(name)
-    active_div.text_field(:id=>"sendmessage_to_autoSuggest").set name
-    sleep 0.6
-    self.li(:id=>"as-result-item-0").click
-  end
-  
-  # Enters the specified text string into the
-  # "Subject" field
-  def subject=(text)
-    active_div.text_field(:id=>"comp-subject").set text
-  end
-  
-  # Enters the specified text string into the Body
-  # field.
-  def body=(text)
-    active_div.textarea(:id=>"comp-body").set text
-  end
-  
-  # Clicks the "Send message" button
-  def send_message
-    active_div.button(:id=>"send_message").click
-    self.wait_for_ajax
-  end
-  
-  # Clicks the "Don't send" button
-  def dont_send
-    active_div.button(:id=>"send_message_cancel").click
-    self.wait_for_ajax
-  end
+  # The New Message page is controlled by the SendMessagePopUp module
 
   # Read/Reply Page Objects (defined with Watir)
 
