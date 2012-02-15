@@ -10,4 +10,43 @@ Ruby Gems:
     Test-Unit
     Ci_reporter
 
-...more to come...
+Description:
+
+Provides a framework for interacting with web sites for Sakai-CLE and Sakai-OAE, using
+Ruby and Watir-webdriver--but without needing to know either in detail.
+
+OAE Project Directory and File Structure:
+
+\ROOT
+| - \config
+|    | - \OAE
+|           config.rb
+|           config.yml
+|           directory.yml
+| - \data
+|    | - \sakai-OAE
+|           data files...
+| - \lib
+|    |  utilities.rb
+|    | - \sakai-OAE
+|           app_functions.rb
+|           page_elements.rb
+| - \tests
+|      test case files...
+|      test suite files...
+
+A Basic Usage Example for OAE:
+
+require "watir-webdriver"
+require "page-object"
+require "config"        # These lines assume you've added
+require "utilities"     # the various relevant file paths
+require "app_functions" # to Ruby's load path.
+require "page_elements" #
+
+# Log in to Sakai OAE with "username" and "password"...
+dashboard = @sakai.login("username", "password") # See the SakaiOAE class in app_functions.rb
+
+# Go to the course library page for "Econ 101"...
+course_library = dashboard.open_course "Econ 101"   # See the page_elements.rb file. Specifically, see
+                                                    # GlobalMethods, MyDashboard, and Library.

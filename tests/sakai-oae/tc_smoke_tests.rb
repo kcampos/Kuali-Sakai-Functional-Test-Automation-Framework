@@ -7,13 +7,13 @@
 # eventually be deprecated in favor of the more robust ts_smoke_tests.rb test suite.
 # 
 # Author: Abe Heward (aheward@rSmart.com)
+$: << File.expand_path(File.dirname(__FILE__) + "/../../lib/")
 gem "test-unit"
-gems = ["test/unit", "watir-webdriver", "ci/reporter/rake/test_unit_loader"]
-gems.each { |gem| require gem }
-files = [ "/../../config/OAE/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-OAE/app_functions.rb", "/../../lib/sakai-OAE/page_elements.rb" ]
-files.each { |file| require File.dirname(__FILE__) + file }
+["test/unit", "watir-webdriver", "ci/reporter/rake/test_unit_loader",
+  "../../config/OAE/config.rb", "utilities", "sakai-OAE/app_functions",
+  "sakai-OAE/page_elements" ].each { |item| require item }
 
-class TestMyContacts < Test::Unit::TestCase
+class TestSmokeTests < Test::Unit::TestCase
   
   include Utilities
 
@@ -90,7 +90,7 @@ class TestMyContacts < Test::Unit::TestCase
       :volume_title=>random_string,
       :volume_info=>random_string,
       :year=>"19#{rand(99)}",
-      :number=>andom_string,
+      :number=>random_string,
       :series=>random_string,
       :url=>"http://www.#{random_nicelink}.com"
       }
@@ -112,7 +112,7 @@ class TestMyContacts < Test::Unit::TestCase
     @browser.close
   end
 
-  def test_smoke_checks
+  def test_smoke_checks1_adding_contacts
     
     # User 1 adds other users to contacts...
     dash = @sakai.login(@user1, @pass1) 
@@ -154,9 +154,16 @@ class TestMyContacts < Test::Unit::TestCase
     
     # User 2 accepts connection
     my_contacts.accept_connection @user1_name
+    
+  end
 
+  def test_smoke_checks2_the_rest
+    
+    # User 2 logs in
+    dash = @sakai.login(@user2, @pass2)
+    
     # User 2 sends user 1 a message...
-    inbox = my_contacts.my_messages
+    inbox = dash.my_messages
     inbox.compose_message
     inbox.send_this_message_to=@user1_name # Bug here with names that contain "bad" chars.
     inbox.subject=@message_subject

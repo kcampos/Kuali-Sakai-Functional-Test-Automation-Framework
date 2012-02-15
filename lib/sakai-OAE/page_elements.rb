@@ -333,9 +333,9 @@ module HeaderBar
   # Add Content stuff to load, then includes the
   # AddContentContainer module in the object's Class.
   def add_content
-    @browser.button(:id=>"entity_group_permissions").click
-    @browser.button(:text=>"Add content").click
-    @browser.wait_until { @browser.text.include? "Collected items" }
+    self.button(:id=>"entity_group_permissions").click
+    self.button(:text=>"Add content").click
+    self.wait_until { self.text.include? "Collected items" }
     self.class.class_eval { include AddContentContainer }
   end
   
@@ -345,9 +345,9 @@ module HeaderBar
   # includes the ManageParticipants module in the Class of the object
   # calling the method.
   def manage_participants
-    @browser.button(:id=>"entity_group_permissions").click
-    @browser.button(:text=>"Manage participants").click
-    @browser.wait_until { @browser.text.include? "My contacts and memberships" }
+    self.button(:id=>"entity_group_permissions").click
+    self.button(:text=>"Manage participants").click
+    self.wait_until { self.text.include? "My contacts and memberships" }
     self.class.class_eval { include ManageParticipants }
   end
   
@@ -370,9 +370,9 @@ module HeaderBar
   # includes the AddRemoveCategories module in the Class of the object
   # calling the method.
   def categories
-    @browser.button(:id=>"entity_group_permissions").click
-    @browser.button(:text=>"Categories").click
-    @browser.wait_until { @browser.text.include? "Assign a category" }
+    self.button(:id=>"entity_group_permissions").click
+    self.button(:text=>"Categories").click
+    self.wait_until { self.text.include? "Assign a category" }
     self.class.class_eval { include AddRemoveCategories }
   end
   
@@ -381,8 +381,8 @@ module HeaderBar
   # then includes the ChangePicturePopup in the Class of the object
   # calling the method.
   def change_picture
-    @browser.div(:class=>"entity_profile_picture_down_arrow").fire_event("onclick")
-    @browser.link(:id=>"changepic_container_trigger").click
+    self.div(:class=>"entity_profile_picture_down_arrow").fire_event("onclick")
+    self.link(:id=>"changepic_container_trigger").click
     self.class.class_eval { include ChangePicturePopup }
   end
   
@@ -403,45 +403,45 @@ module LeftMenuBar
   # Use this to click left menu items that refer to multi-paged documents.
   # It expands the menu to display the document's pages.
   def expand(name)
-    @browser.div(:id=>"lhnavigation_container").link(:text=>name).click
+    self.div(:id=>"lhnavigation_container").link(:text=>name).click
   end
   
   # Changes the title of the specified page ("from_string")
   # to the string value specified by to_string.
   def change_title_of(from_string, to_string)
-    @browser.link(:class=>/lhnavigation_page_title_value/, :text=>from_string).hover
-    @browser.wait_for_ajax #.wait_until { @browser.link(:class=>/lhnavigation_page_title_value/, :text=>from_string).parent.div(:class=>"lhnavigation_selected_submenu_image").visible? }
-    @browser.div(:class=>"lhnavigation_selected_submenu_image").hover
-    @browser.execute_script("$('#lhnavigation_submenu').css({left:'300px', top:'300px', display: 'block'})")
-    @browser.wait_for_ajax #.wait_until { @browser.link(:id=>"lhavigation_submenu_edittitle").visible? }
-    @browser.link(:id=>"lhavigation_submenu_edittitle").click
-    @browser.link(:class=>/lhnavigation_page_title_value/, :text=>from_string).parent.text_field(:class=>"lhnavigation_change_title").set("#{to_string}\n")
+    self.link(:class=>/lhnavigation_page_title_value/, :text=>from_string).hover
+    self.wait_for_ajax #.wait_until { self.link(:class=>/lhnavigation_page_title_value/, :text=>from_string).parent.div(:class=>"lhnavigation_selected_submenu_image").visible? }
+    self.div(:class=>"lhnavigation_selected_submenu_image").hover
+    self.execute_script("$('#lhnavigation_submenu').css({left:'300px', top:'300px', display: 'block'})")
+    self.wait_for_ajax #.wait_until { self.link(:id=>"lhavigation_submenu_edittitle").visible? }
+    self.link(:id=>"lhavigation_submenu_edittitle").click
+    self.link(:class=>/lhnavigation_page_title_value/, :text=>from_string).parent.text_field(:class=>"lhnavigation_change_title").set("#{to_string}\n")
   end
   
   alias change_title change_title_of
   
   # Deletes the page specified by page_name.
   def delete_page(page_name)
-    @browser.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).fire_event("onmouseover")
-    @browser.wait_for_ajax #.wait_until { @browser.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).parent.div(:class=>"lhnavigation_selected_submenu_image").visible? }
-    @browser.div(:class=>"lhnavigation_selected_submenu_image").hover
-    @browser.execute_script("$('#lhnavigation_submenu').css({left:'300px', top:'300px', display: 'block'})")
-    @browser.wait_for_ajax #.wait_until { @browser.link(:id=>"lhavigation_submenu_edittitle").visible? }
-    @browser.link(:id=>"lhavigation_submenu_deletepage").click
-    @browser.wait_for_ajax
+    self.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).fire_event("onmouseover")
+    self.wait_for_ajax #.wait_until { self.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).parent.div(:class=>"lhnavigation_selected_submenu_image").visible? }
+    self.div(:class=>"lhnavigation_selected_submenu_image").hover
+    self.execute_script("$('#lhnavigation_submenu').css({left:'300px', top:'300px', display: 'block'})")
+    self.wait_for_ajax #.wait_until { self.link(:id=>"lhavigation_submenu_edittitle").visible? }
+    self.link(:id=>"lhavigation_submenu_deletepage").click
+    self.wait_for_ajax
     self.class.class_eval { include DeletePagePopUp }
   end
   
   # Opens the Permissions Pop Up for the specified Page.
   def permissions_for_page(page_name)
-    @browser.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).fire_event("onmouseover")
-    @browser.wait_until { @browser.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).parent.div(:class=>"lhnavigation_selected_submenu_image").visible? }
-    @browser.div(:class=>"lhnavigation_selected_submenu_image").hover
-    @browser.execute_script("$('#lhnavigation_submenu').css({left:'328px', top:'349px', display: 'block'})")
-    @browser.wait_until { @browser.link(:id=>"lhavigation_submenu_edittitle").visible? }
-    @browser.link(:id=>"lhnavigation_submenu_permissions").click
+    self.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).fire_event("onmouseover")
+    self.wait_until { self.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).parent.div(:class=>"lhnavigation_selected_submenu_image").visible? }
+    self.div(:class=>"lhnavigation_selected_submenu_image").hover
+    self.execute_script("$('#lhnavigation_submenu').css({left:'328px', top:'349px', display: 'block'})")
+    self.wait_until { self.link(:id=>"lhavigation_submenu_edittitle").visible? }
+    self.link(:id=>"lhnavigation_submenu_permissions").click
     sleep 0.2
-    @browser.wait_for_ajax
+    self.wait_for_ajax
     self.class.class_eval { include PermissionsPopUp }
   end
   
@@ -453,15 +453,15 @@ module LeftMenuBar
   # clicking "View Profile", and then switching to the new
   # browser tab/window that gets opened.
   def view_profile_of_page(page_name)
-    @browser.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).fire_event("onmouseover")
-    @browser.wait_for_ajax #.wait_until { @browser.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).parent.div(:class=>"lhnavigation_selected_submenu_image").visible? }
-    @browser.div(:class=>"lhnavigation_selected_submenu_image").hover
-    @browser.execute_script("$('#lhnavigation_submenu').css({left:'328px', top:'349px', display: 'block'})")
-    @browser.wait_for_ajax #.wait_until { @browser.link(:id=>"lhavigation_submenu_edittitle").visible? }
-    @browser.link(:id=>"lhnavigation_submenu_profile").click
-    @browser.wait_for_ajax #.button(:title=>"Show debug info").wait_until_present
-    @browser.window(:title=>"rSmart | Content Profile").use
-    ContentDetailsPage.new @browser
+    self.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).fire_event("onmouseover")
+    self.wait_for_ajax #.wait_until { self.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).parent.div(:class=>"lhnavigation_selected_submenu_image").visible? }
+    self.div(:class=>"lhnavigation_selected_submenu_image").hover
+    self.execute_script("$('#lhnavigation_submenu').css({left:'328px', top:'349px', display: 'block'})")
+    self.wait_for_ajax #.wait_until { self.link(:id=>"lhavigation_submenu_edittitle").visible? }
+    self.link(:id=>"lhnavigation_submenu_profile").click
+    self.wait_for_ajax #.button(:title=>"Show debug info").wait_until_present
+    self.window(:title=>"rSmart | Content Profile").use
+    ContentDetailsPage.new self
   end
   
   alias view_profile_for_page view_profile_of_page
@@ -469,8 +469,8 @@ module LeftMenuBar
   
   # Clicks the "Add a new area" button.
   def add_new_area
-    @browser.button(:id=>"group_create_new_area", :class=>"s3d-button s3d-header-button s3d-popout-button").click
-    @browser.wait_for_ajax(6)
+    self.button(:id=>"group_create_new_area", :class=>"s3d-button s3d-header-button s3d-popout-button").click
+    self.wait_for_ajax(6)
     self.class.class_eval { include AddAreasPopUp }
   end
   
@@ -480,7 +480,7 @@ module LeftMenuBar
   # Returns an array containing the Course/Group area/page titles.
   def public_pages
     list = []
-    @browser.div(:id=>"lhnavigation_public_pages").links.each do |link|
+    self.div(:id=>"lhnavigation_public_pages").links.each do |link|
       list << link.text
     end
     return list
@@ -490,8 +490,8 @@ module LeftMenuBar
   alias areas public_pages
   
   def menu_available?(page_name)
-    @browser.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).fire_event("onmouseover")
-    if @browser.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).parent.div(:class=>"lhnavigation_selected_submenu_image").visible?
+    self.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).fire_event("onmouseover")
+    if self.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).parent.div(:class=>"lhnavigation_selected_submenu_image").visible?
       return true
     else
       return false
@@ -546,19 +546,19 @@ module LeftMenuBarYou
   
   # The div for the "Lock icon" next to the My messages menu
   def my_messages_lock_icon
-    @browser.div(:text=>"My messages").div(:class=>"lhnavigation_private")
+    self.div(:text=>"My messages").div(:class=>"lhnavigation_private")
   end
   
   # Expands and collapses the My Messages Tree
   def show_hide_my_messages_tree
-    @browser.div(:id=>"lhnavigation_container").link(:text=>"My messages").click
+    self.div(:id=>"lhnavigation_container").link(:text=>"My messages").click
   end
   
   # Opens the Pop Up dialog for changing the Avatar image for the
   # current page.
   def change_picture
     profile_pic_arrow_element.fire_event("onclick")
-    @browser.link(:id=>"changepic_container_trigger").click
+    self.link(:id=>"changepic_container_trigger").click
     self.class.class_eval { include ChangePicturePopUp }
   end
 
@@ -595,8 +595,8 @@ module SearchBar
   # will occur immediately, meaning you don't have to include a
   # line in the script for clicking on the search button.
   def search_for=(text)
-    @browser.text_field(:id=>"search_text").set("#{text}\n")
-    @browser.wait_for_ajax(10)
+    self.text_field(:id=>"search_text").set("#{text}\n")
+    self.wait_for_ajax(10)
   end
   
   alias search= search_for=
@@ -665,10 +665,10 @@ module DocButtons
     jq_remove = %|$("#context_remove").trigger("mousedown");|
     
     # watir-webdriver
-    edit_page
-    open_widget_menu
-    @browser.execute_script(jq_remove)
-    @browser.wait_for_ajax(1)
+    self.edit_page
+    self.open_widget_menu
+    self.execute_script(jq_remove)
+    self.wait_for_ajax(1)
   end
   
   # The generic method for editing widget wrappings. DO NOT USE!
@@ -906,8 +906,8 @@ module AddAreasPopUp
   # Clicks the "Done, add" button in the Add Area flyout dialog, then
   # waits for the Ajax calls to drop to zero.
   def create
-    done_add_button
-    @browser.wait_for_ajax(3)
+    self.done_add_button
+    self.wait_for_ajax(3)
   end
   
   alias done_add create
@@ -918,7 +918,7 @@ module AddAreasPopUp
   #   :visible=>"Who can see it" }
   # The method adds an existing document using the specified hash contents.
   def add_from_existing(document)
-    everywhere
+    self.everywhere
     search_everywhere.set(document[:name] + "\n")
     self.wait_for_ajax #
     search_results.li(:text=>/#{Regexp.escape(document[:name])}/).fire_event("onclick")
