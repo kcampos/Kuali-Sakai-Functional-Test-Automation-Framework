@@ -3,17 +3,14 @@
 # 
 # == Synopsis
 #
-# Tests surrounding the My Contacts page--Adding, inviting, removing, rejecting, etc.
-# Note that this test case presumes the test users don't currently have
-# any contacts at all. Please update the user test data below, or the
-# directory.yml file, with appropriate users, as necessary, before running this script.
+# Academic Smoke tests. Shallowly tests a broad range of features.
 # 
 # Author: Abe Heward (aheward@rSmart.com)
+$: << File.expand_path(File.dirname(__FILE__) + "/../../lib/")
 gem "test-unit"
-gems = ["test/unit", "watir-webdriver", "ci/reporter/rake/test_unit_loader"]
-gems.each { |gem| require gem }
-files = [ "/../../config/OAE/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-OAE/app_functions.rb", "/../../lib/sakai-OAE/page_elements.rb" ]
-files.each { |file| require File.dirname(__FILE__) + file }
+["test/unit", "watir-webdriver", "ci/reporter/rake/test_unit_loader",
+  "../../config/OAE/config", "utilities", "sakai-OAE/app_functions",
+  "sakai-OAE/page_elements" ].each { |item| require item }
 
 class TestMyContacts < Test::Unit::TestCase
   

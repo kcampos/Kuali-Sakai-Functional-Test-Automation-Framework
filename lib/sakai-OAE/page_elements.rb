@@ -15,9 +15,101 @@ require 'cgi'
 # ======================
 # ======================
 
-# # # # # # # # # # # # 
-#  Toolbars and Menus #
-# # # # # # # # # # # # 
+  # # # # # # # # # # # # 
+  #  Toolbars and Menus #
+  # # # # # # # # # # # # 
+
+# This module contains methods that will be almost
+# universally useful, and don't pertain to any specific
+# area or widget or pop up on a given page.
+module GlobalMethods
+
+  include PageObject
+  
+  # These create methods of the form
+  # open_<name>('target link text')
+  # Example usage in a script on a page where there's a calendar link
+  # with the text "Moon Phases" ...
+  #
+  # calendar_page = current_page.open_calendar("Moon Phases")
+  #
+  # Once the link is clicked, the method
+  # returns the specified class object.
+  #
+  # It's important to note that the methods created
+  # assume that the target page will be opened in the
+  # same tab. If a new tab is opened, these methods will not work.
+  #
+  # In addition, the page classes that are instantiated for the
+  # target pages assume that the user has editing
+  # rights.
+  open_link(:document, "ContentDetailsPage")
+  open_link(:content, "ContentDetailsPage")
+  open_link(:remote_content, "Remote")
+  open_link(:library, "Library")
+  open_link(:participants, "Participants")
+  open_link(:discussions, "Discussions")
+  open_link(:inline_content, "InlineContent") 
+  open_link(:tests_and_quizzes, "Tests")
+  open_link(:assessments, "Tests")
+  open_link(:calendar, "Calendar")
+  open_link(:map, "GoogleMaps") 
+  open_link(:file, "Files") 
+  open_link(:comments, "Comments")
+  open_link(:jisc, "JISC")
+  open_link(:assignments, "Assignments") 
+  open_link(:feed, "RSS")
+  open_link(:rss_feed, "RSS")
+  open_link(:lti, "LTI")
+  open_link(:basic_lti, "LTI")
+  open_link(:gadget, "Gadget")
+  open_link(:gradebook, "Gradebook")
+  
+  alias open_group open_library
+  alias open_course open_library
+  
+  # The "gritter" notification that appears to confirm
+  # when something has happened (like updating a user profile
+  # or sending a message).
+  div(:notification, :class=>"gritter-with-image")
+  
+  # This method is essentially
+  # identical with the
+  # open_link methods listed above.
+  # It opens page/document items that are listed on the page--for example
+  # in the Recent activity box.
+  # There is an important distinction, however:
+  # This method should be used in cases when clicking the
+  # link results in a new browser tab/window being generated.
+  # May ultimately convert this to open_public_<object>
+  # if that seems the best generic way to handle things.
+  #
+  # THIS METHOD MAY SOON BE DEPRECATED (if so, it
+  # will be included as an alias of open_content)
+  def open_page(name)
+    name_link(name).click 
+    self.wait_for_ajax
+    self.window(:title=>"rSmart | Content Profile").use
+    ContentDetailsPage.new @browser
+  end
+
+  # Clicks the link of the specified name (It will click any link on the page,
+  # really, but it should be used for Person links only, because it
+  # instantiates the ViewPerson Class)
+  def view_person(name)
+    name_link(name).click
+    self.wait_for_ajax
+    ViewPerson.new @browser
+  end
+  
+  alias view_profile view_person
+
+  def close_notification
+    self.notification_element.fire_event "onmouseover"
+    self.div(:class=>"gritter-close").fire_event "onclick"
+  end
+
+end
 
 # The Topmost Header menu bar, present on most pages,
 # plus the Footer contents, too. This module also contains
@@ -35,8 +127,6 @@ module HeaderFooterBar
   float_menu(:my_library, "You", "My library", "MyLibrary")
   float_menu(:my_memberships, "You", "My memberships", "MyMemberships") 
   float_menu(:my_contacts, "You", "My contacts", "MyContacts")
-  float_menu(:add_content, "Create + Collect", "Add content", "AddContent")
-  float_menu(:add_collection, "Create + Collect", "Add collection", "AddCollection")
   float_menu(:create_a_group, "Create + Collect", "Create a group", "CreateGroups")
   float_menu(:create_a_course, "Create + Collect", "Create a course", "CreateCourses")
   float_menu(:create_a_research_project, "Create + Collect", "Create a research project", "CreateResearch")  
@@ -47,15 +137,13 @@ module HeaderFooterBar
   float_menu(:explore_courses,"Explore","Courses","ExploreCourses")
   float_menu(:explore_research,"Explore","Research projects","ExploreResearch")
   alias explore_research_projects explore_research
-  # button(:cancel, :text=>"Cancel") # Removing this because it fails too often. Need to explicitly define cancel buttons elsewhere.
+  
   # Don't use this button directly when opening the collector. Instead, use the "toggle_collector" method
   # so that the Collector Widget module will be included in the object's Class.
   # You *can* use this, however, to close the collector.
   button(:collector, :class=>"topnavigation_menuitem_counts_container collector_toggle")
   button(:save, :text=>"Save")
-  
-  div(:notification, :class=>"gritter-with-image")
-  
+
   link(:explore, :text=>"Explore")
   link(:browse_all_categories, :text=>"Browse all categories")
   text_field(:header_search, :id=>"topnavigation_search_input")
@@ -87,7 +175,7 @@ module HeaderFooterBar
   # The page object for the Explore link the footer. Defined as a custom
   # method using Watir-webdriver, because of issues using PageObject to do it.
   def explore_footer_link
-    @browser.span(:id=>"footer_links_right").link(:text=>"Explore")
+    self.span(:id=>"footer_links_right").link(:text=>"Explore")
   end
   
   # Clicks the Explore button in the footer and returns the
@@ -95,14 +183,14 @@ module HeaderFooterBar
   def explore_footer
     explore_footer_link.click
     sleep 1
-    @browser.wait_for_ajax
+    self.wait_for_ajax
     LoginPage.new @browser
   end
   
   # The page object for the Browse link the footer. Defined as a custom
   # method because of issues using PageObject to do it.
   def browse_footer_link
-    @browser.span(:id=>"footer_links_right").link(:text=>"Browse")
+    self.span(:id=>"footer_links_right").link(:text=>"Browse")
   end
   
   # Clicks the Browse button in the footer
@@ -110,21 +198,21 @@ module HeaderFooterBar
   def browse_footer
     browse_footer_link.click
     sleep 1
-    @browser.wait_for_ajax
+    self.wait_for_ajax
     AllCategoriesPage.new @browser
   end
   
   # Clicks the Acknowledgements link in the page Footer.
   def acknowledgements
-    acknowledgements_link
+    self.acknowledgements_link
     sleep 1
-    @browser.wait_for_ajax
+    self.wait_for_ajax
     Acknowledgements.new @browser
   end
   
   # Clicks the User Agreement link in the page footer.
   def user_agreement
-    user_agreement_link
+    self.user_agreement_link
     sleep 1
     #@browser.wait_for_ajax
     # New Class goes here.new @browser
@@ -132,15 +220,15 @@ module HeaderFooterBar
   
   # Clicks the location link in the page footer
   def change_location
-    location_button
-    @browser.wait_for_ajax
+    self.location_button
+    self.wait_for_ajax
     self.class.class_eval { include AccountPreferencesPopUp }
   end
   
   # Clicks the language button in the page footer.
   def change_language
-    language_button
-    @browser.wait_for_ajax
+    self.language_button
+    self.wait_for_ajax
     self.class.class_eval { include AccountPreferencesPopUp }
   end
   
@@ -153,7 +241,7 @@ module HeaderFooterBar
   # the target page class explicitly in the test script itself, if required.
   def click_link(string)
     name_link(string).click
-    @browser.wait_for_ajax
+    self.wait_for_ajax
   end
   
   # Opens the User Options menu in the header menu bar,
@@ -161,9 +249,9 @@ module HeaderFooterBar
   # Pop up dialog to appear, and then includes the AccountPreferencesPopUp
   # module in the currently instantiated Class Object.
   def my_account
-    @browser.link(:id=>"topnavigation_user_options_name").fire_event("onmouseover")
-    @browser.link(:id=>"subnavigation_preferences_link").click
-    @browser.wait_for_ajax
+    self.link(:id=>"topnavigation_user_options_name").fire_event("onmouseover")
+    self.link(:id=>"subnavigation_preferences_link").click
+    self.wait_for_ajax
     self.class.class_eval { include AccountPreferencesPopUp }
   end
   
@@ -172,20 +260,19 @@ module HeaderFooterBar
   # dialog to appear, then includes the AddContentContainer module
   # in the currently instantiated Class Object.
   def add_content
-    @browser.link(:title=>"Create + Add").fire_event("onmouseover")
-    @browser.link(:title=>"Add content").click
-    @browser.wait_until { @browser.text.include? "Collected items" }
+    self.link(:id=>"navigation_create_and_add_link").fire_event("onmouseover")
+    self.link(:text=>"Add content").click
+    self.wait_until { @browser.text.include? "Collected items" }
     self.class.class_eval { include AddContentContainer }
   end
   
-  def close_notification
-    notification_element.fire_event "onmouseover"
-    @browser.div(:class=>"gritter-close").fire_event "onclick"
+  def add_collection
+    
   end
   
   def toggle_collector
     collector
-    @browser.wait_for_ajax
+    self.wait_for_ajax
     self.class.class_eval { include CollectorWidget }
   end
   
@@ -200,7 +287,6 @@ module HeaderFooterBar
     CreateNewAccount.new @browser
   end
   
-  
 end
 
 # This is the Header that appears in the Worlds context,
@@ -214,23 +300,22 @@ module HeaderBar
   button(:request_to_join_group_button, :id=>/joinrequestbuttons_request_.*/)
   button(:request_pending_button, :id=>/joinrequestbuttons_pending_.*/)
   button(:message_button, :text=>"Message")
-  #div(:page_title, :class=>"s3d-contentpage-title")
   
   # Custom Methods
   
   # Returns the text contents of the page title div  
   def page_title
-    @browser.div(:id=>"s3d-page-container").div(:class=>"s3d-contentpage-title").text
+    self.div(:id=>"s3d-page-container").div(:class=>"s3d-contentpage-title").text
   end
   
   def join_group
-    join_group_button
-    @browser.wait_until { notification_element.exists? }
+    self.join_group_button
+    self.wait_until { notification_element.exists? }
   end
   
   def request_to_join_group
-    request_to_join_group_button
-    @browser.wait_until { notification_element.exists? }
+    self.request_to_join_group_button
+    self.wait_until { notification_element.exists? }
   end
   
   # Clicks the Message button in the page header (not the
@@ -238,8 +323,8 @@ module HeaderBar
   # dialog to load, and then includes the SendMessagePopUp
   # module in the currently instantiated Class Object.
   def message
-    message_button
-    @browser.wait_until { @browser.text.include? "Send Message" }
+    self.message_button
+    self.wait_until { self.text.include? "Send Message" }
     self.class.class_eval { include SendMessagePopUp }
   end
   
@@ -248,9 +333,9 @@ module HeaderBar
   # Add Content stuff to load, then includes the
   # AddContentContainer module in the object's Class.
   def add_content
-    @browser.button(:id=>"entity_group_permissions").click
-    @browser.button(:text=>"Add content").click
-    @browser.wait_until { @browser.text.include? "Collected items" }
+    self.button(:id=>"entity_group_permissions").click
+    self.button(:text=>"Add content").click
+    self.wait_until { self.text.include? "Collected items" }
     self.class.class_eval { include AddContentContainer }
   end
   
@@ -260,9 +345,9 @@ module HeaderBar
   # includes the ManageParticipants module in the Class of the object
   # calling the method.
   def manage_participants
-    @browser.button(:id=>"entity_group_permissions").click
-    @browser.button(:text=>"Manage participants").click
-    @browser.wait_until { @browser.text.include? "My contacts and memberships" }
+    self.button(:id=>"entity_group_permissions").click
+    self.button(:text=>"Manage participants").click
+    self.wait_until { self.text.include? "My contacts and memberships" }
     self.class.class_eval { include ManageParticipants }
   end
   
@@ -272,9 +357,10 @@ module HeaderBar
   # includes the SettingsPopUp module in the Class of the object
   # calling the method.
   def settings
-    @browser.button(:id=>"entity_group_permissions").click
-    @browser.button(:text=>"Settings").click
-    @browser.wait_until { @browser.text.include? "Apply Settings" }
+    self.button(:id=>"entity_group_permissions").click
+    self.button(:text=>"Settings").click
+    sleep 0.4
+    self.wait_for_ajax
     self.class.class_eval { include SettingsPopUp }
   end
 
@@ -284,9 +370,9 @@ module HeaderBar
   # includes the AddRemoveCategories module in the Class of the object
   # calling the method.
   def categories
-    @browser.button(:id=>"entity_group_permissions").click
-    @browser.button(:text=>"Categories").click
-    @browser.wait_until { @browser.text.include? "Assign a category" }
+    self.button(:id=>"entity_group_permissions").click
+    self.button(:text=>"Categories").click
+    self.wait_until { self.text.include? "Assign a category" }
     self.class.class_eval { include AddRemoveCategories }
   end
   
@@ -295,8 +381,8 @@ module HeaderBar
   # then includes the ChangePicturePopup in the Class of the object
   # calling the method.
   def change_picture
-    @browser.div(:class=>"entity_profile_picture_down_arrow").fire_event("onclick")
-    @browser.link(:id=>"changepic_container_trigger").click
+    self.div(:class=>"entity_profile_picture_down_arrow").fire_event("onclick")
+    self.link(:id=>"changepic_container_trigger").click
     self.class.class_eval { include ChangePicturePopup }
   end
   
@@ -314,109 +400,68 @@ module LeftMenuBar
   
   # Custom Methods
   
-  # Clicks the specified link in the left menu
-  # list, then, based on the supplied page type,
-  # instantiates the appropriate page Class.
-  def open_page(name, type)
-    @browser.div(:id=>"lhnavigation_container").link(:text=>name).click
-    case(type.downcase)
-    when "document"
-      instantiate_class("Documents")
-    when "remote content"
-      instantiate_class("Remote") # 
-    when "library"
-      instantiate_class("Library") #
-    when "participants"
-      instantiate_class("Participants") #
-    when "discussion"
-      instantiate_class("Discussions") #
-    when "inline content"
-      instantiate_class("InlineContent") 
-    when "tests and quizzes"
-      instantiate_class("Tests") #
-    when "calendar"
-      instantiate_class("Calendar") #
-    when "google maps"
-      instantiate_class("GoogleMaps") #
-    when "files and documents"
-      instantiate_class("Files") #
-    when "comments"
-      instantiate_class("Comments") #
-    when "jisc content"
-      instantiate_class("JISC") #
-    when "assignments"
-      instantiate_class("Assignments") #
-    when "rss feed reader"
-      instantiate_class("RSS") #
-    when "basic lti"
-      instantiate_class("LTI") #
-    when "google gadget"
-      instantiate_class("Gadget") #
-    when "gradebook"
-      instantiate_class("Gradebook") #
-    when "read_only"
-      instantiate_class("ViewDocument") #
-    end
-  end
-  
   # Use this to click left menu items that refer to multi-paged documents.
   # It expands the menu to display the document's pages.
   def expand(name)
-    @browser.div(:id=>"lhnavigation_container").link(:text=>name).click
+    self.div(:id=>"lhnavigation_container").link(:text=>name).click
   end
   
   # Changes the title of the specified page ("from_string")
   # to the string value specified by to_string.
   def change_title_of(from_string, to_string)
-    @browser.link(:class=>/lhnavigation_page_title_value/, :text=>from_string).hover
-    @browser.wait_for_ajax #.wait_until { @browser.link(:class=>/lhnavigation_page_title_value/, :text=>from_string).parent.div(:class=>"lhnavigation_selected_submenu_image").visible? }
-    @browser.div(:class=>"lhnavigation_selected_submenu_image").hover
-    @browser.execute_script("$('#lhnavigation_submenu').css({left:'300px', top:'300px', display: 'block'})")
-    @browser.wait_for_ajax #.wait_until { @browser.link(:id=>"lhavigation_submenu_edittitle").visible? }
-    @browser.link(:id=>"lhavigation_submenu_edittitle").click
-    @browser.link(:class=>/lhnavigation_page_title_value/, :text=>from_string).parent.text_field(:class=>"lhnavigation_change_title").set("#{to_string}\n")
+    self.link(:class=>/lhnavigation_page_title_value/, :text=>from_string).hover
+    self.wait_for_ajax #.wait_until { self.link(:class=>/lhnavigation_page_title_value/, :text=>from_string).parent.div(:class=>"lhnavigation_selected_submenu_image").visible? }
+    self.div(:class=>"lhnavigation_selected_submenu_image").hover
+    self.execute_script("$('#lhnavigation_submenu').css({left:'300px', top:'300px', display: 'block'})")
+    self.wait_for_ajax #.wait_until { self.link(:id=>"lhavigation_submenu_edittitle").visible? }
+    self.link(:id=>"lhavigation_submenu_edittitle").click
+    self.link(:class=>/lhnavigation_page_title_value/, :text=>from_string).parent.text_field(:class=>"lhnavigation_change_title").set("#{to_string}\n")
   end
   
   alias change_title change_title_of
   
   # Deletes the page specified by page_name.
   def delete_page(page_name)
-    @browser.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).fire_event("onmouseover")
-    @browser.wait_for_ajax #.wait_until { @browser.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).parent.div(:class=>"lhnavigation_selected_submenu_image").visible? }
-    @browser.div(:class=>"lhnavigation_selected_submenu_image").hover
-    @browser.execute_script("$('#lhnavigation_submenu').css({left:'300px', top:'300px', display: 'block'})")
-    @browser.wait_for_ajax #.wait_until { @browser.link(:id=>"lhavigation_submenu_edittitle").visible? }
-    @browser.link(:id=>"lhavigation_submenu_deletepage").click
-    @browser.wait_for_ajax
+    self.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).fire_event("onmouseover")
+    self.wait_for_ajax #.wait_until { self.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).parent.div(:class=>"lhnavigation_selected_submenu_image").visible? }
+    self.div(:class=>"lhnavigation_selected_submenu_image").hover
+    self.execute_script("$('#lhnavigation_submenu').css({left:'300px', top:'300px', display: 'block'})")
+    self.wait_for_ajax #.wait_until { self.link(:id=>"lhavigation_submenu_edittitle").visible? }
+    self.link(:id=>"lhavigation_submenu_deletepage").click
+    self.wait_for_ajax
     self.class.class_eval { include DeletePagePopUp }
   end
   
   # Opens the Permissions Pop Up for the specified Page.
   def permissions_for_page(page_name)
-    @browser.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).fire_event("onmouseover")
-    @browser.wait_until { @browser.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).parent.div(:class=>"lhnavigation_selected_submenu_image").visible? }
-    @browser.div(:class=>"lhnavigation_selected_submenu_image").hover
-    @browser.execute_script("$('#lhnavigation_submenu').css({left:'328px', top:'349px', display: 'block'})")
-    @browser.wait_until { @browser.link(:id=>"lhavigation_submenu_edittitle").visible? }
-    @browser.link(:id=>"lhnavigation_submenu_permissions").click
-    @browser.wait_for_ajax
+    self.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).fire_event("onmouseover")
+    self.wait_until { self.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).parent.div(:class=>"lhnavigation_selected_submenu_image").visible? }
+    self.div(:class=>"lhnavigation_selected_submenu_image").hover
+    self.execute_script("$('#lhnavigation_submenu').css({left:'328px', top:'349px', display: 'block'})")
+    self.wait_until { self.link(:id=>"lhavigation_submenu_edittitle").visible? }
+    self.link(:id=>"lhnavigation_submenu_permissions").click
+    sleep 0.2
+    self.wait_for_ajax
     self.class.class_eval { include PermissionsPopUp }
   end
   
   alias permissions_of_page permissions_for_page
   alias page_permissions permissions_for_page
   
-  # Opens the Profile Details for the specified Page.
+  # Opens the Profile Details for the specified Page by
+  # opening the page's drop-down menu in the left menu bar,
+  # clicking "View Profile", and then switching to the new
+  # browser tab/window that gets opened.
   def view_profile_of_page(page_name)
-    @browser.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).fire_event("onmouseover")
-    @browser.wait_for_ajax #.wait_until { @browser.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).parent.div(:class=>"lhnavigation_selected_submenu_image").visible? }
-    @browser.div(:class=>"lhnavigation_selected_submenu_image").hover
-    @browser.execute_script("$('#lhnavigation_submenu').css({left:'328px', top:'349px', display: 'block'})")
-    @browser.wait_for_ajax #.wait_until { @browser.link(:id=>"lhavigation_submenu_edittitle").visible? }
-    @browser.link(:id=>"lhnavigation_submenu_profile").click
-    @browser.wait_for_ajax #.button(:title=>"Show debug info").wait_until_present
-    @browser.window(:title=>"rSmart | Content Profile").use
-    ContentDetailsPage.new @browser
+    self.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).fire_event("onmouseover")
+    self.wait_for_ajax #.wait_until { self.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).parent.div(:class=>"lhnavigation_selected_submenu_image").visible? }
+    self.div(:class=>"lhnavigation_selected_submenu_image").hover
+    self.execute_script("$('#lhnavigation_submenu').css({left:'328px', top:'349px', display: 'block'})")
+    self.wait_for_ajax #.wait_until { self.link(:id=>"lhavigation_submenu_edittitle").visible? }
+    self.link(:id=>"lhnavigation_submenu_profile").click
+    self.wait_for_ajax #.button(:title=>"Show debug info").wait_until_present
+    self.window(:title=>"rSmart | Content Profile").use
+    ContentDetailsPage.new self
   end
   
   alias view_profile_for_page view_profile_of_page
@@ -424,20 +469,18 @@ module LeftMenuBar
   
   # Clicks the "Add a new area" button.
   def add_new_area
-    @browser.button(:id=>"group_create_new_area", :class=>"s3d-button s3d-header-button s3d-popout-button").click
-    @browser.wait_for_ajax(6)
+    self.button(:id=>"group_create_new_area", :class=>"s3d-button s3d-header-button s3d-popout-button").click
+    self.wait_for_ajax(6)
     self.class.class_eval { include AddAreasPopUp }
   end
   
   alias add_a_new_area add_new_area
   alias add_new_page add_new_area
-  alias add add_new_area
-  alias add_page add_new_area
   
   # Returns an array containing the Course/Group area/page titles.
   def public_pages
     list = []
-    @browser.div(:id=>"lhnavigation_public_pages").links.each do |link|
+    self.div(:id=>"lhnavigation_public_pages").links.each do |link|
       list << link.text
     end
     return list
@@ -447,20 +490,12 @@ module LeftMenuBar
   alias areas public_pages
   
   def menu_available?(page_name)
-    @browser.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).fire_event("onmouseover")
-    if @browser.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).parent.div(:class=>"lhnavigation_selected_submenu_image").visible?
+    self.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).fire_event("onmouseover")
+    if self.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).parent.div(:class=>"lhnavigation_selected_submenu_image").visible?
       return true
     else
       return false
     end
-  end
-  
-  private
-  
-  def instantiate_class(clash)
-    @browser.wait_for_ajax
-    @browser.return_to_top
-    eval(clash).new @browser
   end
   
 end
@@ -490,6 +525,9 @@ module LeftMenuBarYou
   navigating_link(:about_me, "About Me", "MyProfileAboutMe")
   navigating_link(:online, "Online", "MyProfileOnline")
   navigating_link(:contact_information, "Contact Information", "MyProfileContactInfo")
+  
+  alias contact_info contact_information
+  
   navigating_link(:publications, "Publications", "MyProfilePublications")
   
   permissions_menu(:about_me_permissions, "About Me")
@@ -508,19 +546,19 @@ module LeftMenuBarYou
   
   # The div for the "Lock icon" next to the My messages menu
   def my_messages_lock_icon
-    @browser.div(:text=>"My messages").div(:class=>"lhnavigation_private")
+    self.div(:text=>"My messages").div(:class=>"lhnavigation_private")
   end
   
   # Expands and collapses the My Messages Tree
   def show_hide_my_messages_tree
-    @browser.div(:id=>"lhnavigation_container").link(:text=>"My messages").click
+    self.div(:id=>"lhnavigation_container").link(:text=>"My messages").click
   end
   
   # Opens the Pop Up dialog for changing the Avatar image for the
   # current page.
   def change_picture
     profile_pic_arrow_element.fire_event("onclick")
-    @browser.link(:id=>"changepic_container_trigger").click
+    self.link(:id=>"changepic_container_trigger").click
     self.class.class_eval { include ChangePicturePopUp }
   end
 
@@ -538,6 +576,13 @@ module LeftMenuBarCreateWorlds
   
 end
 
+#
+module PageRevisionsBar
+  
+  include PageObject
+  
+end
+
 # The Search field that will appear above some list pages
 module SearchBar
   
@@ -550,8 +595,8 @@ module SearchBar
   # will occur immediately, meaning you don't have to include a
   # line in the script for clicking on the search button.
   def search_for=(text)
-    @browser.text_field(:id=>"search_text").set("#{text}\n")
-    @browser.wait_for_ajax(10)
+    self.text_field(:id=>"search_text").set("#{text}\n")
+    self.wait_for_ajax(10)
   end
   
   alias search= search_for=
@@ -568,25 +613,35 @@ module DocButtons
 
   include PageObject
   
+  # Page Objects
+  button(:edit_page_button, :id=>"sakaidocs_editpage")
+  button(:add_page_button, :id=>"sakaidocs_addpage_top")
+  button(:page_revisions_button, :id=>"sakaidocs_revisions")
+  
   # Custom Methods...
   
   # Clicks the Edit Page button.
   def edit_page
-    @browser.back_to_top
-    @browser.button(:text=>"Edit page").click
-    @browser.wait_for_ajax
+    self.back_to_top
+    edit_page_button
+    self.wait_for_ajax
     self.class.class_eval { include DocumentWidget }
   end
   
-  # Clicks the Add Page button.
-  def add_page
-    @browser.back_to_top
-    
+  # Clicks the Add Page button, then enters the text string
+  # into the page title field, followed by a line feed.
+  def add_page(text)
+    self.back_to_top
+    add_page_button
+    self.wait_for_ajax
+    self.send_keys text + "\n"
   end
   
   # Clicks the Page Revisions button.
   def page_revisions
-    @browser.back_to_top
+    self.back_to_top
+    page_revisions_button
+    self.wait_for_ajax
     
   end
   
@@ -610,10 +665,10 @@ module DocButtons
     jq_remove = %|$("#context_remove").trigger("mousedown");|
     
     # watir-webdriver
-    edit_page
-    open_widget_menu
-    @browser.execute_script(jq_remove)
-    @browser.wait_for_ajax(1)
+    self.edit_page
+    self.open_widget_menu
+    self.execute_script(jq_remove)
+    self.wait_for_ajax(1)
   end
   
   # The generic method for editing widget wrappings. DO NOT USE!
@@ -655,10 +710,13 @@ module CommonErrorElements
   
 end
 
-# # # # # # # # # # # # 
-#    Pop-Up Dialogs   #
-# # # # # # # # # # # # 
-
+#
+ #
+  # # # # # # # # # # # # 
+  #    Pop-Up Dialogs   #
+  # # # # # # # # # # # # 
+ #
+#
 # Methods related to the My Account Pop Up dialog.
 module AccountPreferencesPopUp
   
@@ -848,8 +906,8 @@ module AddAreasPopUp
   # Clicks the "Done, add" button in the Add Area flyout dialog, then
   # waits for the Ajax calls to drop to zero.
   def create
-    done_add_button
-    @browser.wait_for_ajax(3)
+    self.done_add_button
+    self.wait_for_ajax(3)
   end
   
   alias done_add create
@@ -860,9 +918,9 @@ module AddAreasPopUp
   #   :visible=>"Who can see it" }
   # The method adds an existing document using the specified hash contents.
   def add_from_existing(document)
-    everywhere
+    self.everywhere
     search_everywhere.set(document[:name] + "\n")
-    @browser.wait_for_ajax #
+    self.wait_for_ajax #
     search_results.li(:text=>/#{Regexp.escape(document[:name])}/).fire_event("onclick")
     existing_doc_name.set document[:title]
     existing_doc_permissions.select document[:visible]
@@ -927,7 +985,7 @@ module AddContentContainer
 
   text_field(:file_title, :id=>"newaddcontent_upload_content_title")
   text_area(:file_description, :id=>"newaddcontent_upload_content_description")
-  text_field(:file_tags, :id=>"newaddcontent_upload_content_tags")
+  # "tags and categories" field is defined below...
   select_list(:who_can_see_file, :id=>"newaddcontent_upload_content_permissions")
   select_list(:file_copyright, :id=>"newaddcontent_upload_content_copyright")
   
@@ -936,8 +994,9 @@ module AddContentContainer
   
   text_field(:name_document, :id=>"newaddcontent_add_document_title")
   text_area(:document_description, :id=>"newaddcontent_add_document_description")
-  text_field(:document_tags, :id=>"newaddcontent_add_document_tags")
+  # "tags and categories" field is defined below...
   select_list(:who_can_see_document, :id=>"newaddcontent_add_document_permissions")
+  select_list(:document_copyright, :id=>"newaddcontent_upload_content_copyright")
   
   # Use existing content tab...
   link(:all_content, :text=>"All content")
@@ -949,34 +1008,48 @@ module AddContentContainer
   text_field(:paste_link_address, :id=>"newaddcontent_add_link_url")
   text_field(:link_title, :id=>"newaddcontent_add_link_title")
   text_area(:link_description, :id=>"newaddcontent_add_link_description")
-  text_field(:link_tags, :id=>"newaddcontent_add_link_tags")
+  # "tags and categories" field is defined below...
   
-  button(:add, :text=>"Add")
+  # button(:add, :text=>"Add") Must be defined with a custom method. See below...
   
   # Collected items column...
   select_list(:save_all_to, :id=>"newaddcontent_saveto")
   
   button(:list_categories, :text=>"List categories")
   
-  button(:done_add_collected, :class=>"s3d-button s3d-overlay-button newaddcontent_container_start_upload")
+  button(:done_add_collected_button, :text=>"Done, add collected")
   
   # Custom Methods...
   
+  # Clicks the "Add" button that moves items into the
+  # "Collected Items" list.
+  def add
+    active_content_div.button(:text=>"Add").click
+    self.wait_for_ajax
+  end
+  
+  # Works to enter text into any of the "Tags and Categories"
+  # fields on the "Add Content" dialog.
+  def tags_and_categories=(text)
+    active_content_div.text_field(:id=>/as-input-\d+/).set text +"\n"
+    self.wait_for_ajax
+  end
+  
   # Removes the item from the selected list.
   def remove(item)
-    @browser.link(:title=>"Remove #{item}").click
+    self.link(:title=>"Remove #{item}").click
   end
   
   # Enters the specified text in the Search field.
   # Note that the method appends a line feed on the string, so the search will
   # happen immediately when it is invoked.
   def search_for_content=(text)
-    @browser.text_field(:class=>"newaddcontent_existingitems_search").set("#{text}\n")
+    self.text_field(:class=>"newaddcontent_existingitems_search").set("#{text}\n")
   end
   
   # Checks the checkbox for the specified item.
   def check_content(item)
-    @browser.li(:text=>item).checkbox.set
+    self.li(:text=>item).checkbox.set
   end
   
   alias check_item check_content
@@ -984,7 +1057,30 @@ module AddContentContainer
   
   # Enters the specified filename in the file field.
   def upload_file=(file_name)
-    @browser.file_field(:id=>"multifile_upload").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-oae/" + file_name)
+    self.file_field(:id=>"multifile_upload").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-oae/" + file_name)
+  end
+  
+  def done_add_collected
+    done_add_collected_button
+    sleep 2
+    self.wait_for_ajax
+  end
+  
+  private
+  
+  # A helper method for determining what div
+  # is currently visible.
+  def active_content_div
+    case
+    when self.div(:id=>"newaddcontent_upload_content_template").visible?
+      return self.div(:id=>"newaddcontent_upload_content_template")
+    when self.div(:id=>"newaddcontent_add_document_template").visible?
+      return self.div(:id=>"newaddcontent_add_document_template")
+    when self.div(:id=>"newaddcontent_add_existing_template").visible?
+      return self.div(:id=>"newaddcontent_add_existing_template")
+    when self.div(:id=>"newaddcontent_add_link_template").visible?
+      return self.div(:id=>"newaddcontent_add_link_template")
+    end
   end
   
 end
@@ -1102,8 +1198,8 @@ module AddToContactsPopUp
   
   def invite
     invite_button
-    sleep 0.3
-    @browser.wait_for_ajax
+    sleep 0.5
+    self.wait_for_ajax
   end
   
 end
@@ -1169,7 +1265,44 @@ module ContentPermissionsPopUp
   
   include PageObject
   
+  # Page Objects
+  radio_button(:anyone_public, :id=>"contentpermissions_see_public")
+  radio_button(:logged_in_people_only, :id=>"contentpermissions_see_everyone")
+  radio_button(:private_to_the_shared_with_list, :id=>"contentpermissions_see_private")
+  select_list(:content_permissions, :id=>"contentpermissions_members_autosuggest_permissions")
+  text_area(:sharing_message, :id=>"contentpermissions_members_autosuggest_text")
+  button(:share_button, :id=>"contentpermissions_members_autosuggest_sharebutton")
+  button(:save_and_close_button, :id=>"contentpermissions_apply_permissions")
+  button(:cancel, :class=>"s3d-link-button jqmClose s3d-bold")
   
+  # Custom Methods...
+  
+  # Enters the specified name in the "Who can edit it or
+  # who is it associated with?" search field. Then clicks
+  # on the first item in the search results menu--which means
+  # that this method assumes the search will be successful
+  # and the first item listed is the desired item to select.
+  def share_with=(name)
+    self.text_field(:id=>/contentpermissionscontainer\d+/).set name
+    sleep 0.6
+    self.wait_for_ajax
+    self.div(:class=>"as-results").li(:id=>"as-result-item-0").fire_event "onclick"
+    self.wait_for_ajax
+  end
+  
+  # Clicks the "Save and close" button then waits for all ajax calls
+  # to finish
+  def save_and_close
+    save_and_close_button
+    self.wait_for_ajax
+  end
+  
+  # Clicks the "Share" button and waits for the ajax calls to finish.
+  def share
+    self.button(:id=>"contentpermissions_members_autosuggest_sharebutton").flash
+    self.button(:id=>"contentpermissions_members_autosuggest_sharebutton").click
+    self.wait_for_ajax
+  end
   
 end
 
@@ -1310,15 +1443,17 @@ module ManageParticipants
   # It makes no allowances for failing to find the target user/member.
   def add_by_search(name)
     name.split("", 2).each do |letter|
-      @browser.text_field(:id=>/addpeople/, :class=>"as-input").focus
-      @browser.text_field(:id=>/addpeople/, :class=>"as-input").send_keys(letter)
-      @browser.text_field(:id=>/addpeople/, :class=>"as-input").focus
-      begin
-        @browser.wait_until(0.4) { @browser.ul(:class=>"as-list").visible? }
-      rescue
-        @browser.execute_script("$('.as-results').css({display: 'block'});")
-      end
-      if @browser.li(:text=>/#{Regexp.escape(name)}/, :id=>/as-result-item-\d+/).present?
+      self.text_field(:id=>/addpeople/, :class=>"as-input").focus
+      self.text_field(:id=>/addpeople/, :class=>"as-input").send_keys(letter)
+      #@browser.text_field(:id=>/addpeople/, :class=>"as-input").focus
+      self.wait_until { self.div(:id=>/^as-results-/).visible? }
+      next if self.li(:id=>"as-result-item-0").text=="No results found"
+      #begin
+      #  @browser.wait_until(0.4) { @browser.ul(:class=>"as-list").visible? }
+      #rescue
+      #  @browser.execute_script("$('.as-results').css({display: 'block'});")
+      #end
+      if self.li(:text=>/#{Regexp.escape(name)}/, :id=>/as-result-item-\d+/).present?
         @browser.li(:text=>/#{Regexp.escape(name)}/, :id=>/as-result-item-\d+/).click
         break
       end
@@ -1380,7 +1515,7 @@ module OwnerInfoPopUp
   
 end
 
-# Objects and Methods for the Permissions Pop Up dialog
+# Objects and Methods for the Area Permissions Pop Up dialog
 module PermissionsPopUp
   
   include PageObject
@@ -1405,12 +1540,32 @@ module PermissionsPopUp
   # Custom Methods
   def apply_permissions
     apply_permissions_button
-    @browser.wait_for_ajax
+    self.wait_for_ajax
   end
   
   def cancel
     cancel_button
     @browser.wait_for_ajax
+  end
+  
+end
+
+# Methods and objects for the Profile Permissions Pop Up--that appears when
+# you select the Permissions item for the "My Profile" pages.
+module ProfilePermissionsPopUp
+  
+  include PageObject
+  
+  select_list(:can_be_seen_by, :id=>"userpermissions_area_general_visibility")
+  button(:apply_permissions_button, :id=>"userpermissions_apply_permissions")
+  
+  def apply_permissions
+    apply_permissions_button
+    self.wait_for_ajax
+  end
+  
+  def cancel
+    self.div(:id=>"userpermissions_container").button(:class=>"s3d-link-button jqmClose s3d-bold").click
   end
   
 end
@@ -1459,27 +1614,73 @@ module SaveContentPopUp
   
 end
 
-# The Email message pop up dialog that appears when in the Worlds context
-# (or when you click the little envelop icon )
+# The Email message fields in My Messages and the pop up dialog
+# that appears when in the Worlds context
+# (or when you click the little envelop icon in lists of People).
 module SendMessagePopUp
   
   include PageObject
-  
-  text_field(:send_this_message_to, :id=>"sendmessage_to_autoSuggest")
-  text_field(:subject, :id=>"comp-subject")
-  text_area(:body, :id=>"comp-body")
   
   # Removes the recipient from the To list for the email.
   def remove_recipient(name)
     name_li(name).link(:text=>"x").click
   end
   
-  button(:send_message, :id=>"send_message")
-  button(:dont_send, :id=>"send_message_cancel")
+  # Enters the specified text string into the
+  # "Send this message to" text box, then clicks
+  # The matching item in the results list box.
+  def send_this_message_to=(name)
+    #current_div.text_field(:id=>"sendmessage_to_autoSuggest").set name
+    #sleep 0.6
+    #self.li(:id=>"as-result-item-0").click
+    name.split("", 4).each do |letter|
+      current_div.text_field(:id=>"sendmessage_to_autoSuggest", :class=>"as-input").focus
+      current_div.text_field(:id=>"sendmessage_to_autoSuggest", :class=>"as-input").send_keys(letter)
+      self.wait_until { self.div(:id=>"as-results-sendmessage_to_autoSuggest").visible? }
+      next if self.li(:id=>"as-result-item-0").text=="No results found"
+      if self.li(:text=>/#{Regexp.escape(name)}/, :id=>/as-result-item-\d+/).present?
+        self.li(:text=>/#{Regexp.escape(name)}/, :id=>/as-result-item-\d+/).click
+        break
+      end
+    end
+    
+  end
+  
+  # Enters the specified text string into the
+  # "Subject" field
+  def subject=(text)
+    current_div.text_field(:id=>"comp-subject").set text
+  end
+  
+  # Enters the specified text string into the Body
+  # field.
+  def body=(text)
+    current_div.textarea(:id=>"comp-body").set text
+  end
+  
+  # Clicks the "Send message" button
+  def send_message
+    current_div.button(:id=>"send_message").click
+    self.wait_for_ajax
+  end
+  
+  # Clicks the "Don't send" button
+  def dont_send
+    current_div.button(:id=>"send_message_cancel").click
+    self.wait_for_ajax
+  end
+  
+  def current_div
+    begin 
+      return active_div
+    rescue NoMethodError
+      return self
+    end
+  end
   
 end
 
-# 
+# The Settings Pop Up dialog for Courses/Groups/Research...
 module SettingsPopUp
 
   include PageObject
@@ -1490,7 +1691,12 @@ module SettingsPopUp
   select_list(:can_be_discovered_by, :id=>"worldsettings_can_be_found_in")
   select_list(:membership, :id=>"worldsettings_membership")
   
-  button(:apply_settings, :text=>"Apply Settings")
+  button(:apply_settings_button, :id=>"worldsettings_apply_button")
+  
+  def apply_settings
+    apply_settings_button
+    self.wait_for_ajax
+  end
   
 end
 
@@ -1499,7 +1705,7 @@ module ShareWithPopUp
   
   include PageObject
   
-  text_field(:share_with, :id=>/newsharecontentcontainer\d+/)
+  text_field(:share_with_field, :id=>/newsharecontentcontainer\d+/)
   
   # Clicks the arrow for adding a custom message to the share.
   def add_a_message
@@ -1511,14 +1717,24 @@ module ShareWithPopUp
   button(:share, :id=>"sharecontent_send_button")
   button(:cancel, :id=>"newsharecontent_cancel")
   
+  def share_with=(name)
+    share_with_field=name + "\n"
+    sleep 0.6
+    self.wait_for_ajax
+    self.li(:id=>"as-result-item-0").click
+  end
+  
   # Gonna add the social network validations later
   
 end
 
-# # # # # # # # # # # # 
-#       Widgets       #
-# # # # # # # # # # # # 
-
+#
+ #
+  # # # # # # # # # # # # 
+  #       Widgets       #
+  # # # # # # # # # # # # 
+ #
+#
 # Methods related to the expandable Collector item that can appear at the top of any page.
 module CollectorWidget
   
@@ -1531,14 +1747,47 @@ module DocumentWidget
   
   include PageObject
   
+  # Page Objects
   button(:dont_save, :id=>"sakaidocs_edit_cancel_button")
   button(:save_button, :id=>"sakaidocs_edit_save_button")
   button(:insert, :id=>"sakaidocs_insert_dropdown_button")
+  select_list(:format, :id=>/formatselect/)
+  select_list(:font, :id=>/fontselect/)
+  select_list(:font_size, :id=>/fontsizeselect/)
+  link(:bold, :id=>/_bold/)
+  link(:italic, :id=>/_italic/)
+  link(:underline, :id=>/_underline/)
   
+  # These methods click the Insert button (you must be editing the document first),
+  # then select the specified menu item, to bring up the Widget settings dialog.
+  # The first argument is the method name (which automatically gets pre-pended
+  # with "insert_", the second is the id of the target
+  # button in the Insert menu, and the last argument is the name of the module
+  # to be included in the current Class object. The module name can be nil,
+  # since not every item in the insert button list brings up a Pop Up dialog.
+  insert_button(:files_and_documents, "embedcontent", "FilesAndDocsPopUp")
+  insert_button(:discussion, "discussion", "Discussion")
+  insert_button(:remote_content, "remotecontent", "RemoteContentPopUp" )
+  insert_button(:inline_content, "inlinecontent", "InlineContentPopUp" )
+  insert_button(:google_maps, "googlemaps", "GoogleMapsPopUp" )
+  insert_button(:comments, "comments", "CommentsPopUp" )
+  insert_button(:rss_feed_reader, "rss", "RSSFeedPopUp" )
+  insert_button(:google_gadget, "ggadget", "GoogleGadgetPopUp" )
+  insert_button(:horizontal_line, "hr")
+  insert_button(:tests_and_quizzes, "sakai2samigo")
+  insert_button(:calendar, "sakai2calendar")
+  insert_button(:jisc_content, "jisccontent")
+  insert_button(:assignments, "sakai2assignments")
+  insert_button(:basic_lti, "basiclti")
+  insert_button(:gradebook, "sakai2gradebook")
+  
+  # Custom Methods...
+  
+  # Clicks the Save button
   def save
     save_button
     sleep 1
-    @browser.wait_for_ajax
+    self.wait_for_ajax
   end
   
   # Erases the entire contents of the TinyMCE Editor, then
@@ -1566,27 +1815,6 @@ module DocumentWidget
     @browser.frame(:id=>"elm1_ifr").body(:id=>"tinymce").fire_event("onclick")
   end
   
-  select_list(:format, :id=>/formatselect/)
-  select_list(:font, :id=>/fontselect/)
-  select_list(:font_size, :id=>/fontsizeselect/)
-  link(:bold, :id=>/_bold/)
-  link(:italic, :id=>/_italic/)
-  link(:underline, :id=>/_underline/)
-  
-  # These methods click the Insert button (you must be editing the document first),
-  # then select the specified menu item, to bring up the Widget settings dialog.
-  # The first argument is the method name, the second is the id of the target
-  # button in the Insert menu, and the last argument is the name of the module
-  # to be included in the current Class object.
-  insert_button(:insert_files_and_documents, "embedcontent", "FilesAndDocsPopUp")
-  insert_button(:insert_discussion, "discussion", "Discussion")
-  insert_button(:insert_remote_content, "remotecontent", "RemoteContentPopUp" )
-  insert_button(:insert_inline_content, "inlinecontent", "InlineContentPopUp" )
-  insert_button(:insert_google_maps, "googlemaps", "GoogleMapsPopUp" )
-  insert_button(:insert_comments, "comments", "CommentsPopUp" )
-  insert_button(:insert_rss_feed_reader, "rss", "RSSFeedPopUp" )
-  insert_button(:insert_google_gadget, "ggadget", "GoogleGadgetPopUp" )
-
   # Other MCE Objects TBD later, though we're not in the business of testing TinyMCE...
   
 end
@@ -1600,19 +1828,19 @@ module LibraryWidget
   # Note that it appends a line feed on the string, so the
   # search occurs immediately.
   def search_library_for=(text)
-    @browser.text_field(:id=>"mylibrary_livefilter").set("#{text}\n")
+    self.text_field(:id=>"mylibrary_livefilter").set("#{text}\n")
   end
   
   checkbox(:add, :id=>"mylibrary_check_all")
   
   # Checks the specified Library item.
   def check_content(item)
-    @browser.div(:class=>"fl-container fl-fix mylibrary_item", :text=>/#{Regexp.escape(item)}/).checkbox.set
+    self.div(:class=>"fl-container fl-fix mylibrary_item", :text=>/#{Regexp.escape(item)}/).checkbox.set
   end
   
   # Unchecks the specified library item.
   def uncheck_content(item)
-    @browser.div(:class=>"fl-container fl-fix mylibrary_item", :text=>/#{Regexp.escape(item)}/).checkbox.clear
+    self.div(:class=>"fl-container fl-fix mylibrary_item", :text=>/#{Regexp.escape(item)}/).checkbox.clear
   end
   
   checkbox(:remove_all_library_items, :id=>"mylibrary_check_all")
@@ -1634,7 +1862,7 @@ module ListWidget
   def results_list
     list = []
     begin
-      @browser.spans(:class=>"s3d-search-result-name").each do |element|
+      self.spans(:class=>"s3d-search-result-name").each do |element|
         list << element.text
       end
     rescue
@@ -1654,6 +1882,7 @@ module ListWidget
   alias results results_list
   alias people_list results_list
   alias contacts results_list
+  alias memberships results_list
   
 end
 
@@ -1669,23 +1898,10 @@ module ListContent
   
   include PageObject
   
-  # Clicks the specified Link (will open any link that matches the
-  # supplied text, but it's made for clicking on a Document item listed on
-  # the page because it will instantiate the ContentDetailsPage class). 
-  def open_document(name)
-    name_link(name).click
-    sleep 1
-    @browser.wait_for_ajax
-    ContentDetailsPage.new @browser
-  end
-  
-  alias open_content open_document
-  alias view_document open_document
-  
   # Clicks to share the specified item.
   def share(item)
     name_li(name).button(:title=>"Share content").click
-    @browser.wait_until { @browser.text.include? "Or, share it on a webservice:" }
+    self.wait_until { @browser.text.include? "Or, share it on a webservice:" }
     self.class.class_eval { include ShareWithPopUp }
   end
   
@@ -1694,7 +1910,7 @@ module ListContent
   # Adds the specified (listed) content to the library.
   def add_content_to_library(name)
     name_li(name).button(:title=>"Save content").click
-    @browser.wait_until { @browser.text.include? "Save to" }
+    self.wait_until { @browser.text.include? "Save to" }
     self.class.eval_class { include SaveContentPopUp }
   end
   
@@ -1703,8 +1919,8 @@ module ListContent
   
   # Clicks to view the owner information of the specified item.
   def view_owner_information(name)
-    @browser.button(:title=>"View owner information for #{name}").click
-    @browser.wait_until { @browser.text.include? "Add to contacts" }
+    self.button(:title=>"View owner information for #{name}").click
+    self.wait_until { @browser.text.include? "Add to contacts" }
     self.class.eval_class { include OwnerInfoPopUp }
   end
   
@@ -1717,22 +1933,11 @@ module ListPeople
   
   include PageObject
   
-  # Clicks the link of the specified name (It will click any link on the page,
-  # really, but it should be used for Person links only, because it
-  # instantiates the ViewPerson Class)
-  def view_person(name)
-    name_link(name).click
-    @browser.wait_for_ajax
-    ViewPerson.new @browser
-  end
-  
-  alias view_profile view_person
-  
   # Clicks the plus sign next to the specified Contact name.
   # Obviously the name must exist in the list.
   def add_contact(name)
-    @browser.button(:title=>"Request connection with #{name}").click
-    @browser.wait_until { @browser.button(:text=>"Invite").visible? }
+    self.button(:title=>"Request connection with #{name}").click
+    self.wait_until { @browser.button(:text=>"Invite").visible? }
     self.class.class_eval { include AddToContactsPopUp }
   end
   
@@ -1742,12 +1947,18 @@ module ListPeople
   # Clicks the X to remove the selected person from the
   # Contacts list (in My Contacts).
   def remove(name)
-    @browser.button(:title=>"Remove contact #{name}").click
-    @browser.wait_for_ajax
+    self.button(:title=>"Remove contact #{name}").click
+    self.wait_for_ajax
     self.class.class_eval { include RemoveContactsPopUp }
   end
   
   alias remove_contact remove
+  
+  def send_message_to(name)
+    name_li(name).button(:class=>"s3d-link-button s3d-action-icon s3d-actions-message searchpeople_result_message_icon sakai_sendmessage_overlay").click
+    self.wait_for_ajax
+    self.class.class_eval { include SendMessagePopUp }
+  end
   
   # This method checks whether or not the listed
   # person has the "Add contact" button available.
@@ -1756,7 +1967,7 @@ module ListPeople
   # Returns true if the button is available.
   def addable?(name)
     if name_link(name).exists?
-      @browser.button(:title=>"Request connection with #{name}").present?
+      self.button(:title=>"Request connection with #{name}").present?
     else
       puts "\n#{name} isn't in the results list. Check your script.\nThis may be a false negative.\n"
       return false
@@ -1787,7 +1998,10 @@ module ListGroups
   alias add_research add_group
   alias join_course add_group
   alias join_group add_group
-  
+
+=begin # Tentatively moving this code to the GlobalMethods module
+    # This will be experimental for a while...
+
   # Clicks the specified Link (will open any link that matches the
   # supplied text, but it's made for clicking on a Group listed on
   # the page because it will instantiate the GroupLibrary class).
@@ -1802,7 +2016,7 @@ module ListGroups
   alias view_group open_group
   alias view_course open_group
   alias open_course open_group
-  
+=end
   # Returns the specified item's "type", as shown next to the item name--i.e.,
   # "GROUP", "COURSE", etc.
   def group_type(item)
@@ -1846,7 +2060,7 @@ module ListProjects
   
 end
 
-# Methods related to the Mail Pages.
+# Methods related to the Mail Pages. (Is this needed????)
 module MailWidget
   
   include PageObject
@@ -1863,17 +2077,37 @@ module ParticipantsWidget
 end
 
 
+#
+#
 # ======================
 # ======================
 # Page Classes
 # ======================
 # ======================
 
+
+# Methods for the Assignments Widget page.
+class Assignments
+  
+  include PageObject
+  include GlobalMethods
+  include HeaderFooterBar
+  include LeftMenuBar
+  include HeaderBar
+  include DocButtons
+  
+  def cle_frame
+    @browser.frame(:src=>/sakai2assignments.launch.html/)
+  end
+  
+end
+
 # The Login page for OAE.
 class LoginPage
   
   include PageObject
   include HeaderFooterBar
+  include GlobalMethods
   
   # Page Objects
   div(:expand_categories, :class=>"categories_expand")
@@ -1906,15 +2140,6 @@ class LoginPage
     return list
   end
   
-  # Opens page/document items that are listed on the page--for example
-  # in the Recent activity box.
-  def open_page(name)
-    @browser.link(:text=>name).click 
-    @browser.wait_for_ajax
-    @browser.window(:title=>"rSmart | Content Profile").use
-    ContentDetailsPage.new @browser
-  end
-  
 end
 
 # Page Objects and Methods for the "All Categories" page.
@@ -1924,11 +2149,214 @@ class AllCategoriesPage
   
   include PageObject
   include HeaderFooterBar
+  include GlobalMethods
   
   # Page Objects
   div(:page_title, :class=>"s3d-contentpage-title")
   
   # Custom Methods...
+  
+end
+
+#
+class Calendar
+  
+  include PageObject
+  include HeaderFooterBar
+  include LeftMenuBar
+  include HeaderBar
+  include DocButtons
+  include GlobalMethods
+  
+  def calendar_frame
+    @browser.frame(:src=>/sakai2calendar.launch.html/)
+  end
+  
+end
+
+# Methods related to the Content Details page.
+class ContentDetailsPage
+  
+  include PageObject
+  include GlobalMethods
+  include HeaderFooterBar
+  include DocButtons
+  include LeftMenuBar
+  
+  # Page Objects
+  text_area(:description, :id=>"contentmetadata_description_description")
+  text_area(:comment_text_area, :id=>"contentcomments_txtMessage")
+  button(:comment_button, :text=>"Comment")
+  button(:see_more, :id=>"contentmetadata_show_more")
+  button(:see_less, :id=>"contentmetadata_show_more")
+  button(:permissions_menu_button, :id=>"entity_content_permissions")
+  button(:permissions_button, :text=>"Permissions")
+  button(:delete_button, :text=>"Delete")
+  button(:add_to_button, :id=>"entity_content_save")
+  
+  span(:name, :id=>"entity_name")
+  span(:type, :id=>"entity_type")
+  
+  # Custom Methods...
+  
+  # Header row items...
+  def update_name=(new_name)
+    name_element.click
+    self.text_field(:id=>"entity_name_text").set new_name + "\n"
+  end
+  
+  # Visibility...
+  def change_visibility_private
+    
+  end
+  
+  def change_visibility_logged_in
+    
+  end
+  
+  def change_visibility_public
+    
+  end
+  
+  # Collaboration...
+  
+  #
+  def view_collaborators
+    
+  end
+  
+  #
+  def change_collaborators
+    
+  end
+  
+  # This method is currently not working 
+  #def change_sharing
+  #  self.div(:class=>"entity_owns_actions_share has_counts ew_permissions").hover
+  #  self.div(:class=>"entity_owns_actions_share has_counts ew_permissions").click
+  #  self.execute_script(%|$('.entity_owns_actions_share.has_counts.ew_permissions').trigger("mouseover");|)
+  #  self.wait_for_ajax
+  #  self.div(:class=>"entity_owns_actions_share has_counts ew_permissions").button(:class=>"s3d-link-button ew_permissions").click 
+  #  self.class.class_eval { include ContentPermissionsPopUp }
+  #end
+  
+  def collaboration_share
+    self.div(:id=>"entity_actions").button(:text=>"Share").click
+    self.wait_until { @browser.text.include? "Who do you want to share with?" }
+    self.class.class_eval { include ShareWithPopUp }
+  end
+  
+  # Comments count...
+  
+  # Comments field...
+  
+  # Clicks the Comments button
+  def comment
+    comment_button
+    self.wait_for_ajax
+  end
+  
+  #
+  def comment_text(text)
+    comment_text_area_element.click
+    comment_text_area_element.send_keys text
+  end
+  
+  # Clicks the "Add to..." button
+  def add_to
+    add_to_button
+    self.wait_for_ajax
+  end
+  
+  # Clicks "Permissions" in the menu...
+  def permissions
+    permissions_menu_button
+    self.wait_for_ajax
+    permissions_button
+    self.wait_for_ajax
+    self.class.class_eval { include ContentPermissionsPopUp }
+  end
+  
+  # Returns an array object containing the items displayed in
+  # "Related Content" on the page.
+  def related_content
+    list = []
+    self.div(:class=>"relatedcontent_list").links.each do |link|
+      list << link.title
+    end
+    return list
+  end
+  
+  # Clicks on the "Share Content" button.
+  def share_content
+    self.div(:id=>"entity_actions").span(:class=>"entity_share_content").click
+    self.wait_until { @browser.text.include? "Who do you want to share with?" }
+    self.class.class_eval { include ShareWithPopUp }
+  end
+  
+  # Clicks on the "Add to library" button.
+  def add_to_library
+    @browser.button(:text=>"Add to library").click
+    @browser.wait_until { @browser.text.include? "Save to" }
+    self.class.class_eval { include SaveContentPopUp }
+  end
+  
+  # Opens the description text field for editing.
+  def edit_description
+    @browser.div(:id=>"contentmetadata_description_container").fire_event "onmouseover"
+    @browser.div(:id=>"contentmetadata_description_container").fire_event "onclick"
+  end
+  
+  # Opens the tag field for editing.
+  def edit_tags
+    @browser.div(:id=>"contentmetadata_tags_container").fire_event "onclick"
+  end
+  
+  # Opens the Copyright field for editing.
+  def edit_copyright
+    @browser.div(:id=>"contentmetadata_copyright_container").fire_event "onclick"
+  end
+  
+  # Opens the Categories field for editing.
+  def edit_categories
+    @browser.div(:id=>"contentmetadata_locations_container").fire_event "onclick"
+    self.class.class_eval { include AddRemoveCategories }
+  end
+  
+  # Returns an array containing the tags and categories listed on the page.
+  def tags_and_categories_list
+    list =[]
+    @browser.div(:id=>"contentmetadata_tags_container").links.each do |link|
+      list << link.text
+    end
+    return list
+  end
+  
+  # Comments List Stuff
+  
+  #
+  def last_comment
+    hash = {}
+    comments_table = self.div(:class=>"contentcommentsTable")
+    last_message = comments_table.div(:class=>"contentcomments_comment last")
+    hash.store(:poster, last_message.span(:class=>"contentcomments_posterDataName s3d-regular-links").link.text)
+    hash.store(:date, last_message.span(:class=>"contentcomments_dateComment").text)
+    hash.store(:message, last_message.div(:class=>"contentcomments_message").text)
+    hash.store(:delete_button, last_message.button(:id=>/contentcomments_delete_\d+/))
+    return hash
+  end
+  
+  #
+  def first_comment
+    hash = {}
+    comments_table = self.div(:class=>"contentcommentsTable")
+    last_message = comments_table.div(:class=>"contentcomments_comment last")
+    hash.store(:poster, last_message.span(:class=>"contentcomments_posterDataName s3d-regular-links").link.text)
+    hash.store(:date, last_message.span(:class=>"contentcomments_dateComment").text)
+    hash.store(:message, last_message.div(:class=>"contentcomments_message").text)
+    hash.store(:delete_button, last_message.button(:id=>/contentcomments_delete_\d+/))
+    return hash
+  end
   
 end
 
@@ -1952,388 +2380,6 @@ class CreateNewAccount
   text_field(:phone_number,:id=>"phone")
 
 end
-
-# Methods related to objects found on the Dashboard
-class MyDashboard
-  
-  include PageObject
-  include HeaderFooterBar
-  include LeftMenuBarYou
-  include ChangePicturePopUp
-
-  # Page Objects
-  button(:edit_layout, :text=>"Edit Layout")
-  radio_button(:one_column, :id=>"layout-picker-onecolumn")
-  radio_button(:two_column, :id=>"layout-picker-dev")
-  radio_button(:three_column, :id=>"layout-picker-threecolumn")
-  button(:save_layout, :id=>"select-layout-finished")
-  button(:add_widgets, :text=>"Add Widget")
-  image(:profile_pic, :id=>"entity_profile_picture")
-  #div(:page_title, :class=>"s3d-contentpage-title")
-  
-  # Custom Methods...
-
-  # Returns the text contents of the page title div  
-  def page_title
-    @browser.div(:id=>"s3d-page-container").div(:class=>"s3d-contentpage-title").text
-  end
-  
-  def add_widgets
-    @browser.button(:text=>"Add widget").click
-    @browser.wait_until { @browser.text.include? "Add widgets" }
-    self.class.class_eval { include AddRemoveWidgets }
-  end
-  
-  alias add_widget add_widgets
-  
-  # Returns an array object containing a list of all selected widgets.
-  def displayed_widgets
-    list = []
-    @browser.div(:class=>"fl-container-flex widget-content").divs(:class=>"s3d-contentpage-title").each do |div|
-      list << div.text
-    end
-    return list
-  end
-
-  # Returns the name of the recent membership item displayed.
-  def recent_membership_item
-    @browser.div(:class=>"recentmemberships_widget").link(:class=>/recentmemberships_item_link/).text
-  end
-  
-  def go_to_most_recent_membership
-    @browser.link(:class=>"recentmemberships_item_link s3d-widget-links s3d-bold").click
-    sleep 2 # The next line sometimes throws an "unknown javascript error" without this line.
-    @browser.wait_for_ajax(10)
-    Library.new @browser
-  end
-
-  # Returns an array containing all the items listed in the "My memberships" dashboard widget.
-  def my_memberships_list
-    list = []
-    @browser.ul(:class=>"mygroup_items_list").spans(:class=>"mygroups_ellipsis_text").each do |span|
-      list << span.text
-    end
-    return list
-  end
-  
-
-end
-
-#
-class MyMessages
-  
-  include PageObject
-  include HeaderFooterBar
-  include LeftMenuBarYou
-  
-  # Page Objects
-  button(:accept_invitation, :text=>"Accept invitation")
-  button(:ignore_invitation, :text=>"Ignore invitation")
-  
-  # Custom Methods...
-  
-  # Returns the text of the displayed page title
-  def page_title
-    active_div.span(:id=>"inbox_box_title").text
-  end
-  
-  # Clicks the "Compose message" button on any of the
-  # My messages pages.
-  def compose_message
-    active_div.link(:id=>"inbox_create_new_message").click
-  end
-  
-  # Returns an Array containing the list of Email subjects.
-  def message_subjects
-    list = []
-    active_div.divs(:class=>"inbox_subject").each do |div|
-      list << div.text
-    end
-    return list
-  end
-
-  # Clicks on the specified email to open it for reading
-  def open_message(subject)
-    active_div.div(:class=>"inbox_subject").link(:text=>subject).click
-    @browser.wait_for_ajax
-  end
-
-  alias read_message open_message
-  
-  # New Message page
-  
-  # Enters the specified text string into the
-  # "Send this message to" text box
-  def send_this_message_to=(text)
-    active_div.text_field(:id=>"sendmessage_to_autoSuggest").set text
-  end
-  
-  # Enters the specified text string into the
-  # "Subject" field
-  def subject=(text)
-    active_div.text_field(:id=>"comp-subject").set text
-  end
-  
-  # Enters the specified text string into the Body
-  # field.
-  def body=(text)
-    active_div.textarea(:id=>"comp-body").set text
-  end
-  
-  # Clicks the "Send message" button
-  def send_message
-    active_div.button(:id=>"send_message").click 
-  end
-  
-  # Clicks the "Don't send" button
-  def dont_send
-    active_div.button(:id=>"send_message_cancel").click 
-  end
-
-  private
-  
-  # determines which sub page is currently active,
-  # so that all the other methods in the class will work
-  # properly. 
-  def active_div
-    container_div = @browser.div(:id=>"s3d-page-container")
-    case
-    when container_div.div(:id=>/^id\d{8}$/, :class=>"inline_class_widget_nofloat", :index=>0).visible?
-      id = container_div.div(:id=>/^id\d{8}$/, :class=>"inline_class_widget_nofloat", :index=>0).parent.id
-    when container_div.div(:id=>/^id\d{8}$/, :class=>"inline_class_widget_nofloat", :index=>1).visible?
-      id = container_div.div(:id=>/^id\d{8}$/, :class=>"inline_class_widget_nofloat", :index=>1).parent.id
-    when container_div.div(:id=>/^id\d{8}$/, :class=>"inline_class_widget_nofloat", :index=>2).visible?
-      id = container_div.div(:id=>/^id\d{8}$/, :class=>"inline_class_widget_nofloat", :index=>2).parent.id
-    when container_div.div(:id=>/^id\d{8}$/, :class=>"inline_class_widget_nofloat",:index=>3).visible?
-      id = container_div.div(:id=>/^id\d{8}$/, :class=>"inline_class_widget_nofloat", :index=>3).parent.id
-    end
-    return @browser.div(:id=>id)
-  end
-  
-end
-
-#
-class MyProfileBasicInfo
-  
-  include PageObject
-  include HeaderFooterBar
-  include LeftMenuBarYou
-  
-  # Basic Information
-  text_field(:given_name, :name=>"firstName")
-  text_field(:family_name, :id=>"lastName")
-  text_field(:preferred_name, :id=>"preferredName")
-  text_area(:tags, :name=>"tags")
-
-  def list_categories
-    @browser.button(:text=>"List categories").click
-    @browser.wait_for_ajax
-    self.class.class_eval { include AddRemoveCategories }
-  end
-
-  def update
-    @browser.form(:id=>"displayprofilesection_form_basic").button(:text=>"Update").click
-    @browser.wait_until { @browser.div(:id=>"gritter-notice-wrapper").exist? }
-  end
-
-end
-
-#
-class MyProfileAboutMe
-
-  include PageObject
-  include HeaderFooterBar
-  include LeftMenuBarYou
-  
-  text_area(:about_Me, :id=>"aboutme")
-  text_area(:academic_interests, :id=>"academicinterests")
-  text_area(:personal_interests, :id=>"personalinterests")
-  
-  def update
-    @browser.form(:id=>"displayprofilesection_form_aboutme").button(:text=>"Update").click
-    @browser.wait_until { @browser.div(:id=>"gritter-notice-wrapper").exist? }
-  end
-
-end
-
-#
-class MyProfileOnline
-  
-  include PageObject
-  include HeaderFooterBar
-  include LeftMenuBarYou
-  
-  button(:add_another_online, :text=>"Add another Online", :id=>"displayprofilesection_add_online")
-  
-  text_field(:site, :id=>/siteOnline_\d+/, :index=>-1)
-  text_field(:url, :id=>/urlOnline_\d+/, :index=>-1)
-  
-  def update
-    @browser.form(:id=>"displayprofilesection_form_online").button(:text=>"Update").click
-  end
-  
-  # Returns a hash object, where the keys are the site names and the
-  # values are the urls.
-  def sites_list
-    hash = {}
-    @browser.div(:id=>"profilesection_generalinfo").divs.each do |div|
-      if div.id=~/profilesection_section_\d{2,}/
-        hash.store(div.text_field(:title=>"Site").text, div.text_field(:title=>"URL").text)
-      end
-    end
-    return hash
-  end
-  
-  def remove_this_online(text)
-    #FIXME
-  end
-end
-
-# Methods related to the My Profile: Contact Information page
-class MyProfileContactInfo
-  
-  include PageObject
-  include HeaderFooterBar
-  include LeftMenuBarYou
-  
-  #button(:add_another, :text=>"Add another", :id=>/profilesection_add_link_\d/)
-  text_field(:institution, :name=>"college")
-  text_field(:department, :name=>"Department") 
-  text_field(:role, :name=>"role") 
-  text_field(:email, :name=>"emailContact") 
-  text_field(:instant_messaging, :name=>"imContact") 
-  text_field(:phone, :name=>"phoneContact") 
-  text_field(:mobile, :name=>"mobileContact") 
-  text_field(:fax, :name=>"faxContact") 
-  text_field(:address, :name=>"addressContact") 
-  text_field(:city, :name=>"cityContact") 
-  text_field(:state, :name=>"stateContact")
-  text_field(:postal_code, :name=>"postalContact") 
-  text_field(:country, :name=>"countryContact")
-  
-  def update
-    @browser.form(:id=>"displayprofilesection_form_contact").button(:text=>"Update").click
-  end
-end
-
-# Publications
-class MyProfilePublications
-  
-  include PageObject
-  include HeaderFooterBar
-  include LeftMenuBarYou
-  
-  button(:add_another_publication, :text=>"Add another publication", :id=>"displayprofilesection_add_publications")
-  
-  def update
-    @browser.form(:id=>"displayprofilesection_form_publications").button(:text=>"Update").click
-  end
-  
-  text_field(:main_title, :id=>/maintitle_\d+/, :index=>-1)
-  text_field(:main_author, :id=>/mainauthor_d+/, :index=>-1)
-  text_field(:co_authors, :id=>/coauthor_\d+/, :index=>-1)
-  text_field(:publisher, :id=>/publisher_\d+/, :index=>-1)
-  text_field(:place_of_publication, :id=>/placeofpublication_\d+/, :index=>-1)
-  text_field(:volume_title, :id=>/volumetitle_\d+/, :index=>-1)
-  text_field(:volume_information, :id=>/volumeinformation_\d+/, :index=>-1)
-  text_field(:year, :id=>/year_\d+/, :index=>-1)
-  text_field(:number, :id=>/number_\d+/, :index=>-1)
-  text_field(:series_title, :id=>/series.title_\d+/, :index=>-1)
-  text_field(:url, :id=>/url_\d+/, :index=>-1)
-  
-end
-
-#
-class MyLibrary
-  
-  include PageObject
-  include HeaderFooterBar
-  include ListWidget
-  include LeftMenuBarYou
-
-  # Page Objects
-  div(:page_title, :class=>"s3d-contentpage-title")
-
-end
-
-#
-class MyMemberships
-
-  include PageObject
-  include HeaderFooterBar
-  include ListWidget
-  include ListGroups
-  include LeftMenuBarYou
-
-  # Page Objects
-  div(:page_title, :class=>"s3d-contentpage-title") # FIXME!
-  
-  # Custom methods...
-
-  alias go_to open_group
-  alias navigate_to open_group
-
-end
-
-# Page Objects and Custom Methods for the My Contacts page.
-class MyContacts
-
-  include PageObject
-  include HeaderFooterBar
-  include ListWidget
-  include ListPeople
-  include LeftMenuBarYou
-
-  # Page Objects
-  navigating_link(:find_and_add_people, "Find and add people", "ExplorePeople")
-
-  # Page Objects defined with Watir-webdriver...
-  
-  # The text of the Page Title. It should usually return "My contacts".
-  def page_title
-    active_div.div(:class=>"s3d-contentpage-title").text
-  end
-  
-  # This returns the the "contacts_invited" page div
-  # (as a Watir page object). This can be used to validate
-  # that there are pending invites on the page. Primarily, however, it's used
-  # by other methods in this class--to differentiate the pending list
-  # from the contacts list.
-  def pending_contacts
-    active_div.div(:id=>"contacts_invited")
-  end
-  
-  # Custom Methods...
-  
-  # Returns the list of names of people requesting
-  # contact
-  def pending_invites
-    list = []
-    pending_contacts.links(:class=>"s3d-bold s3d-regular-light-links", :title=>/View/).each { |link| list << link.text }
-    return list
-  end
-  
-  # Clicks the "accept connection" plus sign for the specified
-  # person in the Pending contacts list
-  def accept_connection(name)
-    @browser.li(:text=>/#{Regexp.escape(name)}/).button(:title=>"Accept connection").click
-    sleep 1
-    @browser.wait_for_ajax
-  end
-  
-  # Private methods...
-  
-  private
-  
-  # The top div for the contents of the page.
-  # This method is a helper method for other objects
-  # defined on the page.
-  def active_div
-    @browser.div(:id=>/^contactscontainer\d+/)
-  end
-  
-end
-
 #
 class CreateCourses
   
@@ -2435,141 +2481,12 @@ class CreateResearch
   
 end
 
-
-#
-class ViewPerson
-  
-  include PageObject
-  include HeaderFooterBar
-  include LeftMenuBarYou
-  
-  # Page Objects
-  navigating_link(:basic_information, "Basic Information", "ViewPerson")
-  navigating_link(:categories, "Categories", "ViewPerson")
-  navigating_link(:about_me, "About Me", "ViewPerson")
-  navigating_link(:online, "Online", "ViewPerson")
-  navigating_link(:contact_information, "Contact Information", "ViewPerson")
-  navigating_link(:publications, "Publications", "ViewPerson")
-  div(:contact_name, :id=>"entity_name")
-  button(:message_button, :id=>"entity_user_message")
-  button(:add_to_contacts_button, :id=>"entity_user_add_to_contacts")
-  button(:invitation_sent_button, :text=>"Contact invitation sent")
-  button(:accept_invitation_button, :id=>"entity_user_accept_invitation")
-  
-  # Custom Methods...
-  
-  def accept_invitation
-    accept_invitation_button
-    @browser.wait_for_ajax
-  end
-  
-  def message
-    message_button
-    @browser.wait_until { @browser.text.include? "Send this message to:" }
-    self.class.class_eval { include SendMessagePopUp }
-  end
-  
-  def add_to_contacts
-    add_to_contacts_button
-    @browser.wait_until { @browser.text.include? "Add a personal note to the invitation:" }
-    self.class.class_eval { include AddToContactsPopUp }
-  end
-  
-  def users_library
-    @browser.link(:class=>/s3d-bold lhnavigation_toplevel lhnavigation_page_title_value/, :text=>/Library/).click
-    self.class.class_eval { include ListWidget
-                            include LibraryWidget }
-  end
-  
-  def users_memberships
-    @browser.link(:class=>/s3d-bold lhnavigation_toplevel lhnavigation_page_title_value/, :text=>/Memberships/).click
-    self.class.class_eval { include ListWidget }
-  end
-  
-  def users_contacts
-    @browser.link(:class=>/s3d-bold lhnavigation_toplevel lhnavigation_page_title_value/, :text=>/Contacts/).click
-    self.class.class_eval { include ListWidget }
-  end
-  
-  def basic_info_data
-    hash = {}
-    @browser.div(:id=>/profilesection-basic-\d+/).divs.each do |div|
-      if div.class_name=="profilesection_generalinfo_subcontainer"
-        hash.store(div.span(:class=>"profilesection_generalinfo_label").text, div.div(:class=>"profilesection_generalinfo_content").text)
-      end
-    end
-    return hash
-  end
-  
-  def categories_data
-    list = []
-    @browser.div(:id=>/profilesection-locations-\d+/).links.each do |link|
-      list << link.text
-    end
-    return list
-  end
-  
-  def about_me_data
-    hash = {}
-    @browser.form(:id=>/profile_form_profilesection-aboutme-\d+/).divs.each do |div|
-      if div.class_name=="profilesection_generalinfo_subcontainer"
-        hash.store(div.span(:class=>"profilesection_generalinfo_label").text, div.div(:class=>"profilesection_generalinfo_content").text)
-      end
-    end
-    return hash
-  end
-  
-  def online_data
-    hash = {}
-    @browser.div(:id=>/profilesection-online-\d+/).div(:id=>"profilesection_generalinfo").divs.each do |div|
-      if div.id=~/profilesection_section_\d+/
-        hash.store(div.div(:class=>"profilesection_generalinfo_subcontainer", :index=>0).div(:class=>"profilesection_generalinfo_content").text, div.div(:class=>"profilesection_generalinfo_subcontainer", :index=>1).div(:class=>"profilesection_generalinfo_content").text)
-      end
-    end
-    return hash
-  end
-  
-  def contact_info_data
-    list = []
-    @browser.div(:id=>/profilesection-contact-\d+/).div(:id=>"profilesection_generalinfo").divs.each do |div|
-      hash = {}
-      if div.id=~/profilesection_section_\d+/
-        div.divs.each do |subdiv|
-          if subdiv.class_name=="profilesection_generalinfo_subcontainer"
-            hash.store(subdiv.span.text, subdiv.div.text)
-          end
-        end
-        list << hash if hash != {}
-      end
-    end
-    return list
-  end
-  
-  def publications_data
-    list = []
-    @browser.div(:id=>/profilesection-publications-\d+/).div(:id=>"profilesection_generalinfo").divs.each do |div|
-      hash = {}
-      if div.id=~/profilesection_section_\d+/
-        div.divs.each do |subdiv|
-          if subdiv.class_name=="profilesection_generalinfo_subcontainer"
-            hash.store(subdiv.span.text, subdiv.div.text)
-          end
-        end
-        list << hash if hash != {}
-      end
-      
-    end
-    return list
-  end
-  
-end
-
-
 # Page Object and methods for the SEARCH ALL TYPES page
 # NOT the "Browse All Categories" page!
 class ExploreAll
 
   include PageObject
+  include GlobalMethods
   include HeaderFooterBar
   include LeftMenuBarSearch
   include ListWidget
@@ -2593,6 +2510,7 @@ end
 class ExploreContent
 
   include PageObject
+  include GlobalMethods
   include HeaderFooterBar
   include LeftMenuBarSearch
   include ListWidget
@@ -2612,6 +2530,7 @@ end
 class ExplorePeople
 
   include PageObject
+  include GlobalMethods
   include HeaderFooterBar
   include LeftMenuBarSearch
   include ListWidget
@@ -2631,6 +2550,7 @@ end
 class ExploreGroups
 
   include PageObject
+  include GlobalMethods
   include HeaderFooterBar
   include LeftMenuBarSearch
   include ListWidget
@@ -2649,6 +2569,7 @@ end
 class ExploreCourses
   
   include PageObject
+  include GlobalMethods
   include HeaderFooterBar
   include LeftMenuBarSearch
   include ListWidget
@@ -2681,6 +2602,7 @@ end
 class ExploreResearch
 
   include PageObject
+  include GlobalMethods
   include HeaderFooterBar
   include LeftMenuBarSearch
   include ListProjects
@@ -2694,22 +2616,649 @@ class ExploreResearch
   
 end
 
+
+# Methods related to objects found on the Dashboard
+class MyDashboard
+  
+  include PageObject
+  include GlobalMethods
+  include HeaderFooterBar
+  include LeftMenuBarYou
+  include ChangePicturePopUp
+
+  # Page Objects
+  button(:edit_layout, :text=>"Edit Layout")
+  radio_button(:one_column, :id=>"layout-picker-onecolumn")
+  radio_button(:two_column, :id=>"layout-picker-dev")
+  radio_button(:three_column, :id=>"layout-picker-threecolumn")
+  button(:save_layout, :id=>"select-layout-finished")
+  button(:add_widgets, :text=>"Add Widget")
+  image(:profile_pic, :id=>"entity_profile_picture")
+  #div(:page_title, :class=>"s3d-contentpage-title")
+  
+  # Custom Methods...
+
+  # Returns the text contents of the page title div  
+  def page_title
+    @browser.div(:id=>"s3d-page-container").div(:class=>"s3d-contentpage-title").text
+  end
+  
+  def add_widgets
+    @browser.button(:text=>"Add widget").click
+    @browser.wait_until { @browser.text.include? "Add widgets" }
+    self.class.class_eval { include AddRemoveWidgets }
+  end
+  
+  alias add_widget add_widgets
+  
+  # Returns an array object containing a list of all selected widgets.
+  def displayed_widgets
+    list = []
+    @browser.div(:class=>"fl-container-flex widget-content").divs(:class=>"s3d-contentpage-title").each do |div|
+      list << div.text
+    end
+    return list
+  end
+
+  # Returns the name of the recent membership item displayed.
+  def recent_membership_item
+    @browser.div(:class=>"recentmemberships_widget").link(:class=>/recentmemberships_item_link/).text
+  end
+  
+  def go_to_most_recent_membership
+    @browser.link(:class=>"recentmemberships_item_link s3d-widget-links s3d-bold").click
+    sleep 2 # The next line sometimes throws an "unknown javascript error" without this line.
+    @browser.wait_for_ajax(10)
+    Library.new @browser
+  end
+
+  # Returns an array containing all the items listed in the "My memberships" dashboard widget.
+  def my_memberships_list
+    list = []
+    @browser.ul(:class=>"mygroup_items_list").spans(:class=>"mygroups_ellipsis_text").each do |span|
+      list << span.text
+    end
+    return list
+  end
+  
+
+end
+
+#
+class MyMessages
+  
+  include PageObject
+  include GlobalMethods
+  include HeaderFooterBar
+  include LeftMenuBarYou
+  
+  # Page Objects
+  button(:accept_invitation, :text=>"Accept invitation")
+  button(:ignore_invitation, :text=>"Ignore invitation")
+  
+  # Custom Methods...
+  
+  # Returns the text of the displayed page title
+  def page_title
+    active_div.span(:id=>"inbox_box_title").text
+  end
+  
+  # Clicks the "Compose message" button on any of the
+  # My messages pages.
+  def compose_message
+    active_div.link(:id=>"inbox_create_new_message").click
+    self.wait_for_ajax
+    self.class.class_eval { include SendMessagePopUp }
+  end
+  
+  # Returns an Array containing the list of Email subjects.
+  def message_subjects
+    list = []
+    active_div.divs(:class=>"inbox_subject").each do |div|
+      list << div.text
+    end
+    return list
+  end
+
+  # Clicks on the specified email to open it for reading
+  def open_message(subject)
+    active_div.div(:class=>"inbox_subject").link(:text=>subject).click
+    self.wait_for_ajax
+  end
+
+  alias read_message open_message
+  
+  # The New Message page is controlled by the SendMessagePopUp module
+
+  # Read/Reply Page Objects (defined with Watir)
+
+  # Returns the text of the name of the sender of the message being viewed
+  def message_sender
+    active_div.div(:id=>"inbox_show_message").div(:class=>"inbox_name").button(:class=>"s3d-regular-links s3d-link-button s3d-bold personinfo_trigger_click personinfo_trigger").text
+  end
+  
+  # Returns the date of the message being viewed (as a String object)
+  def message_date
+    active_div.div(:id=>"inbox_show_message").div(:class=>"inbox_date").span.text
+  end
+
+  # Returns the text of the message subject
+  def message_subject
+    active_div.div(:id=>"inbox_show_message").div(:class=>"inbox_subject").link.text
+  end
+  
+  # Returns the text of the message body.
+  def message_body
+    active_div.div(:id=>"inbox_show_message").div(:class=>"inbox_excerpt").text
+  end
+
+  private
+  
+  # determines which sub page is currently active,
+  # so that all the other methods in the class will work
+  # properly. 
+  def active_div
+    container_div = self.div(:id=>"s3d-page-container")
+    case
+    when container_div.div(:id=>/^id\d{8}$/, :class=>"inline_class_widget_nofloat", :index=>0).visible?
+      id = container_div.div(:id=>/^id\d{8}$/, :class=>"inline_class_widget_nofloat", :index=>0).parent.id
+    when container_div.div(:id=>/^id\d{8}$/, :class=>"inline_class_widget_nofloat", :index=>1).visible?
+      id = container_div.div(:id=>/^id\d{8}$/, :class=>"inline_class_widget_nofloat", :index=>1).parent.id
+    when container_div.div(:id=>/^id\d{8}$/, :class=>"inline_class_widget_nofloat", :index=>2).visible?
+      id = container_div.div(:id=>/^id\d{8}$/, :class=>"inline_class_widget_nofloat", :index=>2).parent.id
+    when container_div.div(:id=>/^id\d{8}$/, :class=>"inline_class_widget_nofloat",:index=>3).visible?
+      id = container_div.div(:id=>/^id\d{8}$/, :class=>"inline_class_widget_nofloat", :index=>3).parent.id
+    end
+    return self.div(:id=>id)
+  end
+  
+end
+
+#
+class MyProfileBasicInfo
+  
+  include PageObject
+  include GlobalMethods
+  include HeaderFooterBar
+  include LeftMenuBarYou
+  
+  # Basic Information
+  text_field(:given_name, :name=>"firstName")
+  text_field(:family_name, :id=>"lastName")
+  text_field(:preferred_name, :id=>"preferredName")
+  text_area(:tags, :name=>"tags")
+
+  def list_categories
+    self.button(:text=>"List categories").click
+    self.wait_for_ajax
+    self.class.class_eval { include AddRemoveCategories }
+  end
+
+  def update
+    self.form(:id=>"displayprofilesection_form_basic").button(:text=>"Update").click
+    self.wait_for_ajax
+    #self.wait_until { @browser.div(:id=>"gritter-notice-wrapper").exist? }
+  end
+
+end
+
+#
+class MyProfileAboutMe
+
+  include PageObject
+  include GlobalMethods
+  include HeaderFooterBar
+  include LeftMenuBarYou
+  
+  text_area(:about_Me, :id=>"aboutme")
+  text_area(:academic_interests, :id=>"academicinterests")
+  text_area(:personal_interests, :id=>"personalinterests")
+  
+  def update
+    self.form(:id=>"displayprofilesection_form_aboutme").button(:text=>"Update").click
+    self.wait_for_ajax
+    #self.wait_until { @browser.div(:id=>"gritter-notice-wrapper").exist? }
+  end
+
+end
+
+#
+class MyProfileOnline
+  
+  include PageObject
+  include GlobalMethods
+  include HeaderFooterBar
+  include LeftMenuBarYou
+  
+  button(:add_another_online, :text=>"Add another Online", :id=>"displayprofilesection_add_online")
+  
+  text_field(:site, :id=>/siteOnline_\d+/, :index=>-1)
+  text_field(:url, :id=>/urlOnline_\d+/, :index=>-1)
+  
+  def update
+    @browser.form(:id=>"displayprofilesection_form_online").button(:text=>"Update").click
+  end
+  
+  # Returns a hash object, where the keys are the site names and the
+  # values are the urls.
+  def sites_list
+    hash = {}
+    @browser.div(:id=>"profilesection_generalinfo").divs.each do |div|
+      if div.id=~/profilesection_section_\d{2,}/
+        hash.store(div.text_field(:title=>"Site").text, div.text_field(:title=>"URL").text)
+      end
+    end
+    return hash
+  end
+  
+  def remove_this_online(text)
+    #FIXME
+  end
+end
+
+# Methods related to the My Profile: Contact Information page
+class MyProfileContactInfo
+  
+  include PageObject
+  include GlobalMethods
+  include HeaderFooterBar
+  include LeftMenuBarYou
+  
+  # Page Objects
+  #button(:add_another, :text=>"Add another", :id=>/profilesection_add_link_\d/)
+  text_field(:institution, :name=>"college")
+  text_field(:department, :name=>"department") 
+  text_field(:title_role, :name=>"role")
+  text_field(:role, :name=>"role")
+  text_field(:email, :name=>"emailContact") 
+  text_field(:instant_messaging, :name=>"imContact") 
+  text_field(:phone, :name=>"phoneContact") 
+  text_field(:mobile, :name=>"mobileContact") 
+  text_field(:fax, :name=>"faxContact") 
+  text_field(:address, :name=>"addressContact") 
+  text_field(:city, :id=>"cityContact") 
+  text_field(:state, :name=>"stateContact")
+  text_field(:postal_code, :name=>"postalContact") 
+  text_field(:country, :name=>"countryContact")
+  
+  # Custom Methods
+  
+  def update
+    self.form(:id=>"displayprofilesection_form_contact").button(:text=>"Update").click
+    self.wait_for_ajax
+  end
+  
+  # Takes a hash object and uses it to fill out
+  # the fields on the form. The necessary key values in the
+  # hash argument are as follows:
+  # :institution, :department, :title, :email, :im, :phone,
+  # :mobile, :fax, :address, :city, :state, :zip, and :country.
+  # Any keys that are different or missing will be ignored.
+  def fill_out_form(hash)
+    self.institution=hash[:institution]
+    self.department=hash[:department]
+    self.title_role=hash[:title]
+    self.email=hash[:email]
+    self.instant_messaging=hash[:im]
+    self.phone=hash[:phone]
+    self.mobile=hash[:mobile]
+    self.fax=hash[:fax]
+    self.address=hash[:address]
+    self.city=hash[:city]
+    self.state=hash[:state]
+    self.postal_code=hash[:zip]
+    self.country=hash[:country]
+  end
+  
+end
+
+# Publications
+class MyProfilePublications
+  
+  include PageObject
+  include GlobalMethods
+  include HeaderFooterBar
+  include LeftMenuBarYou
+  
+  # Page Objects
+  
+  button(:add_another_publication, :text=>"Add another publication", :id=>"displayprofilesection_add_publications")
+  text_field(:main_title, :id=>/maintitle_\d+/, :index=>-1)
+  text_field(:main_author, :name=>/mainauthor_\d+/, :index=>-1)
+  text_field(:co_authors, :id=>/coauthor_\d+/, :index=>-1)
+  text_field(:publisher, :id=>/publisher_\d+/, :index=>-1)
+  text_field(:place_of_publication, :id=>/placeofpublication_\d+/, :index=>-1)
+  text_field(:volume_title, :id=>/volumetitle_\d+/, :index=>-1)
+  text_field(:volume_information, :id=>/volumeinformation_\d+/, :index=>-1)
+  text_field(:year, :id=>/year_\d+/, :index=>-1)
+  text_field(:number, :id=>/number_\d+/, :index=>-1)
+  text_field(:series_title, :id=>/series.title_\d+/, :index=>-1)
+  text_field(:url, :id=>/url_\d+/, :index=>-1)
+  
+  # Custom Methods...
+  
+  #
+  def update
+    self.form(:id=>"displayprofilesection_form_publications").button(:text=>"Update").click
+    self.wait_for_ajax
+  end
+  
+  # Takes a hash object and uses it to fill
+  # in all the publication fields. The key values
+  # that the has must contain are as follows:
+  # :main_title, :main_author, :co_authors, :publisher,
+  # :place, :volume_title, :volume_info, :year, :number,
+  # :series, :url.
+  # Any missing or misspelled key values will be ignored.
+  def fill_out_form(hash)
+    self.main_title=hash[:main_title]
+    self.main_author=hash[:main_author]
+    self.co_authors=hash[:co_authors]
+    self.publisher=hash[:publisher]
+    self.place_of_publication=hash[:place]
+    self.volume_title=hash[:volume_title]
+    self.volume_information=hash[:volume_info]
+    self.year=hash[:year]
+    self.number=hash[:number]
+    self.series_title=hash[:series]
+    self.url=hash[:url]
+  end
+  
+end
+
+#
+class MyLibrary
+  
+  include PageObject
+  include GlobalMethods
+  include HeaderFooterBar
+  include ListWidget
+  include LeftMenuBarYou
+
+  # Page Objects
+  div(:page_title, :class=>"s3d-contentpage-title") # I'm pretty sure this needs to be fixed.
+
+end
+
+#
+class MyMemberships
+
+  include PageObject
+  include GlobalMethods
+  include HeaderFooterBar
+  include ListWidget
+  include ListGroups
+  include LeftMenuBarYou
+
+  # Page Objects
+  div(:page_title, :class=>"s3d-contentpage-title") # FIXME!
+  
+  # Custom methods...
+
+
+end
+
+# Page Objects and Custom Methods for the My Contacts page.
+class MyContacts
+
+  include PageObject
+  include GlobalMethods
+  include HeaderFooterBar
+  include ListWidget
+  include ListPeople
+  include LeftMenuBarYou
+
+  # Page Objects
+  navigating_link(:find_and_add_people, "Find and add people", "ExplorePeople")
+
+  # Page Objects defined with Watir-webdriver...
+  
+  # The text of the Page Title. It should usually return "My contacts".
+  def page_title
+    active_div.div(:class=>"s3d-contentpage-title").text
+  end
+  
+  # This returns the the "contacts_invited" page div
+  # (as a Watir page object). This can be used to validate
+  # that there are pending invites on the page. Primarily, however, it's used
+  # by other methods in this class--to differentiate the pending list
+  # from the contacts list.
+  def pending_contacts
+    active_div.div(:id=>"contacts_invited")
+  end
+  
+  # Custom Methods...
+  
+  # Returns the list of names of people requesting
+  # contact
+  def pending_invites
+    list = []
+    pending_contacts.links(:class=>"s3d-bold s3d-regular-light-links", :title=>/View/).each { |link| list << link.text }
+    return list
+  end
+  
+  # Clicks the "accept connection" plus sign for the specified
+  # person in the Pending contacts list
+  def accept_connection(name)
+    self.li(:text=>/#{Regexp.escape(name)}/).button(:title=>"Accept connection").click
+    sleep 0.8
+    self.wait_for_ajax
+  end
+  
+  # Private methods...
+  
+  private
+  
+  # The top div for the contents of the page.
+  # This method is a helper method for other objects
+  # defined on the page.
+  def active_div
+    self.div(:id=>/^contactscontainer\d+/)
+  end
+  
+end
+
+
+#
+class ViewPerson
+  
+  include PageObject
+  include GlobalMethods
+  include HeaderFooterBar
+  include LeftMenuBarYou
+  
+  # Page Objects
+  navigating_link(:basic_information, "Basic Information", "ViewPerson")
+  navigating_link(:categories, "Categories", "ViewPerson")
+  navigating_link(:about_me, "About Me", "ViewPerson")
+  navigating_link(:online, "Online", "ViewPerson")
+  navigating_link(:contact_information, "Contact Information", "ViewPerson")
+  navigating_link(:publications, "Publications", "ViewPerson")
+  div(:contact_name, :id=>"entity_name")
+  button(:message_button, :id=>"entity_user_message")
+  button(:add_to_contacts_button, :id=>"entity_user_add_to_contacts")
+  button(:invitation_sent_button, :text=>"Contact invitation sent")
+  button(:accept_invitation_button, :id=>"entity_user_accept_invitation")
+  
+  # Custom Methods...
+  
+  def accept_invitation
+    accept_invitation_button
+    self.wait_for_ajax
+  end
+  
+  def message
+    message_button
+    self.wait_until { self.text.include? "Send this message to:" }
+    self.class.class_eval { include SendMessagePopUp }
+  end
+  
+  def add_to_contacts
+    add_to_contacts_button
+    self.wait_until { @browser.text.include? "Add a personal note to the invitation:" }
+    self.class.class_eval { include AddToContactsPopUp }
+  end
+  
+  # Clicks the link to open the user's library profile page.
+  def users_library
+    self.link(:class=>/s3d-bold lhnavigation_toplevel lhnavigation_page_title_value/, :text=>/Library/).click
+    sleep 2
+    self.wait_for_ajax
+    self.class.class_eval { include ListWidget
+                            include LibraryWidget }
+  end
+  
+  # I believe this is not supported by rSmart's OAE preview
+  #def users_memberships
+  #  @browser.link(:class=>/s3d-bold lhnavigation_toplevel lhnavigation_page_title_value/, :text=>/Memberships/).click
+  #  self.class.class_eval { include ListWidget }
+  #end
+  
+  # Opens the user's Contacts page to display their contacts
+  def users_contacts
+    @browser.link(:class=>/s3d-bold lhnavigation_toplevel lhnavigation_page_title_value/, :text=>/Contacts/).click
+    self.class.class_eval { include ListWidget }
+  end
+  
+  # This method assumes the current page is the Basic Info page.
+  # It returns a hash object where the key => value pair is:
+  # "Field Title" => "Field Value" --e.g.: "Given name:"=>"Billy"
+  def basic_info_data
+    hash = {}
+    target_div = self.div(:class=>"s3d-contentpage-title", :text=>"Basic Information").parent.parent.div(:id=>"displayprofilesection_body")
+    target_div.divs(:class=>"displayprofilesection_field").each { |div| hash.store(div.span(:class=>"s3d-input-label").text, div.span(:class=>"field_value").text) }
+    return hash
+  end
+  
+  # Returns an array containing the text of all of the tags and categories
+  # listed on the Basic Information page.
+  def tags_and_categories_list
+    list = []
+    target_div = self.div(:class=>"s3d-contentpage-title", :text=>"Basic Information").parent.parent.div(:id=>"displayprofilesection_body")
+    target_div.links.each { |link| list << link.text }
+    return list
+  end
+  
+  # This method assumes it will be run on the About Me page.
+  # It returns a hash object where the key => value pair is:
+  # "Field Title" => "Field Value" --e.g.: "About Me:"=>"Text of field"
+  def about_me_data
+    hash = {}
+    target_div = self.div(:class=>"s3d-contentpage-title", :text=>"About Me").parent.parent.div(:id=>"displayprofilesection_body")
+    target_div.divs(:class=>"displayprofilesection_field").each { |div| hash.store(div.span(:class=>"s3d-input-label").text, div.span(:class=>"field_value").text) }
+    return hash
+  end
+  
+  # Returns a hash object where the key=>value pair is determined by the
+  # field title and field values shown on the "Online" page.
+  #
+  # Because there can be an arbitrary number of Sites listed on the page,
+  # The hash keys will have a number appended on the end. Example:
+  # { "Site:1"=>"Twitter", "URL:1"=>"www.twitter.com","Site:2"=>"Facebook","URL:2"=>"www.facebook.com"}
+  def online_data
+    hash = {}
+    target_div = self.div(:class=>"s3d-contentpage-title", :text=>"Online").parent.parent.div(:id=>"displayprofilesection_body")
+    x=0
+    target_div.divs(:class=>"displayprofilesection_field").each do |div|
+      div.span(:class=>"s3d-input-label").text == "Site:" ? x+=1 : x
+      hash.store("#{div.span(:class=>"s3d-input-label").text}#{x}", div.span(:class=>"field_value").text)
+    end
+    return hash
+  end
+  
+  # Returns a hash object where the key=>value pair is determined by the
+  # field title and field values shown on the "Contact Information" page.
+  #
+  # Example: "Institution:"=>"University of Hard Knocks"
+  def contact_info_data
+    hash = {}
+    target_div = self.div(:class=>"s3d-contentpage-title", :text=>"Contact Information").parent.parent.div(:id=>"displayprofilesection_body")
+    target_div.divs(:class=>"displayprofilesection_field").each { |div| hash.store(div.span(:class=>"s3d-input-label").text, div.span(:class=>"field_value").text) }
+    return hash
+  end
+  
+  # Takes a hash object containing the test contact info (see required format below),
+  # evaluates that data against the data returned with the contact_info_data
+  # method and returns true if the data match, and false, if they do not.
+  #
+  # The hash object passed to the method must contain the following keys, exactly:
+  # :institution, :department, :title, :email, :im, :phone, :mobile, :fax,
+  # :address, :city, :state, :zip, :country
+  def expected_contact_info?(hash)
+    info = self.contact_info_data
+    key_map = {"Institution:"=>:institution, "Department:"=>:department, "Title/Role:"=>:title,
+      "Email:"=>:email, "Instant Messaging:"=>:im, "Phone:"=>:phone, "Mobile:"=>:mobile, "Fax:"=>:fax,
+      "Address:"=>:address, "City:"=>:city, "State:"=>:state, "Postal Code:"=>:zip, "Country:"=>:country}
+    fixed = Hash[info.map { |k, v| [key_map[k], v ] } ]
+    fixed==hash ? true : false
+  end
+  
+  # Returns an array of hashes. Each hash in the array refers to one of
+  # the listed publications.
+  #
+  # Each hash's key=>value pairs are determined by the field title and field values for the publications.
+  #
+  # Example: "Main title:"=>"War and Peace","Main author:"=>"Tolstoy", etc....
+  def publications_data
+    list = []
+    target_div = self.div(:class=>"s3d-contentpage-title", :text=>"Publications").parent.parent.div(:id=>"displayprofilesection_body")
+    target_div.divs(:id=>"displayprofilesection_sections_publications").each do |div|
+      hash = {}
+      div.divs(:class=>"displayprofilesection_field").each { |subdiv| hash.store(subdiv.span(:class=>"s3d-input-label").text, subdiv.span(:class=>"field_value").text) }
+      list << hash
+    end
+    return list
+  end
+  
+  # Expects to be passed an array containing one or more hashes (see below for
+  # how the hash should be formed). Note that it's okay to send a single hash instead
+  # of an array containing one hash element. The method will do the
+  # necessary cleaning of the data.
+  #
+  # The method returns true if the contents of the hash(es) match the data evaluated against,
+  # otherwise returns false.
+  # The hash(es) should contain all of the following keys...
+  # :main_title, main_author, :co_authors, :publisher, :place, :volume_title,
+  # :volume_info, :year, :number, :series, :url
+  def expected_publications_data?(array_of_hash)
+    expected_data=[]
+    expected_data << array_of_hash
+    expected_data.flatten!
+    data_array = self.publications_data
+    new_array = []
+    key_map = { "Main title:"=>:main_title, "Main author:"=>:main_author,
+    "Co-author(s):"=>:co_authors, "Publisher:"=>:publisher, "Place of publication:"=>:place,
+    "Volume title:"=>:volume_title, "Volume information:"=>:volume_info,
+    "Year:"=>:year, "Number:"=>:number, "Series title:"=>:series, "URL:"=>:url }
+    data_array.each do |hash|
+      fixed = Hash[hash.map { |k, v| [key_map[k], v ] } ]
+      new_array << fixed
+    end
+    expected_data==new_array ? true : false
+  end
+  
+end
+
 #
 class MyPreferences
 
   include PageObject
+  include GlobalMethods
 
 end
 
 
-# 
+# Library pages in Courses/Groups/Research
 class Library
   
   include PageObject
+  include GlobalMethods
   include HeaderFooterBar
   include HeaderBar
   include LeftMenuBar
   include LibraryWidget
+  include ListWidget
+  include ListContent
   
 end
 
@@ -2717,6 +3266,7 @@ end
 class Participants
   
   include PageObject
+  include GlobalMethods
   include HeaderFooterBar
   include LeftMenuBar
   include HeaderBar
@@ -2725,21 +3275,11 @@ class Participants
   
 end
 
-# Methods related to the Documents "Area" in Groups/Courses.
-class Documents
-  
-  include PageObject
-  include HeaderFooterBar
-  include LeftMenuBar
-  include HeaderBar
-  include DocButtons
-  
-end
-
 # Methods related to the Discussions "Area" in a Group/Course.
 class Discussions
   
   include PageObject
+  include GlobalMethods
   include HeaderFooterBar
   include LeftMenuBar
   include HeaderBar
@@ -2808,6 +3348,7 @@ end
 class Comments
   
   include PageObject
+  include GlobalMethods
   include HeaderFooterBar
   include LeftMenuBar
   include HeaderBar
@@ -2851,6 +3392,7 @@ end
 class JISC
   
   include PageObject
+  include GlobalMethods
   include HeaderFooterBar
   include LeftMenuBar
   include HeaderBar
@@ -2870,6 +3412,7 @@ end
 class RSS
   
   include PageObject
+  include GlobalMethods
   include HeaderFooterBar
   include LeftMenuBar
   include HeaderBar
@@ -2881,25 +3424,12 @@ class RSS
   
 end
 
-# Methods for the Assignments Widget page.
-class Assignments
-  
-  include PageObject
-  include HeaderFooterBar
-  include LeftMenuBar
-  include HeaderBar
-  include DocButtons
-  
-  def cle_frame
-    @browser.frame(:src=>/sakai2assignments.launch.html/)
-  end
-  
-end
 
 #
 class Tests
   
   include PageObject
+  include GlobalMethods
   include HeaderFooterBar
   include LeftMenuBar
   include HeaderBar
@@ -2911,25 +3441,12 @@ class Tests
   
 end
 
-#
-class Calendar
-  
-  include PageObject
-  include HeaderFooterBar
-  include LeftMenuBar
-  include HeaderBar
-  include DocButtons
-  
-  def calendar_frame
-    @browser.frame(:src=>/sakai2calendar.launch.html/)
-  end
-  
-end
 
 #
 class Files
   
   include PageObject
+  include GlobalMethods
   include HeaderFooterBar
   include LeftMenuBar
   include HeaderBar
@@ -2955,6 +3472,7 @@ end
 class Gadget
   
   include PageObject
+  include GlobalMethods
   include HeaderFooterBar
   include LeftMenuBar
   include HeaderBar
@@ -2972,6 +3490,7 @@ end
 class Gradebook
   
   include PageObject
+  include GlobalMethods
   include HeaderFooterBar
   include LeftMenuBar
   include HeaderBar
@@ -2987,6 +3506,7 @@ end
 class LTI
   
   include PageObject
+  include GlobalMethods
   include HeaderFooterBar
   include LeftMenuBar
   include HeaderBar
@@ -3006,6 +3526,7 @@ end
 class GoogleMaps
   
   include PageObject
+  include GlobalMethods
   include HeaderFooterBar
   include LeftMenuBar
   include HeaderBar
@@ -3040,6 +3561,7 @@ end
 class InlineContent
   
   include PageObject
+  include GlobalMethods
   include HeaderFooterBar
   include LeftMenuBar
   include HeaderBar
@@ -3056,6 +3578,7 @@ end
 class Remote
   
   include PageObject
+  include GlobalMethods
   include HeaderFooterBar
   include LeftMenuBar
   include HeaderBar
@@ -3073,6 +3596,7 @@ end
 class ResearchIntro
   
   include PageObject
+  include GlobalMethods
   include HeaderFooterBar
   include LeftMenuBar
   include HeaderBar
@@ -3080,85 +3604,12 @@ class ResearchIntro
   
 end
 
-# Methods related to the Content Details page.
-class ContentDetailsPage
-  
-  include PageObject
-  include HeaderFooterBar
-  
-  # Page Objects
-  text_area(:description, :id=>"contentmetadata_description_description")
-  text_area(:comment_text, :id=>"contentcomments_txtMessage")
-  button(:comment, :text=>"Comment")
-  button(:see_more, :id=>"contentmetadata_show_more")
-  button(:see_less, :id=>"contentmetadata_show_more")
-  
-  span(:name, :id=>"entity_name")
-  span(:type, :id=>"entity_type")
-  
-  # Custom Methods...
-  
-  # Returns an array object containing the items displayed in
-  # "Related Content" on the page.
-  def related_content
-    list = []
-    @browser.div(:class=>"relatedcontent_list").links.each do |link|
-      list << link.title
-    end
-    return list
-  end
-  
-  # Clicks on the "Share Content" button.
-  def share_content
-    @browser.div(:id=>"entity_actions").span(:class=>"entity_share_content").click
-    @browser.wait_until { @browser.text.include? "Who do you want to share with?" }
-    self.class.class_eval { include ShareWithPopUp }
-  end
-  
-  # Clicks on the "Add to library" button.
-  def add_to_library
-    @browser.button(:text=>"Add to library").click
-    @browser.wait_until { @browser.text.include? "Save to" }
-    self.class.class_eval { include SaveContentPopUp }
-  end
-  
-  # Opens the description text field for editing.
-  def edit_description
-    @browser.div(:id=>"contentmetadata_description_container").fire_event "onmouseover"
-    @browser.div(:id=>"contentmetadata_description_container").fire_event "onclick"
-  end
-  
-  # Opens the tag field for editing.
-  def edit_tags
-    @browser.div(:id=>"contentmetadata_tags_container").fire_event "onclick"
-  end
-  
-  # Opens the Copyright field for editing.
-  def edit_copyright
-    @browser.div(:id=>"contentmetadata_copyright_container").fire_event "onclick"
-  end
-  
-  # Opens the Categories field for editing.
-  def edit_categories
-    @browser.div(:id=>"contentmetadata_locations_container").fire_event "onclick"
-    self.class.class_eval { include AddRemoveCategories }
-  end
-  
-  # Returns an array containing the tags and categories listed on the page.
-  def tags_and_categories_list
-    list =[]
-    @browser.div(:id=>"contentmetadata_tags_container").links.each do |link|
-      list << link.text
-    end
-    return list
-  end
-  
-end
 
 #
 class Acknowledgements
   
   include PageObject
+  include GlobalMethods
   include HeaderFooterBar
   
   # Page Objects
@@ -3175,6 +3626,7 @@ end
 class FourOhFourPage
   
   include PageObject
+  include GlobalMethods
   include HeaderFooterBar
   include CommonErrorElements
   
@@ -3184,6 +3636,7 @@ end
 class FourOhThreePage
   
   include PageObject
+  include GlobalMethods
   include HeaderFooterBar
   include CommonErrorElements
   
@@ -3193,6 +3646,7 @@ end
 class FourOhFourPage
   
   include PageObject
+  include GlobalMethods
   include HeaderFooterBar
   include CommonErrorElements
   
