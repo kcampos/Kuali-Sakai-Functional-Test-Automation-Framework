@@ -7,8 +7,11 @@ Ruby 1.9.2
 Ruby Gems:
     Watir-Webdriver
     Page-Object
-    Test-Unit
     Ci_reporter
+    
+Note that Test-Unit is required if you're going to be using any of the
+test case scripts written by rSmart. Otherwise, feel free to use any
+test framework gem you prefer.
 
 Description:
 
