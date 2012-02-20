@@ -78,9 +78,9 @@ class TestCreateAssignments < Test::Unit::TestCase
     assignment1 = assignments.add
     
     # Store the due date for later verification steps
-    month_due1 = assignment1.due_month_element.selected_options[0]
-    day_due1 = assignment1.due_day_element.selected_options[0]
-    year_due1 = assignment1.due_year_element.selected_options[0]
+    month_due1 = assignment1.due_month_element.selected_options[0].text
+    day_due1 = assignment1.due_day_element.selected_options[0].text
+    year_due1 = assignment1.due_year_element.selected_options[0].text
     
     assignment1.title=@assignments[0][:title]
     
@@ -101,7 +101,7 @@ class TestCreateAssignments < Test::Unit::TestCase
     #===========
     
     # TEST CASE: Assignment saves this time
-    assert assignments.view_element.exist?
+    assert assignments.view_element.exists?
     assert assignments.assignments_list.include?(@assignments[0][:title])
     
     # Create a New Assignment
@@ -116,9 +116,9 @@ class TestCreateAssignments < Test::Unit::TestCase
     assignment2.open_meridian=@assignments[1][:open_meridian]
 
     # Store the due date for later verification steps
-    month_due2 = assignment2.due_month_element.selected_options[0]
-    day_due2 = assignment2.due_day_element.selected_options[0]
-    year_due2 = assignment2.due_year_element.selected_options[0]
+    month_due2 = assignment2.due_month_element.selected_options[0].text
+    day_due2 = assignment2.due_day_element.selected_options[0].text
+    year_due2 = assignment2.due_year_element.selected_options[0].text
     
     # Set inline submission only
     assignment2.student_submissions=@assignments[1][:student_submissions]

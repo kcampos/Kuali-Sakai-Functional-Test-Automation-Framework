@@ -112,7 +112,7 @@ class TestSmokeTests < Test::Unit::TestCase
     @browser.close
   end
 
-  def test_smoke_checks1_adding_contacts
+  def test_smoke_checks
     
     # User 1 adds other users to contacts...
     dash = @sakai.login(@user1, @pass1) 
@@ -154,10 +154,6 @@ class TestSmokeTests < Test::Unit::TestCase
     
     # User 2 accepts connection
     my_contacts.accept_connection @user1_name
-    
-  end
-
-  def test_smoke_checks2_the_rest
     
     # User 2 logs in
     dash = @sakai.login(@user2, @pass2)
