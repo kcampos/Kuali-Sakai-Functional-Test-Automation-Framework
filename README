@@ -38,6 +38,8 @@ OAE Project Directory and File Structure:
 |      test case files...
 |      test suite files...
 
+CLE's directory structure is analogous. Just replace "OAE" with "CLE".
+
 A Basic Usage Example for OAE:
 
 require "watir-webdriver"
@@ -51,5 +53,10 @@ require "page_elements" #
 dashboard = @sakai.login("username", "password") # See the SakaiOAE class in app_functions.rb
 
 # Go to the course library page for "Econ 101"...
-course_library = dashboard.open_course "Econ 101"   # See the page_elements.rb file. Specifically, see
+course_library = dashboard.open_course "Econ 101"   # See the page_elements.rb file.
+                                                    # Specifically, see:
                                                     # GlobalMethods, MyDashboard, and Library.
+                                                    
+# Store the contents of the course library in
+# an array called "library_contents"...
+library_contents = course_library.documents
