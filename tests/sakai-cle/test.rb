@@ -1,53 +1,25 @@
-class Goof # Superclass
-  #Only this class manipulates the class variable @@classes
-  def instantiate_class(key)
-    eval(@@classes[key]).new  # This is now problematic because the @@classes variable is not defined outside a method.
-    
-  end
+# 
+# == Synopsis
+#
+# Tests creation of several assignments with various properties
+#
+#
+# Author: Abe Heward (aheward@rSmart.com)
+gem "test-unit"
+gems = ["test/unit", "watir-webdriver", "ci/reporter/rake/test_unit_loader"]
+gems.each { |gem| require gem }
+files = [ "/../../config/CLE/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-CLE/app_functions.rb", "/../../lib/sakai-CLE/admin_page_elements.rb", "/../../lib/sakai-CLE/site_page_elements.rb", "/../../lib/sakai-CLE/common_page_elements.rb" ]
+files.each { |file| require File.dirname(__FILE__) + file }
 
-  def do_this_thing  # This method needs to be used by all sub classes.
-    puts "Doing it."
-    instantiate_class(:this)
-  end
+class TestMe
+
+  include Utilities
   
-  def do_other_thing
-      puts "Get funky!"
-      instantiate_class(:other)
-  end
-
-  def set_hash(hash_object)  # This was Abe's idea for the method.
-    @@classes = hash_object
-  end
+  x = random_string
+  puts x
+  puts yesterday
+  puts last_month
+  puts current_month
+  puts next_month
 
 end
-
-class Mofo < Goof # Sub Class 1
-  
-  def initialize
-    #@@classes = {:this=>"Mofo"}
-    set_hash ({:this=>"Mofo", :other=>"MasterFun"})
-  end
-  
-end
-
-class Seefeel < Goof # Sub Class 2
-  
-  def initialize
-    set_hash( {:this=>"Seefeel", :other=>"Funkadelic"} )
-  end
-  
-end
-
-class MasterFun < Goof
-
-end
-
-class Funkadelic < Goof
-
-end
-
-fun = Seefeel.new
-
-goo = fun.do_other_thing
-
-puts goo.class

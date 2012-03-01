@@ -1431,7 +1431,7 @@ class AssignmentsList
     AssignmentSubmissionList.new(@browser)
   end
   
-  in_frame(:index=>1) do |frame|
+  in_frame(:class=>"portletMainIframe") do |frame|
     link(:grade_report, :text=>"Grade Report", :frame=>frame)
     link(:student_view, :text=>"Student View", :frame=>frame)
     link(:options, :text=>"Options", :frame=>frame)
