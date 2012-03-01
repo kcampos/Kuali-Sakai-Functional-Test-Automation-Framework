@@ -482,11 +482,7 @@ class Calendar
     else
       events_table = frm.table(:class=>"listHier lines nolines")
     end
-    links = events_table.links.find_all { |link| link.href=~/Description/ }
-    if links == []
-      links = events_table.links.find_all { |link| link.html=~/action.doDescription/ }
-    end
-    links.each do |link|
+    events_table.links.each do |link|
       list << link.title
       list << link.text
       list << link.href
