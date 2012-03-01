@@ -2904,7 +2904,7 @@ class Forms
   # Clicks the Publish buton for the specified
   # Form, then instantiates the PublishForm Class.
   def publish(form_name)
-    frm.table(:class=>"listHier lines nolines").tr(:text, /#{Regexp.escape(form_name)}/).link(:text=>"Publish").click
+    frm.table(:class=>"listHier lines nolines").tr(:text, /#{Regexp.escape(form_name)}/).link(:text=>/Publish/).click
     PublishForm.new(@browser)
   end
 
@@ -4037,7 +4037,7 @@ class Matrices
     ConfirmPublishMatrix.new(@browser)
   end
 
-  in_frame(:index=>1) do |frame|
+  in_frame(:class=>"portletMainIframe") do |frame|
     
   end
 end
@@ -4083,7 +4083,7 @@ class AddEditMatrix
     AddEditRow.new(@browser)
   end
   
-  in_frame(:index=>1) do |frame|
+  in_frame(:class=>"portletMainIframe") do |frame|
     text_field(:title, :id=>"title-id", :frame=>frame)
   end
 end
@@ -4123,7 +4123,7 @@ class AddEditColumn
     AddEditMatrix.new(@browser)
   end
 
-  in_frame(:index=>1) do |frame|
+  in_frame(:class=>"portletMainIframe") do |frame|
     text_field(:name, :name=>"description", :frame=>frame)
   end
 end
@@ -4141,7 +4141,7 @@ class AddEditRow
     AddEditMatrix.new(@browser)
   end
 
-  in_frame(:index=>1) do |frame|
+  in_frame(:class=>"portletMainIframe") do |frame|
     text_field(:name, :name=>"description", :frame=>frame)
     text_field(:background_color, :id=>"color-id", :frame=>frame)
     text_field(:font_color, :id=>"textColor-id", :frame=>frame)
@@ -4165,7 +4165,7 @@ class EditMatrixCells
   # in your count (or, if you prefer, consider those
   # to be numbered "0").
   def edit(row, column)
-    frm.div(:class=>"portletBody").table(:index=>0).tr(:index=>row).td(:index=>column-1).fire_event("onclick")
+    frm.div(:class=>"portletBody").table(:summary=>"Matrix Scaffolding (click on a cell to edit)").tr(:index=>row).td(:index=>column-1).fire_event("onclick")
     EditCell.new(@browser)
   end
 
@@ -4198,7 +4198,7 @@ class EditCell
     EditMatrixCells.new(@browser)
   end
   
-  in_frame(:index=>1) do |frame|
+  in_frame(:class=>"portletMainIframe") do |frame|
     text_field(:title, :id=>"title-id", :frame=>frame)
     checkbox(:use_default_reflection_form, :id=>"defaultReflectionForm", :frame=>frame)
     select_list(:reflection, :id=>"reflectionDevice-id", :frame=>frame)
@@ -4223,7 +4223,7 @@ class SelectEvaluators
     EditCell.new(@browser)
   end
 
-  in_frame(:index=>1) do |frame|
+  in_frame(:class=>"portletMainIframe") do |frame|
     select_list(:users, :id=>"mainForm:availableUsers", :frame=>frame)
     select_list(:selected_users, :id=>"mainForm:selectedUsers", :frame=>frame)
     select_list(:roles, :id=>"mainForm:audSubV11:availableRoles", :frame=>frame)
