@@ -1,7 +1,12 @@
 # 
 # == Synopsis
 #
-# 
+# Smoke tests a portfolio site.
+#
+# Note that the Portfolio Site used for testing (see line 45) must
+# exist, and have several participants, with proper roles...
+# - At least 2 instructors (defined starting at line 27)
+# - At least 1 student (with a "participant" role in the Portfolio)
 # 
 # Author: Abe Heward (aheward@rSmart.com)
 gem "test-unit"
@@ -20,8 +25,8 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     @config = AutoConfig.new
     @browser = @config.browser
     # This test case uses the logins of several users
-    @instructor = @config.directory['person4']['id']
-    @ipassword = @config.directory['person4']['password']
+    @instructor = @config.directory['person3']['id']
+    @ipassword = @config.directory['person3']['password']
     @instructor_name = @config.directory['person3']['lastname'] + ", " + @config.directory['person3']['firstname']
     @instructor2 = @config.directory['person4']['id']
     @ipassword2 = @config.directory['person4']['password']
@@ -276,7 +281,6 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
       #attach.open_folder @folder_name
       #sleep 15
       #attach.select_file @style_filename
-    sleep 25
     
     add_style = attach.continue
     add_style.name=@style_name

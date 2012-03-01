@@ -486,7 +486,7 @@ class Calendar
       list << link.title
       list << link.text
       list << link.href
-      list << link.html[/(?<="location=').+doDescription/]
+      list << link.html[/(?<="location=").+doDescription/]
     end
     list.compact!
     list.uniq!
