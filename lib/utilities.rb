@@ -42,10 +42,13 @@ module Utilities
   end
   
   # Returns a string that is properly formatted like an email address.
-  # The string returned is 268 characters long.
-  def random_email
+  # The string returned defaults to 268 characters long.
+  # Including a number between 1 and 62 will shrink this string by 62 minus the specified
+  # value.
+  def random_email(x=62)
+    x > 62 ? x=62 : x=x
     chars = %w{a b c d e f g h j k m n p q r s t u v w x y z A B C D E F G H J K L M N P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % & ' * + - / = ? ^ _ ` { | } ~}
-    random_alphanums(1) + (0...62).map { chars[rand(chars.size)]}.join + random_alphanums(1) + "@" + random_alphanums(200) + ".com"
+    random_alphanums(1) + (0...x).map { chars[rand(chars.size)]}.join + random_alphanums(1) + "@" + random_alphanums(200) + ".com"
   end
   
   # A random string generator that uses only letters and numbers in the string. Default length is 10 characters.
