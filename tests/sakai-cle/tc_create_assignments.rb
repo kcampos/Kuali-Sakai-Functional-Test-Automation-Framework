@@ -92,6 +92,11 @@ class TestCreateAssignments < Test::Unit::TestCase
 
     # Set the open date day to yesterday
     assignment1.open_day=@assignments[0][:open_date]
+    
+    # Set the open month to last month if today is the first
+    if (Time.now - (3600*24)).strftime("%d").to_i > (Time.now).strftime("%d").to_i
+      assignment1.open_month=last_month
+    end
 
     # Click post again
     assignments = assignment1.post
@@ -231,6 +236,12 @@ class TestCreateAssignments < Test::Unit::TestCase
 
     assignment4.title=@assignments[3][:title]
     assignment4.open_day=@assignments[3][:open_day]
+    
+    # Set the open month to last month if today is the first
+    if (Time.now - (3600*24)).strftime("%d").to_i > (Time.now).strftime("%d").to_i
+      assignment4.open_month=last_month
+    end
+    
     assignment4.grade_scale=@assignments[3][:grade_scale]
 
     assignment4.instructions=@assignments[3][:instructions]
@@ -328,6 +339,12 @@ class TestCreateAssignments < Test::Unit::TestCase
     
     assignment5.title=@assignments[4][:title]
     assignment5.open_day=@assignments[4][:open_day]
+    
+    # Set the open month to last month if today is the first
+    if (Time.now - (3600*24)).strftime("%d").to_i > (Time.now).strftime("%d").to_i
+      assignment5.open_month=last_month
+    end
+    
     assignment5.grade_scale=@assignments[4][:grade_scale]
    
     # Enter assignment instructions into the rich text editor

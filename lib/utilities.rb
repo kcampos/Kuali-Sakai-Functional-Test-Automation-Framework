@@ -143,6 +143,29 @@ module Utilities
     (Time.now).strftime("%Y").to_i
   end
   
+  # Returns an all-caps 3-char string equal to the prior month
+  def last_month
+    months = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"]
+    index = months.index(current_month)
+    return months[index-1]
+  end
+  
+  # Returns an all-caps 3-char string equal to the current month
+  def current_month
+    Time.now.strftime("%^b")
+  end
+  
+  # Returns an all-caps 3-char string equal to next month
+  def next_month
+    months = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"]
+    index = months.index(current_month)
+    if index < 12
+      return months[index+1]
+    else
+      return months[0]
+    end
+  end
+  
   # Returns a 4-digit Integer object equal to next year.
   def next_year
     (Time.now + (3600*24*365)).strftime("%Y").to_i
