@@ -21,13 +21,15 @@ class UserAccountUpdate < Test::Unit::TestCase
     config = AutoConfig.new
     @browser = config.browser
     # This test case requires logging in as a student
-    @user_name = config.directory['person7']['id']
-    @password = config.directory['person7']['password']
+    @user_name = config.directory['person6']['id']
+    @user_first = config.directory['person6']['firstname']
+    @user_last = config.directory['person6']['lastname']
+    @password = config.directory['person6']['password']
     @sakai = SakaiCLE.new(@browser)
     
     # Test case data
-    @first_name = random_string(99)
-    @last_name = random_string(99)
+    @first_name = random_nicelink(99)
+    @last_name = random_nicelink(99)
     @email_address = "a#{random_nicelink(20)}a@a#{random_nicelink(20)}.com"
     @new_password = random_string(32)
     
@@ -35,6 +37,7 @@ class UserAccountUpdate < Test::Unit::TestCase
     # test asserts.
     @invalid_email_alert = "Alert: The email address is invalid"
     @unmatched_passwords = "Alert: Please enter the password the same in both fields."
+    @need_orig_pw = "Alert: Please your correct current password." # Note that this text is obviously bad. Needs a JIRA.
     
   end
   
@@ -70,7 +73,7 @@ class UserAccountUpdate < Test::Unit::TestCase
     assert_equal account.first_name, ""
     
     # Change email field
-    edit_account = account.modify_details
+    edit_account = account.update_details
     
     # Test an invalid email address
     edit_account.email="blablabla"
@@ -82,8 +85,16 @@ class UserAccountUpdate < Test::Unit::TestCase
     edit_account.email=@email_address
     
     # Create unmatched passwords (check for case-sensitivity)
-    edit_account.create_new_password="Abcd1234$"
-    edit_account.verify_new_password="abcd1234$"
+    edit_account.create_new_password="aBcd1234$"
+    edit_account.verify_new_password="Abcd1234$"
+    edit_account = edit_account.update_details
+    
+    # TEST CASE: Verify original password must be added
+    assert @browser.text.include?(@need_orig_pw), "No warning about needing current password"
+    
+    edit_account.current_password=@password
+    edit_account.create_new_password="aBcd1234$"
+    edit_account.verify_new_password="Abcd1234$"
     edit_account = edit_account.update_details
     
     # TEST CASE: Verify alert about unmatched passwords
@@ -92,16 +103,17 @@ class UserAccountUpdate < Test::Unit::TestCase
     # Set names. Set password values the same and save changes
     edit_account.first_name=@first_name
     edit_account.last_name=@last_name
+    edit_account.current_password=@password
     edit_account.create_new_password=@new_password
     edit_account.verify_new_password=@new_password
     
     account = edit_account.update_details
-    
+
     # TEST CASE: verify successful changes
     assert_equal @last_name, account.last_name, "Problem with last name"
     assert_equal @first_name, account.first_name, "Problem with first name"
     assert_equal @email_address, account.email, "Problem with email address"
-    assert_equal account.modified, @sakai.make_date(Time.now.utc)
+    assert_equal account.modified, @sakai.make_date(Time.now) #.utc)
     
     # Log out and log back in with new password credentials
     @sakai.logout
@@ -111,11 +123,13 @@ class UserAccountUpdate < Test::Unit::TestCase
     # TEST CASE: Verify the user successfully logged in
     assert @browser.link(:text, "Logout").exist?, "User was unable to log in with new password"
     
-    # Reset the password to the stored password value for test repeatability...
+    # Reset the user's name and password to the stored values for test repeatability...
     account = workspace.account
     
     edit_account = account.modify_details
-    edit_account = EditAccount.new(@browser)
+    edit_account.first_name=@user_first
+    edit_account.last_name=@user_last
+    edit_account.current_password=@new_password
     edit_account.create_new_password=@password
     edit_account.verify_new_password=@password
     edit_account.update_details
