@@ -4282,6 +4282,7 @@ class Messages
   # ComposeMessage class.
   def compose_message
     frm.link(:text=>"Compose Message").click
+    sleep 1 #FIXME
     ComposeMessage.new(@browser)
   end
   
