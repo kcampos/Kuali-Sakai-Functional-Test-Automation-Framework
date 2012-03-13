@@ -255,6 +255,13 @@ module HeaderFooterBar
     self.class.class_eval { include AccountPreferencesPopUp }
   end
   
+  def sign_out
+    self.link(:id=>"topnavigation_user_options_name").fire_event("onmouseover")
+    self.link(:id=>"subnavigation_logout_link").click
+    self.wait_for_ajax
+    LoginPage.new @browser
+  end
+  
   # Opens the Create + Add menu in the header bar,
   # clicks on the Add Content item, waits for the Pop Up
   # dialog to appear, then includes the AddContentContainer module
@@ -283,7 +290,7 @@ module HeaderFooterBar
   
   # Clicks the "Sign up" link
   def sign_up
-    sign_up_link
+    self.sign_up_link
     CreateNewAccount.new @browser
   end
   
@@ -856,9 +863,10 @@ module AddAreasPopUp
   
   # The div containing the search results list.
   # This method is primarily for use in the procedural methods
-  # in this module rather than for steps in a test script.
+  # in this module rather than for steps in a test script (because it
+  # only refers to the "Everywhere" list.
   def search_results
-    @browser.div(:id=>"addarea_existing_everywhere_bottom")
+    self.div(:id=>"addarea_existing_everywhere_bottom")
   end
   
   # The name field for adding a Content List page. Use of this method
@@ -917,6 +925,9 @@ module AddAreasPopUp
   #   :title=>"The placement title string",
   #   :visible=>"Who can see it" }
   # The method adds an existing document using the specified hash contents.
+  # Note that it uses the "Everywhere" page, so if you want to use
+  # one of the other pages for the search, you'll have to code all steps in
+  # the test script itself.
   def add_from_existing(document)
     self.everywhere
     search_everywhere.set(document[:name] + "\n")
@@ -925,7 +936,7 @@ module AddAreasPopUp
     existing_doc_name.set document[:title]
     existing_doc_permissions.select document[:visible]
     
-    create
+    self.create
   end
   
   alias add_existing_document add_from_existing
@@ -1447,7 +1458,7 @@ module ManageParticipants
       self.text_field(:id=>/addpeople/, :class=>"as-input").send_keys(letter)
       #@browser.text_field(:id=>/addpeople/, :class=>"as-input").focus
       self.wait_until { self.div(:id=>/^as-results-/).visible? }
-      next if self.li(:id=>"as-result-item-0").text=="No results found"
+      next if self.li(:id=>"as-result-item-1").text=="No results found"
       #begin
       #  @browser.wait_until(0.4) { @browser.ul(:class=>"as-list").visible? }
       #rescue
@@ -1484,6 +1495,28 @@ module ManageParticipants
   # For the specified contact, updates to the specified role.fd
   def set_role_for(contact, role)
     @browser.div(:id=>"addpeople_selected_contacts_container").link(:text=>contact).parent.select(:class=>"addpeople_selected_permissions").select(role)
+  end
+  
+end
+
+#
+module OurAgreementPopUp
+  
+  include PageObject
+  
+  # Page Objects
+  button(:no_button, :id=>"acceptterms_action_dont_accept")
+  button(:yes_button, :id=>"acceptterms_action_accept")
+  
+  # Custom Methods
+  def no_please_log_me_out
+    
+  end
+  
+  def yes_I_accept
+    self.yes_button
+    self.wait_for_ajax
+    MyDashboard.new @browser
   end
   
 end
@@ -2374,10 +2407,33 @@ class CreateNewAccount
   text_field(:new_password, :id=>"password")
   text_field(:retype_password, :id=>"password_repeat")
   select_list(:role, :id=>"role")
+  select_list(:title, :id=>"title")
   text_field(:first_name,:id=>"firstName")
   text_field(:last_name,:id=>"lastName")
   text_field(:email,:id=>"email")
+  text_field(:email_confirm, :id=>"emailConfirm")
   text_field(:phone_number,:id=>"phone")
+  checkbox(:receive_tips, :id=>"emailContact")
+  checkbox(:contact_me_directly, :id=>"contactMe")
+  button(:create_account_button, :id=>"save_account")
+  
+  span(:username_error, :id=>"username_error")
+  span(:password_error, :id=>"password_error")
+  span(:password_repeat_error, :id=>"password_repeat_error")
+  span(:title_error, :id=>"title_error")
+  span(:firstname_error, :id=>"firstName_error")
+  span(:lastname_error, :id=>"lastName_error")
+  span(:email_error, :id=>"email_error")
+  span(:email_confirm_error, :id=>"emailConfirm_error")
+  span(:institution_error, :id=>"institution_error")
+  span(:role_error, :id=>"role_error")
+  
+  def create_account
+    self.create_account_button
+    sleep 1
+    self.wait_for_ajax
+    self.class.class_eval { include OurAgreementPopUp }
+  end
 
 end
 #
@@ -2624,7 +2680,7 @@ class MyDashboard
   include GlobalMethods
   include HeaderFooterBar
   include LeftMenuBarYou
-  include ChangePicturePopUp
+  include ChangePicturePopUp # FIXME ... Rethink including this by default
 
   # Page Objects
   button(:edit_layout, :text=>"Edit Layout")
@@ -2634,6 +2690,8 @@ class MyDashboard
   button(:save_layout, :id=>"select-layout-finished")
   button(:add_widgets, :text=>"Add Widget")
   image(:profile_pic, :id=>"entity_profile_picture")
+  div(:my_name, :class=>"s3d-bold entity_name_me")
+  
   #div(:page_title, :class=>"s3d-contentpage-title")
   
   # Custom Methods...

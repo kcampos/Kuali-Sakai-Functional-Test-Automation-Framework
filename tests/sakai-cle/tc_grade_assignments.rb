@@ -75,7 +75,7 @@ class TestGradingAssignments < Test::Unit::TestCase
     
     # Allow resubmission
     grade_assignment.check_allow_resubmission
-    
+
     # Add attachment
     attach = grade_assignment.add_attachments
     

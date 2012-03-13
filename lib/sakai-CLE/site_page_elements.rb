@@ -1956,7 +1956,7 @@ class AssignmentSubmission
   
   # Clicks the Add Attachments button, then instantiates the AssignmentAttachments Class.
   def add_attachments
-    frm.button(:value=>"Add Attachments").click
+    frm.button(:name=>"attach").click
     AssignmentAttachments.new(@browser)
   end
   

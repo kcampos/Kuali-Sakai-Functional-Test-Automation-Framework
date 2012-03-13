@@ -19,7 +19,10 @@ class SakaiOAE
     @browser.text_field(:id=>"topnavigation_user_options_login_fields_username").set username
     @browser.text_field(:name=>"topnav_login_password").set password
     @browser.button(:id=>"topnavigation_user_options_login_button_login").click
-    sleep 1 #FIXME
+    sleep 0.5
+    if @browser.button(:id=>"emailverify_continue_button").present?
+      @browser.button(:id=>"emailverify_continue_button").click
+    end
     @browser.wait_for_ajax(10)
     MyDashboard.new @browser
   end
