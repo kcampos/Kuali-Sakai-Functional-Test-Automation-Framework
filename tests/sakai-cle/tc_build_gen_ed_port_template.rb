@@ -3,10 +3,10 @@
 #
 # Smoke tests a portfolio site.
 #
-# Note that the Portfolio Site used for testing (see line 45) must
+# Note that the Portfolio Site used for testing (see line 48) must
 # exist, and have several participants, with proper roles...
 # - At least 2 instructors (defined starting at line 27)
-# - At least 1 student (with a "participant" role in the Portfolio)
+# - At least 1 student (with a "participant" role in the Portfolio, if possible)
 # 
 # Author: Abe Heward (aheward@rSmart.com)
 gem "test-unit"
@@ -45,7 +45,7 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
       "documents/reflection.xsd",
     ]
     @folder_name = random_alphanums(5)
-    @portfolio_site = "PortfolioAdmin"
+    @portfolio_site = "PortfolioFun"
     @schema = [ get_filename(@files[0]), get_filename(@files[1]), get_filename(@files[2]), get_filename(@files[3]) ]
     @form_names = ["Evaluation" + random_alphanums, "Feedback for Matrix" + random_alphanums, "General Education Evidence" + random_alphanums, "Reflection for Matrix" + random_alphanums ]
     @form_instructions = [
@@ -350,11 +350,11 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     row5.font_color=@font_color
     
     add_matrix = row5.update
-
+sleep 5
     edit_cells = add_matrix.save_changes
-    
+sleep 5
     edit = edit_cells.edit(1, 1)
-    
+sleep 15
     # TEST CASE: Verify the title is correct
     assert_equal edit.title_element.value, "Row: #{@row_names[0]}; Column: #{@column_names[0]}"
     

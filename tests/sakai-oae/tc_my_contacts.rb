@@ -3,20 +3,24 @@
 # 
 # == Synopsis
 #
-# Academic Smoke tests. Shallowly tests a broad range of features.
+# Tests Inviting, Adding, and Removing Contacts.
+#
+# == Prerequisites:
+#
+# Requires the existence of 4 test users who do not already have each other in
+# their contact lists. User 1 should not have any contacts at all.
 # 
 # Author: Abe Heward (aheward@rSmart.com)
 $: << File.expand_path(File.dirname(__FILE__) + "/../../lib/")
-gem "test-unit"
-["test/unit", "watir-webdriver", "ci/reporter/rake/test_unit_loader",
-  "../../config/OAE/config", "utilities", "sakai-OAE/app_functions",
+["rspec", "watir-webdriver", "../../config/OAE/config.rb",
+  "utilities", "sakai-OAE/app_functions",
   "sakai-OAE/page_elements" ].each { |item| require item }
 
-class TestMyContacts < Test::Unit::TestCase
+describe "My Contacts" do
   
   include Utilities
 
-  def setup
+  before :all do
     
     # Get the test configuration data
     @config = AutoConfig.new
@@ -41,23 +45,11 @@ class TestMyContacts < Test::Unit::TestCase
     @invite_subject = "#{@user1_name} has invited you to become a connection"
     
   end
-  
-  def teardown
-    # Close the browser window
-    @browser.close
-  end
 
-  def test_contacts_add1_request
-    
+  it "'Find and add people' is present when expected" do
     dash = @sakai.login(@user1, @pass1)
-    
     my_contacts = dash.my_contacts
-    
-    # TEST CASE: "Find and add people" link is present on
-    # the page when the user has no contacts. (This is an
-    # implicit test case, not an explicit assert.)
     search = my_contacts.find_and_add_people
-
     search.search_for=@user2_name
     search.add_contact @user2_name
     search.invite
@@ -68,22 +60,23 @@ class TestMyContacts < Test::Unit::TestCase
     
     my_contacts = search.my_contacts
 
-    # TEST CASE: "Find and add people" button is still present
-    # on the page after having invited people, but who haven't
-    # yet accepted the invite.
-    search = my_contacts.find_and_add_people
+    lambda { search = my_contacts.find_and_add_people }.should_not raise_error
+  end
 
+  it "'Add' button changes to 'invitation sent'" do
+    dash = @sakai.login(@user1, @pass1)
+    my_contacts = dash.my_contacts
+    search = my_contacts.find_and_add_people
     search.search_for=@user4_name
     
     # Invite from profile page...
-    
     profile = search.view_profile @user4_name
     profile.add_to_contacts
     profile.invite
     
     # TEST CASE: The "Add" button now says the invitation
     # has been sent
-    assert profile.invitation_sent_button_element.visible?, "Add to Contacts button not updated as expected."
+    profile.invitation_sent_button_element.visible?.should == true
     
     search = profile.explore_people
 
@@ -91,41 +84,36 @@ class TestMyContacts < Test::Unit::TestCase
     
     # TEST CASE: The "Add contact" button is not
     # present for people already invited to connect
-    assert search.not_addable? @user2_name
-    
+    search.not_addable?(@user2_name).should == true
   end
 
-  def test_contacts_add2_pending_invitations
-    
+  it "verify pending invitation" do
     dash = @sakai.login(@user2, @pass2)
     
     my_contacts = dash.my_contacts
 
     # TEST CASE: Verify there is a pending invitation from
     # the expected person
-    assert my_contacts.pending_invites.include? @user1_name
+    my_contacts.pending_invites.should include @user1_name
     
     my_contacts.accept_connection @user1_name
 
     # TEST CASE: Verify the user now appears in the My contacts list
-    assert my_contacts.contacts.include? @user1_name
+    my_contacts.contacts.should include @user1_name
     
     # TEST CASE: Verify the "Pending contacts" heading is gone
-    assert_equal false, my_contacts.pending_contacts.present?
-    
+    my_contacts.pending_contacts.present?.should == false
+
   end
 
-  def test_contacts_add3_reject_add_request
-    
+  it "Connection request delivered" do
     dash = @sakai.login(@user3, @pass3)
-    
     my_messages = dash.my_messages
     
     my_messages.invitations
     
-    # TEST CASE: Mailbox contains a connection request from the expected
-    # user
-    assert my_messages.message_subjects.include? @invite_subject
+    # TEST CASE: Mailbox contains a connection request from the expected user
+    my_messages.message_subjects.should include @invite_subject
     
     my_messages.read_message @invite_subject
     
@@ -134,15 +122,13 @@ class TestMyContacts < Test::Unit::TestCase
     my_contacts = my_messages.my_contacts
     
     # TEST CASE: After user rejects request, the pending request is gone
-    assert_equal false, my_contacts.pending_contacts.exists?
+    my_contacts.pending_contacts.exists?.should == false
     
     # TEST CASE: Page includes message that the user does not have any contacts, yet.
-    assert @browser.text.include? "You don't have any contacts yet."
-    
+    @browser.text.should include "You don't have any contacts yet."
   end
 
-  def test_contacts_add4_accept_by_profile
-    
+  it "Invitation can be accepted" do
     dash = @sakai.login(@user4, @pass4)
     
     my_contacts = dash.my_contacts
@@ -150,55 +136,59 @@ class TestMyContacts < Test::Unit::TestCase
     profile = my_contacts.view_profile @user1_name
     
     # TEST CASE: Profile page has an "Accept invitation" button
-    assert_nothing_raised { profile.accept_invitation }
+    lambda { profile.accept_invitation }.should_not raise_error
     
     my_contacts = profile.my_contacts
     
     # TEST CASE: User now appears in contacts list
-    assert my_contacts.contacts.include? @user1_name
-    
+    my_contacts.contacts.should include @user1_name
   end
 
-  def test_contacts_add5_list
-    
+  it "The contacts list contains expected items" do
     dash = @sakai.login(@user1, @pass1)
     
     my_contacts = dash.my_contacts
-    
-    # TEST CASE: The contacts list contains expected items
-    assert my_contacts.contacts.include? @user2_name
-    assert my_contacts.contacts.include? @user4_name
-    assert_equal false, my_contacts.contacts.include?(@user3_name)
+
+    my_contacts.contacts.should include @user2_name
+    my_contacts.contacts.should include @user4_name
+    my_contacts.contacts.should_not include @user3_name
     
   end
 
-  def test_contacts_remove
-  
+  it "Contacts can be removed" do
     dash = @sakai.login(@user1, @pass1)
     
     my_contacts = dash.my_contacts
     
     # TEST CASE: Contacts can be removed from My Contacts
-    assert_nothing_raised { my_contacts.remove @user2_name }
+    lambda { my_contacts.remove @user2_name }.should_not raise_error
     
     my_contacts.remove_contact
     
     # TEST CASE: Contacts list is as expected after removal
-    assert my_contacts.contacts.include? @user4_name
-    assert_equal false, my_contacts.contacts.include?(@user2_name)
+    my_contacts.contacts.should include @user4_name
+    my_contacts.contacts.should_not include @user2_name
     
     my_contacts.remove @user4_name
     my_contacts.remove_contact
-    
-    @sakai.sign_out
-    
+  end
+  
+  it "Removed user no longer sees remover in their contact list" do
     dash = @sakai.login(@user2, @pass2)
     
     my_contacts = dash.my_contacts
     
     # TEST CASE: User 1 is automatically removed from User 2's list
-    assert_equal false, my_contacts.contacts.include?(@user1_name)
+    my_contacts.contacts.should_not include @user1_name
+  end
   
+  after :each do
+    @sakai.logout
+  end
+  
+  after :all do
+    # Close the browser window
+    @browser.close
   end
 
 end

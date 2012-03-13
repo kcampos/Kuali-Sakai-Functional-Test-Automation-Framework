@@ -1,8 +1,8 @@
 Title,Description,Date,Start,Duration,Type,Location,Frequency,Interval,Ends,Repeat,Test Custom Property,Required
-"Event 1","This is the description for event #1",01/12/12,11:00 AM,1:00,Activity,"Taubman Library 2919",,,,,"",
-"v-gVTF2ZFS","This is the description for event #2",01/13/12,11:00 AM,1:00,Exam,"Taubman Library 2919",,,,,"",
-"Event3","6Y2Wx8x03C",01/13/12,11:00 AM,30,Meeting,"Taubman Library 2919",,,,,"",
-"Event with a custom property","If the site has a custom property called Test Custom Property, this will set it.",01/14/12,3:00 PM,45,,"Taubman Library 2919",,,,,"Test Value here",yes
-"Repeating Event 1","This event should repeat every week with no end",01/14/12,2:00 PM,1:30,,"",week,,,,"",
-"Repeating Event 2","This event should repeat every other week and end after 2 times",01/12/12,2:00 PM,30,Activity,"location",week,2,,2,"",
-"Repeating Event 3","This event should repeat every other week and end on or before 03/09/12",01/13/12,2:00 PM,1:30,Activity,"",week,2,03/09/12,,"",
+"Event 1","This is the description for event #1",03/12/12,11:00 AM,1:00,Activity,"Taubman Library 2919",,,,,"",
+"tL004nVdN5","This is the description for event #2",03/13/12,11:00 AM,1:00,Exam,"Taubman Library 2919",,,,,"",
+"Event3","92-KmuPrVC",03/13/12,11:00 AM,30,Meeting,"Taubman Library 2919",,,,,"",
+"Event with a custom property","If the site has a custom property called Test Custom Property, this will set it.",03/14/12,3:00 PM,45,,"Taubman Library 2919",,,,,"Test Value here",yes
+"Repeating Event 1","This event should repeat every week with no end",03/14/12,2:00 PM,1:30,,"",week,,,,"",
+"Repeating Event 2","This event should repeat every other week and end after 2 times",03/12/12,2:00 PM,30,Activity,"location",week,2,,2,"",
+"Repeating Event 3","This event should repeat every other week and end on or before 05/08/12",03/13/12,2:00 PM,1:30,Activity,"",week,2,05/08/12,,"",
