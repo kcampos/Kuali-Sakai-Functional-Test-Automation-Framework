@@ -4,27 +4,31 @@
 #
 # Tests the creation of a new Course, adding all widgets and smoke checking
 # their basic functionality.
+#
+# == Prerequisites
+#
+# An admin user or an 'instructor' user who is in multiple existing
+# courses, which contain content. See lines 30, 31, and 42.
+# At least one other "participant" in the site, visible to the admin/instructor
+# user. See line 61.
 # 
 # Author: Abe Heward (aheward@rSmart.com)
-gem "test-unit"
-gems = ["test/unit", "watir-webdriver", "ci/reporter/rake/test_unit_loader"]
-gems.each { |gem| require gem }
-files = [ "/../../config/OAE/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-OAE/app_functions.rb", "/../../lib/sakai-OAE/page_elements.rb" ]
-files.each { |file| require File.dirname(__FILE__) + file }
+$: << File.expand_path(File.dirname(__FILE__) + "/../../lib/")
+["rspec", "watir-webdriver", "../../config/OAE/config.rb",
+  "utilities", "sakai-OAE/app_functions",
+  "sakai-OAE/page_elements" ].each { |item| require item }
 
-class TestCreateCourse < Test::Unit::TestCase
+describe "Create Course" do
   
   include Utilities
 
-  def setup
+  before :all do
     
     # Get the test configuration data
     @config = AutoConfig.new
     @browser = @config.browser
     @instructor = @config.directory['admin']['username']
     @ipassword = @config.directory['admin']['password']
-    @site_name = @config.directory['site1']['name']
-    @site_id = @config.directory['site1']['id']
     @sakai = SakaiOAE.new(@browser)
     
     # Test case variables...
@@ -54,23 +58,17 @@ class TestCreateCourse < Test::Unit::TestCase
       {:name=>random_alphanums,:widget=>"Calendar",:visible=>"Public"},
       {:name=>random_alphanums,:widget=>"Files and documents",:visible=>"Public"}
     ]
-    @participant="Cynthia Wines"
+    @participant="#{@config.directory['person1']['firstname']} #{@config.directory['person1']['lastname']}"
     @doc_header=random_alphanums(32)
-    @comment=random_alphanums + " This is radio clash on pirate satellite"
-    @comment2=random_alphanums + " Orbiting your living room"
+    @comment=random_multiline(30, 5)
+    @comment2=random_multiline(20, 5)
     @location="1375 N Scottsdale Rd, Scottsdale, AZ 85257, USA"
     
     @url_error_text="This URL has been taken"
     
   end
-  
-  def teardown
-    # Close the browser window
-    @browser.close
-  end
-  
-  def test_create_course
-    
+
+  it "prevents creation of duplicate course title" do 
     # Log in to Sakai
     dashboard = @sakai.login(@instructor, @ipassword)
 
@@ -87,14 +85,20 @@ class TestCreateCourse < Test::Unit::TestCase
     new_course_info.create_basic_course
     
     # TEST CASE: Verify creation of duplicate title not allowed
-    assert_equal @url_error_text, new_course_info.url_error
-    
+    new_course_info.url_error.should == @url_error_text
+  end
+  
+  it "creates new course" do
+    new_course_info = CreateGroups.new @browser
     new_course_info.title=@course_info[:title]
     new_course_info.description=@course_info[:description]
     new_course_info.tags=@course_info[:tags]
     
-    library = new_course_info.create_basic_course
-    
+    new_course_info.create_basic_course
+  end
+  
+  it "adds areas to the course" do
+    library = Library.new @browser
     library.add_new_area
     library.new_doc_name=@new_document[:name]
     library.new_doc_permissions=@new_document[:visible]
@@ -110,40 +114,52 @@ class TestCreateCourse < Test::Unit::TestCase
     
     @widgets.each do |widget|
       library.add_new_area
-      library.add_widget widget
+      lambda { library.add_widget widget }.should_not raise_error
     end
-    
+  end
+  
+  it "new course appears in My Memberships" do
+    library = Library.new @browser
     dashboard = library.my_dashboard
     
     # TEST CASE: Verify the new course is in My Memberships
-    assert dashboard.my_memberships_list.include?(@course_info[:title]), "Expected course title: #{@course_info[:title]}\n\nList in My memberships:\n\n#{dashboard.my_memberships_list.join("\n")}"
+    dashboard.my_memberships_list.should include @course_info[:title]
+  end
 
+  it "course pages appear as expected" do
+    dashboard = MyDashboard.new @browser
     membership = dashboard.my_memberships
 
     library = membership.go_to @course_info[:title]
 
     # TEST CASE: Verify pages are present
-    assert library.public_pages.include? @new_document[:name]
-    assert library.public_pages.include? @existing_document[:title]
-    assert library.public_pages.include? @participant_list[:name]
-    assert library.public_pages.include? @content_library[:name]
+    library.public_pages.should include @new_document[:name]
+    library.public_pages.should include @existing_document[:title]
+    library.public_pages.should include @participant_list[:name]
+    library.public_pages.should include @content_library[:name]
     
     @widgets.each do |widget|
       # TEST CASE: Verify all widgets appear in the list of pages.
-      assert(library.public_pages.include?(widget[:name]), "#{widget[:name]} not found in list of Course pages.")
+      library.public_pages.should include widget[:name] 
     end
+  end
 
+  it "participants can be added to course" do
+    library = Library.new @browser
     library.manage_participants
     library.add_contact_by_search @participant
     library.save
 
-    participants = library.open_page("Participants", "participants")
+    participants = library.open_participants("Participants")
 
     # TEST CASE: Participants search field appears
-    assert participants.search_participants_element.visible?
+    participants.search_participants_element.should be_visible
+  end
 
+  it "library document is editable" do
+    participants = Participants.new @browser
     participants.expand @new_document[:name]
-    document = participants.open_page("Page 1", "document")
+    document = participants.open_document("Page 1")
 
     document.edit_page
     document.select_all
@@ -155,24 +171,30 @@ class TestCreateCourse < Test::Unit::TestCase
     sleep 2 #FIXME
 
     # TEST CASE: Updated document text appears
-    assert @browser.text.include? @doc_header #FIXME - Try to improve this later.
-    
-    existing = document.open_page(@existing_document[:title], "tests and quizzes")
+    @browser.text.should include @doc_header #FIXME - Try to improve this later by defining the containing div.
+  end
+  
+  it "pages appear as expected" do
+    document = ContentDetailsPage.new @browser
+    existing = document.open_tests_and_quizzes @existing_document[:title]
     
     # TEST CASE: Existing document is as expected
-    assert existing.tests_frame.exists?
+    existing.tests_frame.should exist
     
-    party = existing.open_page(@participant_list[:name], "participants")
+    party = existing.open_participants @participant_list[:name]
 
     # TEST CASE: Participants panel appears
-    assert party.search_participants_element.exists?
+    party.search_participants_element.should exist
 
-    content = party.open_page(@content_library[:name], "library")
+    content = party.open_library @content_library[:name]
     
     # TEST CASE: Library page is empty
-    assert @browser.div(:id=>"mylibrary_empty").exists?
+    content.empty_library_element.should be_visible
+  end
 
-    comments = content.open_page(@widgets[0][:name], @widgets[0][:widget])
+  it "the comments page works as expected" do
+    content = Library.new @browser
+    comments = content.open_comments @widgets[0][:name]
 
     comments.add_comment
 
@@ -185,19 +207,28 @@ class TestCreateCourse < Test::Unit::TestCase
     comments.new_comment_element.send_keys [:command, 'a']
     comments.new_comment=@comment2
     comments.edit_comment
-    comments.delete @comment2
+    lambda {comments.delete @comment2}.should_not raise_error
+  end
 
-    jisc = comments.open_page(@widgets[1][:name], @widgets[1][:widget])
+  it "JISC page is as expected" do
+    comments = Comments.new @browser
+    jisc = comments.open_jisc @widgets[1][:name]
     
     # TEST CASE: JISC frame appears correctly
-    assert jisc.jisc_frame.exists?
-    
-    rss = jisc.open_page(@widgets[2][:name], @widgets[2][:widget])
+    jisc.jisc_frame.should exist
+  end
+  
+  it "RSS Feed page is as expected" do
+    jisc = JISC.new @browser
+    rss = jisc.open_rss_feed @widgets[2][:name]
     
     #TEST CASE: RSS Page appears correctly
-    assert rss.sort_by_source_element.exists?
-
-    maps = library.open_page(@widgets[3][:name], @widgets[3][:widget])
+    rss.sort_by_source_element.should exist
+  end
+  
+  it "Google Maps page is as expected" do
+    library = Library.new @browser
+    maps = library.open_map @widgets[3][:name]
 
     maps.map_settings
     maps.location=@location
@@ -206,59 +237,85 @@ class TestCreateCourse < Test::Unit::TestCase
     maps.save
 
     # TEST CASE: Map location is updated as specified
-    assert maps.map_frame.html.include? @location
+    maps.map_frame.html.should include @location
+  end
 
-    tasks = maps.open_page(@widgets[4][:name], @widgets[4][:widget])
+  it "Tasks page is as expected" do
+    maps = GoogleMaps.new @browser
+    tasks = maps.open_assignments @widgets[4][:name]
     
     # TEST CASE: Assignments frame exists.
-    assert tasks.cle_frame.exists?
-    
-    lti = tasks.open_page(@widgets[5][:name], @widgets[5][:widget])
+    tasks.cle_frame.should exist
+  end
+  
+  it "lti page is as expected" do
+    tasks = Assignments.new @browser
+    lti = tasks.open_lti @widgets[5][:name]
     
     # TEST CASE: LTI URL field is present
-    assert lti.url_element.visible?
-    
-    gadget = lti.open_page(@widgets[6][:name], @widgets[6][:widget])
+    lti.url_element.should be_visible
+  end
+  
+  it "Gadget page is as expected" do
+    lti = LTI.new @browser
+    gadget = lti.open_gadget @widgets[6][:name]
     
     # TEST CASE: Gadget frame exists
-    assert gadget.gadget_frame.exists?
-    
-    grades = gadget.open_page(@widgets[7][:name], @widgets[7][:widget])
+    gadget.gadget_frame.should exist
+  end
+  
+  it "gradebook page is as expected" do
+    gadget = Gadget.new @browser
+    grades = gadget.open_gradebook @widgets[7][:name]
     
     # TEST CASE: Gradebook frame exists
-    assert grades.gradebook_frame.exists?
-    
-    disc = grades.open_page(@widgets[8][:name], @widgets[8][:widget])
+    grades.gradebook_frame.should exist
+  end
+  
+  it "discussion page is as expected" do
+    grades = Gradebook.new @browser
+    disc = grades.open_discussions @widgets[8][:name]
     
     # TEST CASE: "Add new topic" button exists
-    assert disc.add_new_topic_element.exists?
-    
-    remote = disc.open_page(@widgets[9][:name], @widgets[9][:widget])
+    disc.add_new_topic_element.should exist
+  end
+  
+  it "remote content page is as expected" do
+    disc = Discussions.new @browser
+    remote = disc.open_remote_content @widgets[9][:name]
     
     # TEST CASE: Remote frame exists
-    assert remote.remote_frame.exists?
-    
+    remote.remote_frame.should exist
+  end
+  
+  it "stuff" do
+    remote = Remote.new @browser
     inline = remote.open_page(@widgets[10][:name], @widgets[10][:widget])
     
     # TEST CASE: Year field is present
-    assert inline.year_element.exists?
+    inline.year_element.should exist
     
     tests = inline.open_page(@widgets[11][:name], @widgets[11][:widget])
     
     # TEST CASE: Assessments frame exists?
-    assert tests.tests_frame.exists?
+    tests.tests_frame.should exist
     
     calendar = tests.open_page(@widgets[12][:name], @widgets[12][:widget])
     
     # TEST CASE: Calendar frame exists?
-    assert calendar.calendar_frame.exists?
+    calendar.calendar_frame.should exist
     
     file = calendar.open_page(@widgets[13][:name], @widgets[13][:widget])
     file.files_settings
     
     # TEST CASE: Verify the Files and Documents pop-up
-    assert file.name_element.visible?
+    file.name_element.should be_visible
 
   end
-  
+
+  after :all do
+    # Close the browser window
+    @browser.close
+  end
+   
 end
