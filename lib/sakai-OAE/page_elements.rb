@@ -60,6 +60,7 @@ module GlobalMethods
   open_link(:assignments, "Assignments") 
   open_link(:feed, "RSS")
   open_link(:rss_feed, "RSS")
+  open_link(:rss, "RSS")
   open_link(:lti, "LTI")
   open_link(:basic_lti, "LTI")
   open_link(:gadget, "Gadget")
@@ -67,6 +68,7 @@ module GlobalMethods
   
   alias open_group open_library
   alias open_course open_library
+  alias go_to open_library
   
   # The "gritter" notification that appears to confirm
   # when something has happened (like updating a user profile
@@ -503,6 +505,25 @@ module LeftMenuBar
     else
       return false
     end
+  end
+  
+  private
+  
+  def data_sakai_ref
+    hash = {}
+    current_id=""
+    @browser.div(:id=>"lhnavigation_container").lis.each do |li|
+      hash.store(li.text, li.html[/(?<=data-sakai-ref=").+-id\d+/])
+    end
+    hash.delete_if { |key, value| key == "" }
+    hash.each do |key, value|
+      next if @browser.div(:id=>value).exist? == false
+      next if @browser.div(:id=>value).visible? == false
+      if @browser.div(:id=>value).visible?
+        current_id = value 
+      end
+    end
+    return current_id
   end
   
 end
@@ -1458,7 +1479,7 @@ module ManageParticipants
       self.text_field(:id=>/addpeople/, :class=>"as-input").send_keys(letter)
       #@browser.text_field(:id=>/addpeople/, :class=>"as-input").focus
       self.wait_until { self.div(:id=>/^as-results-/).visible? }
-      next if self.li(:id=>"as-result-item-1").text=="No results found"
+      next if self.li(:id=>"as-result-item-0").text=="No results found"
       #begin
       #  @browser.wait_until(0.4) { @browser.ul(:class=>"as-list").visible? }
       #rescue
@@ -2683,7 +2704,7 @@ class MyDashboard
   include ChangePicturePopUp # FIXME ... Rethink including this by default
 
   # Page Objects
-  button(:edit_layout, :text=>"Edit Layout")
+  button(:edit_layout, :text=>"Edit layout")
   radio_button(:one_column, :id=>"layout-picker-onecolumn")
   radio_button(:two_column, :id=>"layout-picker-dev")
   radio_button(:three_column, :id=>"layout-picker-threecolumn")
@@ -3035,6 +3056,7 @@ class MyLibrary
 
   # Page Objects
   div(:page_title, :class=>"s3d-contentpage-title") # I'm pretty sure this needs to be fixed.
+  div(:empty_library, :id=>"mylibrary_empty")
 
 end
 
@@ -3318,6 +3340,10 @@ class Library
   include ListWidget
   include ListContent
   
+  def empty_library_element
+    self.div(:id=>data_sakai_ref).div(:id=>"mylibrary_empty")
+  end
+  
 end
 
 # 
@@ -3413,6 +3439,10 @@ class Comments
   include DocButtons
   
   button(:add_comment, :text=>"Add comment")
+  button(:cancel, :id=>/comments_editComment_cancel/)
+  text_area(:comment, :id=>"comments_txtMessage")
+  text_area(:new_comment, :id=>/comments_editComment_txt_/)
+  button(:undelete, :text=>"Undelete")
   
   # Clicks the "Submit comment" button.
   def submit_comment
@@ -3425,24 +3455,20 @@ class Comments
     self.button(:text=>"Edit comment").click
     self.wait_for_ajax #wait_until { self.textarea(:title=>"Edit your comment").present? == false }
   end
-  
-  button(:cancel, :id=>/comments_editComment_cancel/)
-  text_area(:comment, :id=>"comments_txtMessage")
-  text_area(:new_comment, :id=>/comments_editComment_txt_/)
-  
+
   # Clicks the "Edit button" for the specified comment.
   def edit(comment)
+    comment.gsub!("\n", " ")
     self.p(:text=>comment).parent.parent.button(:text=>"Edit").click
     self.wait_for_ajax #wait_until { self.textarea(:title=>"Edit your comment").present? }
   end
   
   # Deletes the specified comment.
   def delete(comment)
+    comment.gsub!("\n", " ")
     self.div(:text=>comment).parent.button(:text=>"Delete").click
     self.wait_for_ajax #wait_until { self.button(:text=>"Undelete").present? }
   end
-  
-  button(:undelete, :text=>"Undelete")
   
 end
 

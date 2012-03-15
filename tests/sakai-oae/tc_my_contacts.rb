@@ -76,7 +76,7 @@ describe "My Contacts" do
     
     # TEST CASE: The "Add" button now says the invitation
     # has been sent
-    profile.invitation_sent_button_element.visible?.should == true
+    profile.invitation_sent_button_element.should be_visible
     
     search = profile.explore_people
 
@@ -102,7 +102,7 @@ describe "My Contacts" do
     my_contacts.contacts.should include @user1_name
     
     # TEST CASE: Verify the "Pending contacts" heading is gone
-    my_contacts.pending_contacts.present?.should == false
+    my_contacts.pending_contacts.should_not be_present
 
   end
 
@@ -122,7 +122,7 @@ describe "My Contacts" do
     my_contacts = my_messages.my_contacts
     
     # TEST CASE: After user rejects request, the pending request is gone
-    my_contacts.pending_contacts.exists?.should == false
+    my_contacts.pending_contacts.should_not exist
     
     # TEST CASE: Page includes message that the user does not have any contacts, yet.
     @browser.text.should include "You don't have any contacts yet."

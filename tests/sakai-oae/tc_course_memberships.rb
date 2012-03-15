@@ -7,19 +7,22 @@
 # Creates 3 Courses--one for each Membership setting, then
 # tests that a non-manager of those courses has appropriate options
 # available for joining, and that those options work as expected.
+#
+# == Prerequisites
+#
+# Two existing users.
 # 
 # Author: Abe Heward (aheward@rSmart.com)
-gem "test-unit"
-gems = ["test/unit", "watir-webdriver", "ci/reporter/rake/test_unit_loader"]
-gems.each { |gem| require gem }
-files = [ "/../../config/OAE/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-OAE/app_functions.rb", "/../../lib/sakai-OAE/page_elements.rb" ]
-files.each { |file| require File.dirname(__FILE__) + file }
+$: << File.expand_path(File.dirname(__FILE__) + "/../../lib/")
+["rspec", "watir-webdriver", "../../config/OAE/config.rb",
+  "utilities", "sakai-OAE/app_functions",
+  "sakai-OAE/page_elements" ].each { |item| require item }
 
-class TestCourseMemberships < Test::Unit::TestCase
+describe "Course Membership Rules" do
   
   include Utilities
 
-  def setup
+  before :all do
     
     # Get the test configuration data
     @config = AutoConfig.new
@@ -28,7 +31,7 @@ class TestCourseMemberships < Test::Unit::TestCase
     @ipassword = @config.directory['admin']['password']
     @user2 = @config.directory['person1']['id']
     @u2password = @config.directory['person1']['password']
-    @student_name = "Student One"
+    @student_name = "#{@config.directory['person1']['firstname']} #{@config.directory['person1']['lastname']}"
     
     @sakai = SakaiOAE.new(@browser)
     
@@ -60,14 +63,8 @@ class TestCourseMemberships < Test::Unit::TestCase
     @email_subject_prefix = "#{@student_name} has requested to join your group "
     
   end
-  
-  def teardown
-    # Close the browser window
-    @browser.close
-  end
-  
-  def test_course_memberships
-    
+
+  it "creates three courses with different membership settings" do
     # Log in to Sakai
     dashboard = @sakai.login(@instructor, @ipassword)
 
@@ -102,7 +99,9 @@ class TestCourseMemberships < Test::Unit::TestCase
     library = new_course_info.create_basic_course
     
     @sakai.logout
-    
+  end
+  
+  it "'Student' tries to join 'Manager add' course" do
     dashboard = @sakai.login(@user2, @u2password)
     
     explore = dashboard.explore_courses
@@ -113,49 +112,62 @@ class TestCourseMemberships < Test::Unit::TestCase
     course = explore.open_course @managers_course[:title]
 
     # TEST CASE: Verify "Managers Add" Course does not show buttons to join
-    assert course.join_group_button_element.exists?
-    assert_equal false, course.join_group_button_element.visible?
-    assert_equal false, course.request_to_join_group_button_element.visible?
+    course.join_group_button_element.should exist
+    course.join_group_button_element.should_not be_visible
+    course.request_to_join_group_button_element.should_not be_visible
+  end
     
+  it "'Join' button displays for 'Joinable' course" do
+    course = Library.new @browser
     explore = course.explore_courses
     explore.search=@auto_course[:title]
     
     course = explore.open_course @auto_course[:title]
     
     # TEST CASE: Verify button (Join Group) displays for "Automatically joinable" Course
-    assert course.join_group_button_element.visible?
+    course.join_group_button_element.should be_visible
     
     course.join_group
     sleep 0.2
     
     # TEST CASE: Verify clicking button adds user as participant
-    assert_equal @join_notification, course.notification, "#{course.notification}\ndoesn't match:\n#{@join_notification}"
+    course.notification.should == @join_notification
     
     course.close_notification
-    
+  end
+  
+  it "'Request' button appears for 'Request' course" do
+    course = Library.new @browser
     explore = course.explore_courses
     explore.search=@request_course[:title]
     
     course = explore.open_course @request_course[:title]
     
     # TEST CASE: Verify button (Request to Join) displays for "Request" Course
-    assert course.request_to_join_group_button_element.visible?
+    course.request_to_join_group_button_element.should be_visible
     
     course.request_to_join_group
     sleep 0.2
     
     # TEST CASE: Verify clicking button sends request to join.
-    assert_equal @request_notification, course.notification, "#{course.notification}\ndoesn't match:\n#{@request_notification}"
+    course.notification.should == @request_notification
     
     @sakai.logout
-    
+  end
+  
+  it "Request email sent to course manager" do
     dashboard = @sakai.login(@instructor, @ipassword)
     
     inbox = dashboard.my_messages
     
     # TEST CASE: Verify Email sent to Course manager requesting to join
-    assert inbox.message_subjects.include?(@email_subject_prefix + @request_course[:title])
+    inbox.message_subjects.should include(@email_subject_prefix + @request_course[:title])
 
   end
-  
+
+  after :all do
+    # Close the browser window
+    @browser.close
+  end
+ 
 end
