@@ -6,9 +6,12 @@
 
 #require 'watir-webdriver'
 require 'page-object'
+PageObject.javascript_framework = :jquery
 #require 'date'
 
 class SakaiOAE
+  
+  include PageObject
   
   def initialize(browser)
     @browser = browser
@@ -23,7 +26,7 @@ class SakaiOAE
     if @browser.button(:id=>"emailverify_continue_button").present?
       @browser.button(:id=>"emailverify_continue_button").click
     end
-    @browser.wait_for_ajax(10)
+    wait_for_ajax(2)
     MyDashboard.new @browser
   end
   
@@ -34,7 +37,7 @@ class SakaiOAE
     @browser.link(:id=>"topnavigation_user_options_name").fire_event("onmouseover")
     @browser.link(:id=>"subnavigation_logout_link").click
     sleep 1 # FIXME
-    @browser.wait_for_ajax(8) #.div(:text=>"Recent activity").wait_until_present
+    wait_for_ajax(2)#.div(:text=>"Recent activity").wait_until_present
     LoginPage.new @browser
   end
   
@@ -72,8 +75,8 @@ module PageObject
         self.back_to_top
         self.link(:text=>menu_text).fire_event("onmouseover")
         self.link(:text=>/#{link_text}/).click
-        self.wait_for_ajax(10) 
-        sleep 1
+        sleep 3
+        #wait_for_ajax
         eval(target_class).new @browser
       }
     end
@@ -83,7 +86,12 @@ module PageObject
         self.back_to_top
         self.link(:text=>/#{value}/).click
         sleep 2
-        self.wait_for_ajax(15)
+        wait_for_ajax(2)
+        # This code is necessary because of a null style tag
+        # that confuses Watir into thinking the buttons aren't really there.
+        if self.div(:id=>"joinrequestbuttons_widget").exist?
+          @browser.execute_script("$('#joinrequestbuttons_widget').css({display: 'block'})")
+        end
         eval(klass).new @browser
       end
     end
@@ -104,7 +112,7 @@ module PageObject
     def navigating_button(name, id, class_name=nil)
       define_method(name) { 
           self.button(:id=>id).click
-          self.wait_for_ajax(15) 
+          wait_for_ajax(2)
           sleep 0.2
           unless class_name==nil
             eval(class_name).new @browser
@@ -117,7 +125,7 @@ module PageObject
     def navigating_link(name, link_text, class_name=nil)
       define_method(name) { 
         self.link(:text=>/#{Regexp.escape(link_text)}/).click
-        self.wait_for_ajax(15) 
+        wait_for_ajax(2)
         unless class_name==nil
           eval(class_name).new @browser
         end
@@ -136,7 +144,7 @@ module PageObject
           self.class.class_eval { include eval(module_name) }
           sleep 0.4
         end
-        self.wait_for_ajax(20)
+        wait_for_ajax(2)
       }
     end
     
@@ -167,7 +175,7 @@ end
 module Watir
   
   class Browser
-    
+=begin
     def wait_for_ajax(timeout=5)
       end_time = ::Time.now + timeout
       while self.execute_script("return jQuery.active") > 0
@@ -176,7 +184,7 @@ module Watir
       end
       self.wait(timeout + 10)
     end
-    
+=end
     def back_to_top
       self.execute_script("javascript:window.scrollTo(0,0)")
     end

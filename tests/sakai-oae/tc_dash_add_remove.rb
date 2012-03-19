@@ -3,19 +3,21 @@
 # == Synopsis
 #
 # Tests the removal and re-adding of all dashboard widgets.
+#
+# == Prerequisites
+#
 # 
 # Author: Abe Heward (aheward@rSmart.com)
-gem "test-unit"
-gems = ["test/unit", "watir-webdriver", "ci/reporter/rake/test_unit_loader"]
-gems.each { |gem| require gem }
-files = [ "/../../config/OAE/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-OAE/app_functions.rb", "/../../lib/sakai-OAE/page_elements.rb" ]
-files.each { |file| require File.dirname(__FILE__) + file }
+$: << File.expand_path(File.dirname(__FILE__) + "/../../lib/")
+["rspec", "watir-webdriver", "../../config/OAE/config.rb",
+  "utilities", "sakai-OAE/app_functions",
+  "sakai-OAE/page_elements" ].each { |item| require item }
 
-class TestDashboardWidgets < Test::Unit::TestCase
+describe "Add/Remove Dashboard Widgets" do
   
   include Utilities
 
-  def setup
+  before :all do
     
     # Get the test configuration data
     @config = AutoConfig.new
@@ -23,44 +25,39 @@ class TestDashboardWidgets < Test::Unit::TestCase
     @sakai = SakaiOAE.new(@browser)
     
     # Test case variables...
-    @widgets = ["My recent memberships", "My recent content", "Most popular tags"]
+    @widgets = ["My recent memberships", "My content", "Most active groups",
+                "Most active content", "Most popular tags","JISC content",
+                "My contacts", "Account preferences", "My recent messages",
+                "My recent contacts", "My memberships", "My recent content"]
     @user = @config.directory['admin']['username']
     @password = @config.directory['admin']['password']
     
   end
   
-  def teardown
+  it "All widgets can be removed" do
+    # Log in to Sakai
+    dashboard = @sakai.login(@user, @password)
+    dashboard.add_widgets
+    dashboard.remove_all_widgets
+    dashboard = dashboard.close_add_widget
+    # TEST CASE: All widgets removed
+    dashboard.displayed_widgets.should == []
+  end
+  
+  it "All widgets can be added" do
+    dashboard = MyDashboard.new @browser
+    @widgets.each do |widget|
+      dashboard.add_widgets
+      dashboard.add_widget widget
+      dashboard = dashboard.close_add_widget
+      # TEST CASE: Widget added
+      dashboard.displayed_widgets.should include widget
+    end
+  end
+
+  after :all do
     # Close the browser window
     @browser.close
   end
-  
-  def test_adding_dashboard_widgets
-    
-    # Log in to Sakai
-    dashboard = @sakai.login(@user, @password)
-    
-    dashboard.add_widgets
-    
-    dashboard.remove_all_widgets
-    
-    dashboard = dashboard.close_add_widget
-    
-    # TEST CASE: All widgets removed
-    assert_equal [], dashboard.displayed_widgets, "#{dashboard.displayed_widgets}"
-    
-    @widgets.each do |widget|
-      
-      dashboard.add_widgets
-      
-      dashboard.add_widget widget
-      
-      dashboard = dashboard.close_add_widget
-      
-      # TEST CASE: Widget added
-      assert dashboard.displayed_widgets.include?(widget), "#{dashboard.displayed_widgets}"
-    
-    end
-    
-  end
-  
+
 end
