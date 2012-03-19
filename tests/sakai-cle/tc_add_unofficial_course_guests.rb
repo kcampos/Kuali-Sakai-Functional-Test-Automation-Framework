@@ -43,7 +43,7 @@ class AddCourseSiteParticipants < Test::Unit::TestCase
     guests = []
     
     25.times do
-      guests << random_alphanums(2) + random_nicelink(14) + "@" + random_nicelink(8) + random_alphanums(2) + ".com"
+      guests << random_email(5)
     end
     
     guests_list = guests.join("\n")
@@ -60,8 +60,8 @@ class AddCourseSiteParticipants < Test::Unit::TestCase
       
     # Enter the names into the official participants field
     add_participants.non_official_participants=guests_list
+    sleep 1
     role = add_participants.continue
-      
     # Choose the role
     role.select_guest
       
@@ -83,13 +83,13 @@ class AddCourseSiteParticipants < Test::Unit::TestCase
     workspace = edit_site.my_workspace
     
     users = workspace.users
-    
+
     # TEST CASE: Email cell contains the email address for all entered guests
     guests.each do |email|
       users.search_field=email
       users = users.search_button
       assert_equal email, users.email(email)
-      assert_equal "Guest", users.type(email)
+      assert_equal "guest", users.type(email).downcase
       users.clear_search
     end
     

@@ -145,10 +145,19 @@ class TestCalendarEvents < Test::Unit::TestCase
     assert_equal "Calendar by Month", calendar.header 
 
     calendar = calendar.previous
-    
+
     #TEST CASE: Verify the new event is not on this month
-    assert_equal false, calendar.events_list.include?(@event_href)
-    
+    begin
+      assert_equal(false, calendar.events_list.include?(@event_href), "#{@event_href} appears unexpectedly")
+    rescue Test::Unit::AssertionFailedError
+      if Time.now.strftime("%d").to_i < 7
+        # It must be showing up on the calendar because it's the early
+        # part of the month
+      else
+        assert_equal(false, calendar.events_list.include?(@event_href), "#{@event_href} appears unexpectedly")
+      end
+    end
+      
     calendar = calendar.next
     
     # TEST CASE: Verify new event is back

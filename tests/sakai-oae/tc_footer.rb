@@ -5,192 +5,217 @@
 #
 # Tests focusing on the Footer element;
 # on what different elements should be in the Footer, and how they should behave.
+#
+# == Prerequisites
+#
+# There must be a valid user for logging in to the system.
 # 
 # Author: Abe Heward (aheward@rSmart.com)
-gem "test-unit"
-gems = ["test/unit", "watir-webdriver", "ci/reporter/rake/test_unit_loader"]
-gems.each { |gem| require gem }
-files = [ "/../../config/OAE/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-OAE/app_functions.rb", "/../../lib/sakai-OAE/page_elements.rb" ]
-files.each { |file| require File.dirname(__FILE__) + file }
+$: << File.expand_path(File.dirname(__FILE__) + "/../../lib/")
+["rspec", "watir-webdriver", "../../config/OAE/config.rb",
+  "utilities", "sakai-OAE/app_functions",
+  "sakai-OAE/page_elements" ].each { |item| require item }
 
-class TestFooter < Test::Unit::TestCase
+describe "Page Footer" do
   
   include Utilities
 
-  def setup
-    
+  let(:home) { home = LoginPage.new @browser }
+  let(:dashboard) { MyDashboard.new @browser }
+
+  before :all do
     # Get the test configuration data
     @config = AutoConfig.new
     @browser = @config.browser
     @username = @config.directory['person1']['id']
     @password = @config.directory['person1']['password']
     
-    @@sakai = SakaiOAE.new(@browser)
-    
-    # Test case variables...
-    
-    
-  end
-  
-  def teardown
-    # Close the browser window
-    @browser.close
+    @sakai = SakaiOAE.new(@browser)
   end
 
-  def test_footer_not_logged_in
-    
+  it "Footer present on top-level public page" do  
     @browser.wait_for_ajax
-    home = LoginPage.new @browser
-    
     # TEST CASE: Footer present on top-level public page
-    assert home.footer_element.visible?
-    
+    home.footer_element.should be_visible
     # TEST CASE: All expected elements are present in footer
-    assert home.sakai_OAE_logo_element.visible?
-    assert home.acknowledgements_link_element.visible?
-    assert home.user_agreement_link_element.visible?
-    assert home.explore_footer_link.present?
-    assert home.browse_footer_link.present?
-    
+    home.sakai_OAE_logo_element.should be_visible
+    home.acknowledgements_link_element.should be_visible
+    home.user_agreement_link_element.should be_visible
+    home.explore_footer_link.should be_present
+    home.browse_footer_link.should be_present
     # TEST CASE: Footer elements requiring login are not present
-    assert_equal false, home.location_button_element.visible?
-    assert_equal false, home.language_button_element.visible?
+    home.location_button_element.should_not be_visible
+    home.language_button_element.should_not be_visible
+  end
     
+  it "Clicking the logo displays DEBUG info" do
     # Click the Sakai logo
     home.sakai_OAE_logo
     @browser.wait_for_ajax
     
-    # TEST CASE: Clicking the logo displays DEBUG info
-    assert home.debug_info_element.visible?
-    
+    # TEST CASE: 
+    home.debug_info_element.should be_visible
+  end
+  
+  it "Clicking the logo again hides the debug info" do
     home.sakai_OAE_logo
-    
-    # TEST CASE: Clicking the logo again hides the debug info
-    assert_equal false, home.debug_info_element.visible?
-    
+    # TEST CASE: 
+    home.debug_info_element.should_not be_visible
+  end
+  
+  it "Agreement link works" do
     home.user_agreement
     
     # TEST CASE: Clicking the User Agreement link takes the user
     # to the rSmart User Agreement page. 
-    assert_nothing_raised { @browser.window(:title=>"rSmart User Agreement").close }
-    
+    lambda { @browser.window(:title=>"rSmart User Agreement").close }.should_not raise_error
+  end
+  
+  it "Acknowledgements link works" do
     acknowledgements = home.acknowledgements
-    
     # TEST CASE: Clicking the acknowledgements link takes user to acknowledgements page
-    assert_equal "Acknowledgements", acknowledgements.page_title
+    acknowledgements.page_title.should == "Acknowledgements"
     
     # TEST CASE: Footer present on acknowledgements page
-    assert acknowledgements.footer_element.visible?
+    acknowledgements.footer_element.should be_visible
     
     # TEST CASE: Acknowledgements page's left menu has expected contents
-    assert acknowledgements.featured_element.visible?
-    assert acknowledgements.ui_technologies_element.visible?
-    assert acknowledgements.back_end_technologies_element.visible?
-    
-    home = acknowledgements.explore_footer
+    acknowledgements.featured_element.should be_visible
+    acknowledgements.ui_technologies_element.should be_visible
+    acknowledgements.back_end_technologies_element.should be_visible
+  end
+  
+  it "Footer's Explore button takes user to main landing page" do
+    home.explore_footer
     
     # TEST CASE: Footer's Explore button takes user to main landing page
-    assert_equal "rSmart | Explore", @browser.title
-    
+    @browser.title.should == "rSmart | Explore"
+  end
+  
+  it "Footer's Browse button takes user to the All Categories page" do
     categories = home.browse_footer
     
     # TEST CASE: Footer's Browse button takes user to the All Categories page
-    assert_equal "All categories", categories.page_title
-    
-    # TEST CASE: Categories page has the footer
-    assert categories.footer_element.visible?
-    
-    search = categories.explore_content
-    
-    # TEST CASE: Search page has the footer
-    assert search.footer_element.visible?
+    categories.page_title.should == "All categories"
 
+    # TEST CASE: Categories page has the footer
+    categories.footer_element.should be_visible
   end
   
-  def test_footer_logged_in
+  it "Search page has the footer" do
+    search = home.explore_content
     
-    dashboard = @@sakai.login(@username, @password)
+    # TEST CASE: Search page has the footer
+    search.footer_element.should be_visible
+  end
+  
+  it "The footer is there when user logs in" do
+    dashboard = @sakai.login(@username, @password)
     
     # TEST CASE: Dashboard page has the footer
-    assert dashboard.footer_element.visible?
+    dashboard.footer_element.should be_visible
     
     # TEST CASE: All expected elements are present in footer
-    assert dashboard.sakai_OAE_logo_element.visible?
-    assert dashboard.acknowledgements_link_element.visible?
-    assert dashboard.user_agreement_link_element.visible?
-    assert dashboard.explore_footer_link.present?
-    assert dashboard.browse_footer_link.present?
-    assert dashboard.location_button_element.visible?
-    assert dashboard.language_button_element.visible?
-    
+    dashboard.sakai_OAE_logo_element.should be_visible
+    dashboard.acknowledgements_link_element.should be_visible
+    dashboard.user_agreement_link_element.should be_visible
+    dashboard.explore_footer_link.should be_present
+    dashboard.browse_footer_link.should be_present
+    dashboard.location_button_element.should be_visible
+    dashboard.language_button_element.should be_visible
+  end
+  
+  it "Clicking the logo displays debug info" do
     # Click the Sakai logo
     dashboard.sakai_OAE_logo
     @browser.wait_for_ajax
     
     # TEST CASE: Clicking the logo displays DEBUG info
-    assert dashboard.debug_info_element.visible?
-    
+    dashboard.debug_info_element.should be_visible
+  end
+  
+  it "Clicking the logo again hides the debug info" do
     dashboard.sakai_OAE_logo
     
     # TEST CASE: Clicking the logo again hides the debug info
-    assert_equal false, dashboard.debug_info_element.visible?
-    
+    dashboard.debug_info_element.should_not be_visible
+  end
+  
+  it "User Agreement link works when logged in" do
     dashboard.user_agreement
     
     # TEST CASE: Clicking the User Agreement link takes the user
     # to the rSmart User Agreement page. 
-    assert_nothing_raised { @browser.window(:title=>"rSmart User Agreement").close }
-    
+    lambda { @browser.window(:title=>"rSmart User Agreement").close }.should_not raise_error
+  end
+  
+  it "Acknowledgements link works when logged in" do
     acknowledgements = dashboard.acknowledgements
     
     # TEST CASE: Clicking the acknowledgements link takes user to acknowledgements page
-    assert_equal "Acknowledgements", acknowledgements.page_title
+    acknowledgements.page_title.should == "Acknowledgements"
     
     # TEST CASE: Footer present on acknowledgements page
-    assert acknowledgements.footer_element.visible?
+    acknowledgements.footer_element.should be_visible
     
     # TEST CASE: Acknowledgements page's left menu has expected contents
-    assert acknowledgements.featured_element.visible?
-    assert acknowledgements.ui_technologies_element.visible?
-    assert acknowledgements.back_end_technologies_element.visible?
-    
-    home = acknowledgements.explore_footer
+    acknowledgements.featured_element.should be_visible
+    acknowledgements.ui_technologies_element.should be_visible
+    acknowledgements.back_end_technologies_element.should be_visible
+  end
+  
+  it "Explore button takes logged in user to landing page" do
+    home.explore_footer
     
     # TEST CASE: Footer's Explore button takes user to main landing page
-    assert_equal "rSmart | Explore", @browser.title
+    @browser.title.should == "rSmart | Explore"
+  end
     
+  it "Footer's Browse button takes user to the All Categories page when logged in" do
     categories = home.browse_footer
-    
-    # TEST CASE: Footer's Browse button takes user to the All Categories page
-    assert_equal "All categories", categories.page_title
-    
+    # TEST CASE: 
+    categories.page_title.should == "All categories"
     # TEST CASE: Categories page has the footer
-    assert categories.footer_element.visible?
-    
-    search = categories.explore_content
+    categories.footer_element.should be_visible
+  end
+  
+  it "Search page has the footer when logged in" do
+    search = home.explore_content
     
     # TEST CASE: Search page has the footer
-    assert search.footer_element.visible?
-    
+    search.footer_element.should be_visible
+  end
+  
+  it "Account preferences appears when location link clicked" do
+    search = ExploreContent.new @browser
     search.change_location
     
     # TEST CASE: Account preferences dialog is visible
-    assert search.time_zone_element.visible?
-    
+    search.time_zone_element.should be_visible
     search.cancel
-    
+  end
+  
+  it "Account preferences appears when language link clicked" do
+    search = ExploreContent.new @browser
     search.change_language
     
     # TEST CASE: Account preferences dialog is visible
-    assert search.language_element.visible?
-    
+    search.language_element.should be_visible
     search.cancel
-    
+  end
+  
+  it "Footer present on Create Group page" do
+    search = ExploreContent.new @browser
     create = search.create_a_group
     
     # TEST CASE: Footer is present on Create Group page
-    assert create.footer_element.visible?
+    create.footer_element.should be_visible
     
+  end
+  
+  after :all do
+    # Close the browser window
+    @browser.close
   end
 
 end

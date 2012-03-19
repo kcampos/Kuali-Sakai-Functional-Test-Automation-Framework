@@ -60,6 +60,7 @@ module GlobalMethods
   open_link(:assignments, "Assignments") 
   open_link(:feed, "RSS")
   open_link(:rss_feed, "RSS")
+  open_link(:rss, "RSS")
   open_link(:lti, "LTI")
   open_link(:basic_lti, "LTI")
   open_link(:gadget, "Gadget")
@@ -67,6 +68,7 @@ module GlobalMethods
   
   alias open_group open_library
   alias open_course open_library
+  alias go_to open_library
   
   # The "gritter" notification that appears to confirm
   # when something has happened (like updating a user profile
@@ -88,7 +90,7 @@ module GlobalMethods
   # will be included as an alias of open_content)
   def open_page(name)
     name_link(name).click 
-    self.wait_for_ajax
+    wait_for_ajax
     self.window(:title=>"rSmart | Content Profile").use
     ContentDetailsPage.new @browser
   end
@@ -98,7 +100,7 @@ module GlobalMethods
   # instantiates the ViewPerson Class)
   def view_person(name)
     name_link(name).click
-    self.wait_for_ajax
+    wait_for_ajax
     ViewPerson.new @browser
   end
   
@@ -183,7 +185,7 @@ module HeaderFooterBar
   def explore_footer
     explore_footer_link.click
     sleep 1
-    self.wait_for_ajax
+    wait_for_ajax
     LoginPage.new @browser
   end
   
@@ -198,7 +200,7 @@ module HeaderFooterBar
   def browse_footer
     browse_footer_link.click
     sleep 1
-    self.wait_for_ajax
+    wait_for_ajax
     AllCategoriesPage.new @browser
   end
   
@@ -206,7 +208,7 @@ module HeaderFooterBar
   def acknowledgements
     self.acknowledgements_link
     sleep 1
-    self.wait_for_ajax
+    wait_for_ajax
     Acknowledgements.new @browser
   end
   
@@ -214,21 +216,21 @@ module HeaderFooterBar
   def user_agreement
     self.user_agreement_link
     sleep 1
-    #@browser.wait_for_ajax
+    #wait_for_ajax
     # New Class goes here.new @browser
   end
   
   # Clicks the location link in the page footer
   def change_location
     self.location_button
-    self.wait_for_ajax
+    wait_for_ajax
     self.class.class_eval { include AccountPreferencesPopUp }
   end
   
   # Clicks the language button in the page footer.
   def change_language
     self.language_button
-    self.wait_for_ajax
+    wait_for_ajax
     self.class.class_eval { include AccountPreferencesPopUp }
   end
   
@@ -241,7 +243,7 @@ module HeaderFooterBar
   # the target page class explicitly in the test script itself, if required.
   def click_link(string)
     name_link(string).click
-    self.wait_for_ajax
+    wait_for_ajax
   end
   
   # Opens the User Options menu in the header menu bar,
@@ -251,8 +253,15 @@ module HeaderFooterBar
   def my_account
     self.link(:id=>"topnavigation_user_options_name").fire_event("onmouseover")
     self.link(:id=>"subnavigation_preferences_link").click
-    self.wait_for_ajax
+    wait_for_ajax
     self.class.class_eval { include AccountPreferencesPopUp }
+  end
+  
+  def sign_out
+    self.link(:id=>"topnavigation_user_options_name").fire_event("onmouseover")
+    self.link(:id=>"subnavigation_logout_link").click
+    wait_for_ajax
+    LoginPage.new @browser
   end
   
   # Opens the Create + Add menu in the header bar,
@@ -272,7 +281,7 @@ module HeaderFooterBar
   
   def toggle_collector
     collector
-    self.wait_for_ajax
+    wait_for_ajax
     self.class.class_eval { include CollectorWidget }
   end
   
@@ -283,7 +292,7 @@ module HeaderFooterBar
   
   # Clicks the "Sign up" link
   def sign_up
-    sign_up_link
+    self.sign_up_link
     CreateNewAccount.new @browser
   end
   
@@ -360,7 +369,7 @@ module HeaderBar
     self.button(:id=>"entity_group_permissions").click
     self.button(:text=>"Settings").click
     sleep 0.4
-    self.wait_for_ajax
+    wait_for_ajax
     self.class.class_eval { include SettingsPopUp }
   end
 
@@ -410,10 +419,10 @@ module LeftMenuBar
   # to the string value specified by to_string.
   def change_title_of(from_string, to_string)
     self.link(:class=>/lhnavigation_page_title_value/, :text=>from_string).hover
-    self.wait_for_ajax #.wait_until { self.link(:class=>/lhnavigation_page_title_value/, :text=>from_string).parent.div(:class=>"lhnavigation_selected_submenu_image").visible? }
+    wait_for_ajax #.wait_until { self.link(:class=>/lhnavigation_page_title_value/, :text=>from_string).parent.div(:class=>"lhnavigation_selected_submenu_image").visible? }
     self.div(:class=>"lhnavigation_selected_submenu_image").hover
     self.execute_script("$('#lhnavigation_submenu').css({left:'300px', top:'300px', display: 'block'})")
-    self.wait_for_ajax #.wait_until { self.link(:id=>"lhavigation_submenu_edittitle").visible? }
+    wait_for_ajax #.wait_until { self.link(:id=>"lhavigation_submenu_edittitle").visible? }
     self.link(:id=>"lhavigation_submenu_edittitle").click
     self.link(:class=>/lhnavigation_page_title_value/, :text=>from_string).parent.text_field(:class=>"lhnavigation_change_title").set("#{to_string}\n")
   end
@@ -423,12 +432,12 @@ module LeftMenuBar
   # Deletes the page specified by page_name.
   def delete_page(page_name)
     self.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).fire_event("onmouseover")
-    self.wait_for_ajax #.wait_until { self.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).parent.div(:class=>"lhnavigation_selected_submenu_image").visible? }
+    wait_for_ajax #.wait_until { self.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).parent.div(:class=>"lhnavigation_selected_submenu_image").visible? }
     self.div(:class=>"lhnavigation_selected_submenu_image").hover
     self.execute_script("$('#lhnavigation_submenu').css({left:'300px', top:'300px', display: 'block'})")
-    self.wait_for_ajax #.wait_until { self.link(:id=>"lhavigation_submenu_edittitle").visible? }
+    wait_for_ajax #.wait_until { self.link(:id=>"lhavigation_submenu_edittitle").visible? }
     self.link(:id=>"lhavigation_submenu_deletepage").click
-    self.wait_for_ajax
+    wait_for_ajax
     self.class.class_eval { include DeletePagePopUp }
   end
   
@@ -441,7 +450,7 @@ module LeftMenuBar
     self.wait_until { self.link(:id=>"lhavigation_submenu_edittitle").visible? }
     self.link(:id=>"lhnavigation_submenu_permissions").click
     sleep 0.2
-    self.wait_for_ajax
+    wait_for_ajax
     self.class.class_eval { include PermissionsPopUp }
   end
   
@@ -454,12 +463,12 @@ module LeftMenuBar
   # browser tab/window that gets opened.
   def view_profile_of_page(page_name)
     self.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).fire_event("onmouseover")
-    self.wait_for_ajax #.wait_until { self.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).parent.div(:class=>"lhnavigation_selected_submenu_image").visible? }
+    wait_for_ajax #.wait_until { self.link(:class=>/lhnavigation_page_title_value/, :text=>page_name).parent.div(:class=>"lhnavigation_selected_submenu_image").visible? }
     self.div(:class=>"lhnavigation_selected_submenu_image").hover
     self.execute_script("$('#lhnavigation_submenu').css({left:'328px', top:'349px', display: 'block'})")
-    self.wait_for_ajax #.wait_until { self.link(:id=>"lhavigation_submenu_edittitle").visible? }
+    wait_for_ajax #.wait_until { self.link(:id=>"lhavigation_submenu_edittitle").visible? }
     self.link(:id=>"lhnavigation_submenu_profile").click
-    self.wait_for_ajax #.button(:title=>"Show debug info").wait_until_present
+    wait_for_ajax #.button(:title=>"Show debug info").wait_until_present
     self.window(:title=>"rSmart | Content Profile").use
     ContentDetailsPage.new self
   end
@@ -470,7 +479,7 @@ module LeftMenuBar
   # Clicks the "Add a new area" button.
   def add_new_area
     self.button(:id=>"group_create_new_area", :class=>"s3d-button s3d-header-button s3d-popout-button").click
-    self.wait_for_ajax(6)
+    wait_for_ajax
     self.class.class_eval { include AddAreasPopUp }
   end
   
@@ -496,6 +505,25 @@ module LeftMenuBar
     else
       return false
     end
+  end
+  
+  private
+  
+  def data_sakai_ref
+    hash = {}
+    current_id=""
+    @browser.div(:id=>"lhnavigation_container").lis.each do |li|
+      hash.store(li.text, li.html[/(?<=data-sakai-ref=").+-id\d+/])
+    end
+    hash.delete_if { |key, value| key == "" }
+    hash.each do |key, value|
+      next if @browser.div(:id=>value).exist? == false
+      next if @browser.div(:id=>value).visible? == false
+      if @browser.div(:id=>value).visible?
+        current_id = value 
+      end
+    end
+    return current_id
   end
   
 end
@@ -596,7 +624,7 @@ module SearchBar
   # line in the script for clicking on the search button.
   def search_for=(text)
     self.text_field(:id=>"search_text").set("#{text}\n")
-    self.wait_for_ajax(10)
+    wait_for_ajax
   end
   
   alias search= search_for=
@@ -624,7 +652,7 @@ module DocButtons
   def edit_page
     self.back_to_top
     edit_page_button
-    self.wait_for_ajax
+    wait_for_ajax
     self.class.class_eval { include DocumentWidget }
   end
   
@@ -633,7 +661,7 @@ module DocButtons
   def add_page(text)
     self.back_to_top
     add_page_button
-    self.wait_for_ajax
+    wait_for_ajax
     self.send_keys text + "\n"
   end
   
@@ -641,7 +669,7 @@ module DocButtons
   def page_revisions
     self.back_to_top
     page_revisions_button
-    self.wait_for_ajax
+    wait_for_ajax
     
   end
   
@@ -655,8 +683,8 @@ module DocButtons
     # watir-webdriver
     edit_page
     open_widget_menu
-    @browser.execute_script(click_settings)
-    @browser.wait_for_ajax(1)
+    self.execute_script(click_settings)
+    wait_for_ajax
   end
   
   # The generic method for removing widgets. DO NOT USE!
@@ -668,7 +696,7 @@ module DocButtons
     self.edit_page
     self.open_widget_menu
     self.execute_script(jq_remove)
-    self.wait_for_ajax(1)
+    wait_for_ajax
   end
   
   # The generic method for editing widget wrappings. DO NOT USE!
@@ -680,8 +708,8 @@ module DocButtons
     #watir-webdriver
     edit_page
     open_widget_menu
-    @browser.execute_script(jq_wrapping)
-    @browser.wait_for_ajax(1)
+    self.execute_script(jq_wrapping)
+    wait_for_ajax
     self.class.class_eval { include AppearancePopUp }
   end
   
@@ -692,11 +720,11 @@ module DocButtons
     node_change=%|tinyMCE.get("elm1").nodeChanged();|
     
     # watir-webdriver
-    @browser.wait_for_ajax
+    wait_for_ajax
     @browser.execute_script(click_widget)
-    @browser.wait_for_ajax(1)
+    wait_for_ajax
     @browser.execute_script(node_change)
-    @browser.wait_for_ajax(1)
+    wait_for_ajax
   end
   
 end
@@ -806,7 +834,7 @@ module AddAreasPopUp
   # Clicks the list categories link.
   def list_categories
     list_categories_button
-    @browser.wait_for_ajax
+    wait_for_ajax
     self.class.class_eval { include AddRemoveCategories }
   end
   
@@ -856,9 +884,10 @@ module AddAreasPopUp
   
   # The div containing the search results list.
   # This method is primarily for use in the procedural methods
-  # in this module rather than for steps in a test script.
+  # in this module rather than for steps in a test script (because it
+  # only refers to the "Everywhere" list.
   def search_results
-    @browser.div(:id=>"addarea_existing_everywhere_bottom")
+    self.div(:id=>"addarea_existing_everywhere_bottom")
   end
   
   # The name field for adding a Content List page. Use of this method
@@ -907,7 +936,7 @@ module AddAreasPopUp
   # waits for the Ajax calls to drop to zero.
   def create
     self.done_add_button
-    self.wait_for_ajax(3)
+    wait_for_ajax
   end
   
   alias done_add create
@@ -917,15 +946,18 @@ module AddAreasPopUp
   #   :title=>"The placement title string",
   #   :visible=>"Who can see it" }
   # The method adds an existing document using the specified hash contents.
+  # Note that it uses the "Everywhere" page, so if you want to use
+  # one of the other pages for the search, you'll have to code all steps in
+  # the test script itself.
   def add_from_existing(document)
     self.everywhere
     search_everywhere.set(document[:name] + "\n")
-    self.wait_for_ajax #
+    wait_for_ajax #
     search_results.li(:text=>/#{Regexp.escape(document[:name])}/).fire_event("onclick")
     existing_doc_name.set document[:title]
     existing_doc_permissions.select document[:visible]
     
-    create
+    self.create
   end
   
   alias add_existing_document add_from_existing
@@ -1025,14 +1057,14 @@ module AddContentContainer
   # "Collected Items" list.
   def add
     active_content_div.button(:text=>"Add").click
-    self.wait_for_ajax
+    wait_for_ajax
   end
   
   # Works to enter text into any of the "Tags and Categories"
   # fields on the "Add Content" dialog.
   def tags_and_categories=(text)
     active_content_div.text_field(:id=>/as-input-\d+/).set text +"\n"
-    self.wait_for_ajax
+    wait_for_ajax
   end
   
   # Removes the item from the selected list.
@@ -1063,7 +1095,7 @@ module AddContentContainer
   def done_add_collected
     done_add_collected_button
     sleep 2
-    self.wait_for_ajax
+    wait_for_ajax
   end
   
   private
@@ -1136,7 +1168,7 @@ module AddRemoveWidgets
   # to/from the Dashboard.
   def close_add_widget
     @browser.div(:class=>"s3d-dialog-close jqmClose").fire_event("onclick")
-    @browser.wait_for_ajax(1)
+    wait_for_ajax
     MyDashboard.new @browser
   end
   
@@ -1146,7 +1178,7 @@ module AddRemoveWidgets
     sub_array = array.select { |li| li.visible? }
     sub_array.each do |li|
       li.button(:text=>"Add").click
-      @browser.wait_for_ajax(1)
+      wait_for_ajax
     end
     close_add_widget
   end
@@ -1157,7 +1189,7 @@ module AddRemoveWidgets
     sub_array = array.select { |li| li.visible? }
     sub_array.each do |li|
       li.button(:text=>"Remove").click
-      @browser.wait_for_ajax(1)
+      wait_for_ajax
     end
     close_add_widget
   end
@@ -1199,7 +1231,7 @@ module AddToContactsPopUp
   def invite
     invite_button
     sleep 0.5
-    self.wait_for_ajax
+    wait_for_ajax
   end
   
 end
@@ -1244,7 +1276,7 @@ module ChangePicturePopUp
   # Clicks the Save button for the Change Picture Pop Up.
   def save_new_selection
     save_element.when_visible { save }
-    @browser.wait_for_ajax
+    wait_for_ajax
   end
   
   def thumbnail_source
@@ -1285,23 +1317,23 @@ module ContentPermissionsPopUp
   def share_with=(name)
     self.text_field(:id=>/contentpermissionscontainer\d+/).set name
     sleep 0.6
-    self.wait_for_ajax
+    wait_for_ajax
     self.div(:class=>"as-results").li(:id=>"as-result-item-0").fire_event "onclick"
-    self.wait_for_ajax
+    wait_for_ajax
   end
   
   # Clicks the "Save and close" button then waits for all ajax calls
   # to finish
   def save_and_close
     save_and_close_button
-    self.wait_for_ajax
+    wait_for_ajax
   end
   
   # Clicks the "Share" button and waits for the ajax calls to finish.
   def share
     self.button(:id=>"contentpermissions_members_autosuggest_sharebutton").flash
     self.button(:id=>"contentpermissions_members_autosuggest_sharebutton").click
-    self.wait_for_ajax
+    wait_for_ajax
   end
   
 end
@@ -1319,12 +1351,12 @@ module DeletePagePopUp
   
   def delete
     delete_button
-    @browser.wait_for_ajax
+    wait_for_ajax
   end
   
   def dont_delete
     dont_delete_button
-    @browser.wait_for_ajax
+    wait_for_ajax
   end
   
 end
@@ -1364,7 +1396,7 @@ module FilesAndDocsPopUp
   
   def dont_add
     dont_add_button
-    @browser.wait_for_ajax
+    wait_for_ajax
   end
   
 end
@@ -1447,7 +1479,7 @@ module ManageParticipants
       self.text_field(:id=>/addpeople/, :class=>"as-input").send_keys(letter)
       #@browser.text_field(:id=>/addpeople/, :class=>"as-input").focus
       self.wait_until { self.div(:id=>/^as-results-/).visible? }
-      next if self.li(:id=>"as-result-item-0").text=="No results found"
+      #next if self.li(:id=>"as-result-item-0").text=="No results found"
       #begin
       #  @browser.wait_until(0.4) { @browser.ul(:class=>"as-list").visible? }
       #rescue
@@ -1484,6 +1516,28 @@ module ManageParticipants
   # For the specified contact, updates to the specified role.fd
   def set_role_for(contact, role)
     @browser.div(:id=>"addpeople_selected_contacts_container").link(:text=>contact).parent.select(:class=>"addpeople_selected_permissions").select(role)
+  end
+  
+end
+
+#
+module OurAgreementPopUp
+  
+  include PageObject
+  
+  # Page Objects
+  button(:no_button, :id=>"acceptterms_action_dont_accept")
+  button(:yes_button, :id=>"acceptterms_action_accept")
+  
+  # Custom Methods
+  def no_please_log_me_out
+    
+  end
+  
+  def yes_I_accept
+    self.yes_button
+    wait_for_ajax
+    MyDashboard.new @browser
   end
   
 end
@@ -1539,13 +1593,14 @@ module PermissionsPopUp
   
   # Custom Methods
   def apply_permissions
-    apply_permissions_button
-    self.wait_for_ajax
+    self.apply_permissions_button
+    sleep 0.3
+    #wait_for_ajax(2)
   end
   
   def cancel
-    cancel_button
-    @browser.wait_for_ajax
+    self.cancel_button
+    wait_for_ajax(2)
   end
   
 end
@@ -1561,7 +1616,8 @@ module ProfilePermissionsPopUp
   
   def apply_permissions
     apply_permissions_button
-    self.wait_for_ajax
+    sleep 0.3
+    #wait_for_ajax
   end
   
   def cancel
@@ -1591,7 +1647,7 @@ module RemoveContactsPopUp
   def remove_contact
     remove_contact_button
     sleep 0.5
-    @browser.wait_for_ajax
+    wait_for_ajax
   end
   
 end
@@ -1661,13 +1717,13 @@ module SendMessagePopUp
   # Clicks the "Send message" button
   def send_message
     current_div.button(:id=>"send_message").click
-    self.wait_for_ajax
+    wait_for_ajax
   end
   
   # Clicks the "Don't send" button
   def dont_send
     current_div.button(:id=>"send_message_cancel").click
-    self.wait_for_ajax
+    wait_for_ajax
   end
   
   def current_div
@@ -1695,7 +1751,7 @@ module SettingsPopUp
   
   def apply_settings
     apply_settings_button
-    self.wait_for_ajax
+    wait_for_ajax
   end
   
 end
@@ -1720,7 +1776,7 @@ module ShareWithPopUp
   def share_with=(name)
     share_with_field=name + "\n"
     sleep 0.6
-    self.wait_for_ajax
+    wait_for_ajax
     self.li(:id=>"as-result-item-0").click
   end
   
@@ -1787,32 +1843,32 @@ module DocumentWidget
   def save
     save_button
     sleep 1
-    self.wait_for_ajax
+    wait_for_ajax
   end
   
   # Erases the entire contents of the TinyMCE Editor, then
   # enters the specified string into the Editor.
   def set_content=(text)
-    @browser.frame(:id=>"elm1_ifr").body(:id=>"tinymce").fire_event("onclick")
-    @browser.frame(:id=>"elm1_ifr").send_keys( [:command, 'a'] )
-    @browser.frame(:id=>"elm1_ifr").send_keys(text)
+    self.frame(:id=>"elm1_ifr").body(:id=>"tinymce").fire_event("onclick")
+    self.frame(:id=>"elm1_ifr").send_keys( [:command, 'a'] )
+    self.frame(:id=>"elm1_ifr").send_keys(text)
   end
   
   # Appends the specified string to the contents of the TinyMCE Editor.
   def add_content=(text)
-    @browser.frame(:id=>"elm1_ifr").body(:id=>"tinymce").fire_event("onclick")
-    @browser.frame(:id=>"elm1_ifr").send_keys(text)
+    self.frame(:id=>"elm1_ifr").body(:id=>"tinymce").fire_event("onclick")
+    self.frame(:id=>"elm1_ifr").send_keys(text)
   end
   
   # Selects all the contents of the TinyMCE Editor
   def select_all
-    @browser.frame(:id=>"elm1_ifr").send_keys( [:command, 'a'] )
+    self.frame(:id=>"elm1_ifr").send_keys( [:command, 'a'] )
   end
   
   # Clicks the Text Box of the TinyMCE Editor so that the edit cursor
   # will become active in the Editor.
   def insert_text
-    @browser.frame(:id=>"elm1_ifr").body(:id=>"tinymce").fire_event("onclick")
+    self.frame(:id=>"elm1_ifr").body(:id=>"tinymce").fire_event("onclick")
   end
   
   # Other MCE Objects TBD later, though we're not in the business of testing TinyMCE...
@@ -1948,7 +2004,7 @@ module ListPeople
   # Contacts list (in My Contacts).
   def remove(name)
     self.button(:title=>"Remove contact #{name}").click
-    self.wait_for_ajax
+    wait_for_ajax
     self.class.class_eval { include RemoveContactsPopUp }
   end
   
@@ -1956,7 +2012,7 @@ module ListPeople
   
   def send_message_to(name)
     name_li(name).button(:class=>"s3d-link-button s3d-action-icon s3d-actions-message searchpeople_result_message_icon sakai_sendmessage_overlay").click
-    self.wait_for_ajax
+    wait_for_ajax
     self.class.class_eval { include SendMessagePopUp }
   end
   
@@ -2008,7 +2064,7 @@ module ListGroups
   def open_group(name)
     name_link(name).click
     sleep 1
-    @browser.wait_for_ajax
+    wait_for_ajax
     @browser.execute_script("$('#joinrequestbuttons_widget').css({display: 'block'})")
     Library.new(@browser)
   end
@@ -2020,7 +2076,7 @@ module ListGroups
   # Returns the specified item's "type", as shown next to the item name--i.e.,
   # "GROUP", "COURSE", etc.
   def group_type(item)
-    @browser.span(:class=>"s3d-search-result-name",:text=>item).parent.span(:class=>"mymemberships_item_grouptype").text
+    self.span(:class=>"s3d-search-result-name",:text=>item).parent.span(:class=>"mymemberships_item_grouptype").text
   end
   
   # Clicks the Message button for the specified listed item.
@@ -2050,8 +2106,8 @@ module ListProjects
   def open_research(name)
     name_link(name).click
     sleep 1
-    @browser.wait_for_ajax
-    @browser.execute_script("$('#joinrequestbuttons_widget').css({display: 'block'})")
+    wait_for_ajax
+    self.execute_script("$('#joinrequestbuttons_widget').css({display: 'block'})")
     ResearchIntro.new @browser
   end
   
@@ -2097,7 +2153,7 @@ class Assignments
   include DocButtons
   
   def cle_frame
-    @browser.frame(:src=>/sakai2assignments.launch.html/)
+    self.frame(:src=>/sakai2assignments.launch.html/)
   end
   
 end
@@ -2124,7 +2180,7 @@ class LoginPage
   # displayed in the "Recent activity" box on the login page.
   def recent_activity_list
     list = []
-    @browser.div(:id=>"recentactivity_activity_container").links(:class=>"recentactivity_activity_item_title recentactivity_activity_item_text s3d-regular-links s3d-bold").each do |link|
+    self.div(:id=>"recentactivity_activity_container").links(:class=>"recentactivity_activity_item_title recentactivity_activity_item_text s3d-regular-links s3d-bold").each do |link|
       list << link.text
     end
     return list.uniq!
@@ -2134,7 +2190,7 @@ class LoginPage
   # Featured Content area of the page.
   def featured_content_list
     list = []
-    @browser.div(:id=>"featuredcontent_content_container").links(:class=>/featuredcontent_content_title/).each do |link|
+    self.div(:id=>"featuredcontent_content_container").links(:class=>/featuredcontent_content_title/).each do |link|
       list << link.text
     end
     return list
@@ -2169,7 +2225,7 @@ class Calendar
   include GlobalMethods
   
   def calendar_frame
-    @browser.frame(:src=>/sakai2calendar.launch.html/)
+    self.frame(:src=>/sakai2calendar.launch.html/)
   end
   
 end
@@ -2235,14 +2291,14 @@ class ContentDetailsPage
   #  self.div(:class=>"entity_owns_actions_share has_counts ew_permissions").hover
   #  self.div(:class=>"entity_owns_actions_share has_counts ew_permissions").click
   #  self.execute_script(%|$('.entity_owns_actions_share.has_counts.ew_permissions').trigger("mouseover");|)
-  #  self.wait_for_ajax
+  #  wait_for_ajax
   #  self.div(:class=>"entity_owns_actions_share has_counts ew_permissions").button(:class=>"s3d-link-button ew_permissions").click 
   #  self.class.class_eval { include ContentPermissionsPopUp }
   #end
   
   def collaboration_share
     self.div(:id=>"entity_actions").button(:text=>"Share").click
-    self.wait_until { @browser.text.include? "Who do you want to share with?" }
+    self.wait_until { self.text.include? "Who do you want to share with?" }
     self.class.class_eval { include ShareWithPopUp }
   end
   
@@ -2253,7 +2309,7 @@ class ContentDetailsPage
   # Clicks the Comments button
   def comment
     comment_button
-    self.wait_for_ajax
+    wait_for_ajax(2)
   end
   
   #
@@ -2265,15 +2321,15 @@ class ContentDetailsPage
   # Clicks the "Add to..." button
   def add_to
     add_to_button
-    self.wait_for_ajax
+    wait_for_ajax(2)
   end
   
   # Clicks "Permissions" in the menu...
   def permissions
     permissions_menu_button
-    self.wait_for_ajax
+    wait_for_ajax(2)
     permissions_button
-    self.wait_for_ajax
+    wait_for_ajax(2)
     self.class.class_eval { include ContentPermissionsPopUp }
   end
   
@@ -2296,37 +2352,37 @@ class ContentDetailsPage
   
   # Clicks on the "Add to library" button.
   def add_to_library
-    @browser.button(:text=>"Add to library").click
-    @browser.wait_until { @browser.text.include? "Save to" }
+    self.button(:text=>"Add to library").click
+    self.wait_until { self.text.include? "Save to" }
     self.class.class_eval { include SaveContentPopUp }
   end
   
   # Opens the description text field for editing.
   def edit_description
-    @browser.div(:id=>"contentmetadata_description_container").fire_event "onmouseover"
-    @browser.div(:id=>"contentmetadata_description_container").fire_event "onclick"
+    self.div(:id=>"contentmetadata_description_container").fire_event "onmouseover"
+    self.div(:id=>"contentmetadata_description_container").fire_event "onclick"
   end
   
   # Opens the tag field for editing.
   def edit_tags
-    @browser.div(:id=>"contentmetadata_tags_container").fire_event "onclick"
+    self.div(:id=>"contentmetadata_tags_container").fire_event "onclick"
   end
   
   # Opens the Copyright field for editing.
   def edit_copyright
-    @browser.div(:id=>"contentmetadata_copyright_container").fire_event "onclick"
+    self.div(:id=>"contentmetadata_copyright_container").fire_event "onclick"
   end
   
   # Opens the Categories field for editing.
   def edit_categories
-    @browser.div(:id=>"contentmetadata_locations_container").fire_event "onclick"
+    self.div(:id=>"contentmetadata_locations_container").fire_event "onclick"
     self.class.class_eval { include AddRemoveCategories }
   end
   
   # Returns an array containing the tags and categories listed on the page.
   def tags_and_categories_list
     list =[]
-    @browser.div(:id=>"contentmetadata_tags_container").links.each do |link|
+    self.div(:id=>"contentmetadata_tags_container").links.each do |link|
       list << link.text
     end
     return list
@@ -2374,10 +2430,33 @@ class CreateNewAccount
   text_field(:new_password, :id=>"password")
   text_field(:retype_password, :id=>"password_repeat")
   select_list(:role, :id=>"role")
+  select_list(:title, :id=>"title")
   text_field(:first_name,:id=>"firstName")
   text_field(:last_name,:id=>"lastName")
   text_field(:email,:id=>"email")
+  text_field(:email_confirm, :id=>"emailConfirm")
   text_field(:phone_number,:id=>"phone")
+  checkbox(:receive_tips, :id=>"emailContact")
+  checkbox(:contact_me_directly, :id=>"contactMe")
+  button(:create_account_button, :id=>"save_account")
+  
+  span(:username_error, :id=>"username_error")
+  span(:password_error, :id=>"password_error")
+  span(:password_repeat_error, :id=>"password_repeat_error")
+  span(:title_error, :id=>"title_error")
+  span(:firstname_error, :id=>"firstName_error")
+  span(:lastname_error, :id=>"lastName_error")
+  span(:email_error, :id=>"email_error")
+  span(:email_confirm_error, :id=>"emailConfirm_error")
+  span(:institution_error, :id=>"institution_error")
+  span(:role_error, :id=>"role_error")
+  
+  def create_account
+    self.create_account_button
+    sleep 1
+    wait_for_ajax(2)
+    self.class.class_eval { include OurAgreementPopUp }
+  end
 
 end
 #
@@ -2388,13 +2467,13 @@ class CreateCourses
   include LeftMenuBarCreateWorlds
   
   def use_math_template
-    @browser.div(:class=>"selecttemplate_template_large").button(:text=>"Use this template").click
+    self.div(:class=>"selecttemplate_template_large").button(:text=>"Use this template").click
     # Class goes here
   end
   
   def use_basic_template
-    @browser.div(:class=>"selecttemplate_template_small selecttemplate_template_right").button(:text=>"Use this template").click
-    @browser.wait_until { @browser.text.include? "Suggested URL:" }
+    self.div(:class=>"selecttemplate_template_small selecttemplate_template_right").button(:text=>"Use this template").click
+    self.wait_until { self.text.include? "Suggested URL:" }
     CreateGroups.new @browser
   end
   
@@ -2415,22 +2494,22 @@ class CreateGroups
   select_list(:membership, :id=>"newcreategroup_membership")
   
   def add_people
-    @browser.button(:text, "Add people").click
-    @browser.wait_for_ajax
+    self.button(:text, "Add people").click
+    wait_for_ajax(2)
     self.class.class_eval { include ManageParticipants }
   end
   
   def list_categories
-    @browser.button(:text=>"List categories").click
-    @browser.wait_for_ajax
+    self.button(:text=>"List categories").click
+    wait_for_ajax(2)
     self.class.class_eval { include AddRemoveCategories }
   end
   
   def create_basic_course
     create_thing
     unless url_error_element.visible?
-      @browser.wait_until(45) { @browser.text.include? "Add content" }
-      @browser.button(:id=>"group_create_new_area", :class=>"s3d-button s3d-header-button s3d-popout-button").wait_until_present
+      self.wait_until(45) { self.text.include? "Add content" }
+      self.button(:id=>"group_create_new_area", :class=>"s3d-button s3d-header-button s3d-popout-button").wait_until_present
       Library.new @browser
     end
   end
@@ -2442,7 +2521,7 @@ class CreateGroups
   def create_research_project
     create_thing
     unless url_error_element.visible?
-      @browser.button(:id=>"group_create_new_area", :class=>"s3d-button s3d-header-button s3d-popout-button").wait_until_present
+      self.button(:id=>"group_create_new_area", :class=>"s3d-button s3d-header-button s3d-popout-button").wait_until_present
       ResearchIntro.new @browser
     end
   end
@@ -2452,10 +2531,10 @@ class CreateGroups
   private
   
   def create_thing
-    @browser.button(:class=>"s3d-button s3d-overlay-button newcreategroup_create_simple_group").click
+    self.button(:class=>"s3d-button s3d-overlay-button newcreategroup_create_simple_group").click
     sleep 0.3
-    @browser.div(:id=>"sakai_progressindicator").wait_while_present
-    @browser.wait_for_ajax
+    self.div(:id=>"sakai_progressindicator").wait_while_present
+    wait_for_ajax(2)
   end
   
 end
@@ -2468,14 +2547,14 @@ class CreateResearch
   include LeftMenuBarCreateWorlds
   
   def use_research_project_template
-    @browser.div(:class=>"selecttemplate_template_large").button(:text=>"Use this template").click
-    @browser.wait_until { @browser.text.include? "Suggested URL:" }
+    self.div(:class=>"selecttemplate_template_large").button(:text=>"Use this template").click
+    self.wait_until { self.text.include? "Suggested URL:" }
     CreateGroups.new @browser
   end
   
   def use_research_support_group_template
-    @browser.div(:class=>"selecttemplate_template_small selecttemplate_template_right").button(:text=>"Use this template").click
-    @browser.wait_until { @browser.text.include? "Suggested URL:" }
+    self.div(:class=>"selecttemplate_template_small selecttemplate_template_right").button(:text=>"Use this template").click
+    self.wait_until { self.text.include? "Suggested URL:" }
     CreateGroups.new @browser
   end
   
@@ -2499,7 +2578,7 @@ class ExploreAll
 
   # Returns the results header title (the text prior to the count of the results returned)
   def results_header
-    top = @browser.div(:class=>"searchall_content_main")
+    top = self.div(:class=>"searchall_content_main")
     top.div(:id=>"results_header").span.text =~ /^.+(?=.\()/
     $~.to_s
   end
@@ -2519,7 +2598,7 @@ class ExploreContent
 
   # Returns the results header title (the text prior to the count of the results returned)
   def results_header
-    top = @browser.div(:class=>"searchcontent_content_main")
+    top = self.div(:class=>"searchcontent_content_main")
     top.div(:id=>"results_header").span.text =~ /^.+(?=.\()/
     $~.to_s
   end
@@ -2539,7 +2618,7 @@ class ExplorePeople
 
   # Returns the results header title (the text prior to the count of the results returned)
   def results_header
-    top = @browser.div(:class=>"searchpeople_content_main")
+    top = self.div(:class=>"searchpeople_content_main")
     top.div(:id=>"results_header").span.text =~ /^.+(?=.\()/
     $~.to_s
   end
@@ -2559,7 +2638,7 @@ class ExploreGroups
 
   # Returns the results header title (the text prior to the count of the results returned)
   def results_header
-    top = @browser.div(:id=>"searchgroups_widget", :index=>0)
+    top = self.div(:id=>"searchgroups_widget", :index=>0)
     top.div(:id=>"results_header").span(:id=>"searchgroups_type_title").text
   end
 
@@ -2578,7 +2657,7 @@ class ExploreCourses
   
   # Returns the results header title (the text prior to the count of the results returned)
   def results_header
-    top = @browser.div(:id=>"searchgroups_widget", :index=>1)
+    top = self.div(:id=>"searchgroups_widget", :index=>1)
     top.div(:id=>"results_header").span(:id=>"searchgroups_type_title").text
   end
   
@@ -2587,13 +2666,13 @@ class ExploreCourses
   end
   
   def filter_by=(selection)
-    @browser.select(:id=>"facted_select").select(selection)
-    @browser.wait_for_ajax
+    self.select(:id=>"facted_select").select(selection)
+    wait_for_ajax(2)
   end
   
   def sort_by=(selection)
-    @browser.div(:class=>"s3d-search-sort").select().select(selection)
-    @browser.wait_for_ajax
+    self.div(:class=>"s3d-search-sort").select().select(selection)
+    wait_for_ajax(2)
   end
   
 end
@@ -2605,12 +2684,13 @@ class ExploreResearch
   include GlobalMethods
   include HeaderFooterBar
   include LeftMenuBarSearch
+  include ListWidget
   include ListProjects
   include SearchBar
   
   # Returns the results header title (the text prior to the count of the results returned)
   def results_header
-    top = @browser.div(:id=>"searchgroups_widget", :index=>2)
+    top = self.div(:id=>"searchgroups_widget", :index=>2)
     top.div(:id=>"results_header").span(:id=>"searchgroups_type_title").text
   end
   
@@ -2624,37 +2704,37 @@ class MyDashboard
   include GlobalMethods
   include HeaderFooterBar
   include LeftMenuBarYou
-  include ChangePicturePopUp
+  include ChangePicturePopUp # FIXME ... Rethink including this by default
 
   # Page Objects
-  button(:edit_layout, :text=>"Edit Layout")
+  button(:edit_layout, :text=>"Edit layout")
   radio_button(:one_column, :id=>"layout-picker-onecolumn")
   radio_button(:two_column, :id=>"layout-picker-dev")
   radio_button(:three_column, :id=>"layout-picker-threecolumn")
   button(:save_layout, :id=>"select-layout-finished")
   button(:add_widgets, :text=>"Add Widget")
   image(:profile_pic, :id=>"entity_profile_picture")
+  div(:my_name, :class=>"s3d-bold entity_name_me")
+  
   #div(:page_title, :class=>"s3d-contentpage-title")
   
   # Custom Methods...
 
   # Returns the text contents of the page title div  
   def page_title
-    @browser.div(:id=>"s3d-page-container").div(:class=>"s3d-contentpage-title").text
+    self.div(:id=>"s3d-page-container").div(:class=>"s3d-contentpage-title").text
   end
   
   def add_widgets
-    @browser.button(:text=>"Add widget").click
-    @browser.wait_until { @browser.text.include? "Add widgets" }
+    self.button(:text=>"Add widget").click
+    self.wait_until { self.text.include? "Add widgets" }
     self.class.class_eval { include AddRemoveWidgets }
   end
-  
-  alias add_widget add_widgets
   
   # Returns an array object containing a list of all selected widgets.
   def displayed_widgets
     list = []
-    @browser.div(:class=>"fl-container-flex widget-content").divs(:class=>"s3d-contentpage-title").each do |div|
+    self.div(:class=>"fl-container-flex widget-content").divs(:class=>"s3d-contentpage-title").each do |div|
       list << div.text
     end
     return list
@@ -2662,20 +2742,20 @@ class MyDashboard
 
   # Returns the name of the recent membership item displayed.
   def recent_membership_item
-    @browser.div(:class=>"recentmemberships_widget").link(:class=>/recentmemberships_item_link/).text
+    self.div(:class=>"recentmemberships_widget").link(:class=>/recentmemberships_item_link/).text
   end
   
   def go_to_most_recent_membership
-    @browser.link(:class=>"recentmemberships_item_link s3d-widget-links s3d-bold").click
+    self.link(:class=>"recentmemberships_item_link s3d-widget-links s3d-bold").click
     sleep 2 # The next line sometimes throws an "unknown javascript error" without this line.
-    @browser.wait_for_ajax(10)
+    wait_for_ajax(2)
     Library.new @browser
   end
 
   # Returns an array containing all the items listed in the "My memberships" dashboard widget.
   def my_memberships_list
     list = []
-    @browser.ul(:class=>"mygroup_items_list").spans(:class=>"mygroups_ellipsis_text").each do |span|
+    self.ul(:class=>"mygroup_items_list").spans(:class=>"mygroups_ellipsis_text").each do |span|
       list << span.text
     end
     return list
@@ -2707,7 +2787,7 @@ class MyMessages
   # My messages pages.
   def compose_message
     active_div.link(:id=>"inbox_create_new_message").click
-    self.wait_for_ajax
+    wait_for_ajax(2)
     self.class.class_eval { include SendMessagePopUp }
   end
   
@@ -2723,7 +2803,7 @@ class MyMessages
   # Clicks on the specified email to open it for reading
   def open_message(subject)
     active_div.div(:class=>"inbox_subject").link(:text=>subject).click
-    self.wait_for_ajax
+    wait_for_ajax(2)
   end
 
   alias read_message open_message
@@ -2790,13 +2870,13 @@ class MyProfileBasicInfo
 
   def list_categories
     self.button(:text=>"List categories").click
-    self.wait_for_ajax
+    wait_for_ajax(2)
     self.class.class_eval { include AddRemoveCategories }
   end
 
   def update
     self.form(:id=>"displayprofilesection_form_basic").button(:text=>"Update").click
-    self.wait_for_ajax
+    wait_for_ajax(2)
     #self.wait_until { @browser.div(:id=>"gritter-notice-wrapper").exist? }
   end
 
@@ -2816,7 +2896,7 @@ class MyProfileAboutMe
   
   def update
     self.form(:id=>"displayprofilesection_form_aboutme").button(:text=>"Update").click
-    self.wait_for_ajax
+    wait_for_ajax(2)
     #self.wait_until { @browser.div(:id=>"gritter-notice-wrapper").exist? }
   end
 
@@ -2836,14 +2916,14 @@ class MyProfileOnline
   text_field(:url, :id=>/urlOnline_\d+/, :index=>-1)
   
   def update
-    @browser.form(:id=>"displayprofilesection_form_online").button(:text=>"Update").click
+    self.form(:id=>"displayprofilesection_form_online").button(:text=>"Update").click
   end
   
   # Returns a hash object, where the keys are the site names and the
   # values are the urls.
   def sites_list
     hash = {}
-    @browser.div(:id=>"profilesection_generalinfo").divs.each do |div|
+    self.div(:id=>"profilesection_generalinfo").divs.each do |div|
       if div.id=~/profilesection_section_\d{2,}/
         hash.store(div.text_field(:title=>"Site").text, div.text_field(:title=>"URL").text)
       end
@@ -2866,11 +2946,11 @@ class MyProfileContactInfo
   
   # Page Objects
   #button(:add_another, :text=>"Add another", :id=>/profilesection_add_link_\d/)
-  text_field(:institution, :name=>"college")
-  text_field(:department, :name=>"department") 
+  text_field(:institution, :name=>"college", :index=>1)
+  text_field(:department, :name=>"department", :index=>1) 
   text_field(:title_role, :name=>"role")
   text_field(:role, :name=>"role")
-  text_field(:email, :name=>"emailContact") 
+  text_field(:email, :name=>"emailContact")
   text_field(:instant_messaging, :name=>"imContact") 
   text_field(:phone, :name=>"phoneContact") 
   text_field(:mobile, :name=>"mobileContact") 
@@ -2885,7 +2965,7 @@ class MyProfileContactInfo
   
   def update
     self.form(:id=>"displayprofilesection_form_contact").button(:text=>"Update").click
-    self.wait_for_ajax
+    wait_for_ajax(2)
   end
   
   # Takes a hash object and uses it to fill out
@@ -2940,7 +3020,7 @@ class MyProfilePublications
   #
   def update
     self.form(:id=>"displayprofilesection_form_publications").button(:text=>"Update").click
-    self.wait_for_ajax
+    wait_for_ajax(2)
   end
   
   # Takes a hash object and uses it to fill
@@ -2976,8 +3056,21 @@ class MyLibrary
   include LeftMenuBarYou
 
   # Page Objects
-  div(:page_title, :class=>"s3d-contentpage-title") # I'm pretty sure this needs to be fixed.
+  div(:empty_library, :id=>"mylibrary_empty") # It's likely that this doesn't work
 
+  # Custom Methods and Page Objects...
+  
+  def page_title
+    active_div.div(:class=>"s3d-contentpage-title").text
+  end
+
+  private
+  
+  def active_div
+    id = self.div(:id=>/mylibrarycontainer/).parent.id
+    return self.div(:id=>id)
+  end
+  
 end
 
 #
@@ -2991,9 +3084,20 @@ class MyMemberships
   include LeftMenuBarYou
 
   # Page Objects
-  div(:page_title, :class=>"s3d-contentpage-title") # FIXME!
+  # none yet...
   
   # Custom methods...
+
+  def page_title
+    active_div.div(:class=>"s3d-contentpage-title").text
+  end
+
+  private
+  
+  def active_div
+    id = self.div(:id=>/mymembershipscontainer/).parent.id
+    return self.div(:id=>id)
+  end
 
 
 end
@@ -3042,7 +3146,7 @@ class MyContacts
   def accept_connection(name)
     self.li(:text=>/#{Regexp.escape(name)}/).button(:title=>"Accept connection").click
     sleep 0.8
-    self.wait_for_ajax
+    wait_for_ajax(2)
   end
   
   # Private methods...
@@ -3084,7 +3188,7 @@ class ViewPerson
   
   def accept_invitation
     accept_invitation_button
-    self.wait_for_ajax
+    wait_for_ajax(2)
   end
   
   def message
@@ -3103,7 +3207,7 @@ class ViewPerson
   def users_library
     self.link(:class=>/s3d-bold lhnavigation_toplevel lhnavigation_page_title_value/, :text=>/Library/).click
     sleep 2
-    self.wait_for_ajax
+    wait_for_ajax(2)
     self.class.class_eval { include ListWidget
                             include LibraryWidget }
   end
@@ -3116,7 +3220,7 @@ class ViewPerson
   
   # Opens the user's Contacts page to display their contacts
   def users_contacts
-    @browser.link(:class=>/s3d-bold lhnavigation_toplevel lhnavigation_page_title_value/, :text=>/Contacts/).click
+    self.link(:class=>/s3d-bold lhnavigation_toplevel lhnavigation_page_title_value/, :text=>/Contacts/).click
     self.class.class_eval { include ListWidget }
   end
   
@@ -3260,6 +3364,10 @@ class Library
   include ListWidget
   include ListContent
   
+  def empty_library_element
+    self.div(:id=>data_sakai_ref).div(:id=>"mylibrary_empty")
+  end
+  
 end
 
 # 
@@ -3293,10 +3401,9 @@ class Discussions
   
   # Clicks the "Add topic" button.
   def add_topic
-    @browser.button(:id=>"discussion_add_topic").click
-    @browser.wait_for_ajax #
+    self.button(:id=>"discussion_add_topic").click
+    wait_for_ajax(2) #
     #@browser.wait_until { @browser.h1(:class=>"discussion_topic_subject").parent.button(:text=>"Reply").present? }
-    #@browser.wait_for_ajax #
   end
   
   button(:collapse_all, :text=>"Collapse all")
@@ -3306,39 +3413,39 @@ class Discussions
   
   # Clicks the "Reply" button for the specified message.
   def reply_to(message_title)
-    @browser.h1(:class=>"discussion_topic_subject", :text=>message_title).parent.button(:text=>"Reply").click
-    @browser.wait_until { @browser.h1(:class=>"discussion_topic_subject", :text=>message_title).parent.text_field(:id=>"discussion_topic_reply_text").present? }
+    self.h1(:class=>"discussion_topic_subject", :text=>message_title).parent.button(:text=>"Reply").click
+    self.wait_until { self.h1(:class=>"discussion_topic_subject", :text=>message_title).parent.text_field(:id=>"discussion_topic_reply_text").present? }
   end
   
   # Clicks the "Quote" button for the specified message.
   def quote(message_text)
-    @browser.span(:class=>"discussion_post_message", :text=>message_text).parent.parent.button(:text=>"Quote").fire_event "onclick"
-    @browser.wait_for_ajax #
-    #@browser.wait_until { @browser.textarea(:name=>"quoted_text", :text=>message_text).present? }
+    self.span(:class=>"discussion_post_message", :text=>message_text).parent.parent.button(:text=>"Quote").fire_event "onclick"
+    wait_for_ajax(2) #
+    #self.wait_until { self.textarea(:name=>"quoted_text", :text=>message_text).present? }
   end
   
   # Clicks the "Edit" button for the specified message.
   def edit(message_text)
-    @browser.span(:class=>"discussion_post_message", :text=>message_text).parent.parent.button(:text=>"Edit").click
-    @browser.wait_until { @browser.textarea(:name=>"discussion_topic_reply_text", :text=>message_text).present? }
+    self.span(:class=>"discussion_post_message", :text=>message_text).parent.parent.button(:text=>"Edit").click
+    self.wait_until { self.textarea(:name=>"discussion_topic_reply_text", :text=>message_text).present? }
   end
   
   # Clicks the "Delete" button for a specified message.
   def delete(message_text)
-    @browser.span(:class=>"discussion_post_message", :text=>message_text).parent.parent.button(:text=>"Delete").click
+    self.span(:class=>"discussion_post_message", :text=>message_text).parent.parent.button(:text=>"Delete").click
   end
   
   button(:restore, :text=>"Restore")
 
   # Clicks the button that expands the thread to view the replies.
   def view_replies(topic_title)
-    @browser.h1(:class=>"discussion_topic_subject", :text=>topic_title).parent.button(:class=>"discussion_show_topic_replies s3d-button s3d-link-button").click
+    self.h1(:class=>"discussion_topic_subject", :text=>topic_title).parent.button(:class=>"discussion_show_topic_replies s3d-button s3d-link-button").click
     
   end
   
   # Clicks the button that collapses an expanded message thread.
   def hide_replies(topic_title)
-    @browser.h1(:class=>"discussion_topic_subject", :text=>topic_title).parent.button(:class=>"discussion_show_topic_replies s3d-button s3d-link-button").click
+    self.h1(:class=>"discussion_topic_subject", :text=>topic_title).parent.button(:class=>"discussion_show_topic_replies s3d-button s3d-link-button").click
     
   end
   
@@ -3355,36 +3462,36 @@ class Comments
   include DocButtons
   
   button(:add_comment, :text=>"Add comment")
+  button(:cancel, :id=>/comments_editComment_cancel/)
+  text_area(:comment, :id=>"comments_txtMessage")
+  text_area(:new_comment, :id=>/comments_editComment_txt_/)
+  button(:undelete, :text=>"Undelete")
   
   # Clicks the "Submit comment" button.
   def submit_comment
-    @browser.button(:text=>"Submit comment").click
-    @browser.wait_for_ajax #wait_until { @browser.text.include? "about 0 seconds ago" }
+    self.button(:text=>"Submit comment").click
+    wait_for_ajax(2) #wait_until { self.text.include? "about 0 seconds ago" }
   end
   
   # Clicks the "Edit comment" button.
   def edit_comment
-    @browser.button(:text=>"Edit comment").click
-    @browser.wait_for_ajax #wait_until { @browser.textarea(:title=>"Edit your comment").present? == false }
+    self.button(:text=>"Edit comment").click
+    wait_for_ajax(2) #wait_until { self.textarea(:title=>"Edit your comment").present? == false }
   end
-  
-  button(:cancel, :id=>/comments_editComment_cancel/)
-  text_area(:comment, :id=>"comments_txtMessage")
-  text_area(:new_comment, :id=>/comments_editComment_txt_/)
-  
+
   # Clicks the "Edit button" for the specified comment.
   def edit(comment)
-    @browser.p(:text=>comment).parent.parent.button(:text=>"Edit").click
-    @browser.wait_for_ajax #wait_until { @browser.textarea(:title=>"Edit your comment").present? }
+    comment.gsub!("\n", " ")
+    self.p(:text=>comment).parent.parent.button(:text=>"Edit").click
+    wait_for_ajax(2) #wait_until { self.textarea(:title=>"Edit your comment").present? }
   end
   
   # Deletes the specified comment.
   def delete(comment)
-    @browser.div(:text=>comment).parent.button(:text=>"Delete").click
-    @browser.wait_for_ajax #wait_until { @browser.button(:text=>"Undelete").present? }
+    comment.gsub!("\n", " ")
+    self.div(:text=>comment).parent.button(:text=>"Delete").click
+    wait_for_ajax(2) #wait_until { self.button(:text=>"Undelete").present? }
   end
-  
-  button(:undelete, :text=>"Undelete")
   
 end
 
@@ -3399,7 +3506,7 @@ class JISC
   include DocButtons
   
   def jisc_frame
-    @browser.frame(:title=>"JISC content")
+    self.frame(:title=>"JISC content")
   end
   
   in_frame(:title=>"JISC content") do |f|
@@ -3436,7 +3543,7 @@ class Tests
   include DocButtons
   
   def tests_frame
-    @browser.frame(:src=>/sakai2samigo.launch.html/)
+    self.frame(:src=>/sakai2samigo.launch.html/)
   end
   
 end
@@ -3455,7 +3562,7 @@ class Files
   # Edits the page, then opens the File Settings pop up.
   def files_settings
     widget_settings
-    @browser.text_field(:class=>"as-input").when_present { self.class.class_eval { include FilesAndDocsPopUp } }
+    self.text_field(:class=>"as-input").when_present { self.class.class_eval { include FilesAndDocsPopUp } }
   end
   
   def remove_files_widget
@@ -3479,7 +3586,7 @@ class Gadget
   include DocButtons
   
   def gadget_frame
-    @browser.frame(:id=>"ggadget_remotecontent_settings_preview_frame")
+    self.frame(:id=>"ggadget_remotecontent_settings_preview_frame")
   end
   
   
@@ -3497,7 +3604,7 @@ class Gradebook
   include DocButtons
   
   def gradebook_frame
-    @browser.frame(:src=>/sakai2gradebook.launch.html/)
+    self.frame(:src=>/sakai2gradebook.launch.html/)
   end
   
 end
@@ -3536,13 +3643,13 @@ class GoogleMaps
   # Use this for verifying the presence of any text it's supposed to
   # contain (like the specified address it's supposed to be showing).
   def map_frame
-    @browser.frame(:id, "googlemaps_iframe_map")
+    self.frame(:id, "googlemaps_iframe_map")
   end
   
   # Edits the page, then opens the Google Maps widget's Settings Dialog.
   def map_settings
     widget_settings
-    @browser.text_field(:id=>"googlemaps_input_text_location").when_present { self.class.class_eval { include GoogleMapsPopUp } }
+    self.text_field(:id=>"googlemaps_input_text_location").when_present { self.class.class_eval { include GoogleMapsPopUp } }
   end
   
   # Edits the page, then removes the widget from it.
@@ -3585,7 +3692,7 @@ class Remote
   include DocButtons
   
   def remote_frame
-    @browser.frame(:id=>"remotecontent_settings_preview_frame")
+    self.frame(:id=>"remotecontent_settings_preview_frame")
   end
   
   

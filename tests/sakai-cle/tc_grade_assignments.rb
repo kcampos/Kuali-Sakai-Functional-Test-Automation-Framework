@@ -36,7 +36,7 @@ class TestGradingAssignments < Test::Unit::TestCase
     @assignment2 = @config.directory["site1"]["assignment2"]
     @student = @config.directory['person1']['lastname'] + ", " + @config.directory['person1']['firstname']
     
-    @instructor_comments = "Aliquam in eros felis. Quisque et pharetra nisl! Nunc eget arcu quam. Integer vehicula lectus quis est ullamcorper vel condimentum lectus semper. Proin vitae justo ligula, feugiat congue orci. Duis ut sem quis mauris fermentum facilisis id et sapien. Donec eros est, eleifend sit amet molestie eget, pharetra ut orci? Sed scelerisque varius erat quis fringilla! Nam venenatis venenatis nibh, eget bibendum nulla accumsan vitae. Integer in mi augue, et ultrices lectus. Nulla facilisi. Donec gravida ullamcorper dui, et pellentesque arcu viverra in. Vivamus nisi nunc; euismod vel aliquam ac; tristique nec velit. Etiam fermentum nisl sit amet augue vulputate in mattis lacus lobortis. Pellentesque in molestie ante! Phasellus adipiscing cursus iaculis. Vivamus mattis tristique dui, nec iaculis nulla molestie non. Suspendisse potenti. Donec venenatis ultrices blandit. Duis urna tellus, convallis ac consectetur sed, ullamcorper vitae augue. Sed fringilla ligula ut turpis scelerisque ullamcorper! Aliquam erat volutpat. Nunc blandit convallis scelerisque. Cras facilisis molestie nulla. Mauris faucibus, est sed egestas pellentesque, enim quam tempus ante, et vehicula lacus massa id massa. Aliquam sodales odio eget quam laoreet quis rutrum justo consequat. Nunc sed egestas velit? Duis suscipit tempor libero sit amet volutpat. Vestibulum nibh mauris, bibendum ut sagittis a, suscipit at leo. Maecenas ullamcorper sem et sapien malesuada in cursus odio eleifend. Fusce volutpat, mauris a faucibus pretium, nibh risus posuere orci, quis congue nunc arcu sed nunc. Aenean sed odio in nisl scelerisque egestas at euismod nulla. Aliquam metus nisi, rhoncus vitae ornare at, tempus porta tellus. Donec bibendum sem non tellus cursus consectetur. Proin quis lacus nulla. Pellentesque mi tellus, condimentum eu hendrerit ut, semper ut nunc. Donec vel viverra nisi. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi ligula sapien, bibendum a imperdiet ut, dapibus at nibh. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Quisque at nisi risus. Praesent sed ultricies tellus. Nulla pretium, est in pellentesque consequat, augue odio hendrerit ipsum, eget suscipit sapien lorem adipiscing felis. Etiam auctor metus a nulla vehicula id elementum lacus laoreet. Nunc quis nibh nulla! Nullam mauris elit, pulvinar at euismod ut, sollicitudin id ante amet. Fasda."
+    @instructor_comments = random_multiline(156, 9, :string)
     @comment_string = "{{Try again please.}}"
     @grade1 = "Fail"
     @grade2 = "A-"
@@ -75,7 +75,7 @@ class TestGradingAssignments < Test::Unit::TestCase
     
     # Allow resubmission
     grade_assignment.check_allow_resubmission
-    
+
     # Add attachment
     attach = grade_assignment.add_attachments
     
@@ -133,8 +133,6 @@ class TestGradingAssignments < Test::Unit::TestCase
     
     # TEST CASE: Verify assignment 2 shows as "submitted" in the assignments list.
     assert list.status_of(@assignment2).include?("Submitted")
-    
-    
     
   end
   

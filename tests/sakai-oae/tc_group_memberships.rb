@@ -9,17 +9,19 @@
 # available for joining, and that those options work as expected.
 # 
 # Author: Abe Heward (aheward@rSmart.com)
-gem "test-unit"
-gems = ["test/unit", "watir-webdriver", "ci/reporter/rake/test_unit_loader"]
-gems.each { |gem| require gem }
-files = [ "/../../config/OAE/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-OAE/app_functions.rb", "/../../lib/sakai-OAE/page_elements.rb" ]
-files.each { |file| require File.dirname(__FILE__) + file }
 
-class TestGroupMemberships < Test::Unit::TestCase
+$: << File.expand_path(File.dirname(__FILE__) + "/../../lib/")
+["rspec", "watir-webdriver", "../../config/OAE/config.rb",
+  "utilities", "sakai-OAE/app_functions",
+  "sakai-OAE/page_elements" ].each { |item| require item }
+
+describe "Group Memberships" do
   
   include Utilities
+  
+  let(:group) { Library.new @browser }
 
-  def setup
+  before :all do
     
     # Get the test configuration data
     @config = AutoConfig.new
@@ -28,7 +30,7 @@ class TestGroupMemberships < Test::Unit::TestCase
     @ipassword = @config.directory['admin']['password']
     @user2 = @config.directory['person1']['id']
     @u2password = @config.directory['person1']['password']
-    @student_name = "Student One"
+    @student_name = "#{@config.directory['person1']['firstname']} #{@config.directory['person1']['lastname']}"
     
     @sakai = SakaiOAE.new(@browser)
     
@@ -57,13 +59,8 @@ class TestGroupMemberships < Test::Unit::TestCase
     @email_subject_prefix = "#{@student_name} has requested to join your group "
     
   end
-  
-  def teardown
-    # Close the browser window
-    @browser.close
-  end
-  
-  def test_group_memberships
+ 
+  it "Create three groups" do
     
     # Log in to Sakai
     dashboard = @sakai.login(@instructor, @ipassword)
@@ -96,7 +93,9 @@ class TestGroupMemberships < Test::Unit::TestCase
     library = new_group_info.create_group
     
     @sakai.logout
-    
+  end
+  
+  it "'Managers add' course does not show any join buttons" do
     dashboard = @sakai.login(@user2, @u2password)
     
     explore = dashboard.explore_groups
@@ -107,49 +106,59 @@ class TestGroupMemberships < Test::Unit::TestCase
     group = explore.open_group @managers_group[:title]
 
     # TEST CASE: Verify "Managers Add" Course does not show buttons to join
-    assert group.join_group_button_element.exists?
-    assert_equal false, group.join_group_button_element.visible?
-    assert_equal false, group.request_to_join_group_button_element.visible?
-    
+    group.join_group_button_element.should exist
+    group.join_group_button_element.should_not be_visible
+    group.request_to_join_group_button_element.should_not be_visible
+  end
+  
+  it "'Automatically Joinable' groups have the join button" do
     explore = group.explore_groups
     explore.search=@auto_group[:title]
     
     group = explore.open_group @auto_group[:title]
     
     # TEST CASE: Verify button (Join Group) displays for "Automatically joinable" Group
-    assert group.join_group_button_element.visible?
-    
+    group.join_group_button_element.should be_visible
+  end
+  
+  it "Joinable groups can be joined" do
     group.join_group
     sleep 0.2
     
     # TEST CASE: Verify clicking button adds user as participant
-    assert_equal @join_notification, group.notification, "#{group.notification}\ndoesn't match:\n#{@join_notification}"
+    group.notification.should == @join_notification
     
     group.close_notification
-    
+  end
+  
+  it "'Request to join' groups have a 'request' button" do
     explore = group.explore_groups
     explore.search=@request_group[:title]
     
     group = explore.open_group @request_group[:title]
     
     # TEST CASE: Verify button (Request to Join) displays for "Request" Group
-    assert group.request_to_join_group_button_element.visible?
-    
+    group.request_to_join_group_button_element.should be_visible
+  end
+  
+  it "Users can request to join a 'Request' group" do
     group.request_to_join_group
     sleep 0.2
-    
     # TEST CASE: Verify clicking button sends request to join.
-    assert_equal @request_notification, group.notification, "#{group.notification}\ndoesn't match:\n#{@request_notification}"
-    
+    group.notification.should == @request_notification
     @sakai.logout
-    
+  end
+  
+  it "'Join Request' email sent to appropriate user" do
     dashboard = @sakai.login(@instructor, @ipassword)
-    
     inbox = dashboard.my_messages
-    
     # TEST CASE: Verify Email sent to Group manager requesting to join
-    assert inbox.message_subjects.include?(@email_subject_prefix + @request_group[:title]), "'#{@email_subject_prefix + @request_group[:title]}'\nemail not found in list:\n#{inbox.message_subjects.join("\n")}"
+    inbox.message_subjects.should include(@email_subject_prefix + @request_group[:title])
+  end
 
+  after :all do
+    # Close the browser window
+    @browser.close
   end
   
 end

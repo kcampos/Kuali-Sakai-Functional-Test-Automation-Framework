@@ -3,20 +3,24 @@
 # 
 # == Synopsis
 #
-# 
+# Test adding various documents/pages to a course library
+#
+# == Prerequisites
+#
+# A user who manages at least one course.
 # 
 # Author: Abe Heward (aheward@rSmart.com)
-gem "test-unit"
-gems = ["test/unit", "watir-webdriver", "ci/reporter/rake/test_unit_loader"]
-gems.each { |gem| require gem }
-files = [ "/../../config/OAE/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-OAE/app_functions.rb", "/../../lib/sakai-OAE/page_elements.rb" ]
-files.each { |file| require File.dirname(__FILE__) + file }
 
-class TestCourseAddingPages < Test::Unit::TestCase
+$: << File.expand_path(File.dirname(__FILE__) + "/../../lib/")
+["rspec", "watir-webdriver", "../../config/OAE/config.rb",
+  "utilities", "sakai-OAE/app_functions",
+  "sakai-OAE/page_elements" ].each { |item| require item }
+
+describe "Adding Course Pages" do
   
   include Utilities
 
-  def setup
+  before :all do
     
     # Get the test configuration data
     @config = AutoConfig.new
@@ -25,7 +29,7 @@ class TestCourseAddingPages < Test::Unit::TestCase
     @ipassword = @config.directory['admin']['password']
     @user2 = @config.directory['person1']['id']
     @u2password = @config.directory['person1']['password']
-    @student_name = "Student One"
+    @student_name = "#{@config.directory['person1']['firstname']} #{@config.directory['person1']['lastname']}"
     
     @sakai = SakaiOAE.new(@browser)
     
@@ -42,14 +46,8 @@ class TestCourseAddingPages < Test::Unit::TestCase
     @doc_cancel_delete = random_string(20)
     
   end
-  
-  def teardown
-    # Close the browser window
-    @browser.close
-  end
 
-  def test_add_new_document
-    
+  it "page name appears in left menu" do
     # Log in to Sakai
     dashboard = @sakai.login(@instructor, @ipassword)
 
@@ -73,42 +71,40 @@ class TestCourseAddingPages < Test::Unit::TestCase
     library.done_add
     
     # TEST CASE: Page name appears in left-menu bar
-    assert library.areas.include? @doc1[:name]
-    
+    library.areas.should include @doc1[:name]
+  end
+  
+  it "Document appears in public search" do
     login_page = @sakai.logout
     
     # TEST CASE: Verify document appears in Recent activity list...
-    #assert login_page.recent_activity_list.include?(@doc1[:name]), "\n#{@doc1[:name]} not found in...\n\n#{login_page.recent_activity_list}\n"
+    #login_page.recent_activity_list.should include @doc1[:name]
     
     # TEST CASE: Verify document appears in Featured Content list...
-    #assert login_page.featured_content_list.include?(@doc1[:name]), "\n#{@doc1[:name]} not found in...\n\n#{login_page.featured_content_list}\n"
-    
-    #page_profile = login_page.open_page @doc1[:name]
+    #login_page.featured_content_list.should include @doc1[:name]
     
     explore = login_page.explore_content
     explore.search_for @doc1[:name]
     
     # TEST CASE: Document appears in search list of logged out user
-    assert explore.results.include? @doc1[:name]
+    explore.results.should include? @doc1[:name]
     
     content = explore.view_document @doc1[:name]
 
     # TEST CASE: Document opens for viewing
-    assert_equal @doc1[:name], content.name
+    content.name.should == @doc1[:name]
     
     # TEST CASE: Document includes expected tags
     @doc1[:tags].split(", ").each do |tag|
-      assert content.tags_and_categories_list.include?(tag), "'#{tag}' not found in \n#{content.tags_and_categories_list}"
+      content.tags_and_categories_list.should include tag
     end
     # TEST CASE: Document includes expected categories
     @doc1[:categories].each do |cat|
-      assert_not_equal([], content.tags_and_categories_list.find_all{|item| item =~ /#{Regexp.escape(cat)}/ }, "#{cat}\n\n...not in...\n\n#{content.tags_and_categories_list}")
+      content.tags_and_categories_list.find_all{|item| item =~ /#{Regexp.escape(cat)}/ }.should_not == [] 
     end
-    
   end
 
-  def test_delete_page
-    
+  it "pages can be deleted" do
     # Log in to Sakai
     dashboard = @sakai.login(@instructor, @ipassword)
 
@@ -124,25 +120,27 @@ class TestCourseAddingPages < Test::Unit::TestCase
     library.done_add
     
     # TEST CASE: Page name appears in left-menu bar
-    assert library.areas.include? @doc_delete_name
+    library.areas.should include @doc_delete_name
     
     library.delete_page @doc_delete_name
     library.delete
     
     # TEST CASE: Page is removed from Left Menu list
-    assert_equal false, library.areas.include?(@doc_delete_name)
+    library.areas.should_not include @doc_delete_name
+  end
+  
+  xit "deleted pages are removed completely from content" do
+    # These steps may not be expected behavior...
+    #library = Library.new @browser
+    #explore = library.explore_content
     
-    explore = library.explore_content
-    
-    explore.search=@doc_delete_name
+    #explore.search=@doc_delete_name
     
     # TEST CASE: Page does not appear in content search results... ???
-    #assert_equal false, explore.results_list.include?(@doc_delete_name), "#{@doc_delete_name} was deleted but found in search!"
-    
+    #explore.results_list.should_not include @doc_delete_name
   end
 
-  def test_cancel_delete_page
-    
+  it "page deletes can be canceled" do
     # Log in to Sakai
     dashboard = @sakai.login(@instructor, @ipassword)
 
@@ -163,8 +161,12 @@ class TestCourseAddingPages < Test::Unit::TestCase
     library.dont_delete
     
     # TEST CASE: Page name appears in left-menu bar
-    assert library.areas.include? @doc_cancel_delete
-    
+    library.areas.should include @doc_cancel_delete
+  end
+
+  after :all do
+    # Close the browser window
+    @browser.close
   end
 
 end

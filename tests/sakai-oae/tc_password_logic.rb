@@ -5,19 +5,24 @@
 #
 # Tests updating the user's password, including all the restrictions surrounding
 # such an update, that ensure it is done correctly and safely.
+#
+# == Prerequisites:
+#
+# An existing test user (see lines 31-32)
 # 
 # Author: Abe Heward (aheward@rSmart.com)
-gem "test-unit"
-gems = ["test/unit", "watir-webdriver", "ci/reporter/rake/test_unit_loader", "cgi" ]
-gems.each { |gem| require gem }
-files = [ "/../../config/OAE/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-OAE/app_functions.rb", "/../../lib/sakai-OAE/page_elements.rb" ]
-files.each { |file| require File.dirname(__FILE__) + file }
+$: << File.expand_path(File.dirname(__FILE__) + "/../../lib/")
+["rspec", "watir-webdriver", "../../config/OAE/config.rb",
+  "utilities", "sakai-OAE/app_functions",
+  "sakai-OAE/page_elements" ].each { |item| require item }
 
-class TestEditProfilePrivacy < Test::Unit::TestCase
+describe "Updating the user password" do
   
   include Utilities
 
-  def setup
+  let(:dashboard) { MyDashboard.new @browser }
+
+  before :all do
     
     # Get the test configuration data
     @config = AutoConfig.new
@@ -25,8 +30,8 @@ class TestEditProfilePrivacy < Test::Unit::TestCase
     @sakai = SakaiOAE.new(@browser)
     
     # Test case variables...
-    @user = @config.directory['person6']['id']
-    @password = @config.directory['person6']['password']
+    @user = @config.directory['person1']['id']
+    @password = @config.directory['person1']['password']
     
     @new_password = random_string(30)
     puts @new_password
@@ -44,26 +49,11 @@ class TestEditProfilePrivacy < Test::Unit::TestCase
     
   end
   
-  def teardown
-    # Change password back to default, if necessary...
-#=begin
-    if @changed == 1
-      @sakai.logout
-      dashboard = @sakai.login(@user, @new_password)
-      dashboard.my_account
-      dashboard.password
-      dashboard.current_password=@new_password
-      dashboard.new_password=@password
-      dashboard.retype_password=@password
-      dashboard.save_new_password
-    end  
-#=end
-    # Close the browser window
-    @browser.close
+  before :each do
+    dashboard.class.class_eval { include AccountPreferencesPopUp }
   end
-  
-  def test_edit_profile_privacy
 
+  it "Cancel prevents change to password" do
     dashboard = @sakai.login(@user, @password)
     
     dashboard.my_account
@@ -75,9 +65,10 @@ class TestEditProfilePrivacy < Test::Unit::TestCase
     
     # TEST CASE: Cancel prevents change to password
     dashboard.cancel
-    
     @sakai.logout
-
+  end
+  
+  it "rejects bad current password for change" do
     dashboard = @sakai.login(@user, @password)
     dashboard.my_account
     dashboard.password
@@ -90,8 +81,10 @@ class TestEditProfilePrivacy < Test::Unit::TestCase
     
     # TEST CASE: Notified that entered current password was not correct
     sleep 0.2 #FIXME
-    assert_equal @wrong_password_message, dashboard.notification
-    
+    dashboard.notification.should == @wrong_password_message
+  end
+  
+  it "disallows new passwords that don't match" do
     dashboard.close_notification
     
     dashboard.current_password=@password
@@ -101,24 +94,30 @@ class TestEditProfilePrivacy < Test::Unit::TestCase
     
     # TEST CASE: Warning about unequal passwords appears
     sleep 0.2
-    assert_equal @not_equal_error, dashboard.retype_password_error
-    
+    dashboard.retype_password_error.should == @not_equal_error
+  end
+  
+  it "doesn't allow blanks" do
     dashboard.retype_password=""
     dashboard.new_password=@password
     dashboard.current_password=@password
     
     # TEST CASE: Warning about blank field appears
     sleep 0.2
-    assert_equal @blank_error, dashboard.retype_password_error
-    
+    dashboard.retype_password_error.should == @blank_error
+  end
+  
+  it "disallows new password the same as old" do
     dashboard.new_password=@password
     dashboard.retype_password=@password
     dashboard.save_new_password
     
     # TEST CASE: Warning about new and old passwords appears
     sleep 0.2
-    assert_equal @new_is_old, dashboard.new_password_error
-    
+    dashboard.new_password_error.should == @new_is_old
+  end
+  
+  it "disallows passwords less than 4 chars long" do
     # new pass too short
     dashboard.new_password=@short
     dashboard.retype_password=@short
@@ -126,8 +125,10 @@ class TestEditProfilePrivacy < Test::Unit::TestCase
 
     # TEST CASE: New password too short
     sleep 0.2
-    assert_equal @too_short, dashboard.new_password_error
-    
+    dashboard.new_password_error.should == @too_short
+  end
+  
+  it "Allows change when all requirements met" do
     dashboard.new_password=@new_password
     dashboard.retype_password=@new_password
     dashboard.save_new_password
@@ -136,8 +137,10 @@ class TestEditProfilePrivacy < Test::Unit::TestCase
     
     # TEST CASE: Password successfully changed
     sleep 0.2
-    assert_equal @success, dashboard.notification
-    
+    dashboard.notification.should == @success
+  end
+  
+  it "Old password fails for logging in" do
     login_page = @sakai.logout
     login_page.sign_in_menu
     login_page.username=@user
@@ -146,13 +149,29 @@ class TestEditProfilePrivacy < Test::Unit::TestCase
     
     # TEST CASE: Log in with old password fails
     sleep 0.2
-    assert @login_error, login_page.login_error
-    
-    dashboard = @sakai.login(@user, @new_password)
-    
-    # TEST CASE: Log in with new password works
-    assert dashboard.profile_pic_element.exists?
-    
+    login_page.login_error.should == @login_error
   end
   
+  it "New password works for logging in" do
+    dashboard = @sakai.login(@user, @new_password)
+    # TEST CASE: Log in with new password works
+    dashboard.profile_pic_element.should exist
+  end
+  
+  after :all do
+    # Change password back to default, if necessary...
+    if @changed == 1
+      @sakai.logout
+      dashboard = @sakai.login(@user, @new_password)
+      dashboard.my_account
+      dashboard.password
+      dashboard.current_password=@new_password
+      dashboard.new_password=@password
+      dashboard.retype_password=@password
+      dashboard.save_new_password
+    end
+    # Close the browser window
+    @browser.close
+  end
+
 end

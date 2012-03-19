@@ -38,7 +38,7 @@ class CreateUsers < Test::Unit::TestCase
     my_workspace = MyWorkspace.new(@browser)
     
     # TEST CASE: Verify you're on the My Workspace page
-    assert my_workspace.my_workspace_information_options_element.exist?
+    assert my_workspace.my_workspace_information_options_element.exists?
     
     # Go to Users page in Sakai
     my_workspace.users
