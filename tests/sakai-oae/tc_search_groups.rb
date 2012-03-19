@@ -8,28 +8,34 @@
 # tests those permission settings by searching for each Group
 # while logged out, and while logged in as a participant and non-participant.
 # 
+# == Prerequisites:
+#
+# Three test users (see lines 30-36)
+#
 # Author: Abe Heward (aheward@rSmart.com)
-gem "test-unit"
-gems = ["test/unit", "watir-webdriver", "ci/reporter/rake/test_unit_loader"]
-gems.each { |gem| require gem }
-files = [ "/../../config/OAE/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-OAE/app_functions.rb", "/../../lib/sakai-OAE/page_elements.rb" ]
-files.each { |file| require File.dirname(__FILE__) + file }
+$: << File.expand_path(File.dirname(__FILE__) + "/../../lib/")
+["rspec", "watir-webdriver", "../../config/OAE/config.rb",
+  "utilities", "sakai-OAE/app_functions",
+  "sakai-OAE/page_elements" ].each { |item| require item }
 
-class TestGroupVisibility < Test::Unit::TestCase
+describe "Group Membership" do
   
   include Utilities
+  
+  let(:explore) { ExploreGroups.new @browser }
 
-  def setup
+  before :all do
     
     # Get the test configuration data
     @config = AutoConfig.new
     @browser = @config.browser
     @instructor = @config.directory['admin']['username']
     @ipassword = @config.directory['admin']['password']
-    @user2 = @config.directory['person1']['id']
-    @u2password = @config.directory['person1']['password']
-    @user3 = @config.directory['person2']['id']
-    @u3password = @config.directory['person2']['password']
+    @participant = @config.directory['person5']['id']
+    @participant_pw = @config.directory['person5']['password']
+    @participant_name = "#{@config.directory['person5']['firstname']} #{@config.directory['person5']['lastname']}"
+    @non_participant = @config.directory['person6']['id']
+    @non_participant_pw = @config.directory['person6']['password']
     
     @sakai = SakaiOAE.new(@browser)
     
@@ -54,18 +60,9 @@ class TestGroupVisibility < Test::Unit::TestCase
       :tags=>random_string,
       :permission=>"Participants only"
     }
-    
-    @participant_name = "Student One"
-    
   end
-  
-  def teardown
-    # Close the browser window
-    @browser.close
-  end
-  
-  def test_group_searching
-    
+
+  it "creates 3 groups with different join settings" do
     # Log in to Sakai
     dashboard = @sakai.login(@instructor, @ipassword)
 
@@ -100,65 +97,72 @@ class TestGroupVisibility < Test::Unit::TestCase
     library.add_by_search=@participant_name
     library.apply_and_save
     
-    login_page = @sakai.logout
-    
+    @sakai.logout
+  end
+  
+  it "Public Group can be found while logged out" do
+    login_page = LoginPage.new @browser
     expl_group = login_page.explore_groups
-    
     expl_group.search_for=@public_group[:title]
-    
     # TEST CASE: Public group displays while logged out
-    assert expl_group.results_list.include?(@public_group[:title]), "#{@public_group[:title]} not found in:\n\n#{expl_group.results_list.join("\n")}"
-    
-    expl_group.search_for=@logged_in_group[:title]
+    expl_group.results_list.should include @public_group[:title]
+  end
+  
+  it "Users-only Group can't be searched while logged out" do
+    explore.search_for=@logged_in_group[:title]
     
     # TEST CASE: Logged in group does not display when logged out
-    assert_equal false, expl_group.results_list.include?(@logged_in_group[:title])
-    
-    expl_group.search_for=@participant_group[:title]
+    explore.results_list.should_not include @logged_in_group[:title]
+  end
+  
+  it "Participants-only course can't be found in search while logged out" do
+    explore.search_for=@participant_group[:title]
     
     # TEST CASE: Participant Course does not display when logged out
-    assert_equal false, expl_group.results_list.include?(@participant_group[:title])
-    
-    dashboard = @sakai.login(@user2, @u2password)
+    explore.results_list.should_not include @participant_group[:title]
+  end
+  
+  it "Public Group can be found by a logged-in non-participant" do
+    dashboard = @sakai.login(@participant, @participant_pw)
     
     explore = dashboard.explore_groups
     
     explore.search_for=@public_group[:title]
     
     # TEST CASE: Public group displays when logged in
-    assert explore.results_list.include? @public_group[:title]
-    
+    explore.results_list.should include @public_group[:title]
+  end
+  
+  it "Users-only Group can be found by a logged-in, non-participant user" do
     explore.search_for=@logged_in_group[:title]
     
     # TEST CASE: Logged in group displays when logged in
-    assert explore.results_list.include? @logged_in_group[:title]
-    
+    explore.results_list.should include @logged_in_group[:title]
+  end
+  
+  it "Participants-only Group can be found by a logged-in participant user" do
     explore.search_for=@participant_group[:title]
     
     # TEST CASE: Participant group displays to participant
-    assert explore.results_list.include? @participant_group[:title]
+    explore.results_list.should include @participant_group[:title]
     
-    login_page = @sakai.logout
-    
-    dashboard = @sakai.login(@user3, @u3password)
+    @sakai.logout
+  end
+  
+  it "Participants-only Group cannot be found by a logged-in non-participant user" do
+    dashboard = @sakai.login(@non_participant, @non_participant_pw)
     
     explore = dashboard.explore_groups
-    
-    explore.search_for=@public_group[:title]
-    
-    # TEST CASE: Public group displays when logged in
-    assert explore.results_list.include? @public_group[:title]
-    
-    explore.search_for=@logged_in_group[:title]
-    
-    # TEST CASE: Logged in group displays when logged in
-    assert explore.results_list.include? @logged_in_group[:title]
     
     explore.search_for=@participant_group[:title]
     
     # TEST CASE: Participant group does not display to non-participant
-    assert_equal false, explore.results_list.include?(@participant_group[:title])
-    
+    explore.results_list.should_not include @participant_group[:title]
   end
   
+  after :all do
+    # Close the browser window
+    @browser.close
+  end
+     
 end

@@ -10,18 +10,24 @@
 # automated testing of the navigation interface happens naturally in the course of
 # the other functional test scripts.
 # 
+# == Prerequisites:
+#
+# One user (see lines 32-33)
+#
 # Author: Abe Heward (aheward@rSmart.com)
-gem "test-unit"
-gems = ["test/unit", "watir-webdriver", "ci/reporter/rake/test_unit_loader"]
-gems.each { |gem| require gem }
-files = [ "/../../config/OAE/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-OAE/app_functions.rb", "/../../lib/sakai-OAE/page_elements.rb" ]
-files.each { |file| require File.dirname(__FILE__) + file }
+$: << File.expand_path(File.dirname(__FILE__) + "/../../lib/")
+["rspec", "watir-webdriver", "../../config/OAE/config.rb",
+  "utilities", "sakai-OAE/app_functions",
+  "sakai-OAE/page_elements" ].each { |item| require item }
 
-class TestTopNavigation < Test::Unit::TestCase
+describe "Header Menu Navigation" do
   
   include Utilities
+  
+  let(:home) { LoginPage.new @browser }
+  let(:dashboard) { MyDashboard.new @browser }
 
-  def setup
+  before :all do
     
     # Get the test configuration data
     @config = AutoConfig.new
@@ -31,137 +37,189 @@ class TestTopNavigation < Test::Unit::TestCase
     
     @sakai = SakaiOAE.new(@browser)
     
-    # Test case variables...
-    
+  end
+ 
+  it "Explore menu present when logged out" do
+    home.explore_element.should be_visible
   end
   
-  def teardown
-    # Close the browser window
-    @browser.close
-  end
-
-  def test_top_navigation
-    
-    # Need to define the page object class
-    home = LoginPage.new @browser
-    
-    # TEST CASE: Explore menu present when logged out
-    assert home.explore_element.visible?
-    
+  it "Explore menu appears when hovering over Explore link" do
     home.explore_element.hover
     
-    # TEST CASE: Explore menu appears when hovering over Explore link
-    assert home.browse_all_categories_element.visible?
-    
-    # TEST CASE: Help menu present when logged out
-    assert home.help_element.visible?
-    
-    # TEST CASE: Sign-in menu present when logged out
-    assert home.sign_in_menu_element.visible?
-    
-    # TEST CASE: Search field present when logged out
-    assert home.header_search_element.visible?
-    
-    # TEST CASE: Collector button not present when logged out
-    assert_equal false, home.collector_element.visible?
-    
+    # TEST CASE: 
+    home.browse_all_categories_element.should be_visible
+  end
+  
+  it "Help menu present when logged out" do
+    # TEST CASE: 
+    home.help_element.should be_visible
+  end
+  
+  it "Sign-in menu present when logged out" do 
+    # TEST CASE: 
+    home.sign_in_menu_element.should be_visible
+  end
+  
+  it "Search field present when logged out" do 
+    # TEST CASE: 
+    home.header_search_element.should be_visible
+  end
+  
+  it "Collector button not present when logged out" do  
+    # TEST CASE: 
+    home.collector_element.should_not be_visible
+  end
+  
+  it "Username and password fields appear when hovering over Sign In" do  
     home.sign_in_menu_element.hover
     
-    # TEST CASE: Username and password fields appear when hovering over Sign In
-    assert home.username_element.visible?
-    assert home.password_element.visible?
-    
+    # TEST CASE: 
+    home.username_element.should be_visible
+    home.password_element.should be_visible
+  end
+  
+  it "'Browse all categories' takes user to 'All categories' page" do  
     categories = home.explore_all_categories
     
-    # TEST CASE: "Browse all categories" takes user to "All categories" page
-    assert_equal "All categories", categories.page_title
-    
+    # TEST CASE:
+    categories.page_title.should == "All categories"
+  end
+  
+  it "Explore => People takes user to the Search People page" do
+    categories = ExploreAll.new @browser
     people = categories.explore_people
 
-    # TEST CASE: Explore => People takes user to the Search People page
-    assert_equal "People", people.results_header
-    
+    # TEST CASE: 
+    people.results_header.should == "People"
+  end
+  
+  it "Explore => Content takes user to the Search Content page" do
+    people = ExplorePeople.new @browser
     content = people.explore_content
 
-    # TEST CASE: Explore => Content takes user to the Search Content page
-    assert_equal "Content", content.results_header
-    
+    # TEST CASE: 
+    content.results_header.should == "Content"
+  end
+  
+  it "Explore => Groups takes user to the Search Groups page" do
+    content = ExploreContent.new @browser
     groups = content.explore_groups
     
-    # TEST CASE: Explore => Groups takes user to the Search Groups page
-    assert_equal "Groups", groups.results_header
-    
+    # TEST CASE: 
+    groups.results_header.should == "Groups"
+  end
+  
+  it "Explore => Courses takes user to the Search Courses page" do
+    groups = ExploreGroups.new @browser
     courses = groups.explore_courses
     
-    # TEST CASE: Explore => Courses takes user to the Search Courses page
-    assert_equal "Courses", courses.results_header
-    
+    # TEST CASE: 
+    courses.results_header.should == "Courses"
+  end
+  
+  it "Explore => Research projects takes user to the Search Research projects page" do
+    courses = ExploreCourses.new @browser
     projects = courses.explore_research
     
-    # TEST CASE: Explore => Research projects takes user to the Search Research projects page
-    assert_equal "Research projects", projects.results_header
-    
+    # TEST CASE: 
+    projects.results_header.should == "Research projects"
+  end
+  
+  it "'See all' button visible when text entered in Header Search" do
+    projects = ExploreResearch.new @browser
     projects.header_search="*"
     sleep 1 # Need to wait for the menu to appear
     
-    # TEST CASE: The "See all" button is visible when text is entered into the Header
-    # bar's Search field
-    assert projects.see_all_element.visible?
-    
+    projects.see_all_element.should be_visible
+  end
+  
+  it "Explore menu present when logged in" do  
     # Log in to Sakai
     dashboard = @sakai.login(@instructor, @ipassword)
     
-    # TEST CASE: Explore menu present when logged in
-    assert dashboard.explore_element.visible?
-    
+    # TEST CASE: 
+    dashboard.explore_element.should be_visible
+  end
+  
+  it "Explore menu appears when logged in and hovering over Explore link" do  
     dashboard.explore_element.hover
     
-    # TEST CASE: Explore menu appears when hovering over Explore link
-    assert dashboard.browse_all_categories_element.visible?
-    
-    # TEST CASE: Help menu present when logged in
-    assert dashboard.help_element.visible?
-    
-    # TEST CASE: Search field present when logged in
-    assert dashboard.header_search_element.visible?
-    
-    # TEST CASE: Collector button present when logged in
-    assert dashboard.collector_element.visible?
-    
-    # TEST CASE: You menu present when logged in
-    assert dashboard.you_element.visible?
-    
-    # TEST CASE: Mailbox menu item present when logged in
-    assert dashboard.messages_container_button_element.visible?
-    
-    # TEST CASE: Create + Collect menu option is present when logged in
-    assert dashboard.create_collect_element.visible?
-    
+    # TEST CASE: 
+    dashboard.browse_all_categories_element.should be_visible
+  end
+  
+  it "Help menu present when logged in" do  
+    # TEST CASE: 
+    dashboard.help_element.visible?
+  end
+  
+  it "Search field present when logged in" do  
+    # TEST CASE: 
+    dashboard.header_search_element.should be_visible
+  end
+  
+  it "Collector button present when logged in" do  
+    # TEST CASE: 
+    dashboard.collector_element.should be_visible
+  end
+  
+  it "You menu present when logged in" do  
+    # TEST CASE: 
+    dashboard.you_element.visible?
+  end
+  
+  it "Mailbox menu item present when logged in" do  
+    # TEST CASE: 
+    dashboard.messages_container_button_element.should be_visible
+  end
+  
+  it "Create + Collect menu option is present when logged in" do  
+    # TEST CASE: 
+    dashboard.create_collect_element.should be_visible
+  end
+  
+  it "You => My messages takes user to the Inbox" do  
     inbox = dashboard.my_messages
     
-    # TEST CASE: You => My messages takes user to the Inbox
-    assert_equal "Inbox", inbox.page_title
-    
+    # TEST CASE: 
+    inbox.page_title.should == "INBOX"
+  end
+  
+  it "You => My profile takes user to the Basic Information page" do
+    inbox = MyMessages.new @browser
     profile = inbox.my_profile
     
-    # TEST CASE: You => My profile takes user to the Basic Information page
-    assert profile.given_name_element.visible?
-    
+    # TEST CASE: 
+    profile.given_name_element.should be_visible
+  end
+  
+  it "You => My library takes user to their library page" do
+    profile = MyProfileBasicInfo.new @browser
     library = profile.my_library
     
-    # TEST CASE: You => My library takes user to their library page
-    assert_equal "My library", library.page_title
-    
+    # TEST CASE: 
+    library.page_title.should == "My library"
+  end
+  
+  it "You => My memberships takes user to My Memberships page" do
+    library = MyLibrary.new @browser
     memberships = library.my_memberships
     
-    # TEST CASE: You => My memberships takes user to My Memberships page
-    assert_equal "My memberships", memberships.page_title
-    
+    # TEST CASE: 
+    memberships.page_title.should == "My memberships"
+  end
+  
+  it "You => My contacts takes user to My contacts page" do
+    memberships = MyMemberships.new @browser
     contacts = memberships.my_contacts
     
-    # TEST CASE: You => My contacts takes user to My contacts page
-    assert_equal "My contacts", contacts.page_title
-    
+    # TEST CASE: 
+    contacts.page_title.should == "My contacts"
   end
-
+ 
+  after :all do
+    # Close the browser window
+    @browser.close
+  end
+   
 end

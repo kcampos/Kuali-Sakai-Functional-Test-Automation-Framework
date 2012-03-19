@@ -8,28 +8,32 @@
 # tests those permission settings by searching for each Course
 # while logged out, and while logged in as a participant and non-participant.
 # 
+# == Prerequisites:
+#
+# Three test users (see lines 30-36)
+#
 # Author: Abe Heward (aheward@rSmart.com)
-gem "test-unit"
-gems = ["test/unit", "watir-webdriver", "ci/reporter/rake/test_unit_loader"]
-gems.each { |gem| require gem }
-files = [ "/../../config/OAE/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-OAE/app_functions.rb", "/../../lib/sakai-OAE/page_elements.rb" ]
-files.each { |file| require File.dirname(__FILE__) + file }
+$: << File.expand_path(File.dirname(__FILE__) + "/../../lib/")
+["rspec", "watir-webdriver", "../../config/OAE/config.rb",
+  "utilities", "sakai-OAE/app_functions",
+  "sakai-OAE/page_elements" ].each { |item| require item }
 
-class TestCourseVisibility < Test::Unit::TestCase
+describe "Course Memberships" do
   
   include Utilities
 
-  def setup
+  before :all do
     
     # Get the test configuration data
     @config = AutoConfig.new
     @browser = @config.browser
     @instructor = @config.directory['admin']['username']
     @ipassword = @config.directory['admin']['password']
-    @user2 = @config.directory['person1']['id']
-    @u2password = @config.directory['person1']['password']
-    @user3 = @config.directory['person2']['id']
-    @u3password = @config.directory['person2']['password']
+    @participant = @config.directory['person1']['id']
+    @participant_pw = @config.directory['person1']['password']
+    @participant_name = "#{@config.directory['person1']['firstname']} #{@config.directory['person1']['lastname']}"
+    @non_participant = @config.directory['person2']['id']
+    @non_participant_pw = @config.directory['person2']['password']
     
     @sakai = SakaiOAE.new(@browser)
     
@@ -55,16 +59,10 @@ class TestCourseVisibility < Test::Unit::TestCase
       :permission=>"Participants only"
     }
     
-    @participant_name = "Student One"
     
   end
-  
-  def teardown
-    # Close the browser window
-    @browser.close
-  end
-  
-  def test_course_searching
+ 
+  it "creates 3 courses with different join settings" do
     
     # Log in to Sakai
     dashboard = @sakai.login(@instructor, @ipassword)
@@ -102,66 +100,67 @@ class TestCourseVisibility < Test::Unit::TestCase
     library.manage_participants
     library.add_by_search=@participant_name
     library.apply_and_save
-    
+  end
+  
+  it "Public Course can be found while logged out" do
     login_page = @sakai.logout
-    
     expl_course = login_page.explore_courses
-    
     expl_course.search_for=@public_course[:title]
-    
     # TEST CASE: Public course displays while logged out
-    assert expl_course.results_list.include?(@public_course[:title]), "#{@public_course[:title]} not found in:\n\n#{expl_course.results_list.join("\n")}"
-    
+    expl_course.results_list.should include @public_course[:title]
+  end
+  
+  it "'Users only' course can't be seen while logged out" do
+    expl_course = ExploreCourses.new @browser
     expl_course.search_for=@logged_in_course[:title]
     
     # TEST CASE: Logged in course does not display when logged out
-    assert_equal false, expl_course.results_list.include?(@logged_in_course[:title])
-    
+    expl_course.results_list.should_not include @logged_in_course[:title]
+  end
+  
+  it "'Participants only' course can't be seen while logged out" do
+    expl_course = ExploreCourses.new @browser
     expl_course.search_for=@participant_course[:title]
     
     # TEST CASE: Participant Course does not display when logged out
-    assert_equal false, expl_course.results_list.include?(@participant_course[:title])
-    
-    dashboard = @sakai.login(@user2, @u2password)
-    
-    explore = dashboard.explore_courses
-    
-    explore.search_for=@public_course[:title]
-    
-    # TEST CASE: Public course displays when logged in
-    assert explore.results_list.include? @public_course[:title]
-    
-    explore.search_for=@logged_in_course[:title]
-    
-    # TEST CASE: Logged in course displays when logged in
-    assert explore.results_list.include? @logged_in_course[:title]
-    
-    explore.search_for=@participant_course[:title]
-    
-    # TEST CASE: Participant course displays to participant
-    assert explore.results_list.include? @participant_course[:title]
-    
-    login_page = @sakai.logout
-    
-    dashboard = @sakai.login(@user3, @u3password)
-    
-    explore = dashboard.explore_courses
-    
-    explore.search_for=@public_course[:title]
-    
-    # TEST CASE: Public course displays when logged in
-    assert explore.results_list.include? @public_course[:title]
-    
-    explore.search_for=@logged_in_course[:title]
-    
-    # TEST CASE: Logged in course displays when logged in
-    assert explore.results_list.include? @logged_in_course[:title]
-    
-    explore.search_for=@participant_course[:title]
-    
-    # TEST CASE: Participant course does not display to non-participant
-    assert_equal false, explore.results_list.include?(@participant_course[:title])
-    
+    expl_course.results_list.should_not include @participant_course[:title]
   end
   
+  it "Public course can be found while logged in" do
+    dashboard = @sakai.login(@participant, @participant_pw)
+    explore = dashboard.explore_courses
+    explore.search_for=@public_course[:title]
+    # TEST CASE: Public course displays when logged in
+    explore.results_list.should include @public_course[:title]
+  end
+  
+  it "Users-only course can be found by non-participant while logged in" do
+    explore = ExploreCourses.new @browser
+    explore.search_for=@logged_in_course[:title]
+    
+    # TEST CASE: Logged in course displays when logged in
+    explore.results_list.should include @logged_in_course[:title]
+  end
+  
+  it "Participants-only course can be found by a participant" do
+    explore = ExploreCourses.new @browser
+    explore.search_for=@participant_course[:title]
+    # TEST CASE: Participant course displays to participant
+    explore.results_list.should include @participant_course[:title]
+  end
+  
+  it "Participants-only course does not appear for a non-participant" do
+    @sakai.logout
+    dashboard = @sakai.login(@non_participant, @non_participant_pw)
+    explore = dashboard.explore_courses
+    explore.search_for=@participant_course[:title]
+    # TEST CASE: Participant course does not display to non-participant
+    explore.results_list.should_not include @participant_course[:title]
+  end
+ 
+  after :all do
+    # Close the browser window
+    @browser.close
+  end
+    
 end
