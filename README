@@ -7,11 +7,11 @@ Ruby 1.9.2
 Ruby Gems:
     Watir-Webdriver
     Page-Object
-    Ci_reporter
     
-Note that Test-Unit is required if you're going to be using any of the
-test case scripts written by rSmart. Otherwise, feel free to use any
-test framework gem you prefer.
+    
+Note that Test-Unit and ci_reporter are required if you're going to be using any of the CLE
+test case scripts written by rSmart. For OAE, Rspec is required. If you will be writing
+your own test scripts, then feel free to use any test framework gem you prefer.
 
 Description:
 
