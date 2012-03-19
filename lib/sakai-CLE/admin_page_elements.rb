@@ -1052,10 +1052,15 @@ class EditAccount
   # otherwise it instantiates the UserAccount Class.
   def update_details
     frm.button(:value=>"Update Details").click
-    if frm.div(:class=>"alertMessage").exist?
-      EditAccount.new(@browser)
-    else
+    # Need to check if the update took...
+    if frm.div(:class=>"portletBody").h3.text=="My Account Details"
+      # Apparently it did...
       UserAccount.new(@browser)
+    elsif frm.div(:class=>"portletBody").h3.text=="Account Details"
+      # We are on the edit page (or we're using the Admin account)...
+      EditAccount.new(@browser)
+    elsif frm.div(:class=>"portletBody").h3.text=="Users"
+      Users.new(@browser)
     end
   end
   
@@ -1063,6 +1068,7 @@ class EditAccount
     text_field(:first_name, :id=>"first-name", :frame=>frame)
     text_field(:last_name, :id=>"last-name", :frame=>frame)
     text_field(:email, :id=>"email", :frame=>frame)
+    text_field(:current_password, :id=>"pwcur", :frame=>frame)
     text_field(:create_new_password, :id=>"pw", :frame=>frame)
     text_field(:verify_new_password, :id=>"pw0", :frame=>frame)
   end

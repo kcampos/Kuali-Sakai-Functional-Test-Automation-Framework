@@ -10,38 +10,43 @@
 #
 # Does the same set of tests for 3 Research Support Groups, as well.
 # 
+# == Prerequisites:
+#
+# Three test users (see lines 35-41)
+#
 # Author: Abe Heward (aheward@rSmart.com)
-gem "test-unit"
-gems = ["test/unit", "watir-webdriver", "ci/reporter/rake/test_unit_loader"]
-gems.each { |gem| require gem }
-files = [ "/../../config/OAE/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-OAE/app_functions.rb", "/../../lib/sakai-OAE/page_elements.rb" ]
-files.each { |file| require File.dirname(__FILE__) + file }
+$: << File.expand_path(File.dirname(__FILE__) + "/../../lib/")
+["rspec", "watir-webdriver", "../../config/OAE/config.rb",
+  "utilities", "sakai-OAE/app_functions",
+  "sakai-OAE/page_elements" ].each { |item| require item }
 
-class TestGroupVisibility < Test::Unit::TestCase
+describe "Research Project/Group Membership" do
   
   include Utilities
 
-  def setup
-    
+  let(:explore) { ExploreResearch.new @browser }
+
+  before :all do
     # Get the test configuration data
     @config = AutoConfig.new
     @browser = @config.browser
     @instructor = @config.directory['admin']['username']
     @ipassword = @config.directory['admin']['password']
-    @user2 = @config.directory['person1']['id']
-    @u2password = @config.directory['person1']['password']
-    @user3 = @config.directory['person2']['id']
-    @u3password = @config.directory['person2']['password']
+    @participant = @config.directory['person5']['id']
+    @participant_pw = @config.directory['person5']['password']
+    @participant_name = "#{@config.directory['person5']['firstname']} #{@config.directory['person5']['lastname']}"
+    @non_participant = @config.directory['person6']['id']
+    @non_participant_pw = @config.directory['person6']['password']
     
     @sakai = SakaiOAE.new(@browser)
     
     # Test case variables...
-    @public_res1 = {
+    @public_res1 = { # Research Project
       :title=>random_alphanums, 
       :description=>random_string,
       :tags=>random_string,
       :permission=>"Public" }
-    @public_res2 = {
+    @public_res2 = { # Research Support Group
       :title=>random_alphanums, 
       :description=>random_string,
       :tags=>random_string,
@@ -66,17 +71,9 @@ class TestGroupVisibility < Test::Unit::TestCase
       :description=>random_string,
       :tags=>random_string,
       :permission=>"Participants only" }
-    @participant_name = "Student One"
-    
   end
-  
-  def teardown
-    # Close the browser window
-    @browser.close
-  end
-  
-  def test_group_searching
-    
+ 
+  it "creates 3 research projects and 3 research groups with different join settings" do
     # Log in to Sakai
     dashboard = @sakai.login(@instructor, @ipassword)
 
@@ -152,111 +149,103 @@ class TestGroupVisibility < Test::Unit::TestCase
     
     library = new_research_info.create_research_support_group
     
-    login_page = @sakai.logout
-    
-    expl_res = login_page.explore_research
-    
-    expl_res.search_for=@public_res1[:title]
-    
-    # TEST CASE: Public research project displays while logged out
-    assert expl_res.results_list.include?(@public_res1[:title]), "Public Research Project #{@public_res1[:title]} not found in search results:\n\n#{expl_res.results_list.join("\n")}"
-    
-    expl_res.search_for=@public_res2[:title]
-    
-    # TEST CASE: Public research support group displays while logged out
-    assert expl_res.results_list.include?(@public_res2[:title]), "Public Research Group #{@public_res2[:title]} not found in search results:\n\n#{expl_res.results_list.join("\n")}"
-    
-    expl_res.search_for=@logged_in_res1[:title]
-    
-    # TEST CASE: Logged in research project does not display when logged out
-    assert_equal false, expl_res.results_list.include?(@logged_in_res1[:title])
-    
-    expl_res.search_for=@logged_in_res2[:title]
-    
-    # TEST CASE: Logged in research support group does not display when logged out
-    assert_equal false, expl_res.results_list.include?(@logged_in_res2[:title])
-    
-    expl_res.search_for=@participant_res1[:title]
-    
-    # TEST CASE: Participant research project does not display when logged out
-    assert_equal false, expl_res.results_list.include?(@participant_res1[:title]) 
-    
-    expl_res.search_for=@participant_res2[:title]
-    
-    # TEST CASE: Participant research support group does not display when logged out
-    assert_equal false, expl_res.results_list.include?(@participant_res2[:title])
-    
-    dashboard = @sakai.login(@user2, @u2password)
-    
-    explore = dashboard.explore_groups
-    
-    explore.search_for=@public_res1[:title]
-    
-    p explore.results_list
-    # TEST CASE: Public research project displays when logged in
-    assert explore.results_list.include?(@public_res1[:title]), "Public Research Project #{@public_res1[:title]} not found in results list:\n\n#{explore.results_list.join("\n")}"
-    
-    explore.search_for=@public_res2[:title]
-    
-    # TEST CASE: Public research support group displays when logged in
-    assert explore.results_list.include? @public_res2[:title]
-    
-    explore.search_for=@logged_in_res1[:title]
-    
-    # TEST CASE: Logged in research project displays when logged in
-    assert explore.results_list.include? @logged_in_res1[:title]
-    
-    explore.search_for=@logged_in_res2[:title]
-    
-    # TEST CASE: Logged in research support group displays when logged in
-    assert explore.results_list.include? @logged_in_res2[:title]
-    
-    explore.search_for=@participant_res1[:title]
-    
-    # TEST CASE: Participant research project displays to participant
-    assert explore.results_list.include?(@participant_res1[:title]), "Participant Research Project #{@participant_res1[:title]} not found in search results:\n\n#{explore.results_list.join("\n")}"
-    
-    explore.search_for=@participant_res2[:title]
-    
-    # TEST CASE: Participant research project displays to participant
-    assert explore.results_list.include? @participant_res2[:title]
-    
-    login_page = @sakai.logout
-    
-    dashboard = @sakai.login(@user3, @u3password)
-    
-    explore = dashboard.explore_groups
-    
-    explore.search_for=@public_res1[:title]
-    
-    # TEST CASE: Public research project displays when logged in
-    assert explore.results_list.include? @public_res1[:title]
-    
-    explore.search_for=@public_res2[:title]
-    
-    # TEST CASE: Public research support group displays when logged in
-    assert explore.results_list.include? @public_res2[:title]
-    
-    explore.search_for=@logged_in_res1[:title]
-    
-    # TEST CASE: Logged in research project displays when logged in
-    assert explore.results_list.include? @logged_in_res1[:title]
-    
-    explore.search_for=@logged_in_res2[:title]
-    
-    # TEST CASE: Logged in research support group displays when logged in
-    assert explore.results_list.include? @logged_in_res2[:title]
-    
-    explore.search_for=@participant_res1[:title]
-    
-    # TEST CASE: Participant research project does not display to non-participant
-    assert_equal false, explore.results_list.include?(@participant_res1[:title])
-    
-    explore.search_for=@participant_res2[:title]
-    
-    # TEST CASE: Participant research support group does not display to non-participant
-    assert_equal false, explore.results_list.include?(@participant_res2[:title])
-    
+    @sakai.logout
   end
   
+  it "Public Research Project can be searched while logged out" do
+    login_page = LoginPage.new @browser
+    explore = login_page.explore_research
+    explore.search_for=@public_res1[:title]
+    # TEST CASE: Public research project displays while logged out
+    explore.results_list.should include @public_res1[:title]
+  end
+  
+  it "Public Research Group can be searched while logged out" do
+    explore.search_for=@public_res2[:title]
+    # TEST CASE: Public research support group displays while logged out
+    explore.results_list.should include @public_res2[:title]
+  end
+  
+  it "Users-only Research Project can't be searched while logged out" do
+    explore.search_for=@logged_in_res1[:title]
+    # TEST CASE: Logged in research project does not display when logged out
+    explore.results_list.should_not include @logged_in_res1[:title]
+  end
+  
+  it "Users-only Research Group can't be searched while logged out" do
+    explore.search_for=@logged_in_res2[:title]
+    # TEST CASE: Logged in research support group does not display when logged out
+    explore.results_list.should_not include @logged_in_res2[:title]
+  end
+  
+  it "Participants-only Research Project can't be searched while logged out" do
+    explore.search_for=@participant_res1[:title]
+    # TEST CASE: Participant research project does not display when logged out
+    explore.results_list.should_not include @participant_res1[:title]
+  end
+  
+  it "Participants-only Research Group can't be searched while logged out" do
+    explore.search_for=@participant_res2[:title]
+    # TEST CASE: Participant research support group does not display when logged out
+    explore.results_list.include?(@participant_res2[:title])
+  end
+  
+  it "Public Research Project can be searched by non-participant, logged-in user" do
+    dashboard = @sakai.login(@participant, @participant_pw)
+    explore = dashboard.explore_research
+    explore.search_for=@public_res1[:title]
+    # TEST CASE: Public research project displays when logged in
+    explore.results_list.should include @public_res1[:title]
+  end
+  
+  it "Public Research Group can be searched by non-participant, logged-in user" do
+    explore.search_for=@public_res2[:title]
+    # TEST CASE: Public research support group displays when logged in
+    explore.results_list.should include @public_res2[:title]
+  end
+  
+  it "Users-only Research Project can be searched while logged in" do
+    explore.search_for=@logged_in_res1[:title]
+    # TEST CASE: Logged in research project displays when logged in
+    explore.results_list.should include @logged_in_res1[:title]
+  end
+  
+  it "Users-only Research Group searchable by logged-in non-participant" do
+    explore.search_for=@logged_in_res2[:title]
+    # TEST CASE: Logged in research support group displays when logged in
+    explore.results_list.should include @logged_in_res2[:title]
+  end
+  
+  it "Participants-only Research Project searchable by participant" do
+    explore.search_for=@participant_res1[:title]
+    # TEST CASE: Participant research project displays to participant
+    explore.results_list.should include @participant_res1[:title]
+  end
+  
+  it "Participants-only Research Group searchable by participant" do
+    explore.search_for=@participant_res2[:title]
+    # TEST CASE: Participant research project displays to participant
+    explore.results_list.should include @participant_res2[:title]
+    @sakai.logout
+  end
+  
+  it "Participants-only Research Project not searchable by logged-in non-participant" do
+    dashboard = @sakai.login(@non_participant, @non_participant_pw)
+    explore = dashboard.explore_research
+    explore.search_for=@participant_res1[:title]
+    # TEST CASE: Participant research project does not display to non-participant
+    explore.results_list.should_not include @participant_res1[:title]
+  end
+  
+  it "Participants-only Research Group not searchable by logged-in non-participant" do
+    explore.search_for=@participant_res2[:title]
+    # TEST CASE: Participant research support group does not display to non-participant
+    explore.results_list.should_not include @participant_res2[:title]
+  end
+ 
+  after :all do
+    # Close the browser window
+    @browser.close
+  end
+   
 end

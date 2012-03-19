@@ -57,7 +57,7 @@ class TestCompleteAssignment < Test::Unit::TestCase
     
     # Open the first assignment
     assignment1 = assignments.open_assignment @assignment_1_title
-    
+
     # Enter in assignment text
     assignment1.assignment_text=@assignment_1_text
     
@@ -76,7 +76,7 @@ class TestCompleteAssignment < Test::Unit::TestCase
     
     # Save as draft
     confirm = preview.save_draft
-    
+
     # TEST CASE: Verify saved as a draft
     assert_equal "You have successfully saved your work but NOT submitted yet. To complete submission, you must select the Submit button.", confirm.confirmation_text
     
@@ -97,7 +97,7 @@ class TestCompleteAssignment < Test::Unit::TestCase
     
     assignments = confirm.back_to_list
     
-    submitted_date = @sakai.make_date(Time.now.utc)
+    submitted_date = @sakai.make_date(Time.now) #.utc)
     
     # TEST CASE: Verify list shows assignment submitted
     assert_equal("Submitted #{submitted_date}", assignments.status_of(@assignment_1_title))

@@ -781,5 +781,11 @@ module Watir
       return @o.for
     end
     
+    # attaches to the "summary" tag
+    def summary
+      @how = :ole_object
+      return @o.summary
+    end
+    
   end 
 end
