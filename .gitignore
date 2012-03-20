@@ -4,3 +4,4 @@ In Progress
 config.yml
 directory.yml
 tests/sakai*/test.rb
+.DS_Store
