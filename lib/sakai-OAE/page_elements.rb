@@ -1980,6 +1980,12 @@ module ListContent
     self.class.eval_class { include OwnerInfoPopUp }
   end
   
+  # Returns the mimetype text next to the Content name--the text that describes
+  # what the system thinks the content is.
+  def content_type(name)
+    self.div(:class=>"s3d-search-result-right", :text=>/#{Regexp.escape(name)}/).span(:class=>"searchcontent_result_mimetype").text
+  end
+  
   alias view_owner_info view_owner_information
   
 end
