@@ -1089,7 +1089,7 @@ module AddContentContainer
   
   # Enters the specified filename in the file field.
   def upload_file=(file_name)
-    self.file_field(:id=>"multifile_upload").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-oae/" + file_name)
+    self.file_field(:name=>"fileData").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-oae/" + file_name)
   end
   
   def done_add_collected
