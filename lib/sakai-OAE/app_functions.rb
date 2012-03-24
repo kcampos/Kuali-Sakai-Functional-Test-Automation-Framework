@@ -112,6 +112,7 @@ module PageObject
     def navigating_button(name, id, class_name=nil)
       define_method(name) { 
           self.button(:id=>id).click
+          sleep 0.2
           wait_for_ajax(2)
           sleep 0.2
           unless class_name==nil
@@ -125,7 +126,7 @@ module PageObject
     def navigating_link(name, link_text, class_name=nil)
       define_method(name) { 
         self.link(:text=>/#{Regexp.escape(link_text)}/).click
-        wait_for_ajax(2)
+        sleep 2 # wait_for_ajax keeps throwing unknown JS errors in Selenium-webdriver
         unless class_name==nil
           eval(class_name).new @browser
         end
@@ -175,7 +176,7 @@ end
 module Watir
   
   class Browser
-=begin
+#=begin
     def wait_for_ajax(timeout=5)
       end_time = ::Time.now + timeout
       while self.execute_script("return jQuery.active") > 0
@@ -184,7 +185,7 @@ module Watir
       end
       self.wait(timeout + 10)
     end
-=end
+#=end
     def back_to_top
       self.execute_script("javascript:window.scrollTo(0,0)")
     end

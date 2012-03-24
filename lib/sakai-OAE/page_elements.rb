@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# coding: UTF-8
 # 
 # == Synopsis
 # 
@@ -100,7 +101,7 @@ module GlobalMethods
   # instantiates the ViewPerson Class)
   def view_person(name)
     name_link(name).click
-    wait_for_ajax
+    self.wait_for_ajax
     ViewPerson.new @browser
   end
   
@@ -109,6 +110,15 @@ module GlobalMethods
   def close_notification
     self.notification_element.fire_event "onmouseover"
     self.div(:class=>"gritter-close").fire_event "onclick"
+  end
+
+  # This method exposes the "draggable" menu items in the left-hand
+  # menus, so that you can use Watir's <X>.drag_and_drop_on <Y> method.
+  # Note that not all matching menu items are necessarily draggable.
+  # Also useful if you just want to see if the menu item is visible
+  # on the page
+  def menu_item(name)
+    self.div(:class=>/lhnavigation(_subnav|)_item_content/, :text=>name)
   end
 
 end
@@ -565,21 +575,45 @@ module LeftMenuBarYou
   
   div(:profile_pic_arrow, :class=>"s3d-dropdown-menu-arrow entity_profile_picture_down_arrow")
   
-  link(:inbox, :text=>"Inbox")
-  link(:invitations, :text=>"Invitations")
-  link(:sent, :text=>"Sent")
-  link(:trash, :text=>"Trash")
+  link(:inbox_link, :text=>"Inbox")
+  link(:invitations_link, :text=>"Invitations")
+  link(:sent_link, :text=>"Sent")
+  link(:trash_link, :text=>"Trash")
   
   # Custom Methods
   
+  def inbox
+    self.inbox_link
+    sleep 1
+    self.wait_for_ajax
+  end
+  
+  def invitations
+    self.invitations_link
+    sleep 1
+    self.wait_for_ajax
+  end
+  
+  def sent
+    self.sent_link
+    sleep 1
+    self.wait_for_ajax
+  end
+
+  def trash
+    self.trash_link
+    sleep 1
+    self.wait_for_ajax
+  end
+  
   # The div for the "Lock icon" next to the My messages menu
   def my_messages_lock_icon
-    self.div(:text=>"My messages").div(:class=>"lhnavigation_private")
+    self.div(:text=>"My Messages").div(:class=>"lhnavigation_private")
   end
   
   # Expands and collapses the My Messages Tree
   def show_hide_my_messages_tree
-    self.div(:id=>"lhnavigation_container").link(:text=>"My messages").click
+    self.div(:id=>"lhnavigation_container").link(:text=>"My Messages").click
   end
   
   # Opens the Pop Up dialog for changing the Avatar image for the
@@ -589,6 +623,35 @@ module LeftMenuBarYou
     self.link(:id=>"changepic_container_trigger").click
     self.class.class_eval { include ChangePicturePopUp }
   end
+
+  # 
+  def unread_message_count
+    count_div = self.div(:text=>/My Messages/, :class=>"lhnavigation_item_content").div(:class=>"lhnavigation_levelcount")
+    if count_div.present?
+      count_div.text.to_i
+    else
+      0
+    end
+  end
+
+  def unread_inbox_count
+    count_div = self.div(:text=>/Inbox/, :class=>"lhnavigation_subnav_item_content").div(:class=>"lhnavigation_sublevelcount")
+    if count_div.present?
+      count_div.text.to_i
+    else
+      0
+    end
+  end
+  
+  def unread_invitations_count
+    count_div = self.div(:text=>/Invitations/, :class=>"lhnavigation_subnav_item_content").div(:class=>"lhnavigation_sublevelcount")
+    if count_div.present?
+      count_div.text.to_i
+    else
+      0
+    end
+  end
+
 
 end
 
@@ -1266,21 +1329,21 @@ module ChangePicturePopUp
   
   # Uploads the specified file name for the Avatar photo
   def upload_a_new_picture(file_name)
-    @browser.back_to_top
+    self.back_to_top
     #puts(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-oae/" + file_name)
-    pic_file_element.when_visible { @browser.file_field(:id=>"profilepicture").set("/Users/abrahamheward/Work/Kuali-Sakai-Functional-Test-Automation-Framework/data/sakai-oae/Mercury.gif") }#File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-oae/" + file_name) }
-    upload
+    self.pic_file_element.when_visible { @browser.file_field(:id=>"profilepicture").set("/Users/abrahamheward/Work/Kuali-Sakai-Functional-Test-Automation-Framework/data/sakai-oae/Mercury.gif") }#File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-oae/" + file_name) }
+    self.upload
     sleep 5 
   end
   
   # Clicks the Save button for the Change Picture Pop Up.
   def save_new_selection
-    save_element.when_visible { save }
+    self.save_element.when_visible { save }
     wait_for_ajax
   end
   
   def thumbnail_source
-    thumbnail_element.src
+    self.thumbnail_element.src
   end
   
 end
@@ -1477,14 +1540,7 @@ module ManageParticipants
     name.split("", 2).each do |letter|
       self.text_field(:id=>/addpeople/, :class=>"as-input").focus
       self.text_field(:id=>/addpeople/, :class=>"as-input").send_keys(letter)
-      #@browser.text_field(:id=>/addpeople/, :class=>"as-input").focus
       self.wait_until { self.div(:id=>/^as-results-/).visible? }
-      #next if self.li(:id=>"as-result-item-0").text=="No results found"
-      #begin
-      #  @browser.wait_until(0.4) { @browser.ul(:class=>"as-list").visible? }
-      #rescue
-      #  @browser.execute_script("$('.as-results').css({display: 'block'});")
-      #end
       if self.li(:text=>/#{Regexp.escape(name)}/, :id=>/as-result-item-\d+/).present?
         @browser.li(:text=>/#{Regexp.escape(name)}/, :id=>/as-result-item-\d+/).click
         break
@@ -1677,46 +1733,74 @@ module SendMessagePopUp
   
   include PageObject
   
+  list_item(:no_results, :class=>"as-message")
+  
+  def see_all_element
+    current_div.link(:id=>"inbox_back_to_messages")
+  end
+  
+  def see_all
+    see_all_element.click
+  end
+  
   # Removes the recipient from the To list for the email.
   def remove_recipient(name)
-    name_li(name).link(:text=>"x").click
+    name_li(name).link(:text=>"×").click
+  end
+  
+  # Returns an array containing the specified message recipients
+  def message_recipients
+    recipients = []
+    self.lis(:id=>/as-selection-/).each do |li|
+      string = li.text
+      string.gsub!("×\n","")
+      recipients << string
+    end
+    return recipients
   end
   
   # Enters the specified text string into the
   # "Send this message to" text box, then clicks
   # The matching item in the results list box.
   def send_this_message_to=(name)
-    #current_div.text_field(:id=>"sendmessage_to_autoSuggest").set name
-    #sleep 0.6
-    #self.li(:id=>"as-result-item-0").click
     name.split("", 4).each do |letter|
       current_div.text_field(:id=>"sendmessage_to_autoSuggest", :class=>"as-input").focus
       current_div.text_field(:id=>"sendmessage_to_autoSuggest", :class=>"as-input").send_keys(letter)
       self.wait_until { self.div(:id=>"as-results-sendmessage_to_autoSuggest").visible? }
-      next if self.li(:id=>"as-result-item-0").text=="No results found"
       if self.li(:text=>/#{Regexp.escape(name)}/, :id=>/as-result-item-\d+/).present?
         self.li(:text=>/#{Regexp.escape(name)}/, :id=>/as-result-item-\d+/).click
         break
       end
     end
-    
   end
   
   # Enters the specified text string into the
   # "Subject" field
+  def subject_element
+    current_div.text_field(:id=>"comp-subject")
+  end
+  
   def subject=(text)
-    current_div.text_field(:id=>"comp-subject").set text
+    subject_element.set text
   end
   
   # Enters the specified text string into the Body
   # field.
+  def body_element
+    current_div.textarea(:id=>"comp-body")
+  end
+  
   def body=(text)
-    current_div.textarea(:id=>"comp-body").set text
+    body_element.set text
   end
   
   # Clicks the "Send message" button
+  def send_message_element
+    current_div.button(:id=>"send_message")
+  end
+  
   def send_message
-    current_div.button(:id=>"send_message").click
+    send_message_element.click
     wait_for_ajax
   end
   
@@ -1774,10 +1858,21 @@ module ShareWithPopUp
   button(:cancel, :id=>"newsharecontent_cancel")
   
   def share_with=(name)
-    share_with_field=name + "\n"
-    sleep 0.6
-    wait_for_ajax
-    self.li(:id=>"as-result-item-0").click
+    #self.share_with_field=name + "\n"
+    #sleep 0.6
+    #self.wait_for_ajax
+    #self.li(:id=>"as-result-item-0").click
+    
+    name.split("", 5).each do |letter|
+      self.share_with_field_element.focus
+      self.share_with_field_element.send_keys(letter)
+      self.wait_until { self.div(:id=>/^as-results-/).visible? }
+      if self.li(:text=>/#{Regexp.escape(name)}/, :id=>/as-result-item-\d+/).present?
+        @browser.li(:text=>/#{Regexp.escape(name)}/, :id=>/as-result-item-\d+/).click
+        break
+      end
+    end
+    
   end
   
   # Gonna add the social network validations later
@@ -2255,6 +2350,7 @@ class ContentDetailsPage
   button(:permissions_button, :text=>"Permissions")
   button(:delete_button, :text=>"Delete")
   button(:add_to_button, :id=>"entity_content_save")
+  button(:share_button, :id=>"entity_content_share")
   
   span(:name, :id=>"entity_name")
   span(:type, :id=>"entity_type")
@@ -2394,6 +2490,14 @@ class ContentDetailsPage
     return list
   end
   
+  
+  # The "share" button next to the Download button.
+  def share_with_others
+    self.share_button
+    self.wait_for_ajax
+    self.class.class_eval { include ShareWithPopUp }
+  end
+  
   # Comments List Stuff
   
   #
@@ -2504,7 +2608,13 @@ class CreateGroups
     wait_for_ajax(2)
     self.class.class_eval { include ManageParticipants }
   end
-  
+
+  def add_more_people
+    self.button(:text, "Add more people").click
+    wait_for_ajax(2)
+    self.class.class_eval { include ManageParticipants }
+  end
+
   def list_categories
     self.button(:text=>"List categories").click
     wait_for_ajax(2)
@@ -2812,7 +2922,42 @@ class MyMessages
     wait_for_ajax(2)
   end
 
+  def delete_message(subject)
+    subject_div = active_div.div(:class=>"inbox_subject", :text=>subject)
+    subject_div.parent.parent.parent.link(:title=>"Delete message").click
+    self.wait_for_ajax
+  end
+  
+  def reply_to_message(subject)
+    subject_div = active_div.div(:class=>"inbox_subject", :text=>subject)
+    subject_div.parent.parent.parent.link(:title=>"Reply").click
+    self.class.class_eval { include SendMessagePopUp }
+    self.wait_for_ajax
+  end
+
   alias read_message open_message
+  
+  # Message Preview methods...
+  
+  def preview_sender(subject)
+    message_div.div(:class=>"inbox_name").button.text
+  end
+  
+  def preview_recipient(subject)
+    message_div.div(:class=>"inbox_name").span.text
+  end
+  
+  def preview_date(subject)
+    message_div.div(:class=>"inbox_date").span.text
+  end
+  
+  def preview_profile_pic(subject)
+    message_div.image(:class=>"person_icon").src
+  end
+  
+  def preview_body(subject)
+    message_div.div(:class=>"inbox_excerpt").text
+  end
   
   # The New Message page is controlled by the SendMessagePopUp module
 
@@ -2821,6 +2966,10 @@ class MyMessages
   # Returns the text of the name of the sender of the message being viewed
   def message_sender
     active_div.div(:id=>"inbox_show_message").div(:class=>"inbox_name").button(:class=>"s3d-regular-links s3d-link-button s3d-bold personinfo_trigger_click personinfo_trigger").text
+  end
+  
+  def message_recipient
+    active_div.div(:class, "inbox_name").span(:class=>"inbox_to_list").text
   end
   
   # Returns the date of the message being viewed (as a String object)
@@ -2838,6 +2987,72 @@ class MyMessages
     active_div.div(:id=>"inbox_show_message").div(:class=>"inbox_excerpt").text
   end
 
+  def delete_selected_element
+    active_div.button(:id=>"inbox_delete_selected")
+  end
+  
+  def delete_selected
+    delete_selected_element.click
+    self.wait_for_ajax
+  end
+  
+  def mark_as_read_element
+    active_div.button(:id=>"inbox_mark_as_read")
+  end
+  
+  def mark_as_read
+    mark_as_read_element.click
+    sleep 0.3
+    self.wait_for_ajax
+  end
+
+  def select_message(subject)
+    subject_div = active_div.div(:class=>"inbox_subject", :text=>subject)
+    subject_div.parent.parent.parent.checkbox.set
+  end
+
+  # Returns "read" or "unread", based on the relevant div's class setting.
+  def message_status(subject)
+    classname = self.div(:class=>/^inbox_item fl-container fl-fix/, :text=>/#{Regexp.escape(subject)}/).class_name
+    if classname =~ /unread/
+      return "unread"
+    else
+      return "read"
+    end
+  end
+
+  # Counts the number of displayed messages on the current page.
+  # Returns a hash containing counts for read and unread messages on the page.
+  # Keys in the hash are :all, :read, and :unread.
+  def message_counts
+    hash = {}
+    total = active_div.divs(:class=>"inbox_items_inner").length
+    unread = active_div.divs(:class=>/unread/).length
+    read = total - unread
+    hash.store(:total, total)
+    hash.store(:unread, unread)
+    hash.store(:read, read)
+    return hash
+  end
+
+  # Search
+  def search_field_element
+    active_div.text_field(:id=>"inbox_search_messages")
+  end
+  
+  def search_messages=(text)
+    search_field_element.set(text+"\n")
+  end
+  
+  def search_button_element
+    active_div.button(:class=>"s3d-button s3d-overlay-button s3d-search-button")
+  end
+  
+  def search_messages
+    search_button_element.click
+  end
+  
+  # Private Methods in this class
   private
   
   # determines which sub page is currently active,
@@ -2845,17 +3060,28 @@ class MyMessages
   # properly. 
   def active_div
     container_div = self.div(:id=>"s3d-page-container")
-    case
-    when container_div.div(:id=>/^id\d{8}$/, :class=>"inline_class_widget_nofloat", :index=>0).visible?
-      id = container_div.div(:id=>/^id\d{8}$/, :class=>"inline_class_widget_nofloat", :index=>0).parent.id
-    when container_div.div(:id=>/^id\d{8}$/, :class=>"inline_class_widget_nofloat", :index=>1).visible?
-      id = container_div.div(:id=>/^id\d{8}$/, :class=>"inline_class_widget_nofloat", :index=>1).parent.id
-    when container_div.div(:id=>/^id\d{8}$/, :class=>"inline_class_widget_nofloat", :index=>2).visible?
-      id = container_div.div(:id=>/^id\d{8}$/, :class=>"inline_class_widget_nofloat", :index=>2).parent.id
-    when container_div.div(:id=>/^id\d{8}$/, :class=>"inline_class_widget_nofloat",:index=>3).visible?
-      id = container_div.div(:id=>/^id\d{8}$/, :class=>"inline_class_widget_nofloat", :index=>3).parent.id
+    id = "x"
+    mail_divs = container_div.divs(:id=>"inbox_widget")
+    if mail_divs.length == 1
+      id = mail_divs[0].id
+    else
+      mail_divs.each do |div|
+        if div.visible?
+          id = div.parent.parent.parent.id
+          break
+        end
+      end
+    end
+    if id == "x"
+      puts "==========================="
+      puts "Couldn't find the visible inbox widget div, so didn't get a valid ID"
+      puts "==========================="
     end
     return self.div(:id=>id)
+  end
+  
+  def message_div
+    active_div.div(:class=>"inbox_subject",:text=>subject).parent.parent
   end
   
 end
@@ -3153,6 +3379,11 @@ class MyContacts
     self.li(:text=>/#{Regexp.escape(name)}/).button(:title=>"Accept connection").click
     sleep 0.8
     wait_for_ajax(2)
+  end
+  
+  def find_more_people
+    active_div.link(:text=>"Find more people").click
+    ExplorePeople.new @browser
   end
   
   # Private methods...

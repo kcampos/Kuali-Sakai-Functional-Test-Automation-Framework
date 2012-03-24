@@ -38,6 +38,9 @@ describe "My Contacts" do
     @user4 = @config.directory['person6']['id']
     @pass4 = @config.directory['person6']['password']
     @user4_name = "#{@config.directory['person6']['firstname']} #{@config.directory['person6']['lastname']}"
+    @user5 = @config.directory['person7']['id']
+    @pass5 = @config.directory['person7']['password']
+    @user5_name = "#{@config.directory['person7']['firstname']} #{@config.directory['person7']['lastname']}"
     
     @sakai = SakaiOAE.new(@browser)
     
@@ -57,10 +60,10 @@ describe "My Contacts" do
     search.search_for=@user3_name
     search.add_contact @user3_name
     search.invite
-    
-    my_contacts = search.my_contacts
 
-    lambda { search = my_contacts.find_and_add_people }.should_not raise_error
+    search.search_for=@user5_name
+    search.add_contact @user5_name
+    search.invite
   end
 
   it "'Add' button changes to 'invitation sent'" do
@@ -111,7 +114,7 @@ describe "My Contacts" do
     my_messages = dash.my_messages
     
     my_messages.invitations
-    
+   
     # TEST CASE: Mailbox contains a connection request from the expected user
     my_messages.message_subjects.should include @invite_subject
     
@@ -156,25 +159,31 @@ describe "My Contacts" do
   end
 
   it "Contacts can be removed" do
+    dash = @sakai.login(@user5, @pass5)
+    
+    my_contacts = dash.my_contacts
+    
+    profile = my_contacts.view_profile @user1_name
+
+    profile.accept_invitation
+    
+    @sakai.logout
+    
     dash = @sakai.login(@user1, @pass1)
     
     my_contacts = dash.my_contacts
     
     # TEST CASE: Contacts can be removed from My Contacts
-    lambda { my_contacts.remove @user2_name }.should_not raise_error
-    
+    my_contacts.remove @user5_name
     my_contacts.remove_contact
     
     # TEST CASE: Contacts list is as expected after removal
     my_contacts.contacts.should include @user4_name
-    my_contacts.contacts.should_not include @user2_name
-    
-    my_contacts.remove @user4_name
-    my_contacts.remove_contact
+    my_contacts.contacts.should_not include @user5_name
   end
   
   it "Removed user no longer sees remover in their contact list" do
-    dash = @sakai.login(@user2, @pass2)
+    dash = @sakai.login(@user5, @pass5)
     
     my_contacts = dash.my_contacts
     
