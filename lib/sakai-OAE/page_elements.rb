@@ -270,7 +270,7 @@ module HeaderFooterBar
   def sign_out
     self.link(:id=>"topnavigation_user_options_name").fire_event("onmouseover")
     self.link(:id=>"subnavigation_logout_link").click
-    wait_for_ajax
+    self.wait_for_ajax
     LoginPage.new @browser
   end
   
@@ -368,6 +368,14 @@ module HeaderBar
     self.button(:text=>"Manage participants").click
     self.wait_until { self.text.include? "My contacts and memberships" }
     self.class.class_eval { include ManageParticipants }
+  end
+  
+  # Clicks the "Join requests" item in the settings menu.
+  def join_requests
+    self.button(:id=>"entity_group_permissions").click
+    self.button(:id=>"ew_group_join_requests_link").click
+    self.wait_until { self.text.include? "Pending requests to join" }
+    self.class.class_eval { include PendingRequestsPopUp }
   end
   
   # Clicks the Permissions button in the page's header (distinct from
@@ -1592,7 +1600,7 @@ module OurAgreementPopUp
   
   def yes_I_accept
     self.yes_button
-    wait_for_ajax
+    self.wait_for_ajax
     MyDashboard.new @browser
   end
   
@@ -1621,6 +1629,40 @@ module OwnerInfoPopUp
   def view_owner_profile
     @browser.span(:id=>"personinfo_user_name").link.click
     ViewPerson.new @browser
+  end
+  
+end
+
+# The Pending Requests Pop-Up for Groups/Courses/Projects
+module PendingRequestsPopUp
+  
+  include PageObject
+  
+  # Page Objects
+  button(:done_button, :text=>"Done")
+  
+  
+  # Custom Methods...
+  
+  # Clicks the "Add as a member" link for the
+  # specified user.
+  def add_as_member(name)
+    self.div(:class=>"fl-force-left joinrequests_details",:text=>/#{Regexp.escape(name)}/).button(:text=>"Add as a member").click
+    self.wait_for_ajax(3)
+  end
+  
+  alias add_as_a_member add_as_member
+  
+  # Clicks the "ignore" button for the specified
+  # user
+  def ignore(name)
+    self.div(:class=>"fl-force-left joinrequests_details",:text=>/#{Regexp.escape(name)}/).button(:text=>"Ignore").click
+    self.wait_for_ajax(3)
+  end
+  
+  def done
+    self.done_button
+    self.wait_for_ajax(3)
   end
   
 end
@@ -1774,12 +1816,12 @@ module SendMessagePopUp
     end
   end
   
-  # Enters the specified text string into the
-  # "Subject" field
   def subject_element
     current_div.text_field(:id=>"comp-subject")
   end
   
+  # Enters the specified text string into the
+  # "Subject" field
   def subject=(text)
     subject_element.set text
   end
@@ -1809,6 +1851,18 @@ module SendMessagePopUp
     current_div.button(:id=>"send_message_cancel").click
     wait_for_ajax
   end
+  
+  # Clicks the link for accepting a join request inside a Manager's join
+  # request email
+  def accept_join_request
+    self.link(:text=>/=joinrequests/).click
+    # currently this opens a page in a new tab.
+    # UGLY!!!
+    # FIXME
+  end
+  
+  # Private Methods
+  private
   
   def current_div
     begin 
@@ -2563,9 +2617,10 @@ class CreateNewAccount
   
   def create_account
     self.create_account_button
-    sleep 1
-    wait_for_ajax(2)
-    self.class.class_eval { include OurAgreementPopUp }
+    sleep 7
+    wait_for_ajax(5)
+    MyDashboard.new @browser
+    #self.class.class_eval { include OurAgreementPopUp }
   end
 
 end
@@ -2920,6 +2975,7 @@ class MyMessages
   def open_message(subject)
     active_div.div(:class=>"inbox_subject").link(:text=>subject).click
     wait_for_ajax(2)
+    self.class.class_eval { include SendMessagePopUp }
   end
 
   def delete_message(subject)
@@ -2931,8 +2987,8 @@ class MyMessages
   def reply_to_message(subject)
     subject_div = active_div.div(:class=>"inbox_subject", :text=>subject)
     subject_div.parent.parent.parent.link(:title=>"Reply").click
-    self.class.class_eval { include SendMessagePopUp }
     self.wait_for_ajax
+    self.class.class_eval { include SendMessagePopUp }
   end
 
   alias read_message open_message
@@ -2940,23 +2996,23 @@ class MyMessages
   # Message Preview methods...
   
   def preview_sender(subject)
-    message_div.div(:class=>"inbox_name").button.text
+    message_div(subject).div(:class=>"inbox_name").button.text
   end
   
   def preview_recipient(subject)
-    message_div.div(:class=>"inbox_name").span.text
+    message_div(subject).div(:class=>"inbox_name").span.text
   end
   
   def preview_date(subject)
-    message_div.div(:class=>"inbox_date").span.text
+    message_div(subject).div(:class=>"inbox_date").span.text
   end
   
   def preview_profile_pic(subject)
-    message_div.image(:class=>"person_icon").src
+    message_div(subject).image(:class=>"person_icon").src
   end
   
   def preview_body(subject)
-    message_div.div(:class=>"inbox_excerpt").text
+    message_div(subject).div(:class=>"inbox_excerpt").text
   end
   
   # The New Message page is controlled by the SendMessagePopUp module
@@ -3042,6 +3098,8 @@ class MyMessages
   
   def search_messages=(text)
     search_field_element.set(text+"\n")
+    self.wait_for_ajax
+    sleep 0.3
   end
   
   def search_button_element
@@ -3050,6 +3108,7 @@ class MyMessages
   
   def search_messages
     search_button_element.click
+    self.wait_for_ajax
   end
   
   # Private Methods in this class
@@ -3080,7 +3139,7 @@ class MyMessages
     return self.div(:id=>id)
   end
   
-  def message_div
+  def message_div(subject)
     active_div.div(:class=>"inbox_subject",:text=>subject).parent.parent
   end
   
