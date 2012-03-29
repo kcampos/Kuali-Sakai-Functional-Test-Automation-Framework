@@ -380,6 +380,7 @@ module ToolsMenu
   # the Sites class.
   def sites
     @browser.link(:class=>"icon-sakai-sites").click
+    frm.text_field(:id=>"search_site").wait_until_present
     Sites.new(@browser)
   end
   

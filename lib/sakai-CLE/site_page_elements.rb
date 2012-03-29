@@ -521,7 +521,7 @@ class MultipleChoice
   include ToolsMenu
   include QuestionHelpers
 
-  in_frame(:index=>1) do |frame|
+  in_frame(:class=>"portletMainIframe") do |frame|
     button(:cancel, :value=>"Cancel", :frame=>frame)
     text_field(:answer_point_value, :id=>"itemForm:answerptr", :frame=>frame)
     link(:whats_this, :text=>"(What's This?)", :frame=>frame)
@@ -535,16 +535,16 @@ class MultipleChoice
     link(:reset_to_default, :text=>"Reset to Default Grading Logic", :frame=>frame)
     radio_button(:multi_single) {|page| page.radio_button_element(:name=>"itemForm:chooseAnswerTypeForMC", :index=>1, :frame=>frame) }
     radio_button(:multi_multi) {|page| page.radio_button_element(:name=>"itemForm:chooseAnswerTypeForMC", :index=>2, :frame=>frame) }
-    text_area(:question_text, :id=>"itemForm:_id81_textinput", :frame=>frame)
-    button(:add_attachments, :name=>"itemForm:_id125", :frame=>frame)
+    text_area(:question_text, :id=>"itemForm:_id82_textinput", :frame=>frame)
+    button(:add_attachments, :name=>"itemForm:_id126", :frame=>frame)
     
-    text_area(:answer_a, :id=>"itemForm:mcchoices:0:_id139_textinput", :frame=>frame)
+    text_area(:answer_a, :id=>"itemForm:mcchoices:0:_id140_textinput", :frame=>frame)
     link(:remove_a, :id=>"itemForm:mcchoices:0:removelinkSingle", :frame=>frame)
-    text_area(:answer_b, :id=>"itemForm:mcchoices:1:_id139_textinput", :frame=>frame)
+    text_area(:answer_b, :id=>"itemForm:mcchoices:1:_id140_textinput", :frame=>frame)
     link(:remove_b, :id=>"itemForm:mcchoices:1:removelinkSingle", :frame=>frame)
-    text_area(:answer_c, :id=>"itemForm:mcchoices:2:_id139_textinput", :frame=>frame)
+    text_area(:answer_c, :id=>"itemForm:mcchoices:2:_id140_textinput", :frame=>frame)
     link(:remove_c, :id=>"itemForm:mcchoices:2:removelinkSingle", :frame=>frame)
-    text_area(:answer_d, :id=>"itemForm:mcchoices:3:_id139_textinput", :frame=>frame)
+    text_area(:answer_d, :id=>"itemForm:mcchoices:3:_id140_textinput", :frame=>frame)
     link(:remove_d, :id=>"itemForm:mcchoices:3:removelinkSingle", :frame=>frame)
     
     # Radio buttons that appear when "single correct" is selected
@@ -568,14 +568,14 @@ class MultipleChoice
     checkbox(:d_correct, :name=>"itemForm:mcchoices:3:mccheckboxes", :frame=>frame)
     
     select_list(:insert_additional_answers, :id=>"itemForm:insertAdditionalAnswerSelectMenu", :frame=>frame)
-    radio_button(:randomize_answers_yes) {|page| page.radio_button_element(:index=>0, :name=>"itemForm:_id161", :frame=>frame) }
-    radio_button(:randomize_answers_no) {|page| page.radio_button_element(:index=>1, :name=>"itemForm:_id161", :frame=>frame) }
-    radio_button(:require_rationale_yes) {|page| page.radio_button_element(:index=>0, :name=>"itemForm:_id165", :frame=>frame) }
-    radio_button(:require_rationale_no) {|page| page.radio_button_element(:index=>1, :name=>"itemForm:_id165", :frame=>frame) }
+    radio_button(:randomize_answers_yes) {|page| page.radio_button_element(:index=>0, :name=>"itemForm:_id162", :frame=>frame) }
+    radio_button(:randomize_answers_no) {|page| page.radio_button_element(:index=>1, :name=>"itemForm:_id162", :frame=>frame) }
+    radio_button(:require_rationale_yes) {|page| page.radio_button_element(:index=>0, :name=>"itemForm:_id166", :frame=>frame) }
+    radio_button(:require_rationale_no) {|page| page.radio_button_element(:index=>1, :name=>"itemForm:_id166", :frame=>frame) }
     select_list(:assign_to_part, :id=>"itemForm:assignToPart", :frame=>frame)
     select_list(:assign_to_pool, :id=>"itemForm:assignToPool", :frame=>frame)
-    text_area(:feedback_for_correct, :id=>"itemForm:_id185_textinput", :frame=>frame)
-    text_area(:feedback_for_incorrect, :id=>"itemForm:_id189_textinput", :frame=>frame)
+    text_area(:feedback_for_correct, :id=>"itemForm:_id186_textinput", :frame=>frame)
+    text_area(:feedback_for_incorrect, :id=>"itemForm:_id190_textinput", :frame=>frame)
     
   end
   
@@ -589,9 +589,9 @@ class Survey
   include QuestionHelpers
   
   in_frame(:index=>1) do |frame|
-    button(:cancel, :id=>"itemForm:_id62", :frame=>frame)
-    text_area(:question_text, :id=>"itemForm:_id68_textinput", :frame=>frame)
-    button(:add_attachments, :id=>"itemForm:_id112", :frame=>frame)
+    button(:cancel, :id=>"itemForm:_id63", :frame=>frame)
+    text_area(:question_text, :id=>"itemForm:_id69_textinput", :frame=>frame)
+    button(:add_attachments, :id=>"itemForm:_id113", :frame=>frame)
     radio_button(:yes_no) { |page| page.radio_button_element(:index=>0, :name=>"itemForm:selectscale", :frame=>frame) }
     radio_button(:disagree_agree) {|page| page.radio_button_element(:index=>1, :name=>"itemForm:selectscale", :frame=>frame) }
     radio_button(:disagree_undecided) {|page| page.radio_button_element(:index=>2, :name=>"itemForm:selectscale", :frame=>frame) }
@@ -600,7 +600,7 @@ class Survey
     radio_button(:unacceptable_excellent) {|page| page.radio_button_element(:index=>5, :name=>"itemForm:selectscale", :frame=>frame)}
     radio_button(:one_to_five) {|page| page.radio_button_element(:index=>6, :name=>"itemForm:selectscale", :frame=>frame)}
     radio_button(:one_to_ten) {|page| page.radio_button_element(:index=>7, :name=>"itemForm:selectscale", :frame=>frame)}
-    text_area(:feedback, :id=>"itemForm:_id139_textinput", :frame=>frame)
+    text_area(:feedback, :id=>"itemForm:_id140_textinput", :frame=>frame)
     select_list(:assign_to_part, :id=>"itemForm:assignToPart", :frame=>frame)
     select_list(:assign_to_pool, :id=>"itemForm:assignToPool", :frame=>frame)
     
@@ -616,12 +616,12 @@ class ShortAnswer
   include QuestionHelpers
   
   in_frame(:index=>1) do |frame|
-    button(:cancel, :id=>"itemForm:_id62", :frame=>frame)
+    button(:cancel, :id=>"itemForm:_id63", :frame=>frame)
     text_field(:answer_point_value, :id=>"itemForm:answerptr", :frame=>frame)
-    text_area(:question_text, :id=>"itemForm:_id68_textinput", :frame=>frame)
-    button(:add_attachments, :id=>"itemForm:_id112", :frame=>frame)
-    text_area(:model_short_answer, :id=>"itemForm:_id128_textinput", :frame=>frame)
-    text_area(:feedback, :id=>"itemForm:_id132_textinput", :frame=>frame)
+    text_area(:question_text, :id=>"itemForm:_id69_textinput", :frame=>frame)
+    button(:add_attachments, :id=>"itemForm:_id113", :frame=>frame)
+    text_area(:model_short_answer, :id=>"itemForm:_id129_textinput", :frame=>frame)
+    text_area(:feedback, :id=>"itemForm:_id133_textinput", :frame=>frame)
     select_list(:assign_to_part, :id=>"itemForm:assignToPart", :frame=>frame)
     select_list(:assign_to_pool, :id=>"itemForm:assignToPool", :frame=>frame)
     
@@ -637,12 +637,12 @@ class FillInBlank
   include QuestionHelpers
   
   in_frame(:index=>1) do |frame|
-    button(:cancel, :id=>"itemForm:_id62", :frame=>frame)
+    button(:cancel, :id=>"itemForm:_id63", :frame=>frame)
     text_field(:answer_point_value, :id=>"itemForm:answerptr", :frame=>frame)
-    text_area(:question_text, :id=>"itemForm:_id74_textinput", :frame=>frame)
-    checkbox(:case_sensitive, :name=>"itemForm:_id75", :frame=>frame)
-    checkbox(:mutually_exclusive, :name=>"itemForm:_id77", :frame=>frame)
-    button(:add_attachments, :id=>"itemForm:_id125", :frame=>frame)
+    text_area(:question_text, :id=>"itemForm:_id75_textinput", :frame=>frame)
+    checkbox(:case_sensitive, :name=>"itemForm:_id76", :frame=>frame)
+    checkbox(:mutually_exclusive, :name=>"itemForm:_id78", :frame=>frame)
+    button(:add_attachments, :id=>"itemForm:_id126", :frame=>frame)
     select_list(:assign_to_part, :id=>"itemForm:assignToPart", :frame=>frame)
     select_list(:assign_to_pool, :id=>"itemForm:assignToPool", :frame=>frame)
     
@@ -658,12 +658,12 @@ class NumericResponse
   include QuestionHelpers
   
   in_frame(:index=>1) do |frame|
-    button(:cancel, :id=>"itemForm:_id62", :frame=>frame)
+    button(:cancel, :id=>"itemForm:_id63", :frame=>frame)
     text_field(:answer_point_value, :id=>"itemForm:answerptr", :frame=>frame)
-    text_area(:question_text, :id=>"itemForm:_id72_textinput", :frame=>frame)
-    button(:add_attachments, :id=>"itemForm:_id116", :frame=>frame)
-    text_area(:feedback_for_correct, :id=>"itemForm:_id132_textinput", :frame=>frame)
-    text_area(:feedback_for_incorrect, :id=>"itemForm:_id134_textinput", :frame=>frame)
+    text_area(:question_text, :id=>"itemForm:_id73_textinput", :frame=>frame)
+    button(:add_attachments, :id=>"itemForm:_id117", :frame=>frame)
+    text_area(:feedback_for_correct, :id=>"itemForm:_id133_textinput", :frame=>frame)
+    text_area(:feedback_for_incorrect, :id=>"itemForm:_id135_textinput", :frame=>frame)
     select_list(:assign_to_part, :id=>"itemForm:assignToPart", :frame=>frame)
     select_list(:assign_to_pool, :id=>"itemForm:assignToPool", :frame=>frame)
     
@@ -679,15 +679,15 @@ class Matching
   include QuestionHelpers
   
   in_frame(:index=>1) do |frame|
-    button(:cancel, :id=>"itemForm:_id62", :frame=>frame)
+    button(:cancel, :id=>"itemForm:_id63", :frame=>frame)
     text_field(:answer_point_value, :id=>"itemForm:answerptr", :frame=>frame)
-    text_area(:question_text, :id=>"itemForm:_id76_textinput", :frame=>frame)
-    button(:add_attachments, :id=>"itemForm:_id120", :frame=>frame)
-    text_area(:choice, :id=>"itemForm:_id145_textinput", :frame=>frame)
-    text_area(:match, :id=>"itemForm:_id148_textinput", :frame=>frame)
-    button(:save_pairing, :name=>"itemForm:_id161", :frame=>frame)
-    text_area(:feedback_for_correct, :id=>"itemForm:_id181_textinput", :frame=>frame)
-    text_area(:feedback_for_incorrect, :id=>"itemForm:_id186_textinput", :frame=>frame)
+    text_area(:question_text, :id=>"itemForm:_id78_textinput", :frame=>frame)
+    button(:add_attachments, :id=>"itemForm:_id122", :frame=>frame)
+    text_area(:choice, :id=>"itemForm:_id147_textinput", :frame=>frame)
+    text_area(:match, :id=>"itemForm:_id151_textinput", :frame=>frame)
+    button(:save_pairing, :name=>"itemForm:_id164", :frame=>frame)
+    text_area(:feedback_for_correct, :id=>"itemForm:_id184_textinput", :frame=>frame)
+    text_area(:feedback_for_incorrect, :id=>"itemForm:_id189_textinput", :frame=>frame)
     select_list(:assign_to_part, :id=>"itemForm:assignToPart", :frame=>frame)
     select_list(:assign_to_pool, :id=>"itemForm:assignToPool", :frame=>frame)
     
@@ -703,17 +703,17 @@ class TrueFalse
   include QuestionHelpers
   
   in_frame(:index=>1) do |frame|
-    button(:cancel, :id=>"itemForm:_id62", :frame=>frame)
+    button(:cancel, :id=>"itemForm:_id63", :frame=>frame)
     text_field(:answer_point_value, :id=>"itemForm:answerptr", :frame=>frame)
-    text_area(:question_text, :id=>"itemForm:_id76_textinput", :frame=>frame)
-    button(:add_attachments, :id=>"itemForm:_id120", :frame=>frame)
+    text_area(:question_text, :id=>"itemForm:_id77_textinput", :frame=>frame)
+    button(:add_attachments, :id=>"itemForm:_id121", :frame=>frame)
     text_field(:negative_point_value, :id=>"itemForm:answerdsc", :frame=>frame)
     radio_button(:answer_true) {|page| page.radio_button_element(:index=>0, :name=>"itemForm:TF", :frame=>frame)}
     radio_button(:answer_false) {|page| page.radio_button_element(:index=>1, :name=>"itemForm:TF", :frame=>frame)}
     radio_button(:required_rationale_yes) {|page| page.radio_button_element(:index=>0, :name=>"itemForm:rational", :frame=>frame)}
     radio_button(:required_rationale_no) {|page| page.radio_button_element(:index=>1, :name=>"itemForm:rational", :frame=>frame)}
-    text_area(:feedback_for_correct, :id=>"itemForm:_id147_textinput", :frame=>frame)
-    text_area(:feedback_for_incorrect, :id=>"itemForm:_id151_textinput", :frame=>frame)
+    text_area(:feedback_for_correct, :id=>"itemForm:_id148_textinput", :frame=>frame)
+    text_area(:feedback_for_incorrect, :id=>"itemForm:_id152_textinput", :frame=>frame)
     select_list(:assign_to_part, :id=>"itemForm:assignToPart", :frame=>frame)
     select_list(:assign_to_pool, :id=>"itemForm:assignToPool", :frame=>frame)
     
@@ -729,13 +729,13 @@ class AudioRecording
   include QuestionHelpers
   
   in_frame(:index=>1) do |frame|
-    button(:cancel, :id=>"itemForm:_id62", :frame=>frame)
+    button(:cancel, :id=>"itemForm:_id63", :frame=>frame)
     text_field(:answer_point_value, :id=>"itemForm:answerptr", :frame=>frame)
-    text_area(:question_text, :id=>"itemForm:_id68_textinput", :frame=>frame)
-    button(:add_attachments, :id=>"itemForm:_id112", :frame=>frame)
+    text_area(:question_text, :id=>"itemForm:_id69_textinput", :frame=>frame)
+    button(:add_attachments, :id=>"itemForm:_id113", :frame=>frame)
     text_field(:time_allowed, :id=>"itemForm:timeallowed", :frame=>frame)
     select_list(:number_of_attempts, :id=>"itemForm:noattempts", :frame=>frame)
-    text_field(:feedback, :id=>"itemForm:_id145_textinput", :frame=>frame)
+    text_field(:feedback, :id=>"itemForm:_id146_textinput", :frame=>frame)
     select_list(:assign_to_part, :id=>"itemForm:assignToPart", :frame=>frame)
     select_list(:assign_to_pool, :id=>"itemForm:assignToPool", :frame=>frame)
     
@@ -752,11 +752,11 @@ class FileUpload
   include QuestionHelpers
   
   in_frame(:index=>1) do |frame|
-    button(:cancel, :id=>"itemForm:_id62", :frame=>frame)
+    button(:cancel, :id=>"itemForm:_id63", :frame=>frame)
     text_field(:answer_point_value, :id=>"itemForm:answerptr", :frame=>frame)
-    text_area(:question_text, :id=>"itemForm:_id68_textinput", :frame=>frame)
-    button(:add_attachments, :id=>"itemForm:_id112", :frame=>frame)
-    text_field(:feedback, :id=>"itemForm:_id129_textinput", :frame=>frame)
+    text_area(:question_text, :id=>"itemForm:_id69_textinput", :frame=>frame)
+    button(:add_attachments, :id=>"itemForm:_id113", :frame=>frame)
+    text_field(:feedback, :id=>"itemForm:_id130_textinput", :frame=>frame)
     select_list(:assign_to_part, :id=>"itemForm:assignToPart", :frame=>frame)
     select_list(:assign_to_pool, :id=>"itemForm:assignToPool", :frame=>frame)
     
@@ -4755,6 +4755,8 @@ class ComposeMessage
   end
   
   def message_text=(text)
+    frm.frame(:id, "compose:pvt_message_body_inputRichText___Frame").td(:id, "xEditingArea").wait_until_present
+    sleep 0.3
     frm.frame(:id, "compose:pvt_message_body_inputRichText___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(text)
   end
 

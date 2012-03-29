@@ -42,12 +42,7 @@ class TestSyllabusPages < Test::Unit::TestCase
   end
   
   def test_syllabus
-    
-    # some code to simplify writing steps in this test case
-    def frm
-      @browser.frame(:index=>1)
-    end
-    
+
     # Log in to Sakai
     workspace = @sakai.login(@instructor, @ipassword)
     
@@ -60,6 +55,7 @@ class TestSyllabusPages < Test::Unit::TestCase
     new_syllabus = syllabus_edit.add
     
     new_syllabus.title=@title
+    sleep 2
     new_syllabus.content=@content
     
     attach = new_syllabus.add_attachments

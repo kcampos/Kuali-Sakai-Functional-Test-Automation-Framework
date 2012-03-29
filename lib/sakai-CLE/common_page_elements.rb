@@ -1103,7 +1103,9 @@ class MyWorkspace
   # the Calendar
   def calendar_events
     events = []
-    @browser.frame(:class=>"portletMainIframe", :index=>2).table(:id=>"calendarForm:datalist_event_list").rows.each do |row|
+    table = @browser.frame(:class=>"portletMainIframe", :index=>2).table(:id=>"calendarForm:datalist_event_list")
+    table.wait_until_present
+    table.rows.each do |row|
       events << row.link.text
     end
     return events
@@ -1443,11 +1445,13 @@ class Groups
   # Clicks the Create New Group link and
   # instantiates the CreateNewGroup Class.
   def create_new_group
-    frm.link(:text=>"Create New Group").click
+    create_new_group_link_element.wait_until_present
+    create_new_group_link
     CreateNewGroup.new(@browser)
   end
   
   in_frame(:class=>"portletMainIframe") do |frame|
+    link(:create_new_group_link, :text=>"Create New Group", :frame=>frame)
     link(:auto_groups, :text=>"Auto Groups", :frame=>frame)
     button(:remove_checked, :id=>"delete-groups", :frame=>frame)
     button(:cancel, :id=>"cancel", :frame=>frame)

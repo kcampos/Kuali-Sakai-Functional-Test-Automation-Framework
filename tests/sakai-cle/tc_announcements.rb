@@ -49,7 +49,7 @@ class TestAnnouncements < Test::Unit::TestCase
     @group1 = config.directory["site1"]["group0"]
     @group2 = config.directory["site1"]["group1"]
     
-    @portfolio_site = "PortfolioAdmin"
+    @portfolio_site = config.directory["site2"]["name"]
     
     # Validation text -- These contain page content that will be used for
     # test asserts.
@@ -166,10 +166,10 @@ class TestAnnouncements < Test::Unit::TestCase
     login_page = Login.new(@browser)
     
     site_search = login_page.search_public_courses_and_projects
-    site_search.search_for=@site_name
+    site_search.search_for=@site_name[0..3]
     
     results = site_search.search_for_sites
-    
+
     summary_page = results.click_site @site_name
     
     # TEST CASE: Verify public announcement appears
