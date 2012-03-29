@@ -22,11 +22,11 @@ class SakaiOAE
     @browser.text_field(:id=>"topnavigation_user_options_login_fields_username").set username
     @browser.text_field(:name=>"topnav_login_password").set password
     @browser.button(:id=>"topnavigation_user_options_login_button_login").click
-    sleep 0.5
+    sleep 2
     if @browser.button(:id=>"emailverify_continue_button").present?
       @browser.button(:id=>"emailverify_continue_button").click
     end
-    wait_for_ajax(2)
+    @browser.wait_for_ajax(2)
     MyDashboard.new @browser
   end
   
@@ -37,7 +37,7 @@ class SakaiOAE
     @browser.link(:id=>"topnavigation_user_options_name").fire_event("onmouseover")
     @browser.link(:id=>"subnavigation_logout_link").click
     sleep 1 # FIXME
-    wait_for_ajax(2)#.div(:text=>"Recent activity").wait_until_present
+    @browser.wait_for_ajax(2)#.div(:text=>"Recent activity").wait_until_present
     LoginPage.new @browser
   end
   
@@ -86,7 +86,7 @@ module PageObject
         self.back_to_top
         self.link(:text=>/#{value}/).click
         sleep 2
-        wait_for_ajax(2)
+        self.wait_for_ajax(2)
         # This code is necessary because of a null style tag
         # that confuses Watir into thinking the buttons aren't really there.
         if self.div(:id=>"joinrequestbuttons_widget").exist?
@@ -113,7 +113,7 @@ module PageObject
       define_method(name) { 
           self.button(:id=>id).click
           sleep 0.2
-          wait_for_ajax(2)
+          browser.wait_for_ajax(2)
           sleep 0.2
           unless class_name==nil
             eval(class_name).new @browser
@@ -145,7 +145,7 @@ module PageObject
           self.class.class_eval { include eval(module_name) }
           sleep 0.4
         end
-        wait_for_ajax(2)
+        self.wait_for_ajax(2)
       }
     end
     
@@ -176,7 +176,7 @@ end
 module Watir
   
   class Browser
-#=begin
+
     def wait_for_ajax(timeout=5)
       end_time = ::Time.now + timeout
       while self.execute_script("return jQuery.active") > 0
@@ -185,7 +185,7 @@ module Watir
       end
       self.wait(timeout + 10)
     end
-#=end
+
     def back_to_top
       self.execute_script("javascript:window.scrollTo(0,0)")
     end

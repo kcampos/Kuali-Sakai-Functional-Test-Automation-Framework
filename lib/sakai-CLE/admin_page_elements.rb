@@ -109,7 +109,7 @@ class SearchPublic
   end
   
   def search_for=(string)
-    @browser.frame(:index=>0).text_field(:id=>"searchbox").set(string)
+    @browser.frame(:index=>0).text_field(:id=>"searchbox").set(Regexp.escape(string))
   end
   
   def search_for_sites

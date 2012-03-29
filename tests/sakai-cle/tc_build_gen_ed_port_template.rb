@@ -45,7 +45,7 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
       "documents/reflection.xsd",
     ]
     @folder_name = random_alphanums(5)
-    @portfolio_site = "PortfolioFun"
+    @portfolio_site = @config.directory["site2"]["name"]
     @schema = [ get_filename(@files[0]), get_filename(@files[1]), get_filename(@files[2]), get_filename(@files[3]) ]
     @form_names = ["Evaluation" + random_alphanums, "Feedback for Matrix" + random_alphanums, "General Education Evidence" + random_alphanums, "Reflection for Matrix" + random_alphanums ]
     @form_instructions = [

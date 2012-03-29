@@ -69,14 +69,14 @@ class TestForums < Test::Unit::TestCase
     new_group = groups.create_new_group
     new_group.title=@groups[0]
     1.upto(3) do |x|
-      new_group.site_member_list=/student0#{x}/ # FIXME
+      new_group.site_member_list=/funk0#{x}/ # FIXME
     end
     new_group.right
     groups = new_group.add
     new_group = groups.create_new_group
     new_group.title=@groups[1]
     4.upto(7) do |x|
-      new_group.site_member_list=/student0#{x}/ # FIXME
+      new_group.site_member_list=/funk0#{x}/ # FIXME
     end
     new_group.right
     groups = new_group.add

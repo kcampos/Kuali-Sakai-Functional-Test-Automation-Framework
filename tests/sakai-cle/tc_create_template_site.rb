@@ -29,7 +29,7 @@ class CreateSiteTemplate < Test::Unit::TestCase
     # Test case variables
     @template_site_id = "88888888-7777-6666-5555-abcdefghijklm"
     @template_site_name = "Template test" #+ random_string(16)
-    @term = "WINTER 2012"
+    @term = "SUMMER 2012"
   
     @subject = random_string(5)
     @course = random_string(5)
@@ -75,7 +75,7 @@ class CreateSiteTemplate < Test::Unit::TestCase
     save_as = edit_site.save_as
     save_as.site_id=@template_site_id
     sites_page = save_as.save
-    
+   
     # Edit the template site and go to its properties...
     edit_site = sites_page.edit_site_id @template_site_id
     properties = edit_site.properties
