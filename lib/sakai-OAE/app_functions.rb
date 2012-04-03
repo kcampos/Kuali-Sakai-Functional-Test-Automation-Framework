@@ -22,7 +22,7 @@ class SakaiOAE
     @browser.text_field(:id=>"topnavigation_user_options_login_fields_username").set username
     @browser.text_field(:name=>"topnav_login_password").set password
     @browser.button(:id=>"topnavigation_user_options_login_button_login").click
-    sleep 2
+    sleep 3
     if @browser.button(:id=>"emailverify_continue_button").present?
       @browser.button(:id=>"emailverify_continue_button").click
     end
