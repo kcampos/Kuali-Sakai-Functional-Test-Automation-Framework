@@ -52,13 +52,13 @@ module PageObject
   
   # Monkey patch helper method for links to named objects...
   def name_link(name)
-    @browser.link(:text=>/#{Regexp.escape(name)}/i)
+    self.link(:text=>/#{Regexp.escape(name)}/i)
   end
-  
+
   # Monkey patch helper method for li elements referring to
   # named items...
   def name_li(name)
-    @browser.li(:text=>/#{Regexp.escape(name)}/i)
+    self.li(:text=>/#{Regexp.escape(name)}/i)
   end
   
   def method_missing(sym, *args, &block)

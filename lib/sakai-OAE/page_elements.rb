@@ -101,6 +101,7 @@ module GlobalMethods
   # instantiates the ViewPerson Class)
   def view_person(name)
     name_link(name).click
+    sleep 3
     self.wait_for_ajax
     ViewPerson.new @browser
   end
@@ -694,6 +695,19 @@ module LeftMenuBarYou
     end
   end
 
+  def my_library_count
+    count_div = name_link("My library").parent.div(:class=>"lhnavigation_levelcount")
+    count_div.present? ? count_div.text.to_i : 0
+  end
+
+  def my_contacts_count
+    count_div = self.div()
+    if count_div.present?
+      count_div.text.to_i
+    else
+      0
+    end
+  end
 
 end
 
@@ -1190,6 +1204,7 @@ module AddContentContainer
   # Removes the item from the selected list.
   def remove(item)
     self.link(:title=>"Remove #{item}").click
+    self.wait_for_ajax
   end
   
   # Enters the specified text in the Search field.
@@ -1201,7 +1216,8 @@ module AddContentContainer
   
   # Checks the checkbox for the specified item.
   def check_content(item)
-    self.li(:text=>item).checkbox.set
+    name_li(item).wait_until_present
+    name_li(item).checkbox.set
   end
   
   alias check_item check_content
@@ -1209,6 +1225,7 @@ module AddContentContainer
   
   # Enters the specified filename in the file field.
   def upload_file=(file_name)
+    self.file_field(:name=>"fileData").wait_until_present
     self.file_field(:name=>"fileData").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-oae/" + file_name)
   end
   
@@ -1362,6 +1379,15 @@ module AddToContactsPopUp
 end
 
 #
+module AddToGroupsPopUp
+  
+  include PageObject
+  
+  
+  
+end
+
+#
 module AppearancePopUp
   
   include PageObject
@@ -1458,6 +1484,33 @@ module ContentPermissionsPopUp
   def share
     self.button(:id=>"contentpermissions_members_autosuggest_sharebutton").flash
     self.button(:id=>"contentpermissions_members_autosuggest_sharebutton").click
+    self.wait_for_ajax
+  end
+  
+end
+
+# Methods for the Pop-up dialog that appears when you want to remove
+# content from Libraries.
+module DeleteContentPopUp
+  
+  include PageObject
+  
+  button(:remove_from_library_button, :text=>"Remove from library")
+  button(:delete_from_the_system_button, :text=>"Delete from the system")
+  
+  def cancel
+    self.div(:id=>"deletecontent_button_container").button(:text=>"Cancel").click
+    self.wait_for_ajax
+  end
+  
+  def remove_from_library
+    self.remove_from_library_button
+    self.wait_for_ajax
+  end
+  
+  def delete_from_the_system
+    self.delete_from_the_system_button
+    sleep 2
     self.wait_for_ajax
   end
   
@@ -2115,27 +2168,65 @@ module LibraryWidget
   include PageObject
   
   text_field(:search_library, :id=>"mylibrary_livefilter")
+  checkbox(:select_all_library_items, :id=>"mylibrary_select_checkbox")
+  button(:add_selected_to_buton, :id=>"mylibrary_addpeople_button")
+  button(:remove_selected_button, :id=>"mylibrary_remove")
+  button(:share_selected_button, :id=>"mylibrary_content_share")
+  select_list(:sort_by_list, :id=>"mylibrary_sortby")
   
   # Enters the specified string in the search field.
   # Note that it appends a line feed on the string, so the
   # search occurs immediately.
   def search_library_for=(text)
     self.search_library=("#{text}\n")
+    self.wait_for_ajax
   end
-  
-  checkbox(:add, :id=>"mylibrary_check_all")
-  
+
+  def sort_by=(sort_option)
+    self.sort_by_list=sort_option
+    self.wait_for_ajax
+  end
+
+  # Returns the checkbox element itself for the specified
+  # item in the list. Use this method for checking whether or
+  # not the checkbox in question is selected or not--e.g.,
+  # library.checkbox("textfile.txt").should be_set
+  def checkbox(item)
+    name_li(item).checkbox
+  end
+
   # Checks the specified Library item.
   def check_content(item)
-    self.div(:class=>"fl-container fl-fix mylibrary_item", :text=>/#{Regexp.escape(item)}/).checkbox.set
+    name_li(item).checkbox.set
   end
   
   # Unchecks the specified library item.
   def uncheck_content(item)
-    self.div(:class=>"fl-container fl-fix mylibrary_item", :text=>/#{Regexp.escape(item)}/).checkbox.clear
+    name_li(item).checkbox.clear
   end
   
-  checkbox(:remove_all_library_items, :id=>"mylibrary_check_all")
+  def add_selected_to
+    self.add_selected_to_button
+    self.wait_for_ajax
+    self.class.class_eval { include AddToGroupsPopUp }
+  end
+  
+  def add_to(name)
+    name_li(name)
+    
+  end
+    
+  def share_selected
+    self.share_selected_button
+    self.text_field(:name=>"newsharecontent_sharelist").wait_until_present
+    self.class.class_eval { include ShareWithPopUp }
+  end
+  
+  def remove_selected
+    self.remove_selected_button
+    self.div(:id=>"deletecontent_dialog").wait_until_present
+    self.class.class_eval { include DeleteContentPopUp }
+  end
   
 end
 
@@ -2189,43 +2280,95 @@ end
 module ListContent
   
   include PageObject
-  
+
+  # Returns the src text for the specified item's
+  # Thumbnail image.
+  def thumbnail(name)
+    name_li(name).link(:title=>"View this item").image.src
+  end
+
   # Clicks to share the specified item. Waits for the page
   # to refresh to bring up the Share Pop Up dialog.
-  def share(item)
+  def share(name)
     name_li(name).button(:title=>"Share content").click
     self.wait_until { self.text.include? "Or, share it on a webservice:" }
     self.class.class_eval { include ShareWithPopUp }
   end
   
-  alias share_content share
-  
   # Adds the specified (listed) content to the library.
-  def add_content_to_library(name)
+  def add_to_library(name)
     name_li(name).button(:title=>"Save content").click
-    self.wait_until { @browser.text.include? "Save to" }
+    self.wait_until { self.text.include? "Save to" }
     self.class.eval_class { include SaveContentPopUp }
   end
-  
-  alias add_document add_content_to_library
-  alias save_content add_content_to_library
+
+  def delete(name)
+    name_li(name).button(:title=>"Remove").click
+    self.div(:id=>"deletecontent_dialog").wait_until_present
+    self.class.class_eval { include DeleteContentPopUp }
+  end
   
   # Clicks to view the owner information of the specified item.
-  def view_owner_information(name)
-    self.button(:title=>"View owner information for #{name}").click
-    self.wait_until { @browser.text.include? "Add to contacts" }
-    self.class.eval_class { include OwnerInfoPopUp }
+  def view_owner_of(name)
+    name_li(name).link(:class=>"s3d-regular-light-links mylibrary_item_username").click
+    self.div(:id=>"entity_name").wait_until_present
+    ViewPerson.new @browser
+  end
+  
+  # Returns the item's owner name (as a text string).
+  def content_owner(name)
+    name_li(name).div(:class=>"mylibrary_item_by").link.text
+  end
+  
+  # Returns an Array object containing the list of tags/categories
+  # listed for the specified content item.
+  def content_tags(name)
+    array = []
+    name_li(name).div(:class=>"mylibrary_item_tags").lis.each do |li|
+      array << li.span(:class=>"s3d-search-result-tag").text
+    end
+    return array
   end
   
   # Returns the mimetype text next to the Content name--the text that describes
   # what the system thinks the content is.
   def content_type(name)
-    self.div(:class=>"s3d-search-result-right", :text=>/#{Regexp.escape(name)}/).span(:class=>"searchcontent_result_mimetype").text
+    name_li(name).span(:class=>/(mylibrary_item_|searchcontent_result_)mimetype/).text
   end
   
-  alias view_owner_info view_owner_information
+  def content_description(name)
+    name_li(name).div(:class=>"mylibrary_item_description").text
+  end
   
-end
+  def last_updated(name)
+    div_text = name_li(name).div(:class=>"mylibrary_item_by").text
+    return div_text[/(?<=\|.).+/]
+  end
+  alias last_changed last_updated
+  
+  def search_by_tag(tag)
+    name_link(tag).click
+    sleep 3
+    self.wait_for_ajax
+    ExploreAll.new @browser
+  end
+  
+  def used_in_count(name)
+    used_in_text(name)[/(?<=in.)\d+/].to_i
+  end
+  
+  def comments_count(name)
+    used_in_text(name)[/\d+(?=.comment)/].to_i
+  end
+  
+  #Private methods
+  private
+  
+  def used_in_text(name)
+    name_li(name).div(:class=>"mylibrary_item_usedin").text
+  end
+  
+end # ListContent
 
 # Methods related to lists of People/Participants
 module ListPeople
@@ -2239,7 +2382,6 @@ module ListPeople
     self.wait_until { @browser.button(:text=>"Invite").visible? }
     self.class.class_eval { include AddToContactsPopUp }
   end
-  
   alias request_contact add_contact
   alias request_connection add_contact
   
@@ -2250,7 +2392,6 @@ module ListPeople
     self.wait_for_ajax
     self.class.class_eval { include RemoveContactsPopUp }
   end
-  
   alias remove_contact remove
   
   def send_message_to(name)
@@ -2265,16 +2406,12 @@ module ListPeople
   # makes sure the specified person is in the list.
   # Returns true if the button is available.
   def addable?(name)
-    if name_link(name).exists?
+    if name_li(name).exists?
       self.button(:title=>"Request connection with #{name}").present?
     else
       puts "\n#{name} isn't in the results list. Check your script.\nThis may be a false negative.\n"
       return false
     end
-  end
-  
-  def not_addable?(name)
-    addable?(name)== true ? false : true
   end
   
 end
@@ -2555,6 +2692,7 @@ class ContentDetailsPage
     comment_text_area_element.click
     comment_text_area_element.send_keys text
   end
+  alias comment_text= comment_text
   
   # Clicks the "Add to..." button
   def add_to
@@ -3272,15 +3410,42 @@ class MyProfileBasicInfo
   text_field(:given_name, :name=>"firstName")
   text_field(:family_name, :id=>"lastName")
   text_field(:preferred_name, :id=>"preferredName")
+  select_list(:title, :id=>"role")
+  text_field(:department, :id=>"department")
+  text_field(:institution, :id=>"college")
   text_area(:tags, :name=>"tags")
+  span(:first_name_error, :id=>"firstName_error")
+  span(:last_name_error, :id=>"lastName_error")
 
   # Clicks the "List categories" button and waits for the
   # pop-up dialog to load. Includes the AddRemoveCategories
   # module in the class object.
   def list_categories
-    self.button(:text=>"List categories").click
-    self.wait_for_ajax(2)
+    self.form(:id=>"displayprofilesection_form_basic").button(:text=>"List categories").click
+    self.wait_for_ajax(3)
     self.class.class_eval { include AddRemoveCategories }
+  end
+  
+  # Returns an array consisting of the contents of the Tags and Categories
+  # field. Returns the categories split up among children and parents.
+  # In other words, for example, "Engineering & Technology » Computer Engineering"
+  # becomes "Engineering & Technology", "Computer Engineering" 
+  def categories
+    list = []
+    self.form(:id=>"displayprofilesection_form_basic").ul(:class=>"as-selections").lis.each do |li|
+      next if li.text == ""
+      string = li.text[/(?<=\n).+/]
+      split = string.split(" » ")
+      list << split
+    end
+    list.flatten!
+    list.uniq!
+    return list
+  end
+
+  def remove_category(name)
+    self.form(:id=>"displayprofilesection_form_basic").li(:text=>/#{Regexp.escape(name)}/).link(:class=>"as-close").click
+    self.wait_for_ajax
   end
 
   # Clicks the "Update" button and waits for any Ajax calls
@@ -3288,7 +3453,6 @@ class MyProfileBasicInfo
   def update
     self.form(:id=>"displayprofilesection_form_basic").button(:text=>"Update").click
     self.wait_for_ajax(2)
-    #self.wait_until { @browser.div(:id=>"gritter-notice-wrapper").exist? }
   end
 
 end
@@ -3472,12 +3636,14 @@ class MyLibrary
   include GlobalMethods
   include HeaderFooterBar
   include ListWidget
+  include ListContent
   include LeftMenuBarYou
   include LibraryWidget
   include ListContent
 
   # Page Objects
   button(:empty_library_add_content_button, :id=>"mylibrary_addcontent")
+  
 
   # Custom Methods and Page Objects...
   

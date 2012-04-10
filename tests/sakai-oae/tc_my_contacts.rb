@@ -87,7 +87,7 @@ describe "My Contacts" do
     
     # TEST CASE: The "Add contact" button is not
     # present for people already invited to connect
-    search.not_addable?(@user2_name).should == true
+    search.addable?(@user2_name).should_not == true
   end
 
   it "verify pending invitation" do
