@@ -62,19 +62,19 @@ describe "My Library" do
     
   end
 
-  xit "when empty it shows the empty bubble" do
+  it "when empty it shows the empty bubble" do
     library.empty_library.should exist
   end
 
-  xit "Search box not present in an empty Library" do
+  it "Search box not present in an empty Library" do
     library.search_library_element.should_not be_visible
   end
 
-  xit "'Add content' button present in empty library" do
+  it "'Add content' button present in empty library" do
     library.empty_library_add_content_button_element.should be_visible
   end
 
-  xit "shows content user has uploaded" do
+  it "shows content user has uploaded" do
     library.add_content
     library.upload_file=@file
     library.who_can_see_file="Only me"
@@ -85,7 +85,7 @@ describe "My Library" do
     library.documents.should include @file
   end
 
-  xit "Items managed by user can be removed from system" do
+  it "Items managed by user can be removed from system" do
     library.delete @file
     library.delete_from_the_system_button_element.should be_visible
     library.cancel

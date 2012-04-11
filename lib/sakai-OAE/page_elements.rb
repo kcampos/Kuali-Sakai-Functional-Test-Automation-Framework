@@ -587,9 +587,7 @@ module LeftMenuBarYou
   navigating_link(:about_me, "About Me", "MyProfileAboutMe")
   navigating_link(:online, "Online", "MyProfileOnline")
   navigating_link(:contact_information, "Contact Information", "MyProfileContactInfo")
-  
   alias contact_info contact_information
-  
   navigating_link(:publications, "Publications", "MyProfilePublications")
   
   permissions_menu(:about_me_permissions, "About Me")
@@ -3468,13 +3466,13 @@ class MyProfileAboutMe
   text_area(:about_Me, :id=>"aboutme")
   text_area(:academic_interests, :id=>"academicinterests")
   text_area(:personal_interests, :id=>"personalinterests")
+  text_field(:hobbies, :id=>"hobbies")
   
   # Clicks the "Update" button and waits for any Ajax calls
   # to complete.
   def update
     self.form(:id=>"displayprofilesection_form_aboutme").button(:text=>"Update").click
     self.wait_for_ajax(2)
-    #self.wait_until { @browser.div(:id=>"gritter-notice-wrapper").exist? }
   end
 
 end
@@ -3503,16 +3501,20 @@ class MyProfileOnline
   # values are the urls.
   def sites_list
     hash = {}
-    self.div(:id=>"profilesection_generalinfo").divs.each do |div|
-      if div.id=~/profilesection_section_\d{2,}/
-        hash.store(div.text_field(:title=>"Site").text, div.text_field(:title=>"URL").text)
-      end
+    self.div(:id=>"displayprofilesection_sections_online").divs(:class=>"s3d-form-field-wrapper").each do |div|
+      hash.store(div.text_field(:id=>/siteOnline_/).value, div.text_field(:id=>/urlOnline_/).value)
     end
     return hash
   end
   
+  # Removes the specified Online record from the list by clicking its
+  # "Remove this Online" button.
   def remove_this_online(text)
-    #FIXME
+    #find the div...
+    div = self.div(:class=>"online").text_field(:value=>text).parent.parent.parent
+    #click the button
+    div.button(:id=>/displayprofilesection_remove_link_/).click
+    self.wait_for_ajax
   end
 end
 
@@ -3526,8 +3528,8 @@ class MyProfileContactInfo
   
   # Page Objects
   #button(:add_another, :text=>"Add another", :id=>/profilesection_add_link_\d/)
-  text_field(:institution, :name=>"college", :index=>1)
-  text_field(:department, :name=>"department", :index=>1) 
+  text_field(:institution, :id=>"college", :name=>"college", :index=>1)
+  text_field(:department, :id=>"department", :name=>"department", :index=>1) 
   text_field(:title_role, :name=>"role")
   text_field(:role, :name=>"role")
   text_field(:email, :name=>"emailContact")
@@ -3557,14 +3559,14 @@ class MyProfileContactInfo
   # :mobile, :fax, :address, :city, :state, :zip, and :country.
   # Any keys that are different or missing will be ignored.
   def fill_out_form(hash)
+    self.email=hash[:email]
+    self.fax=hash[:fax]
     self.institution=hash[:institution]
     self.department=hash[:department]
     self.title_role=hash[:title]
-    self.email=hash[:email]
     self.instant_messaging=hash[:im]
     self.phone=hash[:phone]
     self.mobile=hash[:mobile]
-    self.fax=hash[:fax]
     self.address=hash[:address]
     self.city=hash[:city]
     self.state=hash[:state]
@@ -3596,6 +3598,12 @@ class MyProfilePublications
   text_field(:number, :id=>/number_\d+/, :index=>-1)
   text_field(:series_title, :id=>/series.title_\d+/, :index=>-1)
   text_field(:url, :id=>/url_\d+/, :index=>-1)
+  span(:title_error, :id=>/maintitle_\d+_error/)
+  span(:author_error, :id=>/mainauthor_\d+_error/)
+  span(:publisher_error, :id=>/publisher_\d+_error/)
+  span(:place_error, :id=>/placeofpublication_\d+_error/)
+  span(:year_error, :id=>/year_\d+_error/)
+  span(:url_error, :id=>/url_\d+_error/)
   
   # Custom Methods...
   
@@ -3626,6 +3634,41 @@ class MyProfilePublications
     self.series_title=hash[:series]
     self.url=hash[:url]
   end
+  
+  # Clicks the "Remove this publication" link for the publication specified (by
+  # the Main title of the record in question).
+  def remove_this_publication(main_title)
+    target_div_id = self.text_field(:value=>main_title).parent.parent.parent.id
+    self.div(:id=>target_div_id).button(:id=>/displayprofilesection_remove_link_/).click
+    self.wait_for_ajax
+  end
+  
+  # Returns an array containing all of the titles of the publications that exist
+  # on the page.
+  def publication_titles
+    array = []
+    self.div(:id=>"displayprofilesection_sections_publications").text_fields(:id=>/maintitle_/).each { |field| array << field.value }
+    return array
+  end
+  alias titles publication_titles
+  
+  # Returns an array of hashes. Each hash in the array refers to one of
+  # the listed publications.
+  #
+  # Each hash's key=>value pairs are determined by the field title and field values for the publications.
+  #
+  # Example: "Main title:"=>"War and Peace","Main author:"=>"Tolstoy", etc....
+  def publications_data
+    list = []
+    self.div(:id=>"displayprofilesection_sections_publications").divs(:class=>"displayprofilesection_multiple_section").each do |div|
+      hash = {}
+      div.divs(:class=>"displayprofilesection_field").each { |subdiv| hash.store(subdiv.label(:class=>"s3d-input-label").text, subdiv.text_field.value) }
+      list << hash
+    end
+    return list
+  end
+  alias publication_data publications_data
+  alias publications_list publications_data
   
 end
 
@@ -3843,12 +3886,13 @@ class ViewPerson
   end
   
   # Returns an array containing the text of all of the tags and categories
-  # listed on the Basic Information page.
+  # listed on the Basic Information page. Note that it splits them up into
+  # parent and child categories.
   def tags_and_categories_list
     list = []
     target_div = self.div(:class=>"s3d-contentpage-title", :text=>"Basic Information").parent.parent.div(:id=>"displayprofilesection_body")
-    target_div.links.each { |link| list << link.text }
-    return list
+    target_div.links.each { |link| list << link.text.split(" » ") }
+    return list.flatten.uniq
   end
   
   # This method assumes it will be run on the About Me page.
@@ -3913,14 +3957,19 @@ class ViewPerson
   # Example: "Main title:"=>"War and Peace","Main author:"=>"Tolstoy", etc....
   def publications_data
     list = []
-    target_div = self.div(:class=>"s3d-contentpage-title", :text=>"Publications").parent.parent.div(:id=>"displayprofilesection_body")
-    target_div.divs(:id=>"displayprofilesection_sections_publications").each do |div|
-      hash = {}
-      div.divs(:class=>"displayprofilesection_field").each { |subdiv| hash.store(subdiv.span(:class=>"s3d-input-label").text, subdiv.span(:class=>"field_value").text) }
-      list << hash
+    hash = {}
+    self.div(:class=>"publications").divs(:class=>"displayprofilesection_field").each do |div|
+      if div.span(:class=>"s3d-input-label").text=="Main title:" && hash != {}
+        list << hash
+        hash={}
+      end
+      hash.store(div.span(:class=>"s3d-input-label").text, div.span(:class=>"field_value").text)
     end
+    list << hash
     return list
   end
+  alias publication_data publications_data
+  alias publications_list publications_data
   
   # Expects to be passed an array containing one or more hashes (see below for
   # how the hash should be formed). Note that it's okay to send a single hash instead
