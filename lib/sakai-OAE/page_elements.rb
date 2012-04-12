@@ -163,6 +163,8 @@ module HeaderFooterBar
   link(:you, :text=>"You")
   button(:messages_container_button, :id=>"topnavigation_messages_container")
   link(:create_collect, :id=>"navigation_create_and_add_link")
+  link(:user_options_name, :id=>"topnavigation_user_options_name")
+  link(:help, :id=>"help_tab")
   
   link(:see_all, :id=>"topnavigation_search_see_all")
   
