@@ -7,16 +7,13 @@
 # eventually be deprecated in favor of the more robust ts_smoke_tests.rb test suite.
 # 
 # Author: Abe Heward (aheward@rSmart.com)
-$: << File.expand_path(File.dirname(__FILE__) + "/../../lib/")
-["rspec", "watir-webdriver", "../../config/OAE/config.rb",
-  "utilities", "sakai-OAE/app_functions",
-  "sakai-OAE/page_elements" ].each { |item| require item }
+require '../../features/support/env.rb'
 
 describe "Sign-Up Page" do
   
   include Utilities
   
-  let (:signup) { CreateNewAccount.new @browser }
+  let(:signup) { CreateNewAccount.new @browser }
 
   before :all do
     
