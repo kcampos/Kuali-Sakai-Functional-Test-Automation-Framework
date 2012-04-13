@@ -17,7 +17,7 @@ $: << File.expand_path(File.dirname(__FILE__) + "/../../lib/")
   "sakai-OAE/page_elements" ].each { |item| require item }
 
 describe "Name Field Tests" do
-  
+
   include Utilities
 
   let(:basic_info) { MyProfileBasicInfo.new @browser }
@@ -32,13 +32,13 @@ describe "Name Field Tests" do
     dash.my_profile
     basic_info.given_name.should == first
     basic_info.family_name.should == last
-    basic_info.user_options_name_element.attribute_value("offsetTop").should == @offset1
+    basic_info.user_options_name_element.attribute("offsetTop").should == @offset1
     basic_info.user_options_name_element.should be_visible
-    basic_info.help_element.attribute_value("offsetTop").should == @offset2
+    basic_info.help_element.attribute("offsetTop").should == @offset2
   end
 
   before :all do
-    
+
     # Get the test configuration data
     @config = AutoConfig.new
     @browser = @config.browser
@@ -47,13 +47,13 @@ describe "Name Field Tests" do
     @pass1 = @config.directory['person17']['password']
     @first = "#{@config.directory['person17']['firstname']}"
     @last = "#{@config.directory['person17']['lastname']}"
-    
+
     @sakai = SakaiOAE.new(@browser)
     dash = @sakai.login(@user1, @pass1)
     @offset1 = dash.user_options_name_element.attribute_value("offsetTop")
     @offset2 = dash.help_element.attribute_value("offsetTop")
     dash.my_profile
-    
+
   end
 
   it "User can update Name fields with strings of lowercase letters" do
@@ -61,13 +61,13 @@ describe "Name Field Tests" do
     last=random_letters(36)
     test(first, last)
   end
-  
+
   it "User can update Name fields with mixed-case strings, with numbers" do
     first=random_alphanums(36)
     last=random_alphanums(36)
     test(first, last)
   end
-  
+
   it "User can update Name fields with strings that have non-alphanum chars" do
     first=random_alphanums_plus(36)
     last=random_alphanums_plus(36)
@@ -79,7 +79,7 @@ describe "Name Field Tests" do
     last=random_string(36)
     test(first, last)
   end
-  
+
   it "User can update Name fields with strings that have High ASCII chars" do
     first=random_high_ascii(36)
     last=random_high_ascii(36)
