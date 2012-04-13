@@ -8,10 +8,7 @@
 #
 # 
 # Author: Abe Heward (aheward@rSmart.com)
-$: << File.expand_path(File.dirname(__FILE__) + "/../../lib/")
-["rspec", "watir-webdriver", "../../config/OAE/config.rb",
-  "utilities", "sakai-OAE/app_functions",
-  "sakai-OAE/page_elements" ].each { |item| require item }
+require '../../features/support/env.rb'
 
 describe "Add/Remove Dashboard Widgets" do
   

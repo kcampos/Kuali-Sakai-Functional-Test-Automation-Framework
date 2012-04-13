@@ -11,10 +11,7 @@
 # their contact lists. User 1 should not have any contacts at all.
 # 
 # Author: Abe Heward (aheward@rSmart.com)
-$: << File.expand_path(File.dirname(__FILE__) + "/../../lib/")
-["rspec", "watir-webdriver", "../../config/OAE/config.rb",
-  "utilities", "sakai-OAE/app_functions",
-  "sakai-OAE/page_elements" ].each { |item| require item }
+require '../../features/support/env.rb'
 
 describe "My Contacts" do
   

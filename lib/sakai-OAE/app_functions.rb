@@ -4,10 +4,6 @@
 #
 # This file contains custom methods used throughout the Sakai test scripts
 
-#require 'watir-webdriver'
-require 'page-object'
-PageObject.javascript_framework = :jquery
-#require 'date'
 
 class SakaiOAE
   

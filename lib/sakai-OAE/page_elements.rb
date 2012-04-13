@@ -3,12 +3,7 @@
 # 
 # == Synopsis
 # 
-# Sakai-OAE Page Object definitionstext_field(:name, :tag=>"identifier")
-
-#
-require 'page-object'
-require 'cgi'
-#require File.dirname(__FILE__) + "/app_functions.rb"
+# Sakai-OAE Page Object definitions
 
 # ======================
 # ======================
