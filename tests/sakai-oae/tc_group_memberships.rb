@@ -10,6 +10,7 @@
 # 
 # Author: Abe Heward (aheward@rSmart.com)
 require '../../features/support/env.rb'
+require '../../lib/sakai-oae'
 
 describe "Group Memberships" do
   
