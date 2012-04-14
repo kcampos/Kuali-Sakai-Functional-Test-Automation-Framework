@@ -1,9 +1,7 @@
 # coding: UTF-8
-#
-# == Synopsis
-#
-# This file contains custom methods used throughout rSmart's test scripts
 
+# Provides useful helper methods for creating test data--either strings of
+# random text or date values formatted as needed.
 module Utilities
   
   # Strips the file name away from the path information.
@@ -131,7 +129,7 @@ module Utilities
     
   end
   
-  # Some date and time helper functions
+  # Some date and time helper functions....
   
   # Returns the value of the last hour as an Integer object, which
   # eliminates the zero-padding for single-digit hours. 12-hour clock.

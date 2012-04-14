@@ -11,6 +11,7 @@
 # 
 # Author: Abe Heward (aheward@rSmart.com)
 require '../../features/support/env.rb'
+require '../../lib/sakai-oae'
 
 describe "My Profile" do
   
