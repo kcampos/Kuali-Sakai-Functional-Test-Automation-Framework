@@ -1,4 +1,3 @@
-#!/usr/bin/env ruby
 # coding: UTF-8
 
 # Methods related to the expandable Collector item that can appear at the top of any page.

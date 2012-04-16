@@ -1,10 +1,4 @@
-#!/usr/bin/env ruby
 require '../../config/OAE/config'
-require 'sakai-OAE/gem_extensions'
-require 'sakai-OAE/global_methods'
-require 'sakai-OAE/toolbars_and_menus'
-require 'sakai-OAE/pop_up_dialogs'
-require 'sakai-OAE/widgets'
 require 'sakai-OAE/page_classes'
 require 'utilities'
 

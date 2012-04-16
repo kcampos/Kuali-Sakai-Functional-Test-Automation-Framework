@@ -1,5 +1,9 @@
-#!/usr/bin/env ruby
 # coding: UTF-8
+require 'sakai-OAE/gem_extensions'
+require 'sakai-OAE/global_methods'
+require 'sakai-OAE/toolbars_and_menus'
+require 'sakai-OAE/pop_up_dialogs'
+require 'sakai-OAE/widgets'
 
 # Sakai-OAE Page Classes
 
@@ -1673,7 +1677,6 @@ class RSS
   
 end
 
-
 #
 class Tests
   
@@ -1689,7 +1692,6 @@ class Tests
   end
   
 end
-
 
 #
 class Files

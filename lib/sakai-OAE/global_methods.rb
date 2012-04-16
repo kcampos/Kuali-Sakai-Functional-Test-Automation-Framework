@@ -1,4 +1,3 @@
-#!/usr/bin/env ruby
 # coding: UTF-8
 
 # This module contains methods that will be almost

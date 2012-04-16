@@ -1,4 +1,3 @@
-#!/usr/bin/env ruby
 # This file contains custom Utility methods used throughout the Sakai-OAE test scripts,
 # as well as Monkey patches to the Page Object and Watir-webdriver gems.
 #
