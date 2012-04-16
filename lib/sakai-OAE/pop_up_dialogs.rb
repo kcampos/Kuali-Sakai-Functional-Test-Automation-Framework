@@ -1,4 +1,3 @@
-#!/usr/bin/env ruby
 # coding: UTF-8
 
 # Methods related to the My Account Pop Up dialog.
