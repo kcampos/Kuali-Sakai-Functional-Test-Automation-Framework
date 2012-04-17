@@ -80,7 +80,7 @@ module DocumentWidget
     self.frame(:id=>"elm1_ifr").body(:id=>"tinymce").fire_event("onclick")
   end
 
-  # Other MCE Objects TBD later, though we're not in the business of testing TinyMCE...
+  # Other MCE Objects TBD later, maybe, though we're not in the business of testing TinyMCE...
 
 end
 
@@ -357,24 +357,6 @@ module ListGroups
   alias join_course add_group
   alias join_group add_group
 
-=begin # Tentatively moving this code to the GlobalMethods module
-    # This will be experimental for a while...
-
-  # Clicks the specified Link (will open any link that matches the
-  # supplied text, but it's made for clicking on a Group listed on
-  # the page because it will instantiate the GroupLibrary class).
-  def open_group(name)
-    name_link(name).click
-    sleep 1
-    wait_for_ajax
-    @browser.execute_script("$('#joinrequestbuttons_widget').css({display: 'block'})")
-    Library.new(@browser)
-  end
-
-  alias view_group open_group
-  alias view_course open_group
-  alias open_course open_group
-=end
   # Returns the specified item's "type", as shown next to the item name--i.e.,
   # "GROUP", "COURSE", etc.
   def group_type(item)

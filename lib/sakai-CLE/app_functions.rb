@@ -653,7 +653,7 @@ class AttachPageTools
     frm.table(:class=>/listHier lines/).row(:text=>/#{Regexp.escape(file_name)}/).link(:href=>/doAttachitem/).click
     if frm.div(:class=>"alertMessage").exist?
       sleep 1
-      attach_a_copy(file_name) # FIXME
+      attach_a_copy(file_name) # TODO - This can loop infinitely
     end
     instantiate_class(:this)
   end
