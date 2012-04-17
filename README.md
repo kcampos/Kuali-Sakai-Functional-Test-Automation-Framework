@@ -1,6 +1,9 @@
-# Functional test automation framework for Kuali and Sakai open source products
+# Functional test automation framework for
+# the Kuali and Sakai open source products
 
 ## Description:
+
+Note: Currently this project is limited to Sakai. Kuali development is slated for the future.
 
 Provides a framework for interacting with web sites for Sakai-CLE and Sakai-OAE, using
 Ruby and Watir-webdriver--but without needing to know either in detail.
@@ -33,7 +36,11 @@ require '../../lib/sakai-oae'            # depend on the location of your test s
 # See the RDocs for the AutoConfig class, for more detail
 @config = AutoConfig.new
 
-# Create an instance of the SakaiOAE class...
+# Create a class instance variable for the AutoConfig's browser variable.
+# (highly recommended that you use "@browser" as the variable name)
+@browser = @config.browser
+
+# Create an instance of the SakaiOAE class, passing it the @browser object...
 @sakai = SakaiOAE.new @browser
 
 # Log in to Sakai OAE with "username" and "password"...
