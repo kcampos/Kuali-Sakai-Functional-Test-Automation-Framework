@@ -28,6 +28,14 @@ require '../../features/support/env.rb'  # The exact content of these lines will
 require '../../lib/sakai-oae'            # depend on the location of your test script
                                          # and the content of Ruby's $LOAD_PATH.
 
+# Create an instance of the AutoConfig class.
+# This creates a browser instance, among other things.
+# See the RDocs for the AutoConfig class, for more detail
+@config = AutoConfig.new
+
+# Create an instance of the SakaiOAE class...
+@sakai = SakaiOAE.new @browser
+
 # Log in to Sakai OAE with "username" and "password"...
 dashboard = @sakai.login("username", "password") # See the SakaiOAE class in the RDocs.
 

@@ -1,11 +1,11 @@
-#!/usr/bin/env ruby
-# 
-# == Synopsis
-#
-# Creates an AutoConfig object that contains all configuration information for testing.
-
 require 'yaml'
 
+# This class pulls data from the config.yml and directory.yml
+# files. It makes that data available in the url, browser, and directory
+# class variables.
+# The initialization of the class also opens a new browser window, using
+# the browser type specified in the config.yml file, and then navigates to
+# the URL, also specified in the config.yml file.
 class AutoConfig
   
   attr_reader :url, :browser, :directory
