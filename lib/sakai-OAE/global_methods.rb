@@ -3,6 +3,10 @@
 # This module contains methods that will be almost
 # universally useful, and don't pertain to any specific
 # area or widget or pop up on a given page.
+#
+# The primary method provided in this module is of the type
+# .open_<page>('target_text'). Depending on the type of <page>
+# specified, the method will return the appropriate Class object.
 module GlobalMethods
 
   include PageObject
@@ -85,9 +89,9 @@ module GlobalMethods
     self.wait_for_ajax
     ViewPerson.new @browser
   end
-
   alias view_profile view_person
 
+  # Clicks the X in the Notification box, to dismiss it.
   def close_notification
     self.notification_element.fire_event "onmouseover"
     self.div(:class=>"gritter-close").fire_event "onclick"
@@ -102,4 +106,4 @@ module GlobalMethods
     self.div(:class=>/lhnavigation(_subnav|)_item_content/, :text=>name)
   end
 
-end
+end  # GlobalMethods

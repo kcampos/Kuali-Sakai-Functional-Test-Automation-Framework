@@ -42,7 +42,7 @@ module AccountPreferencesPopUp
     end
   end
 
-end
+end # AccountPreferencesPopUp
 
 # Page Objects and Methods for the Add Areas Pop up dialog.
 # Many page objects in this module are NOT defined using the
@@ -272,7 +272,7 @@ module AddAreasPopUp
   alias add_a_widget add_widget_page
   alias add_a_widget_page add_widget_page
 
-end
+end  # AddAreasPopUp
 
 # Page objects in the Add content dialog box
 module AddContentContainer
@@ -332,7 +332,7 @@ module AddContentContainer
   # Works to enter text into any of the "Tags and Categories"
   # fields on the "Add Content" dialog.
   def tags_and_categories=(text)
-    active_content_div.text_field(:id=>/as-input-\d+/).set text +"\n"
+    active_content_div.text_field(:id=>/as-input-\d+/).set("#{text}\n")
     self.wait_for_ajax
   end
 
@@ -390,7 +390,7 @@ module AddContentContainer
     end
   end
 
-end
+end  # AddContentContainer
 
 # Page Objects and Methods related to the Pop Up for Categories.
 module AddRemoveCategories
@@ -432,7 +432,7 @@ module AddRemoveCategories
     return list
   end
 
-end
+end # AddRemoveCategories
 
 # Page Objects and Methods related to the "Add widgets" pop-up on the Dashboard
 module AddRemoveWidgets
@@ -479,7 +479,7 @@ module AddRemoveWidgets
     self.div(:id=>"add_goodies_body").li(:text=>/#{Regexp.escape(name)}/, :id=>/_remove_/).button.click
   end
 
-end
+end # AddRemoveWidgets
 
 # Page Objects and Methods related to the Pop Up Dialog for Contacts
 module AddToContactsPopUp
@@ -511,7 +511,7 @@ module AddToContactsPopUp
     self.wait_for_ajax
   end
 
-end
+end # AddToContactsPopUp
 
 #
 module AddToGroupsPopUp
@@ -520,7 +520,7 @@ module AddToGroupsPopUp
 
 
 
-end
+end # AddToGroupsPopUp
 
 #
 module AppearancePopUp
@@ -633,16 +633,21 @@ module DeleteContentPopUp
   button(:remove_from_library_button, :text=>"Remove from library")
   button(:delete_from_the_system_button, :text=>"Delete from the system")
 
+  # Clicks the cancel button on the Pop-up and waits for the Ajax calls to finish
   def cancel
     self.div(:id=>"deletecontent_button_container").button(:text=>"Cancel").click
     self.wait_for_ajax
   end
 
+  # Clicks the 'Remove from library' button and
+  # waits for the Ajax calls to complete.
   def remove_from_library
     self.remove_from_library_button
     self.wait_for_ajax
   end
 
+  # Clicks the 'Delete from the system' button and waits for
+  # The Ajax calls to complete.
   def delete_from_the_system
     self.delete_from_the_system_button
     sleep 2
@@ -698,6 +703,7 @@ module ExportAsTemplate
   # Custom Methods
 
 end
+
 #
 module FilesAndDocsPopUp
 
@@ -908,7 +914,6 @@ module PendingRequestsPopUp
     self.div(:class=>"fl-force-left joinrequests_details",:text=>/#{Regexp.escape(name)}/).button(:text=>"Add as a member").click
     self.wait_for_ajax(3)
   end
-
   alias add_as_a_member add_as_member
 
   # Clicks the "ignore" button for the specified
@@ -1005,6 +1010,8 @@ module RemoveContactsPopUp
 
   # Custom Methods...
 
+  # Clicks the Remove contact button and waits for the Ajax calls
+  # to complete.
   def remove_contact
     self.remove_contact_button
     sleep 0.5
@@ -1127,7 +1134,7 @@ module SendMessagePopUp
     self.link(:text=>/=joinrequests/).click
     # currently this opens a page in a new tab. So it's best not to use it.
     # UGLY!!!
-    # FIXME
+    # TODO - Refactor this ugly method. They may change the behavior so that a new tab isn't opened
   end
 
   # Private Methods
@@ -1185,10 +1192,6 @@ module ShareWithPopUp
   # at a time, then waits for the search results to return the expected name.
   # When the name is found in the results list, it gets clicked on.
   def share_with=(name)
-    #self.share_with_field=name + "\n"
-    #sleep 0.6
-    #self.wait_for_ajax
-    #self.li(:id=>"as-result-item-0").click
 
     name.split("", 5).each do |letter|
       self.share_with_field_element.focus

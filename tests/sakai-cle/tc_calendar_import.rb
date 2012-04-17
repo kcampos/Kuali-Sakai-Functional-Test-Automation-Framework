@@ -84,7 +84,7 @@ class TestCalendarImport < Test::Unit::TestCase
     import_3 = import_2.continue
     
     # TEST CASE: Verify event count is correct
-    assert @browser.frame(:class=>"portletMainIframe").div(:class=>"portletBody").text.include?("importing #{@events.length} activities") # FIXME
+    assert @browser.frame(:class=>"portletMainIframe").div(:class=>"portletBody").text.include?("importing #{@events.length} activities") # TODO - Rewrite without using naked Watir syntax
     
     # TEST CASE: Verify expected events are in the list
     @events.each { |event| assert import_3.events.include?(event[:title]) }

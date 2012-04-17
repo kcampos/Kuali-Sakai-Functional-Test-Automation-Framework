@@ -73,7 +73,7 @@ class AllCategoriesPage
   
 end
 
-#
+# TODO - Write a class description
 class Calendar
   
   include PageObject
@@ -123,30 +123,30 @@ class ContentDetailsPage
   
   # Visibility...
   def change_visibility_private
-    
+        # TODO - Write method
   end
   
   def change_visibility_logged_in
-    
+         # TODO - Write method
   end
   
   def change_visibility_public
-    
+       # TODO - Write method
   end
   
   # Collaboration...
   
   #
   def view_collaborators
-    
+     # TODO - Write method
   end
   
   #
   def change_collaborators
-    
+    # TODO - Write method
   end
   
-  # This method is currently not working 
+  # This method is currently not working   TODO - Fix method
   #def change_sharing
   #  self.div(:class=>"entity_owns_actions_share has_counts ew_permissions").hover
   #  self.div(:class=>"entity_owns_actions_share has_counts ew_permissions").click
@@ -172,7 +172,7 @@ class ContentDetailsPage
     self.wait_for_ajax(2)
   end
   
-  #
+  # Enters the specified text string into the Comment box.
   def comment_text(text)
     comment_text_area_element.click
     comment_text_area_element.send_keys text
@@ -248,8 +248,7 @@ class ContentDetailsPage
     end
     return list
   end
-  
-  
+
   # The "share" button next to the Download button.
   def share_with_others
     self.share_button
@@ -259,7 +258,11 @@ class ContentDetailsPage
   
   # Comments List Stuff
   
-  #
+  # This method grabs all of the information about the last listed comment and
+  # returns it in a hash object. Relevant strings are put into the following
+  # keys: :poster, :date, :message. The delete button element is defined in the
+  # :delete_button key. Note that you'll have to use Watir's .click method to click
+  # the button.
   def last_comment
     hash = {}
     comments_table = self.div(:class=>"contentcommentsTable")
@@ -270,8 +273,12 @@ class ContentDetailsPage
     hash.store(:delete_button, last_message.button(:id=>/contentcomments_delete_\d+/))
     return hash
   end
-  
-  #
+
+  # This method grabs all of the information about the first listed comment and
+  # returns it in a hash object. Relevant strings are put into the following
+  # keys: :poster, :date, :message. The delete button element is defined in the
+  # :delete_button key. Note that you'll have to use Watir's .click method to click
+  # the button.
   def first_comment
     hash = {}
     comments_table = self.div(:class=>"contentcommentsTable")
@@ -319,7 +326,9 @@ class CreateNewAccount
   span(:email_confirm_error, :id=>"emailConfirm_error")
   span(:institution_error, :id=>"institution_error")
   span(:role_error, :id=>"role_error")
-  
+
+  # Clicks the 'create account' button, waits for the dashboard,
+  # then returns the MyDashboard class object.
   def create_account
     self.back_to_top
     self.create_account_button
@@ -330,18 +339,25 @@ class CreateNewAccount
   end
 
 end
-#
+
+# Methods related to the page that appears when you are
+# creating a new Course.
 class CreateCourses
   
   include PageObject
   include HeaderFooterBar
   include LeftMenuBarCreateWorlds
-  
+
+  # Clicks the button for using the math template,
+  # then returns the MathTemplate class object.
   def use_math_template
     self.div(:class=>"selecttemplate_template_large").button(:text=>"Use this template").click
-    # Class goes here
+    # TODO - Class goes here
   end
-  
+
+  # Clicks the button to use the basic template,
+  # waits for the new page to load, then returns
+  # the CreateGroups class object.
   def use_basic_template
     self.div(:class=>"selecttemplate_template_small selecttemplate_template_right").button(:text=>"Use this template").click
     self.wait_until { self.text.include? "Suggested URL:" }
@@ -350,7 +366,8 @@ class CreateCourses
   
 end
 
-#
+# Methods related to the page where a new Course/Group/Project
+# is set up.
 class CreateGroups
   
   include PageObject
@@ -363,25 +380,37 @@ class CreateGroups
   text_area(:tags, :name=>"newcreategroup_tags")
   select_list(:can_be_discovered_by, :id=>"newcreategroup_can_be_found_in")
   select_list(:membership, :id=>"newcreategroup_membership")
-  
+
+  # Clicks the 'Add people' button and waits for the
+  # Manage Participants dialog to appear.
+  # Includes the ManageParticipants module in the class.
   def add_people
     self.button(:text, "Add people").click
     self.wait_for_ajax(2)
     self.class.class_eval { include ManageParticipants }
   end
 
+  # Clicks the 'Add more people' button and waits for
+  # the Manage Participants dialog to appear.
+  # Includes the ManageParticipants module in the class.
   def add_more_people
     self.button(:text, "Add more people").click
     self.wait_for_ajax(2)
     self.class.class_eval { include ManageParticipants }
   end
 
+  # Clicks the 'List categories' button, waits for
+  # the Categories dialog to appear, and then
+  # includes the AddRemoveCategories module in the class.
   def list_categories
     self.button(:text=>"List categories").click
     self.wait_for_ajax(2)
     self.class.class_eval { include AddRemoveCategories }
   end
-  
+
+  # Clicks the 'Create' button for the Course or Group, etc.,
+  # then waits until the Course Library page loads. Once that
+  # happens, returns the Library class object.
   def create_basic_course
     create_thing
     unless url_error_element.visible?
@@ -390,11 +419,12 @@ class CreateGroups
       Library.new @browser
     end
   end
-  
   alias create_simple_group create_basic_course
   alias create_group create_basic_course
   alias create_research_support_group create_basic_course
-  
+
+  # Clicks the 'Create' button then waits until the Research Intro page loads. Once that
+  # happens, returns the ResearchIntro class object.
   def create_research_project
     create_thing
     unless url_error_element.visible?
@@ -402,11 +432,13 @@ class CreateGroups
       ResearchIntro.new @browser
     end
   end
-  
+
+
   span(:url_error, :id=>"newcreategroup_suggested_url_error")
   
   private
-  
+
+  # Do not use. This method is used by the public 'create' methods in this class.
   def create_thing
     self.button(:class=>"s3d-button s3d-overlay-button newcreategroup_create_simple_group").click
     sleep 0.3
@@ -416,19 +448,23 @@ class CreateGroups
   
 end
 
-#
+# Methods related to the page for Creating a Research Project
 class CreateResearch
   
   include PageObject
   include HeaderFooterBar
   include LeftMenuBarCreateWorlds
-  
+
+  # Clicks the button for using the Research Project template, waits for the
+  # page to load, then returns the CreateGroups class object.
   def use_research_project_template
     self.div(:class=>"selecttemplate_template_large").button(:text=>"Use this template").click
     self.wait_until { self.text.include? "Suggested URL:" }
     CreateGroups.new @browser
   end
-  
+
+  # Clicks the button for using the Research Support Group template,
+  # waits for the page to load, then returns the CreateGroups class object.
   def use_research_support_group_template
     self.div(:class=>"selecttemplate_template_small selecttemplate_template_right").button(:text=>"Use this template").click
     self.wait_until { self.text.include? "Suggested URL:" }
@@ -462,7 +498,7 @@ class ExploreAll
 
 end
 
-#
+# Methods related to the page for searching Content.
 class ExploreContent
 
   include PageObject
@@ -482,7 +518,7 @@ class ExploreContent
 
 end
 
-#
+# Methods related to the People/Users search page
 class ExplorePeople
 
   include PageObject
@@ -502,7 +538,7 @@ class ExplorePeople
 
 end
 
-#
+# Methods related to the Groups search page.
 class ExploreGroups
 
   include PageObject
@@ -521,7 +557,7 @@ class ExploreGroups
 
 end
 
-# 
+# Methods related to the page for searching Courses.
 class ExploreCourses
   
   include PageObject
@@ -537,16 +573,21 @@ class ExploreCourses
     top = self.div(:id=>"searchgroups_widget", :index=>1)
     top.div(:id=>"results_header").span(:id=>"searchgroups_type_title").text
   end
-  
+
+  # TODO - Describe method
   def courses_count
-    #TBD
+    #TODO - Write method
   end
-  
+
+  # Selects the specified item in the 'Filter by' field. Waits for
+  # Ajax calls to drop to zero.
   def filter_by=(selection)
     self.select(:id=>"facted_select").select(selection)
     self.wait_for_ajax(2)
   end
-  
+
+  # Selects the specified item in the 'Sort by' field. Waits for
+  # any Ajax calls to finish.
   def sort_by=(selection)
     self.div(:class=>"s3d-search-sort").select().select(selection)
     self.wait_for_ajax(2)
@@ -554,7 +595,7 @@ class ExploreCourses
   
 end
 
-#
+# Methods related to the page for searching for Research Projects.
 class ExploreResearch
 
   include PageObject
@@ -573,7 +614,6 @@ class ExploreResearch
   
 end
 
-
 # Methods related to objects found on the Dashboard
 class MyDashboard
   
@@ -581,7 +621,7 @@ class MyDashboard
   include GlobalMethods
   include HeaderFooterBar
   include LeftMenuBarYou
-  include ChangePicturePopUp # FIXME ... Rethink including this by default
+  include ChangePicturePopUp # TODO ... Rethink including this by default
 
   # Page Objects
   button(:edit_layout, :text=>"Edit layout")
@@ -601,7 +641,9 @@ class MyDashboard
   def page_title
     self.div(:id=>"s3d-page-container").div(:class=>"s3d-contentpage-title").text
   end
-  
+
+  # Clicks the 'Add widget' button, waits for the page to load,
+  # then includes the AddRemoveWidgets module in the class.
   def add_widgets
     self.button(:text=>"Add widget").click
     self.wait_until { self.text.include? "Add widgets" }
@@ -639,11 +681,10 @@ class MyDashboard
     end
     return list
   end
-  
 
 end
 
-#
+# Methods related to the My Messages pages.
 class MyMessages
   
   include PageObject
@@ -702,7 +743,6 @@ class MyMessages
     self.wait_for_ajax
     self.class.class_eval { include SendMessagePopUp }
   end
-
   alias read_message open_message
   
   # Message Preview methods...
@@ -883,7 +923,7 @@ class MyMessages
   
 end
 
-#
+# Methods related to the Basic Info page in My Profile
 class MyProfileBasicInfo
   
   include PageObject
@@ -896,8 +936,6 @@ class MyProfileBasicInfo
   text_field(:family_name, :id=>"lastName")
   text_field(:preferred_name, :id=>"preferredName")
   select_list(:title, :id=>"role")
-  text_field(:department, :id=>"department")
-  text_field(:institution, :id=>"college")
   text_area(:tags, :name=>"tags")
   span(:first_name_error, :id=>"firstName_error")
   span(:last_name_error, :id=>"lastName_error")
@@ -928,6 +966,7 @@ class MyProfileBasicInfo
     return list
   end
 
+  # Removes the specified category from the list
   def remove_category(name)
     self.form(:id=>"displayprofilesection_form_basic").li(:text=>/#{Regexp.escape(name)}/).link(:class=>"as-close").click
     self.wait_for_ajax
@@ -942,7 +981,7 @@ class MyProfileBasicInfo
 
 end
 
-#
+# Methods related to the About Me page in My Profile
 class MyProfileAboutMe
 
   include PageObject
@@ -964,7 +1003,7 @@ class MyProfileAboutMe
 
 end
 
-#
+# Methods related to the 'Online' page in My Profile.
 class MyProfileOnline
   
   include PageObject
@@ -1015,8 +1054,8 @@ class MyProfileContactInfo
   
   # Page Objects
   #button(:add_another, :text=>"Add another", :id=>/profilesection_add_link_\d/)
-  text_field(:institution, :id=>"college", :name=>"college", :index=>1)
-  text_field(:department, :id=>"department", :name=>"department", :index=>1) 
+  text_field(:institution, :id=>"college", :name=>"college")
+  text_field(:department, :id=>"department", :name=>"department")
   text_field(:title_role, :name=>"role")
   text_field(:role, :name=>"role")
   text_field(:email, :name=>"emailContact")
@@ -1159,7 +1198,7 @@ class MyProfilePublications
   
 end
 
-#
+# Methods related to the User's My Library page.
 class MyLibrary
   
   include PageObject
@@ -1198,7 +1237,7 @@ class MyLibrary
   
 end
 
-#
+# Methods related to the User's My Memberships page.
 class MyMemberships
 
   include PageObject
@@ -1295,8 +1334,7 @@ class MyContacts
   
 end
 
-
-# 
+# Methods related to the page for viewing a User's profile
 class ViewPerson
   
   include PageObject
@@ -1487,7 +1525,7 @@ class ViewPerson
   
 end
 
-#
+# TODO - describe class
 class MyPreferences
 
   include PageObject
@@ -1641,7 +1679,7 @@ class Comments
   
 end
 
-#
+# TODO - describe class
 class JISC
   
   include PageObject
@@ -1650,7 +1688,8 @@ class JISC
   include LeftMenuBar
   include HeaderBar
   include DocButtons
-  
+
+  # TODO - Describe method
   def jisc_frame
     self.frame(:title=>"JISC content")
   end
@@ -1661,7 +1700,7 @@ class JISC
   
 end
 
-#
+# TODO - describe class
 class RSS
   
   include PageObject
@@ -1677,7 +1716,7 @@ class RSS
   
 end
 
-#
+# TODO - describe class
 class Tests
   
   include PageObject
@@ -1686,14 +1725,15 @@ class Tests
   include LeftMenuBar
   include HeaderBar
   include DocButtons
-  
+
+  # TODO - Describe method
   def tests_frame
     self.frame(:src=>/sakai2samigo.launch.html/)
   end
   
 end
 
-#
+# TODO - describe class
 class Files
   
   include PageObject
@@ -1708,18 +1748,20 @@ class Files
     widget_settings
     self.text_field(:class=>"as-input").when_present { self.class.class_eval { include FilesAndDocsPopUp } }
   end
-  
+
+  # TODO - Describe method
   def remove_files_widget
     remove_widget
   end
-  
+
+  # TODO - Describe method
   def files_wrapping
     widget_wrapping
   end
   
 end
 
-#
+# TODO - describe class
 class Gadget
   
   include PageObject
@@ -1728,7 +1770,8 @@ class Gadget
   include LeftMenuBar
   include HeaderBar
   include DocButtons
-  
+
+  # TODO - Describe method
   def gadget_frame
     self.frame(:id=>"ggadget_remotecontent_settings_preview_frame")
   end
@@ -1737,7 +1780,7 @@ class Gadget
   
 end
 
-#
+# TODO - describe class
 class Gradebook
   
   include PageObject
@@ -1746,14 +1789,15 @@ class Gradebook
   include LeftMenuBar
   include HeaderBar
   include DocButtons
-  
+
+  # TODO - Describe method
   def gradebook_frame
     self.frame(:src=>/sakai2gradebook.launch.html/)
   end
   
 end
 
-#
+# TODO - describe class
 class LTI
   
   include PageObject
@@ -1808,7 +1852,7 @@ class GoogleMaps
 
 end
 
-#
+# TODO - describe class
 class InlineContent
   
   include PageObject
@@ -1825,7 +1869,7 @@ class InlineContent
   
 end
 
-#
+# TODO - describe class
 class Remote
   
   include PageObject
@@ -1834,7 +1878,8 @@ class Remote
   include LeftMenuBar
   include HeaderBar
   include DocButtons
-  
+
+  # TODO - Describe method
   def remote_frame
     self.frame(:id=>"remotecontent_settings_preview_frame")
   end
@@ -1843,7 +1888,7 @@ class Remote
   
 end
 
-#
+# TODO - describe class
 class ResearchIntro
   
   include PageObject
@@ -1856,7 +1901,7 @@ class ResearchIntro
 end
 
 
-#
+# TODO - describe class
 class Acknowledgements
   
   include PageObject
@@ -1873,7 +1918,7 @@ class Acknowledgements
   
 end
 
-#
+# TODO - describe class
 class FourOhFourPage
   
   include PageObject
@@ -1883,7 +1928,7 @@ class FourOhFourPage
   
 end
 
-#
+# TODO - describe class
 class FourOhThreePage
   
   include PageObject
@@ -1893,7 +1938,7 @@ class FourOhThreePage
   
 end
 
-#
+# TODO - describe class
 class FourOhFourPage
   
   include PageObject

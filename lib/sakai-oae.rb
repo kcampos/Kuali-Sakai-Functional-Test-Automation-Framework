@@ -31,7 +31,7 @@ class SakaiOAE
   def sign_out
     @browser.link(:id=>"topnavigation_user_options_name").fire_event("onmouseover")
     @browser.link(:id=>"subnavigation_logout_link").click
-    sleep 1 # FIXME
+    @browser.link(:text=>"Explore").wait_until_present
     @browser.wait_for_ajax(2)#.div(:text=>"Recent activity").wait_until_present
     LoginPage.new @browser
   end

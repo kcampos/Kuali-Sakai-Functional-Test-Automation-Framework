@@ -12,7 +12,7 @@ require '../../lib/sakai-oae'
 describe "Create Test Accounts" do
   
   include Utilities
-  
+
   before :all do
     @config = AutoConfig.new
     @browser = @config.browser

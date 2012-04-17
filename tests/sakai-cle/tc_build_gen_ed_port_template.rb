@@ -1048,7 +1048,7 @@ sleep 15
     add_assgn4.accept_year=last_year
     add_assgn4.post
     
-    add_assgn4 = AssignmentAdd.new(@browser) # FIXME
+    add_assgn4 = AssignmentAdd.new(@browser) # TODO - Re-write without explicitly declaring class
     
     # TEST CASE: Verify alert message appears
     assert_equal @due_date_alert, add_assgn4.alert_text

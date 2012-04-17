@@ -4481,7 +4481,7 @@ class MessagesReceivedList
   # subjects of the displayed messages that are
   # marked unread.
   def unread_messages
-    # FIXME
+    # TODO - Write this method
   end
 
   # Clicks the Move link, then
@@ -4565,7 +4565,7 @@ class FolderList #FIXME
   end
 
   def unread_messages
-    # FIXME
+    # TODO - Write this method
   end
 
   def move
@@ -5388,7 +5388,7 @@ class PortfoliosUploadFiles
   # PortfolioAttachFiles Class.
   def upload_files_now
     frm.button(:value=>"Upload Files Now").click
-    sleep 1 # FIXME
+    sleep 1 # TODO - use a wait clause here
     @@filex=0
     PortfolioAttachFiles.new(@browser)
   end

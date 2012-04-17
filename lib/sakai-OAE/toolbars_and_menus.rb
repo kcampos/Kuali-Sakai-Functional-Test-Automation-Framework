@@ -407,7 +407,7 @@ module LeftMenuBar
 
   # Returns true if the specified page name appears in the list of items in the
   # Left menu bar. Returns false if the specified menu can't be found.
-  # FIXME - should be re-written to work more like the typical Ruby
+  # TODO - should be re-written to work more like the typical Ruby
   # question-mark method: Should be applied to the string being tested, not the
   # browser object.
   def menu_available?(page_name)
@@ -622,7 +622,6 @@ module SearchBar
     self.text_field(:id=>"search_text").set("#{text}\n")
     self.wait_for_ajax
   end
-
   alias search= search_for=
   alias search search_for=
   alias search_for search_for=
