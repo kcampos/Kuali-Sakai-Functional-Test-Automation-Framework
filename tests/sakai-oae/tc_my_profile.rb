@@ -58,8 +58,6 @@ describe "My Profile" do
     @academic_interests2 = random_multiline(10, 5)
     @personal_interests = random_multiline(20, 10)
     @personal_interests2 = random_multiline(15, 8)
-    @hobbies = random_alphanums
-    @hobbies2 = random_alphanums
     @site = "Facebook"
     @url = "www.facebook.com"
     @site2 = "Google"
@@ -196,12 +194,10 @@ describe "My Profile" do
     about_me.academic_interests=@academic_interests
     about_me.personal_interests_element.send_keys( [:command, 'a'] )
     about_me.personal_interests=@personal_interests
-    about_me.hobbies=@hobbies
     about_me.update
     about_me.about_Me.should == @about_me
     about_me.academic_interests.should == @academic_interests
     about_me.personal_interests.should == @personal_interests
-    about_me.hobbies.should == @hobbies
   end
   
   it "update about me" do
@@ -211,12 +207,10 @@ describe "My Profile" do
     about_me.academic_interests=@academic_interests2
     about_me.personal_interests_element.send_keys( [:command, 'a'] )
     about_me.personal_interests=@personal_interests2
-    about_me.hobbies=@hobbies2
     about_me.update
     about_me.about_Me.should == @about_me2
     about_me.academic_interests.should == @academic_interests2
     about_me.personal_interests.should == @personal_interests2
-    about_me.hobbies.should == @hobbies2
   end
   
   it "Add an Online" do
@@ -384,9 +378,6 @@ describe "My Profile" do
     profile.basic_info_data["Given Name:"].should == @given_name2
     profile.basic_info_data["Family Name:"].should == @family_name2
     profile.basic_info_data["Preferred Name:"].should == @preferred_name2
-    profile.basic_info_data["Title/Role:"].should == @title2
-    profile.basic_info_data["Department:"].should == @dept2
-    profile.basic_info_data["Institution:"].should == @institution2
     @categories2.each { |cat| profile.tags_and_categories_list.should include cat }
   end
   
@@ -395,7 +386,6 @@ describe "My Profile" do
     profile.about_me_data["About Me:"].should==@about_me2.gsub("\n", " ")
     profile.about_me_data["Academic interests:"].should==@academic_interests2.gsub("\n", " ")
     profile.about_me_data["Personal Interests:"].should==@personal_interests2.gsub("\n", " ")
-    profile.about_me_data["Hobbies:"].should==@hobbies2
   end
   
   it "user view Online" do
@@ -424,9 +414,6 @@ describe "My Profile" do
     profile.basic_info_data["Given Name:"].should == @given_name2
     profile.basic_info_data["Family Name:"].should == @family_name2
     profile.basic_info_data["Preferred Name:"].should == @preferred_name2
-    profile.basic_info_data["Title/Role:"].should == @title2
-    profile.basic_info_data["Department:"].should == @dept2
-    profile.basic_info_data["Institution:"].should == @institution2
     @categories2.each { |cat| profile.tags_and_categories_list.should include cat }
   end
   
@@ -435,7 +422,6 @@ describe "My Profile" do
     profile.about_me_data["About Me:"].should==@about_me2.gsub("\n", " ")
     profile.about_me_data["Academic interests:"].should==@academic_interests2.gsub("\n", " ")
     profile.about_me_data["Personal Interests:"].should==@personal_interests2.gsub("\n", " ")
-    profile.about_me_data["Hobbies:"].should==@hobbies2
   end
   
   it "public view Online" do
@@ -462,15 +448,9 @@ describe "My Profile" do
     basic_info.given_name=@first
     basic_info.family_name=@last
     basic_info.preferred_name=""
-    basic_info.title=""
-    basic_info.department=""
-    basic_info.institution=""
     @categories2.each { |cat| basic_info.remove_category cat }
     basic_info.update
     basic_info.preferred_name.should == ""
-    basic_info.title.should == ""
-    basic_info.department.should == ""
-    basic_info.institution.should == ""
     @categories2.each { |cat| basic_info.categories.should_not include cat }
   end
   
@@ -482,12 +462,10 @@ describe "My Profile" do
     about_me.academic_interests_element.send_keys( [:backspace] )
     about_me.personal_interests_element.send_keys( [:command, 'a'] )
     about_me.personal_interests_element.send_keys( [:backspace] )
-    about_me.hobbies=""
     about_me.update
     about_me.about_Me.should == ""
     about_me.academic_interests.should == ""
     about_me.personal_interests.should == ""
-    about_me.hobbies.should == ""
   end
   
   it "delete Online" do

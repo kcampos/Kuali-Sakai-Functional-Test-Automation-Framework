@@ -992,7 +992,6 @@ class MyProfileAboutMe
   text_area(:about_Me, :id=>"aboutme")
   text_area(:academic_interests, :id=>"academicinterests")
   text_area(:personal_interests, :id=>"personalinterests")
-  text_field(:hobbies, :id=>"hobbies")
   
   # Clicks the "Update" button and waits for any Ajax calls
   # to complete.
