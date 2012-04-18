@@ -3,8 +3,11 @@
 # 
 # == Synopsis
 #
-# Academic Smoke tests. Shallowly tests a broad range of features. This script will
-# eventually be deprecated in favor of the more robust ts_smoke_tests.rb test suite.
+# Tests of the sign-up page functionality.
+#
+# == Prerequisites
+#
+# Access to the sign-up page.
 # 
 # Author: Abe Heward (aheward@rSmart.com)
 require '../../features/support/env.rb'

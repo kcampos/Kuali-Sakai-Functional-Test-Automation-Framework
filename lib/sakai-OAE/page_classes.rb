@@ -326,6 +326,7 @@ class CreateNewAccount
   span(:email_confirm_error, :id=>"emailConfirm_error")
   span(:institution_error, :id=>"institution_error")
   span(:role_error, :id=>"role_error")
+  span(:password_strength, :class=>/strength (zero|one|two|three|four)/)
 
   # Clicks the 'create account' button, waits for the dashboard,
   # then returns the MyDashboard class object.
