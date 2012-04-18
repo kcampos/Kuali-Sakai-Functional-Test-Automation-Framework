@@ -936,7 +936,6 @@ class MyProfileBasicInfo
   text_field(:given_name, :name=>"firstName")
   text_field(:family_name, :id=>"lastName")
   text_field(:preferred_name, :id=>"preferredName")
-  select_list(:title, :id=>"role")
   text_area(:tags, :name=>"tags")
   span(:first_name_error, :id=>"firstName_error")
   span(:last_name_error, :id=>"lastName_error")

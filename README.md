@@ -1,5 +1,4 @@
-# Functional test automation framework for
-# the Kuali and Sakai open source products
+# Functional test framework for the Kuali and Sakai products
 
 ## Description:
 
