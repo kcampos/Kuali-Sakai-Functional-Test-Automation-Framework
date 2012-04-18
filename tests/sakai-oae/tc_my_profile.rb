@@ -50,8 +50,6 @@ describe "My Profile" do
     @family_name2 = random_alphanums
     @preferred_name = random_alphanums
     @preferred_name2 = random_alphanums
-    @title = "Postgraduate student"
-    @title2 = "Research staff"
     @categories = random_categories(3)
     @categories2 = random_categories(3)
     @about_me = random_multiline(50, 4)
@@ -163,7 +161,6 @@ describe "My Profile" do
   it "User can add Basic Information" do
     basic_info.family_name=@family_name
     basic_info.preferred_name=@preferred_name
-    basic_info.title=@title
     basic_info.list_categories
     @categories.each do |cat|
       basic_info.check_category cat
@@ -172,7 +169,6 @@ describe "My Profile" do
     basic_info.update
     basic_info.family_name.should == @family_name
     basic_info.preferred_name.should == @preferred_name
-    basic_info.title.should == @title
     @categories.each do |cat|
       basic_info.categories.should include cat
     end
@@ -182,7 +178,6 @@ describe "My Profile" do
     basic_info.given_name=@given_name2
     basic_info.family_name=@family_name2
     basic_info.preferred_name=@preferred_name2
-    basic_info.title=@title2
     basic_info.list_categories
     @categories2.each { |cat| basic_info.check_category cat }
     basic_info.save_categories
@@ -190,7 +185,6 @@ describe "My Profile" do
     basic_info.given_name.should == @given_name2
     basic_info.family_name.should == @family_name2
     basic_info.preferred_name.should == @preferred_name2
-    basic_info.title.should == @title2
     @categories2.each { |cat| basic_info.categories.should include cat }
   end
   
