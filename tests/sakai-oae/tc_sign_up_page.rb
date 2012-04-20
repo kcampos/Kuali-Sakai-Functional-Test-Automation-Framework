@@ -163,6 +163,7 @@ describe "Sign-Up Page" do
   end
   
   it "creates the account and accepts the agreement" do
+    signup.email_confirm=@email
     signup.role=@role
     agreement = signup.create_account
     dash = agreement.yes_I_accept
