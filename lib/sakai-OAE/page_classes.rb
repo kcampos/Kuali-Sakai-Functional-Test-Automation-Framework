@@ -17,7 +17,7 @@ class Assignments
   include HeaderBar
   include DocButtons
   
-  def cle_frame
+  def assignments_frame
     self.frame(:src=>/sakai2assignments.launch.html/)
   end
   
@@ -630,7 +630,7 @@ class MyDashboard
   radio_button(:two_column, :id=>"layout-picker-dev")
   radio_button(:three_column, :id=>"layout-picker-threecolumn")
   button(:save_layout, :id=>"select-layout-finished")
-  button(:add_widgets, :text=>"Add Widget")
+  button(:add_widgets_button, :text=>"Add Widget")  # Do not use for clicking the button. See custom methods
   image(:profile_pic, :id=>"entity_profile_picture")
   div(:my_name, :class=>"s3d-bold entity_name_me")
   
@@ -645,8 +645,11 @@ class MyDashboard
 
   # Clicks the 'Add widget' button, waits for the page to load,
   # then includes the AddRemoveWidgets module in the class.
+  # Note that this method is specifically "add_widgets" because
+  # otherwise there would be a method collision with the "add widget"
+  # method in the AddRemoveWidgets module.
   def add_widgets
-    self.button(:text=>"Add widget").click
+    self.add_widgets_button
     self.wait_until { self.text.include? "Add widgets" }
     self.class.class_eval { include AddRemoveWidgets }
   end
@@ -1207,11 +1210,9 @@ class MyLibrary
   include ListContent
   include LeftMenuBarYou
   include LibraryWidget
-  include ListContent
 
   # Page Objects
   button(:empty_library_add_content_button, :id=>"mylibrary_addcontent")
-  
 
   # Custom Methods and Page Objects...
   
@@ -1679,27 +1680,6 @@ class Comments
 end
 
 # TODO - describe class
-class JISC
-  
-  include PageObject
-  include GlobalMethods
-  include HeaderFooterBar
-  include LeftMenuBar
-  include HeaderBar
-  include DocButtons
-
-  # TODO - Describe method
-  def jisc_frame
-    self.frame(:title=>"JISC content")
-  end
-  
-  in_frame(:title=>"JISC content") do |f|
-    select_list(:choose_a_category, :id=>"themes", :frame=>f)
-  end
-  
-end
-
-# TODO - describe class
 class RSS
   
   include PageObject
@@ -1725,9 +1705,13 @@ class Tests
   include HeaderBar
   include DocButtons
 
-  # TODO - Describe method
+
+
+
+
+  # The frame object that contains all of the CLE Tests and Quizzes objects
   def tests_frame
-    self.frame(:src=>/sakai2samigo.launch.html/)
+    self.frame(:id=>/id\d+_frame/)
   end
   
 end
@@ -1758,6 +1742,22 @@ class Files
     widget_wrapping
   end
   
+end
+
+# Methods related to the Forum page in Courses/Groups
+class Forum
+
+  include GlobalMethods
+  include LeftMenuBar
+  include HeaderBar
+  include HeaderFooterBar
+  include DocButtons
+
+  # The frame that contains the CLE Forums objects
+  def forum_frame
+    self.frame(:src=>/sakai2forums.launch.html/)
+  end
+
 end
 
 # TODO - describe class
@@ -1849,23 +1849,6 @@ class GoogleMaps
     widget_wrapping
   end
 
-end
-
-# TODO - describe class
-class InlineContent
-  
-  include PageObject
-  include GlobalMethods
-  include HeaderFooterBar
-  include LeftMenuBar
-  include HeaderBar
-  include DocButtons
-  
-  select_list(:year, :id=>"inlinecontent_settings_option1")
-  select_list(:paper, :id=>"inlinecontent_settings_option2")
-  button(:save, :id=>"inlinecontent_settings_insert")
-  button(:cancel, :id=>"inlinecontent_settings_cancel")
-  
 end
 
 # TODO - describe class

@@ -189,7 +189,7 @@ module HeaderFooterBar
   def sign_up
     self.sign_up_link
     self.button(:id=>"save_account").wait_until_present
-    self.wait_for_ajax
+    sleep 3
     CreateNewAccount.new @browser
   end
 

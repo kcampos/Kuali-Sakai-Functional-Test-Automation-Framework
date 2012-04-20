@@ -635,9 +635,14 @@ module DeleteContentPopUp
 
   # Clicks the cancel button on the Pop-up and waits for the Ajax calls to finish
   def cancel
-    self.div(:id=>"deletecontent_button_container").button(:text=>"Cancel").click
+    begin
+      self.div(:id=>"deletecontent_dialog").button(:text=>"Cancel").click
+    rescue
+      self.button(:text=>"Cancel").click
+    end
     self.wait_for_ajax
   end
+  alias cancel_deleting_content cancel
 
   # Clicks the 'Remove from library' button and
   # waits for the Ajax calls to complete.
@@ -652,6 +657,16 @@ module DeleteContentPopUp
     self.delete_from_the_system_button
     sleep 2
     self.wait_for_ajax
+  end
+
+  # TODO - Define this method
+  def remove_from_the_system_anyway
+
+  end
+
+  # TODO - Define this method
+  def remove_from_this_library_only
+
   end
 
 end
@@ -1196,7 +1211,7 @@ module ShareWithPopUp
     name.split("", 5).each do |letter|
       self.share_with_field_element.focus
       self.share_with_field_element.send_keys(letter)
-      self.wait_until { self.div(:id=>/^as-results-/).visible? }
+      self.wait_until { self.ul(:class=>"as-list").present? }
       if self.li(:text=>/#{Regexp.escape(name)}/, :id=>/as-result-item-\d+/).present?
         @browser.li(:text=>/#{Regexp.escape(name)}/, :id=>/as-result-item-\d+/).click
         break

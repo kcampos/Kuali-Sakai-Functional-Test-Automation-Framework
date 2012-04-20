@@ -24,7 +24,7 @@ describe "Add/Remove Dashboard Widgets" do
     
     # Test case variables...
     @widgets = ["My recent memberships", "My content", "Most active groups",
-                "Most active content", "Most popular tags","JISC content",
+                "Most active content", "Most popular tags",
                 "My contacts", "Account preferences", "My recent messages",
                 "My recent contacts", "My memberships", "My recent content"]
     @user = @config.directory['admin']['username']
