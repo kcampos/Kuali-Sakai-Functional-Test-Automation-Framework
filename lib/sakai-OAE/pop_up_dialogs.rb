@@ -326,7 +326,8 @@ module AddContentContainer
   # "Collected Items" list.
   def add
     active_content_div.button(:text=>"Add").click
-    self.wait_for_ajax
+    sleep 0.1
+    self.wait_until { self.done_add_collected_button_element.enabled? }
   end
 
   # Works to enter text into any of the "Tags and Categories"
@@ -338,7 +339,7 @@ module AddContentContainer
 
   # Removes the item from the selected list.
   def remove(item)
-    self.link(:title=>"Remove #{item}").click
+    name_li(item).button(:title=>"Remove").click
     self.wait_for_ajax
   end
 
@@ -368,8 +369,7 @@ module AddContentContainer
   # the page to refresh and any ajax calls to complete.
   def done_add_collected
     self.done_add_collected_button
-    sleep 2
-    self.wait_for_ajax
+    sleep 1.2
   end
 
   # Private methods...

@@ -99,7 +99,6 @@ class ContentDetailsPage
   include LeftMenuBar
   
   # Page Objects
-  text_area(:description, :id=>"contentmetadata_description_description")
   text_area(:comment_text_area, :id=>"contentcomments_txtMessage")
   button(:comment_button, :text=>"Comment")
   button(:see_more, :id=>"contentmetadata_show_more")
@@ -114,7 +113,20 @@ class ContentDetailsPage
   span(:type, :id=>"entity_type")
   
   # Custom Methods...
-  
+
+  # Returns the text of the description display span.
+  def description
+    self.span(:id=>"contentmetadata_description_display").text
+  end
+
+  # Enters the specified text into the description text area box.
+  # Note that this method first fires off the edit_description method
+  # because the description text area is not present by default.
+  def description=(text)
+    edit_description
+    self.text_area(:id=>"contentmetadata_description_description").set text
+  end
+
   # Header row items...
   def update_name=(new_name)
     name_element.click
@@ -444,7 +456,7 @@ class CreateGroups
     self.button(:class=>"s3d-button s3d-overlay-button newcreategroup_create_simple_group").click
     sleep 0.3
     self.div(:id=>"sakai_progressindicator").wait_while_present
-    self.wait_for_ajax(2)
+    sleep 2 # The poor man's wait_for_ajax, since that was failing.
   end
   
 end
