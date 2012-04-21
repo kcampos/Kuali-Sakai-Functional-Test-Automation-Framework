@@ -747,7 +747,7 @@ class MyMessages
   # waits for Ajax calls to complete.
   def delete_message(subject)
     subject_div = active_div.div(:class=>"inbox_subject", :text=>subject)
-    subject_div.parent.parent.parent.link(:title=>"Delete message").click
+    subject_div.parent.parent.parent.button(:title=>"Delete message").click
     self.wait_for_ajax
   end
   
@@ -781,7 +781,7 @@ class MyMessages
   # Returns the file path and name of the displayed profile pic of the
   # specified message.
   def preview_profile_pic(subject)
-    message_div(subject).image(:class=>"person_icon").src
+    message_div(subject).parent.image(:class=>"person_icon").src
   end
   
   # Returns the text of the Body of the specified message.
