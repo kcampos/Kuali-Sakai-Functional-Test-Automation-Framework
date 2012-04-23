@@ -424,7 +424,7 @@ describe "My Messages" do
     inbox.delete_message @connection_invitation
   end
   
-  xit "Deleting an unread message updates unread message count within 30 seconds" do  # TODO - Write a bug about this (unread count not updating unless user logs out)
+  it "Deleting an unread message updates unread message count within 30 seconds" do
     inbox.unread_message_count.should ==($unread_message_count - 2)
   end
 
