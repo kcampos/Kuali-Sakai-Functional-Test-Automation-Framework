@@ -1260,13 +1260,40 @@ class MyMemberships
   include LeftMenuBarYou
 
   # Page Objects
-  # none yet...
-  
+  text_field(:search_memberships_field, :id=>"mymemberships_livefilter")
+  select_list(:sort_by_list, :id=>"mymemberships_sortby")
+  div(:gridview_button, :class=>/search-results-gridview/)
+  div(:listview_button, :class=>/search-results-listview/)
+  checkbox(:select_all, :id=>"mymemberships_select_checkbox")
+  button(:add_selected_button, :id=>"mymemberships_addpeople_button") # Don't use this method. Use the custom one defined below
+  button(:message_selected_button, :id=>"mymemberships_message_button") # Don't use this method. Use the custom one defined below
+  link(:create_a_new_group_button, :text=>"Create a new group") # Don't use this method. Use the custom one defined below
+
   # Custom methods...
 
   # Returns the text of the Page Title.
   def page_title
     active_div.div(:class=>"s3d-contentpage-title").text
+  end
+
+  # Returns the div object for the blue quote bubble that
+  # appears when the page is empty of memberships.
+  def quote_bubble
+    active_div.div(:class=>"s3d-no-results-container")
+  end
+
+  # Clicks the "Create one" link in the quote_bubble
+  # div and then returns the CreateGroups class object.
+  def create_one
+    quote_bubble.link(:text=>"Create one").click
+    self.wait_until { self.button(:class=>/create_simple_group/).present? }
+    CreateGroups.new @browser
+  end
+
+  # Sorts the list of memberships according to the specified value
+  def sort_by=(type)
+    self.sort_by_list=type
+    self.wait_for_ajax
   end
 
   # Private methods...
@@ -1544,7 +1571,6 @@ class MyPreferences
   include GlobalMethods
 
 end
-
 
 # Library pages in Courses/Groups/Research
 class Library

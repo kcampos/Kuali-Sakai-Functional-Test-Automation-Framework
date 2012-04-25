@@ -17,7 +17,7 @@ module HeaderFooterBar
   float_menu(:my_library, "You", "My library", "MyLibrary")
   float_menu(:my_memberships, "You", "My memberships", "MyMemberships")
   float_menu(:my_contacts, "You", "My contacts", "MyContacts")
-  float_menu(:create_a_group, "Create + Collect", "Create a group", "CreateGroups")
+  float_menu(:create_a_group, "Create + Collect", "Create a group", "CreateGroups") # Note that this MUST be "create_a_group" because "create_group" is already a method.
   float_menu(:create_a_course, "Create + Collect", "Create a course", "CreateCourses")
   float_menu(:create_a_research_project, "Create + Collect", "Create a research project", "CreateResearch")
   float_menu(:explore_all_categories, "Explore", "Browse all categories", "AllCategoriesPage")

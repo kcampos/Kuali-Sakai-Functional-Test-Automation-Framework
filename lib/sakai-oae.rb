@@ -21,7 +21,7 @@ class SakaiOAE
     if @browser.button(:id=>"emailverify_continue_button").present?
       @browser.button(:id=>"emailverify_continue_button").click
     end
-    @browser.wait_for_ajax(2)
+    @browser.linger_for_ajax(2)
     MyDashboard.new @browser
   end
   alias sign_in login
@@ -32,7 +32,7 @@ class SakaiOAE
     @browser.link(:id=>"topnavigation_user_options_name").fire_event("onmouseover")
     @browser.link(:id=>"subnavigation_logout_link").click
     @browser.link(:text=>"Explore").wait_until_present
-    @browser.wait_for_ajax(2)#.div(:text=>"Recent activity").wait_until_present
+    @browser.linger_for_ajax(2)#.div(:text=>"Recent activity").wait_until_present
     LoginPage.new @browser
   end
   alias logout sign_out
