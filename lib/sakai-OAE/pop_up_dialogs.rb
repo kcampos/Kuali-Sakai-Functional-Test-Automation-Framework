@@ -786,6 +786,28 @@ module InlineContentPopUp
 
 end
 
+#
+module LeaveWorldPopUp
+
+  include PageObject
+
+  # Clicks the "Yes, Apply" button and waits for
+  # Ajax calls to finish
+  def yes_apply
+    self.button(:id=>"mymemberships_delete_membership_confirm").click
+    sleep 1.5
+    self.linger_for_ajax(2)
+  end
+
+  # Clicks the "Cancel" button and waits for Ajax
+  # calls to complete
+  def cancel
+    self.div(:id=>"mymemberships_delete_membership_dialog").button(:class=>"s3d-link-button s3d-bold jqmClose").click
+    self.linger_for_ajax(1)
+  end
+
+end
+
 # Page Objects and Methods related to the Pop Up that allows modifying a
 # Group's/Course's participants.
 module ManageParticipants
@@ -824,7 +846,6 @@ module ManageParticipants
       end
     end
   end
-
   alias add_contact_by_search add_by_search
   alias add_participant_by_search add_by_search
   alias search_and_add_participant add_by_search
@@ -927,7 +948,7 @@ module PendingRequestsPopUp
   # specified user.
   def add_as_member(name)
     self.div(:class=>"fl-force-left joinrequests_details",:text=>/#{Regexp.escape(name)}/).button(:text=>"Add as a member").click
-    self.wait_for_ajax(3)
+    self.linger_for_ajax(3)
   end
   alias add_as_a_member add_as_member
 
@@ -935,12 +956,12 @@ module PendingRequestsPopUp
   # user
   def ignore(name)
     self.div(:class=>"fl-force-left joinrequests_details",:text=>/#{Regexp.escape(name)}/).button(:text=>"Ignore").click
-    self.wait_for_ajax(3)
+    self.linger_for_ajax(3)
   end
 
   def done
     self.done_button
-    self.wait_for_ajax(3)
+    self.linger_for_ajax(3)
   end
 
 end
@@ -979,7 +1000,7 @@ module PermissionsPopUp
   # Clicks the "Cancel" button
   def cancel
     self.cancel_button
-    self.wait_for_ajax(2)
+    self.linger_for_ajax(2)
   end
 
 end
@@ -996,8 +1017,7 @@ module ProfilePermissionsPopUp
   # Clicks the "Apply permissions" button
   def apply_permissions
     self.apply_permissions_button
-    sleep 0.3
-    #wait_for_ajax
+    self.linger_for_ajax
   end
 
   # Clicks the "Cancel" button
@@ -1030,7 +1050,7 @@ module RemoveContactsPopUp
   def remove_contact
     self.remove_contact_button
     sleep 0.5
-    self.wait_for_ajax
+    self.linger_for_ajax
   end
 
 end
@@ -1048,8 +1068,20 @@ module SaveContentPopUp
   include PageObject
 
   select_list(:saving_to, :id=>"savecontent_select")
-  button(:add, :text=>"Add")
-  button(:cancel, :class=>"savecontent_close s3d-link-button s3d-bold")
+  button(:add_button, :id=>"savecontent_save", :text=>"Add")  # Don't use this method for clicking the button. Use the method below.
+  button(:cancel_button, :class=>"savecontent_close s3d-link-button s3d-bold") # Don't use this method for clicking the button. Use the method below.
+
+  # Clicks the Add button and waits for Ajax calls to finish
+  def add
+    self.add_button
+    self.linger_for_ajax
+  end
+
+  # Clicks the Cancel button and waits for Ajax calls to finish
+  def cancel
+    self.cancel_button
+    self.linger_for_ajax
+  end
 
 end
 
@@ -1078,7 +1110,7 @@ module SendMessagePopUp
     name_li(name).link(:text=>"×").click
   end
 
-  # Returns an array containing the specified message recipients
+  # Returns an array containing the listed message recipients
   def message_recipients
     recipients = []
     self.lis(:id=>/as-selection-/).each do |li|
@@ -1140,7 +1172,7 @@ module SendMessagePopUp
   # Clicks the "Don't send" button
   def dont_send
     current_div.button(:id=>"send_message_cancel").click
-    self.wait_for_ajax
+    self.linger_for_ajax(2)
   end
 
   # Clicks the link for accepting a join request inside a Manager's join
@@ -1157,9 +1189,14 @@ module SendMessagePopUp
 
   def current_div
     begin
-      return active_div
-    rescue NoMethodError
-      return self
+      self.div(:id=>"sendmessage_dialog_box")
+      #return active_div
+    rescue
+      begin
+        return active_div
+      rescue NoMethodError
+        return self
+      end
     end
   end
 

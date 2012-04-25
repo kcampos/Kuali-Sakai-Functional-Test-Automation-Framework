@@ -93,7 +93,7 @@ module GlobalMethods
 
   # Clicks the X in the Notification box, to dismiss it.
   def close_notification
-    self.notification_element.fire_event "onmouseover"
+    self.div(:class=>"gritter-item").hover
     self.div(:class=>"gritter-close").fire_event "onclick"
   end
 

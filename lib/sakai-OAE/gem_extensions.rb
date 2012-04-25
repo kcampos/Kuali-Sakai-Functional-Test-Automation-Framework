@@ -133,7 +133,7 @@ module Watir
   
   class Browser
 
-    def wait_for_ajax(timeout=5)
+    def linger_for_ajax(timeout=5)
       end_time = ::Time.now + timeout
       while self.execute_script("return jQuery.active") > 0
         sleep 0.2

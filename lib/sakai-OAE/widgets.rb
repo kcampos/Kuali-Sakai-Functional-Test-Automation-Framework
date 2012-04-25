@@ -106,7 +106,7 @@ module LibraryWidget
 
   def sort_by=(sort_option)
     self.sort_by_list=sort_option
-    self.wait_for_ajax
+    self.linger_for_ajax(2)
   end
 
   # Returns the checkbox element itself for the specified
@@ -135,7 +135,7 @@ module LibraryWidget
 
   def add_to(name)
     name_li(name)
-
+    # TODO - Finish writing this method
   end
 
   def share_selected
@@ -158,7 +158,7 @@ module ListWidget
   include PageObject
 
   # Page Objects
-  select_list(:sort_by, :id=>/sortby/)
+  # select_list(:sort_by, :id=>/sortby/) Collision with method in Library widget
   select_list(:filter_by, :id=>"facted_select")
 
   # Custom Methods...
@@ -173,9 +173,8 @@ module ListWidget
     rescue
       list = []
     end
-    return list
+    list
   end
-
   alias courses results_list
   alias course_list results_list
   alias groups_list results_list
@@ -188,6 +187,27 @@ module ListWidget
   alias people_list results_list
   alias contacts results_list
   alias memberships results_list
+
+  # Gets the text describing when the specified item was last changed.
+  def last_updated(name)
+    # Get the target class...
+    klass = case
+              when name_li(name).div(:class=>"searchgroups_result_usedin").present?
+                "searchgroups_result_usedin"
+              when name_li(name).div(:class=>"searchcontent_result_by").present?
+                "searchcontent_result_by"
+              when name_li(name).div(:class=>"mymemberships_item_usedin").present?
+                "mymemberships_item_usedin"
+              when name_li(name).div(:class=>"mylibrary_item_by").present?
+                "mylibrary_item_by"
+              else
+                puts "didn't find any expected DIVs. Please investigate"
+            end
+    # Grab the text now that we know the class of the div...
+    div_text = name_li(name).div(:class=>klass).text
+    div_text[/^.+(?=.\|)/]
+  end
+  alias last_changed last_updated
 
 end
 
@@ -219,9 +239,9 @@ module ListContent
 
   # Adds the specified (listed) content to the library.
   def add_to_library(name)
-    name_li(name).button(:title=>"Save content").click
-    self.wait_until { self.text.include? "Save to" }
-    self.class.eval_class { include SaveContentPopUp }
+    name_li(name).button(:title=>/^Save /).click
+    self.wait_until { self.div(:id=>"savecontent_widget").visible? }
+    self.class.class_eval { include SaveContentPopUp }
   end
 
   def delete(name)
@@ -232,21 +252,21 @@ module ListContent
 
   # Clicks to view the owner information of the specified item.
   def view_owner_of(name)
-    name_li(name).link(:class=>"s3d-regular-light-links mylibrary_item_username").click
+    name_li(name).link(:class=>/s3d-regular-light-links (mylibrary_item_|searchcontent_result_)username/).click
     self.div(:id=>"entity_name").wait_until_present
     ViewPerson.new @browser
   end
 
   # Returns the item's owner name (as a text string).
   def content_owner(name)
-    name_li(name).div(:class=>"mylibrary_item_by").link.text
+    name_li(name).div(:class=>/(mylibrary_item_|searchcontent_result_)by/).link.text
   end
 
   # Returns an Array object containing the list of tags/categories
   # listed for the specified content item.
   def content_tags(name)
     array = []
-    name_li(name).div(:class=>"mylibrary_item_tags").lis.each do |li|
+    name_li(name).div(:class=>/(mylibrary_item_|searchcontent_result_)tags/).lis.each do |li|
       array << li.span(:class=>"s3d-search-result-tag").text
     end
     return array
@@ -259,14 +279,8 @@ module ListContent
   end
 
   def content_description(name)
-    name_li(name).div(:class=>"mylibrary_item_description").text
+    name_li(name).div(:class=>/(mylibrary_item_|searchcontent_result_)description/).text
   end
-
-  def last_updated(name)
-    div_text = name_li(name).div(:class=>"mylibrary_item_by").text
-    return div_text[/(?<=\|.).+/]
-  end
-  alias last_changed last_updated
 
   def search_by_tag(tag)
     name_link(tag).click
@@ -287,7 +301,7 @@ module ListContent
   private
 
   def used_in_text(name)
-    name_li(name).div(:class=>"mylibrary_item_usedin").text
+    name_li(name).div(:class=>/(mylibrary_item_|searchcontent_result_)usedin/).text
   end
 
 end # ListContent
@@ -351,27 +365,76 @@ module ListGroups
   def add_group(name)
     name_li(name).div(:class=>/searchgroups_result_left_filler/).fire_event("onclick")
   end
-
   alias add_course add_group
   alias add_research add_group
   alias join_course add_group
   alias join_group add_group
 
+  #
+  def remove_membership(name)
+    remove_membership_button(name).click
+    self.linger_for_ajax
+    self.class.class_eval { include LeaveWorldPopUp }
+  end
+  alias leave_group remove_membership
+
+  # This returns the Remove button element itself, for the
+  # specified Group/Course/Research listed. This is useful
+  # for interacting directly with the element instead of
+  # simply clicking on it.
+  def remove_membership_button(name)
+    name_li(name).button(:title=>/Remove membership from/)
+  end
+
+  # Checks the checkbox for the specified group                                           _
+  def check_group(name)
+    name_li(name).checkbox(:title=>/Select/).set
+  end
+  alias select_group check_group
+
   # Returns the specified item's "type", as shown next to the item name--i.e.,
   # "GROUP", "COURSE", etc.
-  def group_type(item)
-    self.span(:class=>"s3d-search-result-name",:text=>item).parent.span(:class=>"mymemberships_item_grouptype").text
+  def group_type(name)
+    self.span(:class=>"s3d-search-result-name",:text=>name).parent.parent.span(:class=>"mymemberships_item_grouptype").text
+  end
+  alias course_type group_type
+  alias research_type group_type
+
+  # Returns the number of content items (as an Integer, not a String) in the specified
+  # course/group.
+  def content_item_count(name)
+    text = self.span(:class=>"s3d-search-result-name",:text=>name).parent.parent.parent.link(:title=>/\d+.content items/).text
+    text[/\d+/].to_i
+  end
+
+  # Returns the count (as an Integer, not a String) of participants in the specified group/course.
+  def participants_count(name)
+    text = self.span(:class=>"s3d-search-result-name",:text=>name).parent.parent.parent.link(:title=>/\d+.participant/).text
+    text[/\d+/].to_i
+  end
+
+  def view_group_participants(name)
+    name_li(name).link(:title=>/\d+.participant/i).click
+    self.linger_for_ajax(2)
+    Participants.new @browser
   end
 
   # Clicks the Message button for the specified listed item.
   def message_course(name)
-    name_li(name).button(:class=>/sakai_sendmessage_overlay/).click
+    message_button(name).click
+    self.linger_for_ajax(2)
     self.class.class_eval { include SendMessagePopUp }
   end
-
+  alias send_message_to_course message_course
+  alias send_message_to_group message_course
   alias message_group message_course
   alias message_person message_course
   alias message_research message_course
+
+  # Returns the message button element itself.
+  def message_button(name)
+    name_li(name).button(:class=>/sakai_sendmessage_overlay/)
+  end
 
 end
 
