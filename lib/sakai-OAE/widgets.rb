@@ -201,11 +201,23 @@ module ListWidget
               when name_li(name).div(:class=>"mylibrary_item_by").present?
                 "mylibrary_item_by"
               else
-                puts "didn't find any expected DIVs. Please investigate"
+                puts "Didn't find any expected DIVs. Please investigate and add missing class value"
+                puts
+                puts name_li(name).html
             end
     # Grab the text now that we know the class of the div...
     div_text = name_li(name).div(:class=>klass).text
-    div_text[/^.+(?=.\|)/]
+    case(klass)
+      when "mylibrary_item_by"
+        return div_text[/(?<=\|.).+/]
+      when "searchgroups_result_usedin"
+        return div_text[/^.+(?=.\|)/]
+      when "mymemberships_item_usedin"
+        return div_text[/^.+(?=.\|)/]
+      when "searchcontent_result_by"
+        return div_text[/(?<=\|.).+/]
+    end
+
   end
   alias last_changed last_updated
 
@@ -249,6 +261,7 @@ module ListContent
     self.div(:id=>"deletecontent_dialog").wait_until_present
     self.class.class_eval { include DeleteContentPopUp }
   end
+  alias remove_item delete
 
   # Clicks to view the owner information of the specified item.
   def view_owner_of(name)
@@ -460,13 +473,6 @@ module ListProjects
 
   alias view_research open_research
   alias open_project open_research
-
-end
-
-# Methods related to the Mail Pages. (Is this needed????)
-module MailWidget
-
-  include PageObject
 
 end
 

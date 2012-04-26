@@ -1,4 +1,3 @@
-#!/usr/bin/env ruby
 # coding: UTF-8
 
 # The Topmost Header menu bar, present on most pages,

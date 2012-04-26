@@ -37,7 +37,7 @@ describe "Create Course" do
     }
     
     @new_document = {:name=>random_alphanums, :visible=>"Public", :pages=>"3"}
-    @existing_document = {:name=>"Tests and Quizzes", :title=>"Existing Doc", :visible =>"Participants only", :example_content=>"Real and Hyperreal Numbers" }
+    @existing_document = {:name=>"References", :title=>"Existing Doc", :visible =>"Participants only", :example_content=>"Research holding the torch of knowledge" }
     @participant_list = {:name=>random_alphanums, :visible=>"Public"}
     @content_library = {:name=>random_alphanums, :visible=>"Public"}
     @widgets = [
@@ -168,7 +168,7 @@ describe "Create Course" do
     sleep 2 #FIXME
 
     # TEST CASE: Updated document text appears
-    @browser.text.should include @doc_header #FIXME - Try to improve this later by defining the containing div.
+    @browser.text.should include @doc_header #TODO - Try to improve this later by defining the containing div.
   end
   
   it "pages appear as expected" do
@@ -176,7 +176,7 @@ describe "Create Course" do
     existing = document.open_tests_and_quizzes @existing_document[:title]
     
     # TEST CASE: Existing document is as expected
-    existing.tests_frame.should exist
+    existing.text.should include @existing_document[:example_content]
     
     party = existing.open_participants @participant_list[:name]
 
@@ -281,12 +281,13 @@ describe "Create Course" do
     remote = Remote.new @browser
     tests = remote.open_tests_and_quizzes(@widgets[9][:name])
     tests.execute_script("$('div#basiclti_main_container').css('style', 'block')")
+    tests.linger_for_ajax
     # TEST CASE: Assessments frame exists?
     tests.tests_frame.should be_visible
   end
 
   it "Calendar page is as expected" do
-    tests = Test.new @browser
+    tests = Tests.new @browser
     calendar = tests.open_calendar(@widgets[10][:name])
     
     # TEST CASE: Calendar frame exists?
@@ -295,7 +296,7 @@ describe "Create Course" do
 
   it "Files and Documents page appears as expected" do
     calendar = Calendar.new @browser
-    file = calendar.open_calendar(@widgets[12][:name])
+    file = calendar.open_file(@widgets[12][:name])
     file.files_settings
     
     # TEST CASE: Verify the Files and Documents pop-up

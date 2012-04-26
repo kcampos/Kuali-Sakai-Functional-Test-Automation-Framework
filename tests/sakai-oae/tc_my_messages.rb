@@ -7,8 +7,8 @@
 #
 # == Prerequisites
 #
-# Four existing test users (see lines 32-43). Except for users 3 and 4, these users should be
-# in each others' Contacts lists. User 1 should have zero messages in any boxes.
+# Four existing test users (see lines 29-43). Except for users 3 and 4, these users should be
+# in each others' Contacts lists. User 5 should have zero messages in any boxes.
 # 
 # Author: Abe Heward (aheward@rSmart.com)
 require '../../features/support/env.rb'
@@ -38,11 +38,13 @@ describe "My Messages" do
     @user4 = @config.directory['person6']['id']
     @pass4 = @config.directory['person6']['password']
     @name4 = "#{@config.directory['person6']['firstname']} #{@config.directory['person6']['lastname']}"
+    @user5 = @config.directory['person11']['id']
+    @pass5 = @config.directory['person11']['password']
     
     @sakai = SakaiOAE.new(@browser)
     
     # Test case variables...
-    @my_inbox_url = "https://nightly.academic.rsmart.com/me#l=messages/inbox"
+    @my_inbox_url = "#{@config.url}/me#l=messages/inbox"
     @message1 = {:subject=>"message1"+random_alphanums,
       :body=>"body1"#random_multiline(100, 5)
       }
@@ -56,7 +58,7 @@ describe "My Messages" do
       :body=>"body4"+random_multiline(100, 5)
       }
     @message5 = {:subject=>"message6"+random_alphanums,
-      :body=>"Body5"+random_multiline(100, 5)
+      :body=>"me you do it "+random_multiline(100, 5)
       }
     @group_message = {:subject=>"Group Message"+random_alphanums,
       :body=>"Group Body"+random_multiline(100, 5)
@@ -77,8 +79,7 @@ describe "My Messages" do
   it "Inbox not directly accessible when not logged in" do
     
     @browser.goto @my_inbox_url
-    sleep 3 # TODO - Fix this to wait for something on the page
-    @browser.wait_for_ajax
+    @browser.text_field(:id=>"topnavigation_user_options_login_fields_password").wait_until_present
     
     # TEST CASE: User was not taken to the inbox
     home.expand_categories_element.should exist
@@ -88,7 +89,7 @@ describe "My Messages" do
   end
   
   it "Use of inbox link will take user directly there after login" do
-    @sakai.login(@user1, @pass1)
+    @sakai.login(@user5, @pass5)
     
     # TEST CASE: When user signs in, taken directly to inbox
     inbox.page_title.should == "INBOX"
@@ -110,9 +111,12 @@ describe "My Messages" do
     
     # TEST CASE: User can expand a collapsed My Messages tree
     inbox.trash_link_element.should be_visible
+    @sakai.logout
   end
   
   it "Compose message button is present on Inbox page" do
+    dash = @sakai.login(@user1, @pass1)
+    inbox = dash.my_messages
     inbox.compose_message
     
     # Send a message to another user
@@ -234,14 +238,15 @@ describe "My Messages" do
     inbox.message_subjects.should_not include @message5[:subject]
   end
 
-  it "Submitting a search narrows the results of the current Messages box when matching Body" do
+  # TODO - Add this and next back when ACAD-971 is resolved
+  xit "Submitting a search narrows the results of the current Messages box when matching Body" do
     inbox.search_messages=@message5[:body][0..20]
     inbox.message_subjects.should_not include @message2[:subject]
     inbox.message_subjects.should_not include @message3[:subject]
     inbox.message_subjects.should include @message5[:subject]
   end
   
-  it "Results can be broadened back to all results by removing the search term and clicking enter" do
+  xit "Results can be broadened back to all results by removing the search term and clicking enter" do
     inbox.search_messages=" "
     inbox.message_subjects.should include @message2[:subject]
     inbox.message_subjects.should include @message3[:subject]
@@ -423,8 +428,9 @@ describe "My Messages" do
     inbox.invitations
     inbox.delete_message @connection_invitation
   end
-  
-  it "Deleting an unread message updates unread message count within 30 seconds" do
+
+  # TODO - Add back when count bug is fixed
+  xit "Deleting an unread message updates unread message count within 30 seconds" do
     inbox.unread_message_count.should ==($unread_message_count - 2)
   end
 

@@ -4,6 +4,7 @@ require 'sakai-OAE/global_methods'
 require 'sakai-OAE/toolbars_and_menus'
 require 'sakai-OAE/pop_up_dialogs'
 require 'sakai-OAE/widgets'
+require 'sakai-OAE/cle_frame_classes'
 
 # Sakai-OAE Page Classes
 
@@ -16,10 +17,12 @@ class Assignments
   include LeftMenuBar
   include HeaderBar
   include DocButtons
+  include CLEAssignments
   
   def assignments_frame
     self.frame(:src=>/sakai2assignments.launch.html/)
   end
+  alias frm assignments_frame
   
 end
 
@@ -642,7 +645,7 @@ class MyDashboard
   radio_button(:two_column, :id=>"layout-picker-dev")
   radio_button(:three_column, :id=>"layout-picker-threecolumn")
   button(:save_layout, :id=>"select-layout-finished")
-  button(:add_widgets_button, :text=>"Add Widget")  # Do not use for clicking the button. See custom methods
+  button(:add_widgets_button, :class=>/dashboard_global_add_widget/)  # Do not use for clicking the button. See custom methods
   image(:profile_pic, :id=>"entity_profile_picture")
   div(:my_name, :class=>"s3d-bold entity_name_me")
   
@@ -888,8 +891,11 @@ class MyMessages
   # specify clicking the Search button.
   def search_messages=(text)
     search_field_element.set(text+"\n")
-    self.wait_for_ajax
-    sleep 0.3
+    begin
+      active_div.p(:id=>"inbox_search_term").wait_until_present(3)
+    rescue
+      # do nothing because the result set might be empty
+    end
   end
   
   # The page element for the Search button
@@ -1743,13 +1749,9 @@ class Tests
   include HeaderBar
   include DocButtons
 
-
-
-
-
   # The frame object that contains all of the CLE Tests and Quizzes objects
   def tests_frame
-    self.frame(:id=>/id\d+_frame/)
+    self.frame(:src=>/sakai2samigo.launch.html/)
   end
   
 end

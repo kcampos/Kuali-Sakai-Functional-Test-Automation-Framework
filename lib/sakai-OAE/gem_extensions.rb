@@ -42,7 +42,7 @@ module PageObject
         self.back_to_top
         self.link(:text=>/#{value}/).click
         sleep 2
-        self.wait_for_ajax(3)
+        self.linger_for_ajax(6)
         # This code is necessary because of a null style tag
         # that confuses Watir into thinking the buttons aren't really there.
         if self.div(:id=>"joinrequestbuttons_widget").exist?

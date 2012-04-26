@@ -1307,24 +1307,9 @@ class AssignmentsList
     end
     return titles
   end
-  
-  # Returns an array of the displayed assignment titles.
-  # Use for verification of test steps.
-  def assignment_titles
-    assignments_titles
-  end
-  
-  # Returns an array of the displayed assignment titles.
-  # Use for verification of test steps.
-  def assignment_list
-    assignments_titles
-  end
-  
-  # Returns an array of the displayed assignment titles.
-  # Use for verification of test steps.
-  def assignments_list
-    assignments_titles
-  end
+  alias assignment_titles assignments_titles
+  alias assignment_list assignments_titles
+  alias assignments_list assignments_titles
   
   # Clicks the Add link, then instantiates
   # the AssignmentAdd page class.

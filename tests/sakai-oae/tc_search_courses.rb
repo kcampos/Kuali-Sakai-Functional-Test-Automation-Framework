@@ -25,8 +25,8 @@ describe "Course Memberships" do
     # Get the test configuration data
     @config = AutoConfig.new
     @browser = @config.browser
-    @instructor = @config.directory['admin']['username']
-    @ipassword = @config.directory['admin']['password']
+    @instructor = @config.directory['person3']['id']
+    @ipassword = @config.directory['person3']['password']
     @participant = @config.directory['person1']['id']
     @participant_pw = @config.directory['person1']['password']
     @participant_name = "#{@config.directory['person1']['firstname']} #{@config.directory['person1']['lastname']}"
