@@ -9,11 +9,11 @@ Ruby and Watir-webdriver--but without needing to know either in detail.
 
 ## Requirements:
 
-Ruby 1.9.2 or higher
+### Ruby 1.9.2 or higher
 
-Ruby Gems:
-    Watir-Webdriver
-    Page-Object
+### Ruby Gems:
+[Watir-Webdriver](http://www.watirwebdriver.com)
+[Page-Object](https://github.com/cheezy/page-object)
     
     
 Note that Test-Unit and ci_reporter are required if you're going to be using any of the CLE

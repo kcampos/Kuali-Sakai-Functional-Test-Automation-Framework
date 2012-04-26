@@ -41,7 +41,7 @@ describe "Data Seeding" do
     {:filename=>"images/flower01.jpg", :title=>"JPG Image", :description=>"A JPG image file", :tag=>"Image", :mime=>"JPG IMAGE"},
     {:filename=>"documents/768.pdf", :title=>"PDF File", :description=>"A sample PDF file", :tag=>"PDF", :mime=>"PDF DOCUMENT"},
     {:filename=>"movies/Spring.swf",:title=>"Flash Movie",:description=>"A flash movie",:tag=>"Flash", :mime=>"FLASH PLAYER FILE"},
-    {:filename=>"movies/guit.avi", :title=>"Movie", :description=>"An AVI video file", :tag=>"Video", :mime=>"VIDEO FILE"},
+    {:filename=>"movies/Gage1.wmv", :title=>"Windows Meta Vid", :description=>"An AVI video file", :tag=>"Video", :mime=>"VIDEO FILE"},
     {:filename=>"spreadsheets/resources.xls", :title=>"Excel Spreadsheet", :description=>"An Excel Spreadsheet file", :tag=>"XLS", :mime=>"SPREADSHEET DOCUMENT"},
     {:filename=>"zips/Chronological Resume Template.zip", :title=>"Zip File", :description=>"A compressed file", :tag=>"Zip", :mime=>"ARCHIVE FILE"},
     {:filename=>"documents/Lorem.txt", :title=>"Text File", :description=>"A Text File", :tag=>"Text", :mime=>"TEXT DOCUMENT"}

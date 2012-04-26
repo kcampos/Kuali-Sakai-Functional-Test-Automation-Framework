@@ -320,6 +320,9 @@ module AddContentContainer
 
   button(:done_add_collected_button, :text=>"Done, add collected")
 
+  # Progress Indicator that appears while files are uploading
+  div(:progress_indicator, :id=>"sakai_progressindicator")
+
   # Custom Methods...
 
   # Clicks the "Add" button that moves items into the
@@ -369,7 +372,7 @@ module AddContentContainer
   # the page to refresh and any ajax calls to complete.
   def done_add_collected
     self.done_add_collected_button
-    sleep 1.2
+    self.progress_indicator_element.wait_while_present
   end
 
   # Private methods...
@@ -648,6 +651,8 @@ module DeleteContentPopUp
   # waits for the Ajax calls to complete.
   def remove_from_library
     self.remove_from_library_button
+    self.remove_from_library_button_element.wait_while_present
+    sleep 1.5
     self.wait_for_ajax
   end
 
