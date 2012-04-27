@@ -6,26 +6,6 @@ require 'sakai-OAE/pop_up_dialogs'
 require 'sakai-OAE/widgets'
 require 'sakai-OAE/cle_frame_classes'
 
-# Sakai-OAE Page Classes
-
-# Methods for the Assignments Widget page.
-class Assignments
-  
-  include PageObject
-  include GlobalMethods
-  include HeaderFooterBar
-  include LeftMenuBar
-  include HeaderBar
-  include DocButtons
-  include CLEAssignments
-  
-  def assignments_frame
-    self.frame(:src=>/sakai2assignments.launch.html/)
-  end
-  alias frm assignments_frame
-  
-end
-
 # The Login page for OAE.
 class LoginPage
   
@@ -695,9 +675,7 @@ class MyDashboard
   # Returns an array containing all the items listed in the "My memberships" dashboard widget.
   def my_memberships_list
     list = []
-    self.ul(:class=>"mygroup_items_list").spans(:class=>"mygroups_ellipsis_text").each do |span|
-      list << span.text
-    end
+    self.ul(:class=>"mygroup_items_list").spans(:class=>"mygroups_ellipsis_text").each { |span| list << span.text }
     return list
   end
 

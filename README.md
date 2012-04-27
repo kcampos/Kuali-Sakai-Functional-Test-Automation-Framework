@@ -13,7 +13,6 @@ Ruby and Watir-webdriver--but without needing to know either in detail.
 
 ### Ruby Gems:
 [Watir-Webdriver](http://www.watirwebdriver.com)
-
 [Page-Object](https://github.com/cheezy/page-object)
     
     
