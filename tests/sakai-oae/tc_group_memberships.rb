@@ -23,8 +23,8 @@ describe "Group Memberships" do
     # Get the test configuration data
     @config = AutoConfig.new
     @browser = @config.browser
-    @instructor = @config.directory['admin']['username']
-    @ipassword = @config.directory['admin']['password']
+    @instructor = @config.directory['person3']['id']
+    @ipassword = @config.directory['person3']['password']
     @user2 = @config.directory['person1']['id']
     @u2password = @config.directory['person1']['password']
     @student_name = "#{@config.directory['person1']['firstname']} #{@config.directory['person1']['lastname']}"

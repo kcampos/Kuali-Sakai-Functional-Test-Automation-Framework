@@ -1,6 +1,7 @@
 doc
 rakefile
 test/
+data/sakai*
 In Progress
 config.yml
 directory.yml
