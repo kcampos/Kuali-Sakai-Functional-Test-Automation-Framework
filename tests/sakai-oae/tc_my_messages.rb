@@ -203,7 +203,7 @@ describe "My Messages" do
   end
   
   # Commenting out this test because there's a strange problem with
-  # uploading image files with Watir-Webdriver. TODO - Write bug about this issue
+  # uploading image files with Watir-Webdriver. TODO - Fix when ACAD-979 is resolved
   xit "Profile picture of sender is displayed next to each message (when available)" do
     inbox.change_picture
     inbox.upload_a_new_picture @thumbnail

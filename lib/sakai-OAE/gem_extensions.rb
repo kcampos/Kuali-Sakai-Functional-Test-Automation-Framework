@@ -31,8 +31,7 @@ module PageObject
         self.back_to_top
         self.link(:text=>menu_text).fire_event("onmouseover")
         self.link(:text=>/#{link_text}/).click
-        sleep 3
-        #wait_for_ajax
+        self.linger_for_ajax(10)
         eval(target_class).new @browser
       }
     end

@@ -1438,21 +1438,6 @@ class AssignmentsList
   
 end
 
-# Options page for Assignments
-class AssignmentsOptions
-  
-  include PageObject
-  include ToolsMenu
-  
-  in_frame(:index=>1) do |frame|
-    radio_button(:default, :id=>"submission_list_option_default", :frame=>frame)
-    radio_button(:only_show_filtered_submissions, :id=>"submission_list_option_searchonly", :frame=>frame)
-    button(:update, :name=>"eventSubmit_doUpdate_options", :frame=>frame)
-    button(:cancel, :name=>"eventSubmit_doCancel_options", :frame=>frame)
-    
-  end
-
-end
 
 # The Permissions Page in Assignments
 class AssignmentsPermissions
