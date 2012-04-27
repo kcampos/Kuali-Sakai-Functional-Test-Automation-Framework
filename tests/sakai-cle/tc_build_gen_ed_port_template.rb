@@ -45,7 +45,7 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
       "documents/reflection.xsd",
     ]
     @folder_name = random_alphanums(5)
-    @portfolio_site = "PortfolioFun"
+    @portfolio_site = @config.directory["site2"]["name"]
     @schema = [ get_filename(@files[0]), get_filename(@files[1]), get_filename(@files[2]), get_filename(@files[3]) ]
     @form_names = ["Evaluation" + random_alphanums, "Feedback for Matrix" + random_alphanums, "General Education Evidence" + random_alphanums, "Reflection for Matrix" + random_alphanums ]
     @form_instructions = [
@@ -1048,7 +1048,7 @@ sleep 15
     add_assgn4.accept_year=last_year
     add_assgn4.post
     
-    add_assgn4 = AssignmentAdd.new(@browser) # FIXME
+    add_assgn4 = AssignmentAdd.new(@browser) # TODO - Re-write without explicitly declaring class
     
     # TEST CASE: Verify alert message appears
     assert_equal @due_date_alert, add_assgn4.alert_text

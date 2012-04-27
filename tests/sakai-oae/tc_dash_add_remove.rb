@@ -8,10 +8,8 @@
 #
 # 
 # Author: Abe Heward (aheward@rSmart.com)
-$: << File.expand_path(File.dirname(__FILE__) + "/../../lib/")
-["rspec", "watir-webdriver", "../../config/OAE/config.rb",
-  "utilities", "sakai-OAE/app_functions",
-  "sakai-OAE/page_elements" ].each { |item| require item }
+require '../../features/support/env.rb'
+require '../../lib/sakai-oae'
 
 describe "Add/Remove Dashboard Widgets" do
   
@@ -26,7 +24,7 @@ describe "Add/Remove Dashboard Widgets" do
     
     # Test case variables...
     @widgets = ["My recent memberships", "My content", "Most active groups",
-                "Most active content", "Most popular tags","JISC content",
+                "Most active content", "Most popular tags",
                 "My contacts", "Account preferences", "My recent messages",
                 "My recent contacts", "My memberships", "My recent content"]
     @user = @config.directory['admin']['username']

@@ -8,19 +8,19 @@
 # == Prerequisites
 #
 # An admin user or an 'instructor' user who is in multiple existing
-# courses, which contain content. See lines 30, 31, and 42.
+# courses, which contain content. See lines 28, 29, and 40.
 # At least one other "participant" in the site, visible to the admin/instructor
-# user. See line 61.
+# user. See line 58.
 # 
 # Author: Abe Heward (aheward@rSmart.com)
-$: << File.expand_path(File.dirname(__FILE__) + "/../../lib/")
-["rspec", "watir-webdriver", "../../config/OAE/config.rb",
-  "utilities", "sakai-OAE/app_functions",
-  "sakai-OAE/page_elements" ].each { |item| require item }
+require '../../features/support/env.rb'
+require '../../lib/sakai-oae'
 
 describe "Create Course" do
   
   include Utilities
+
+  let(:library) { Library.new @browser }
 
   before :all do
     
@@ -39,12 +39,11 @@ describe "Create Course" do
     }
     
     @new_document = {:name=>random_alphanums, :visible=>"Public", :pages=>"3"}
-    @existing_document = {:name=>"Tests and Quizzes", :title=>"Existing Doc", :visible =>"Participants only", :example_content=>"Real and Hyperreal Numbers" }
+    @existing_document = {:name=>"References", :title=>"Existing Doc", :visible =>"Participants only", :example_content=>"Research holding the torch of knowledge" }
     @participant_list = {:name=>random_alphanums, :visible=>"Public"}
     @content_library = {:name=>random_alphanums, :visible=>"Public"}
     @widgets = [
       {:name=>random_alphanums,:widget=>"Comments",:visible=>"Public"},
-      {:name=>random_alphanums,:widget=>"JISC content",:visible=>"Public"},
       {:name=>random_alphanums,:widget=>"RSS feed reader",:visible=>"Public"},
       {:name=>random_alphanums,:widget=>"Google maps",:visible=>"Public"},
       {:name=>random_alphanums,:widget=>"Assignments",:visible=>"Public"},
@@ -53,9 +52,9 @@ describe "Create Course" do
       {:name=>random_alphanums,:widget=>"Gradebook",:visible=>"Public"},
       {:name=>random_alphanums,:widget=>"Discussion",:visible=>"Public"},
       {:name=>random_alphanums,:widget=>"Remote content",:visible=>"Public"},
-      {:name=>random_alphanums,:widget=>"Inline Content",:visible=>"Public"},
       {:name=>random_alphanums,:widget=>"Tests and Quizzes",:visible=>"Public"},
       {:name=>random_alphanums,:widget=>"Calendar",:visible=>"Public"},
+      {:name=>random_alphanums,:widget=>"Forum",:visible=>"Public"},
       {:name=>random_alphanums,:widget=>"Files and documents",:visible=>"Public"}
     ]
     @participant="#{@config.directory['person1']['firstname']} #{@config.directory['person1']['lastname']}"
@@ -72,7 +71,7 @@ describe "Create Course" do
     # Log in to Sakai
     dashboard = @sakai.login(@instructor, @ipassword)
 
-    dashboard.add_widget
+    dashboard.add_widgets
     dashboard.add_all_widgets
     
     @existing_course_title = dashboard.recent_membership_item
@@ -98,7 +97,6 @@ describe "Create Course" do
   end
   
   it "adds areas to the course" do
-    library = Library.new @browser
     library.add_new_area
     library.new_doc_name=@new_document[:name]
     library.new_doc_permissions=@new_document[:visible]
@@ -119,9 +117,7 @@ describe "Create Course" do
   end
   
   it "new course appears in My Memberships" do
-    library = Library.new @browser
     dashboard = library.my_dashboard
-    
     # TEST CASE: Verify the new course is in My Memberships
     dashboard.my_memberships_list.should include @course_info[:title]
   end
@@ -145,7 +141,6 @@ describe "Create Course" do
   end
 
   it "participants can be added to course" do
-    library = Library.new @browser
     library.manage_participants
     library.add_contact_by_search @participant
     library.save
@@ -171,15 +166,14 @@ describe "Create Course" do
     sleep 2 #FIXME
 
     # TEST CASE: Updated document text appears
-    @browser.text.should include @doc_header #FIXME - Try to improve this later by defining the containing div.
+    @browser.text.should include @doc_header #TODO - Try to improve this later by defining the containing div.
   end
   
   it "pages appear as expected" do
-    document = ContentDetailsPage.new @browser
-    existing = document.open_tests_and_quizzes @existing_document[:title]
+    existing = library.open_tests_and_quizzes @existing_document[:title]
     
     # TEST CASE: Existing document is as expected
-    existing.tests_frame.should exist
+    existing.text.should include @existing_document[:example_content]
     
     party = existing.open_participants @participant_list[:name]
 
@@ -193,8 +187,7 @@ describe "Create Course" do
   end
 
   it "the comments page works as expected" do
-    content = Library.new @browser
-    comments = content.open_comments @widgets[0][:name]
+    comments = library.open_comments @widgets[0][:name]
 
     comments.add_comment
 
@@ -210,107 +203,94 @@ describe "Create Course" do
     lambda {comments.delete @comment2}.should_not raise_error
   end
 
-  it "JISC page is as expected" do
-    comments = Comments.new @browser
-    jisc = comments.open_jisc @widgets[1][:name]
-    
-    # TEST CASE: JISC frame appears correctly
-    jisc.jisc_frame.should exist
-  end
-  
   it "RSS Feed page is as expected" do
-    jisc = JISC.new @browser
-    rss = jisc.open_rss_feed @widgets[2][:name]
+    rss = library.open_rss_feed @widgets[1][:name]
     
     #TEST CASE: RSS Page appears correctly
     rss.sort_by_source_element.should exist
   end
   
   it "Google Maps page is as expected" do
-    library = Library.new @browser
-    maps = library.open_map @widgets[3][:name]
+    maps = library.open_map @widgets[2][:name]
 
     maps.map_settings
     maps.location=@location
     maps.search
     maps.add_map
     maps.save
-
+    sleep 1 # Wait a bit for the map to re-constitute itself
     # TEST CASE: Map location is updated as specified
     maps.map_frame.html.should include @location
   end
 
   it "Tasks page is as expected" do
-    maps = GoogleMaps.new @browser
-    tasks = maps.open_assignments @widgets[4][:name]
+    tasks = library.open_assignments @widgets[3][:name]
     
     # TEST CASE: Assignments frame exists.
-    tasks.cle_frame.should exist
+    tasks.assignments_frame.should be_visible
   end
   
   it "lti page is as expected" do
-    tasks = Assignments.new @browser
-    lti = tasks.open_lti @widgets[5][:name]
+    lti = library.open_lti @widgets[4][:name]
     
     # TEST CASE: LTI URL field is present
     lti.url_element.should be_visible
   end
   
   it "Gadget page is as expected" do
-    lti = LTI.new @browser
-    gadget = lti.open_gadget @widgets[6][:name]
+    gadget = library.open_gadget @widgets[5][:name]
     
     # TEST CASE: Gadget frame exists
-    gadget.gadget_frame.should exist
+    gadget.gadget_frame.should be_visible
   end
   
   it "gradebook page is as expected" do
-    gadget = Gadget.new @browser
-    grades = gadget.open_gradebook @widgets[7][:name]
+    grades = library.open_gradebook @widgets[6][:name]
     
     # TEST CASE: Gradebook frame exists
-    grades.gradebook_frame.should exist
+    grades.gradebook_frame.should be_visible
   end
   
   it "discussion page is as expected" do
-    grades = Gradebook.new @browser
-    disc = grades.open_discussions @widgets[8][:name]
+    disc = library.open_discussions @widgets[7][:name]
     
     # TEST CASE: "Add new topic" button exists
-    disc.add_new_topic_element.should exist
+    disc.add_new_topic_element.should be_visible
   end
   
   it "remote content page is as expected" do
-    disc = Discussions.new @browser
-    remote = disc.open_remote_content @widgets[9][:name]
+    remote = library.open_remote_content @widgets[8][:name]
     
     # TEST CASE: Remote frame exists
-    remote.remote_frame.should exist
+    remote.remote_frame.should be_visible
   end
   
-  it "stuff" do
-    remote = Remote.new @browser
-    inline = remote.open_page(@widgets[10][:name], @widgets[10][:widget])
-    
-    # TEST CASE: Year field is present
-    inline.year_element.should exist
-    
-    tests = inline.open_page(@widgets[11][:name], @widgets[11][:widget])
-    
+  it "Tests & Quizzes page is as expected" do
+    tests = library.open_tests_and_quizzes(@widgets[9][:name])
+    tests.execute_script("$('div#basiclti_main_container').css('style', 'block')")
+    tests.linger_for_ajax
     # TEST CASE: Assessments frame exists?
-    tests.tests_frame.should exist
-    
-    calendar = tests.open_page(@widgets[12][:name], @widgets[12][:widget])
+    tests.tests_frame.should be_visible
+  end
+
+  it "Calendar page is as expected" do
+    calendar = library.open_calendar(@widgets[10][:name])
     
     # TEST CASE: Calendar frame exists?
-    calendar.calendar_frame.should exist
-    
-    file = calendar.open_page(@widgets[13][:name], @widgets[13][:widget])
+    calendar.calendar_frame.should be_visible
+  end
+
+  it "Files and Documents page appears as expected" do
+    file = library.open_file(@widgets[12][:name])
     file.files_settings
     
     # TEST CASE: Verify the Files and Documents pop-up
     file.name_element.should be_visible
+  end
 
+  it "Forum page appears as expected" do
+    forum = library.open_forum(@widgets[11][:name])
+    forum.forum_frame.should be_visible
   end
 
   after :all do

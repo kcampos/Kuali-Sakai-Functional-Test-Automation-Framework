@@ -15,10 +15,8 @@
 # Two test users (see lines 32-36)
 #
 # Author: Abe Heward (aheward@rSmart.com)
-$: << File.expand_path(File.dirname(__FILE__) + "/../../lib/")
-["rspec", "watir-webdriver", "../../config/OAE/config.rb",
-  "utilities", "sakai-OAE/app_functions",
-  "sakai-OAE/page_elements" ].each { |item| require item }
+require '../../features/support/env.rb'
+require '../../lib/sakai-oae'
 
 describe "Research Project/Group Memberships" do
   
@@ -32,8 +30,8 @@ describe "Research Project/Group Memberships" do
     # Get the test configuration data
     @config = AutoConfig.new
     @browser = @config.browser
-    @instructor = @config.directory['admin']['username']
-    @ipassword = @config.directory['admin']['password']
+    @instructor = @config.directory['person3']['id']
+    @ipassword = @config.directory['person3']['password']
     @user2 = @config.directory['person2']['id']
     @u2password = @config.directory['person2']['password']
     @student_name = "#{@config.directory['person2']['firstname']} #{@config.directory['person2']['lastname']}"

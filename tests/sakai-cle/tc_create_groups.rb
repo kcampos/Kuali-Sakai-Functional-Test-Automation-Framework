@@ -59,7 +59,7 @@ class TestGroups < Test::Unit::TestCase
     
     # This test case creates 2 groups
     2.times do |x|
-      
+      sleep 1
       #Create a New Group
       new_group = group.create_new_group
       

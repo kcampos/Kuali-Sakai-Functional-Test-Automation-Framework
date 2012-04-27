@@ -1,9 +1,7 @@
 # coding: UTF-8
-#
-# == Synopsis
-#
-# This file contains custom methods used throughout rSmart's test scripts
 
+# Provides useful helper methods for creating test data--either strings of
+# random text or date values formatted as needed.
 module Utilities
   
   # Strips the file name away from the path information.
@@ -48,12 +46,27 @@ module Utilities
   def random_email(x=62)
     x > 62 ? x=62 : x=x
     chars = %w{a b c d e f g h j k m n p q r s t u v w x y z A B C D E F G H J K L M N P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % & ' * + - / = ? ^ _ ` { | } ~}
-    random_alphanums(1) + (0...x).map { chars[rand(chars.size)]}.join + random_alphanums(1) + "@" + random_alphanums(200) + ".com"
+    random_alphanums(1) + (0...x).map { chars[rand(chars.size)]}.join + random_alphanums(1) + "@" + random_alphanums(60) + ".com"
+  end
+  
+  # A random string generator that uses all characters
+  # available on an American Qwerty keyboard.
+  def random_alphanums_plus(length=10, s="")
+    chars = %w{ a b c d e f g h j k m n p q r s t u v w x y z A B C D E F G H J K L M N P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ` ~ ! @  # $% ^ & * ( ) _ + - = { } [ ] \ : " ; ' < > ? , . / }
+    length.times { s << chars[rand(chars.size)] }
+    s.to_s
   end
   
   # A random string generator that uses only letters and numbers in the string. Default length is 10 characters.
   def random_alphanums(length=10, s="")
     chars = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ0123456789'
+    length.times { s << chars[rand(chars.size)] }
+    s.to_s
+  end
+  
+  # A random string generator that uses only lower case letters.
+  def random_letters(length=10, s="")
+    chars = 'abcdefghjkmnpqrstuvwxyz'
     length.times { s << chars[rand(chars.size)] }
     s.to_s
   end
@@ -116,7 +129,7 @@ module Utilities
     
   end
   
-  # Some date and time helper functions
+  # Some date and time helper functions....
   
   # Returns the value of the last hour as an Integer object, which
   # eliminates the zero-padding for single-digit hours. 12-hour clock.
@@ -232,7 +245,7 @@ module Utilities
     }
   end
   
-end
+end # Utilities
 
 class Time
 
@@ -247,31 +260,31 @@ class Time
   # range value (see examples).
   # 
   # Usage Examples:
-  #
-  # a random date...
-  # ?> Time.random
-  # => Tue Aug 05 00:00:00 EDT 2007
+  # @example
+  #   a random date...
+  #   ?> Time.random
+  #   => Tue Aug 05 00:00:00 EDT 2007
   # 
-  # birthdays, anyone?...
-  # 5.times { p Time.random(:year_range=>80) }
-  # Wed Feb 06 00:00:00 EDT 1974
-  # Tue Dec 22 00:00:00 EST 1992
-  # Fri Apr 14 00:00:00 EWT 1944
-  # Thu Jul 01 00:00:00 EDT 1993
-  # Wed Oct 02 00:00:00 EDT 2002
+  #   birthdays, anyone?...
+  #   5.times { p Time.random(:year_range=>80) }
+  #   Wed Feb 06 00:00:00 EDT 1974
+  #   Tue Dec 22 00:00:00 EST 1992
+  #   Fri Apr 14 00:00:00 EWT 1944
+  #   Thu Jul 01 00:00:00 EDT 1993
+  #   Wed Oct 02 00:00:00 EDT 2002
   #
-  # A series of dates are useful for account-related info...
-  # ?> Time.random(:series=>[20.days, 3.years])
-  # => [Sat Jan 22 00:00:00 EST 2005,
+  #   A series of dates are useful for account-related info...
+  #   ?> Time.random(:series=>[20.days, 3.years])
+  #   => [Sat Jan 22 00:00:00 EST 2005,
   #   Sat Jan 29 12:58:45 EST 2005,
   #   Fri Sep 08 09:34:58 EDT 2006]
   #
-  # or maybe to simulate events during an hour?...
-  # ?> Time.random(:series=>[1.hour,1.hour,1.hour])
-  # => [Wed Apr 21 00:00:00 EDT 2004,
-  #  Wed Apr 21 00:45:59 EDT 2004,
-  #  Wed Apr 21 01:02:47 EDT 2004,
-  #  Wed Apr 21 01:31:00 EDT 2004]
+  #   or maybe to simulate events during an hour?...
+  #   ?> Time.random(:series=>[1.hour,1.hour,1.hour])
+  #   => [Wed Apr 21 00:00:00 EDT 2004,
+  #   Wed Apr 21 00:45:59 EDT 2004,
+  #   Wed Apr 21 01:02:47 EDT 2004,
+  #   Wed Apr 21 01:31:00 EDT 2004]
   def self.random(params={})
     years_back = params[:year_range] || 5
     year = (rand * (years_back)).ceil + (Time.now.year - years_back)
@@ -287,4 +300,40 @@ class Time
     date
   end
 
-end
+end  # Time
+
+module Enumerable
+
+  # Use for getting a natural sort order instead of the ASCII
+  # sort order.
+  def alphabetize
+    sort { |a, b| grouped_compare(a, b) }
+  end
+
+  # Use for sorting an Enumerable object in place.
+  def alphabetize!
+    sort! { |a, b| grouped_compare(a, b) }
+  end
+
+  private
+  def grouped_compare(a, b)
+    loop {
+      a_chunk, a = extract_alpha_or_number_group(a)
+      b_chunk, b = extract_alpha_or_number_group(b)
+      ret = a_chunk <=> b_chunk
+      return -1 if a_chunk == ''
+      return ret if ret != 0
+    }
+  end
+
+  def extract_alpha_or_number_group(item)
+    test_item = item.downcase
+    matchdata = /([a-z]+|[\d]+)/.match(test_item)
+    if matchdata.nil?
+      ["", ""]
+    else
+      [matchdata[0], test_item = test_item[matchdata.offset(0)[1] .. -1]]
+    end
+  end
+
+end # Enumerable

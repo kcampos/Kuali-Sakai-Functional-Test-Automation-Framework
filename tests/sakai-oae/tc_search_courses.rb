@@ -13,22 +13,22 @@
 # Three test users (see lines 30-36)
 #
 # Author: Abe Heward (aheward@rSmart.com)
-$: << File.expand_path(File.dirname(__FILE__) + "/../../lib/")
-["rspec", "watir-webdriver", "../../config/OAE/config.rb",
-  "utilities", "sakai-OAE/app_functions",
-  "sakai-OAE/page_elements" ].each { |item| require item }
+require '../../features/support/env.rb'
+require '../../lib/sakai-oae'
 
 describe "Course Memberships" do
   
   include Utilities
+
+  let(:expl_course) { ExploreCourses.new @browser }
 
   before :all do
     
     # Get the test configuration data
     @config = AutoConfig.new
     @browser = @config.browser
-    @instructor = @config.directory['admin']['username']
-    @ipassword = @config.directory['admin']['password']
+    @instructor = @config.directory['person3']['id']
+    @ipassword = @config.directory['person3']['password']
     @participant = @config.directory['person1']['id']
     @participant_pw = @config.directory['person1']['password']
     @participant_name = "#{@config.directory['person1']['firstname']} #{@config.directory['person1']['lastname']}"
@@ -111,7 +111,6 @@ describe "Course Memberships" do
   end
   
   it "'Users only' course can't be seen while logged out" do
-    expl_course = ExploreCourses.new @browser
     expl_course.search_for=@logged_in_course[:title]
     
     # TEST CASE: Logged in course does not display when logged out
@@ -119,7 +118,6 @@ describe "Course Memberships" do
   end
   
   it "'Participants only' course can't be seen while logged out" do
-    expl_course = ExploreCourses.new @browser
     expl_course.search_for=@participant_course[:title]
     
     # TEST CASE: Participant Course does not display when logged out
@@ -135,18 +133,16 @@ describe "Course Memberships" do
   end
   
   it "Users-only course can be found by non-participant while logged in" do
-    explore = ExploreCourses.new @browser
-    explore.search_for=@logged_in_course[:title]
+    expl_course.search_for=@logged_in_course[:title]
     
     # TEST CASE: Logged in course displays when logged in
-    explore.results_list.should include @logged_in_course[:title]
+    expl_course.results_list.should include @logged_in_course[:title]
   end
   
   it "Participants-only course can be found by a participant" do
-    explore = ExploreCourses.new @browser
-    explore.search_for=@participant_course[:title]
+    expl_course.search_for=@participant_course[:title]
     # TEST CASE: Participant course displays to participant
-    explore.results_list.should include @participant_course[:title]
+    expl_course.results_list.should include @participant_course[:title]
   end
   
   it "Participants-only course does not appear for a non-participant" do

@@ -1,6 +1,10 @@
 doc
+rakefile
 test/
+data/sakai*
 In Progress
 config.yml
 directory.yml
 tests/sakai*/test.rb
+.DS_Store
+.idea/

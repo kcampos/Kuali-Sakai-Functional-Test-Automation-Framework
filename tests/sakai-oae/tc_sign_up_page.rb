@@ -3,20 +3,21 @@
 # 
 # == Synopsis
 #
-# Academic Smoke tests. Shallowly tests a broad range of features. This script will
-# eventually be deprecated in favor of the more robust ts_smoke_tests.rb test suite.
+# Tests of the sign-up page functionality.
+#
+# == Prerequisites
+#
+# Access to the sign-up page.
 # 
 # Author: Abe Heward (aheward@rSmart.com)
-$: << File.expand_path(File.dirname(__FILE__) + "/../../lib/")
-["rspec", "watir-webdriver", "../../config/OAE/config.rb",
-  "utilities", "sakai-OAE/app_functions",
-  "sakai-OAE/page_elements" ].each { |item| require item }
+require '../../features/support/env.rb'
+require '../../lib/sakai-oae'
 
 describe "Sign-Up Page" do
   
   include Utilities
   
-  let (:signup) { CreateNewAccount.new @browser }
+  let(:signup) { CreateNewAccount.new @browser }
 
   before :all do
     
@@ -162,6 +163,7 @@ describe "Sign-Up Page" do
   end
   
   it "creates the account and accepts the agreement" do
+    signup.email_confirm=@email
     signup.role=@role
     agreement = signup.create_account
     dash = agreement.yes_I_accept
