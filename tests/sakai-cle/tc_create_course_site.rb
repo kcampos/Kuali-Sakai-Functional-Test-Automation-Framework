@@ -37,7 +37,7 @@ class TestCreatingCourseSite < Test::Unit::TestCase
     # test asserts.
     @choose_site_text = "Choose the type of site you want to create."
     @course_text = "You have thus far selected the following course/section(s) for this course site:"
-    #@authorizer_alert = "Alert: Please enter the authorizers {0}."
+    @authorizer_alert = "Alert: Please enter the authorizers {0}."
     @username_alert = "Alert: Please enter a valid Username for the instructor of record."
     @basic_info_text = "Enter basic information about the course site..."
     @invalid_email_alert = "Alert: #{@bad_address} is an invalid email address. The Email id must be made up of alpha numeric characters or any of !\#$&*+-=?^_`{|}~. (no spaces)."
@@ -107,26 +107,26 @@ class TestCreatingCourseSite < Test::Unit::TestCase
     @config.directory['site1']['name'] = site_name
     
     # Click continue button
-    #course_section.continue
+    course_section.continue
     
     # TEST CASE: Check that authorizer is required.
-    #assert @browser.text.include?(@authorizer_alert)
+    assert @browser.text.include?(@authorizer_alert)
     
     # Add an invalid authorizer
-    #course_section.authorizers_username=random_alphanums
+    course_section.authorizers_username=random_alphanums
     
     # Click continue button
-    #course_section.continue
+    course_section.continue
     
     # TEST CASE: Check that authorizer's name must be valid
-    #assert @browser.text.include?(@username_alert)
+    assert @browser.text.include?(@username_alert)
     
     # Add a valid instructor id
-    #course_section.authorizers_username=@authorizer
+    course_section.authorizers_username=@authorizer
     
     # Click continue button
     course_site = course_section.continue
-    
+  
     # TEST CASE: Check the Course Site Information page
     assert @browser.text.include?(@basic_info_text)
     
@@ -169,12 +169,12 @@ class TestCreatingCourseSite < Test::Unit::TestCase
     assert @browser.text.include?(@multiple_tools_text)
     
     # Click the continue button
-    @browser.frame(:index=>0).button(:name, "Continue").click
-    
+    #@browser.frame(:index=>0).button(:name, "Continue").click
+   
     # TEST CASE: Site email address is required to continue
-    assert @browser.text.include?(@archive_alert)
+    #assert @browser.text.include?(@archive_alert)
     
-    add_tools.site_email_address = @email
+    #add_tools.site_email_address = @email
     add_tools.web_content_source=@web_content_source
     
     # Click the Continue button

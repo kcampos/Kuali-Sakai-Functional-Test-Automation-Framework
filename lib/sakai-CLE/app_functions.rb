@@ -494,10 +494,10 @@ module QuestionHelpers
   
 end
 
-# This module consolidates the code that can be shared among all the
+# This class consolidates the code that can be shared among all the
 # File Upload and Attachment pages.
 #
-# Not every method in this module will be appropriate for every attachment page.
+# Not every method in this class will be appropriate for every attachment page.
 class AttachPageTools
   
   @@classes = { :this=>"Superclassdummy", :parent=>"Superclassdummy" }

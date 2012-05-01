@@ -21,10 +21,10 @@ class UserAccountUpdate < Test::Unit::TestCase
     config = AutoConfig.new
     @browser = config.browser
     # This test case requires logging in as a student
-    @user_name = config.directory['person6']['id']
-    @user_first = config.directory['person6']['firstname']
-    @user_last = config.directory['person6']['lastname']
-    @password = config.directory['person6']['password']
+    @user_name = config.directory['person7']['id']
+    @user_first = config.directory['person7']['firstname']
+    @user_last = config.directory['person7']['lastname']
+    @password = config.directory['person7']['password']
     @sakai = SakaiCLE.new(@browser)
     
     # Test case data
@@ -86,7 +86,7 @@ class UserAccountUpdate < Test::Unit::TestCase
     
     # Create unmatched passwords (check for case-sensitivity)
     edit_account.create_new_password="aBcd1234$"
-    edit_account.verify_new_password="Abcd1234$"
+    edit_account.verify_new_password="aBcd1234$"
     edit_account = edit_account.update_details
     
     # TEST CASE: Verify original password must be added

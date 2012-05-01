@@ -124,8 +124,6 @@ class TestCalendarEvents < Test::Unit::TestCase
     assert_equal "Calendar by Week", calendar.header 
 
     calendar = calendar.previous
-    calendar = calendar.later
-    calendar = calendar.earlier
     
     #TEST CASE: Verify the new event is not on this week
     assert_equal false, calendar.events_list.include?(@event_href)

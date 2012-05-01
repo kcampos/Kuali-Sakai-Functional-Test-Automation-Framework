@@ -1387,6 +1387,8 @@ class AssignmentsList
     frm.link(:text=>assignment_name).click
     if frm.div(:class=>"portletBody").p(:class=>"instruction").exist? && frm.div(:class=>"portletBody").p(:class=>"instruction").text == "Add attachment(s), then choose the appropriate button at the bottom."
       AssignmentStudent.new(@browser)
+    elsif frm.div(:class=>"portletBody").h3.text=="Assignment - In progress"
+      AssignmentStudent.new(@browser)
     elsif frm.div(:class=>"portletBody").h3.text=="Viewing assignment..." || frm.div(:class=>"portletBody").h3.text.include?("Submitted") || frm.button(:value=>"Back to list").exist?
       AssignmentsPreview.new(@browser)
     else
