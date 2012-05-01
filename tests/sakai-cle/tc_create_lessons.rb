@@ -236,6 +236,12 @@ class TestCreateLessons < Test::Unit::TestCase
     
     lessons = home.lessons
     
+    # Make sure the student's preferences for viewing are "Expanded"...
+    prefs = lessons.preferences
+    prefs.select_expanded
+    prefs.set
+    lessons = prefs.view
+    
     # TEST CASE: Make sure Lessons appear, or not, for the student
     # as expected.
     assert frm.link(:text, @modules[0][:title]).exist?

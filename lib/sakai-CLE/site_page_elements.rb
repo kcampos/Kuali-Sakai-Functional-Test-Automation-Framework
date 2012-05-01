@@ -3800,11 +3800,6 @@ class LessonPreferences
   include PageObject
   include ToolsMenu
   
-  # Clicks the Set button
-  def set
-    frm.link(:id=>"UserPreferenceForm:SetButton").click
-  end
-  
   # Clicks the View button
   # then instantiates the Lessons class.
   def view
@@ -3815,6 +3810,7 @@ class LessonPreferences
   in_frame(:index=>1) do |frame|
     radio_button(:expanded) { |page| page.radio_button_element(:name=>"UserPreferenceForm:_id5", :index=>0, :frame=>frame) }
     radio_button(:collapsed) { |page| page.radio_button_element(:name=>"UserPreferenceForm:_id5", :index=>1, :frame=>frame) }
+    link(:set, :id=>"UserPreferenceForm:SetButton", :frame=>frame)
   end
 end
 
