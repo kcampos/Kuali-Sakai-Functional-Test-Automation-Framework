@@ -768,13 +768,33 @@ class GradeReport
   include PageObject
   include AssignmentsMenu
 
-  in_frame(:index=>2) do |frame|
-    #(:, :=>"", :frame=>frame)
-    #(:, :=>"", :frame=>frame)
-    #(:, :=>"", :frame=>frame)
-    #(:, :=>"", :frame=>frame)
-    #(:, :=>"", :frame=>frame)
+  # Returns an array of hashes. Each hash is a line from the
+  # table. Hash keys are as follows:
+  # :name, :assignment, :grade, :scale, :submitted
+  def grade_report
+    array = []
+    frm.table(:class=>"listHier lines nolines").rows.each do |row|
+      next if row.td(:headers=>"studentname").exists? == false
+      hash = {}
+      hash[:student] = row.td(:headers=>"").text
+      hash[:assignment] = row.td(:headers=>"").text
+      hash[:grade] = row.td(:headers=>"").text
+      hash[:scale] = row.td(:headers=>"").text
+      hash[:submitted] = row.td(:headers=>"").text
+      array << hash
+    end
+    array
+  end
 
+  in_frame(:index=>2) do |frame|
+    h3(:header, :index=>0, :frame=>frame)
+    paragraph(:instruction, :class=>"instruction", :frame=>frame)
+    link(:sort_by_student_name, :title=>" Sort by Last Name", :frame=>frame)
+    link(:sort_by_assignment, :title=>"Checkmark", :frame=>frame)
+    link(:sort_by_grade, :title=>" Sort by Grade", :frame=>frame)
+    link(:sort_by_scale, :title=>"Sort by Scale", :frame=>frame)
+    link(:sort_by_submitted, :title=>"Sort by Turned In Date", :frame=>frame)
+    select_list(:select_page_size, :id=>"selectPageSize", :frame=>frame)
   end
 
 end
