@@ -85,6 +85,7 @@ class Assignments # Note that the OAE portion of this class can be found in the 
   def delete_assignment(assignment_name)
     check_assignment(assignment_name)
     frm.button(:value=>"Update").click
+    sleep 0.2
     frm.button(:value=>"Delete").click
   end
 
@@ -203,8 +204,8 @@ class AssignmentsAdd
 
   in_frame(:index=>2) do |frame|
     span(:gradebook_warning, :id=>"gradebookListWarnAssoc", :frame=>frame)
-    div(:alert, :id=>"alertMessage", :frame=>frame)
-    button(:save_draft, :name=>"Save", :frame=>frame)
+    div(:alert_box, :class=>"alertMessage", :frame=>frame)
+    button(:save_draft, :name=>"save", :frame=>frame)
     button(:cancel, :value=>"Cancel", :frame=>frame)
     button(:post, :value=>"Post", :frame=>frame)
     hidden_field(:assignment_id, :name=>"assignmentId", :frame=>frame)
