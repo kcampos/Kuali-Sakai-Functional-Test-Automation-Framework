@@ -29,7 +29,7 @@ class TestUserMembership < Test::Unit::TestCase
     
     # Test case variables
     @search_name = "joe"
-    @full_name = "Joe Instructor"
+    @full_name = "Joel Instructor"
     @user_id = "instructor1"
     @user_type = "maintain"
     

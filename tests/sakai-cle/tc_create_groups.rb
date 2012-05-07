@@ -23,7 +23,6 @@ class TestGroups < Test::Unit::TestCase
     @browser = @config.browser
     # Test user is an instructor
     @site_name = @config.directory['site1']['name']
-    @site_id = @config.directory['site1']['id']
     @user_name = @config.directory['person3']['id']
     @password = @config.directory['person3']['password']
     @sakai = SakaiCLE.new(@browser)
@@ -49,7 +48,7 @@ class TestGroups < Test::Unit::TestCase
     
     # Go to test Site in Sakai
     workspace = MyWorkspace.new(@browser)
-    home = workspace.open_my_site_by_id(@site_id)
+    home = workspace.open_my_site_by_name(@site_name)
     
     # Go to the Site Editor page
     site_editor = home.site_editor

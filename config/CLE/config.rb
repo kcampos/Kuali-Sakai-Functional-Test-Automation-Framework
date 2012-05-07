@@ -21,7 +21,6 @@ class AutoConfig
     
     @browser = Watir::Browser.new @web_browser
     @browser.goto @url
-    
     $frame_index = 0
     
   end

@@ -66,12 +66,12 @@ class TestMasterCourseSite < Test::Unit::TestCase
     section_info.subject=@subject
     section_info.course=@course
     section_info.section=@section
-    #section_info.authorizers_username=@authorizer
+    section_info.authorizers_username=@authorizer
     
     basic_site_info = section_info.continue
     
     course_tools = basic_site_info.continue
-    
+
     # Choose the tools
     course_tools.check_all_tools
 

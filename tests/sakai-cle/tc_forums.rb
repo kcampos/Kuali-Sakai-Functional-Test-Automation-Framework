@@ -30,7 +30,7 @@ class TestForums < Test::Unit::TestCase
     @groups = [ random_alphanums, random_alphanums ]
     
     @forums = [
-      {:title=>"Forum 1", :short_description=>"Test Forum", :description=>"Donec pellentesque leo in diam? Sed eget lacus sed orci rutrum porttitor. Phasellus id risus scelerisque mi consequat scelerisque. Nam at leo." },
+      {:title=>random_alphanums(10, "Forum 1 "), :short_description=>"Test Forum", :description=>"Donec pellentesque leo in diam? Sed eget lacus sed orci rutrum porttitor. Phasellus id risus scelerisque mi consequat scelerisque. Nam at leo." },
       {:title=>"Forum 2 " + random_alphanums, :short_description=>"Test Forum", :description=>"Donec pellentesque leo in diam? Sed eget lacus sed orci rutrum porttitor. Phasellus id risus scelerisque mi consequat scelerisque. Nam at leo." },
       {}
     ]
@@ -69,14 +69,19 @@ class TestForums < Test::Unit::TestCase
     new_group = groups.create_new_group
     new_group.title=@groups[0]
     1.upto(3) do |x|
-      new_group.site_member_list=/funk0#{x}/ # FIXME
+      if x == 3
+        x = 5 # Need this because of the way the Directory.yml list is made
+      end
+      person = @config.directory["person#{x}"]['id']
+      new_group.site_member_list=/#{person}/
     end
     new_group.right
     groups = new_group.add
     new_group = groups.create_new_group
     new_group.title=@groups[1]
-    4.upto(7) do |x|
-      new_group.site_member_list=/funk0#{x}/ # FIXME
+    6.upto(10) do |x|
+      person = @config.directory["person#{x}"]['id']
+      new_group.site_member_list=/#{person}/
     end
     new_group.right
     groups = new_group.add

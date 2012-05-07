@@ -169,12 +169,12 @@ class TestCreatingCourseSite < Test::Unit::TestCase
     assert @browser.text.include?(@multiple_tools_text)
     
     # Click the continue button
-    #@browser.frame(:index=>0).button(:name, "Continue").click
+    @browser.frame(:index=>0).button(:name, "Continue").click
    
     # TEST CASE: Site email address is required to continue
-    #assert @browser.text.include?(@archive_alert)
+    assert @browser.text.include?(@archive_alert)
     
-    #add_tools.site_email_address = @email
+    add_tools.site_email_address = @email
     add_tools.web_content_source=@web_content_source
     
     # Click the Continue button
@@ -195,7 +195,7 @@ class TestCreatingCourseSite < Test::Unit::TestCase
     
     # TEST CASE: Verify the text on the Review page
     assert @browser.text.include?(@review_text)
-    #assert @browser.text.include?("#{site_name}"), "Review page not showing site name #{site_name}"
+    assert @browser.text.include?("#{site_name}"), "Review page not showing site name #{site_name}"
 
     site_setup = review.request_site
     
