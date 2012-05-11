@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="TestCreateLessons" tests="1" time="20.751103" failures="0" errors="1" skipped="0" assertions="0">
+  <testcase name="test_lesson_creation" time="20.75082" assertions="0">
+    <error type="Watir::Exception::UnknownObjectException" message="unable to locate element, using {:title=&gt;&quot;Select All&quot;, :tag_name=&gt;&quot;div&quot;}">
+unable to locate element, using {:title=&gt;"Select All", :tag_name=&gt;"div"} (Watir::Exception::UnknownObjectException)
+/Users/abrahamheward/.rvm/gems/ruby-1.9.2-p290/gems/watir-webdriver-0.5.5/lib/watir-webdriver/elements/element.rb:365:in `assert_exists'
+/Users/abrahamheward/.rvm/gems/ruby-1.9.2-p290/gems/watir-webdriver-0.5.5/lib/watir-webdriver/elements/element.rb:247:in `fire_event'
+/Users/abrahamheward/Work/Kuali-Sakai-Functional-Test-Automation-Framework/lib/sakai-CLE/site_page_elements.rb:3890:in `clear_content'
+tc_create_lessons.rb:96:in `test_lesson_creation'
+/Users/abrahamheward/.rvm/gems/ruby-1.9.2-p290/gems/test-unit-2.4.8/lib/test/unit/testcase.rb:562:in `run_test'
+/Users/abrahamheward/.rvm/gems/ruby-1.9.2-p290/gems/test-unit-2.4.8/lib/test/unit/testcase.rb:326:in `run'
+/Users/abrahamheward/.rvm/gems/ruby-1.9.2-p290/gems/test-unit-2.4.8/lib/test/unit/testsuite.rb:53:in `run'
+/Users/abrahamheward/.rvm/gems/ruby-1.9.2-p290/gems/test-unit-2.4.8/lib/test/unit/testsuite.rb:53:in `run'
+/Users/abrahamheward/.rvm/gems/ruby-1.9.2-p290/gems/test-unit-2.4.8/lib/test/unit/ui/testrunnermediator.rb:54:in `run_suite'
+/Users/abrahamheward/.rvm/gems/ruby-1.9.2-p290/gems/test-unit-2.4.8/lib/test/unit/ui/testrunner.rb:40:in `start_mediator'
+/Users/abrahamheward/.rvm/gems/ruby-1.9.2-p290/gems/test-unit-2.4.8/lib/test/unit/ui/testrunner.rb:25:in `start'
+/Users/abrahamheward/.rvm/gems/ruby-1.9.2-p290/gems/test-unit-2.4.8/lib/test/unit/ui/testrunnerutilities.rb:24:in `run'
+/Users/abrahamheward/.rvm/gems/ruby-1.9.2-p290/gems/test-unit-2.4.8/lib/test/unit/autorunner.rb:369:in `run'
+/Users/abrahamheward/.rvm/gems/ruby-1.9.2-p290/gems/test-unit-2.4.8/lib/test/unit/autorunner.rb:58:in `run'
+/Users/abrahamheward/.rvm/gems/ruby-1.9.2-p290/gems/test-unit-2.4.8/lib/test/unit.rb:326:in `block in &lt;top (required)&gt;'    </error>
+  </testcase>
+  <system-out>
+  </system-out>
+  <system-err>
+  </system-err>
+</testsuite>

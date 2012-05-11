@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="AddCourseSiteParticipants" tests="1" time="14.724771" failures="0" errors="1" skipped="0" assertions="10">
+  <testcase name="test_adding_participants_to_course" time="14.724518" assertions="10">
+    <error type="Watir::Exception::UnknownObjectException" message="unable to locate element, using {:text=&gt;/O'Gallywag,\ Jpack/, :tag_name=&gt;&quot;tr&quot;}">
+unable to locate element, using {:text=&gt;/O'Gallywag,\ Jpack/, :tag_name=&gt;"tr"} (Watir::Exception::UnknownObjectException)
+/Users/abrahamheward/.rvm/gems/ruby-1.9.2-p290/gems/watir-webdriver-0.5.5/lib/watir-webdriver/elements/element.rb:365:in `assert_exists'
+/Users/abrahamheward/.rvm/gems/ruby-1.9.2-p290/gems/watir-webdriver-0.5.5/lib/watir-webdriver/elements/element.rb:383:in `locate'
+/Users/abrahamheward/.rvm/gems/ruby-1.9.2-p290/gems/watir-webdriver-0.5.5/lib/watir-webdriver/elements/element.rb:362:in `assert_exists'
+/Users/abrahamheward/.rvm/gems/ruby-1.9.2-p290/gems/watir-webdriver-0.5.5/lib/watir-webdriver/elements/element.rb:65:in `text'
+/Users/abrahamheward/Work/Kuali-Sakai-Functional-Test-Automation-Framework/lib/sakai-CLE/common_page_elements.rb:1615:in `id'
+tc_add_course_site_participants.rb:129:in `block (2 levels) in test_adding_participants_to_course'
+tc_add_course_site_participants.rb:128:in `each'
+tc_add_course_site_participants.rb:128:in `block in test_adding_participants_to_course'
+tc_add_course_site_participants.rb:91:in `each'
+tc_add_course_site_participants.rb:91:in `test_adding_participants_to_course'
+/Users/abrahamheward/.rvm/gems/ruby-1.9.2-p290/gems/test-unit-2.4.8/lib/test/unit/testcase.rb:562:in `run_test'
+/Users/abrahamheward/.rvm/gems/ruby-1.9.2-p290/gems/test-unit-2.4.8/lib/test/unit/testcase.rb:326:in `run'
+/Users/abrahamheward/.rvm/gems/ruby-1.9.2-p290/gems/test-unit-2.4.8/lib/test/unit/testsuite.rb:53:in `run'
+/Users/abrahamheward/.rvm/gems/ruby-1.9.2-p290/gems/test-unit-2.4.8/lib/test/unit/testsuite.rb:53:in `run'
+/Users/abrahamheward/.rvm/gems/ruby-1.9.2-p290/gems/test-unit-2.4.8/lib/test/unit/ui/testrunnermediator.rb:54:in `run_suite'
+/Users/abrahamheward/.rvm/gems/ruby-1.9.2-p290/gems/test-unit-2.4.8/lib/test/unit/ui/testrunner.rb:40:in `start_mediator'
+/Users/abrahamheward/.rvm/gems/ruby-1.9.2-p290/gems/test-unit-2.4.8/lib/test/unit/ui/testrunner.rb:25:in `start'
+/Users/abrahamheward/.rvm/gems/ruby-1.9.2-p290/gems/test-unit-2.4.8/lib/test/unit/ui/testrunnerutilities.rb:24:in `run'
+/Users/abrahamheward/.rvm/gems/ruby-1.9.2-p290/gems/test-unit-2.4.8/lib/test/unit/autorunner.rb:369:in `run'
+/Users/abrahamheward/.rvm/gems/ruby-1.9.2-p290/gems/test-unit-2.4.8/lib/test/unit/autorunner.rb:58:in `run'
+/Users/abrahamheward/.rvm/gems/ruby-1.9.2-p290/gems/test-unit-2.4.8/lib/test/unit.rb:326:in `block in &lt;top (required)&gt;'    </error>
+  </testcase>
+  <system-out>
+  </system-out>
+  <system-err>
+  </system-err>
+</testsuite>

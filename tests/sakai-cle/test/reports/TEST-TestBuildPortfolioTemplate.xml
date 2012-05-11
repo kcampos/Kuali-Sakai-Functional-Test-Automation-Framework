@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="TestBuildPortfolioTemplate" tests="1" time="630.446611" failures="0" errors="0" skipped="0" assertions="59">
+  <testcase name="test_build_portfolio_template" time="630.446319" assertions="59">
+  </testcase>
+  <system-out>
+  </system-out>
+  <system-err>
+  </system-err>
+</testsuite>

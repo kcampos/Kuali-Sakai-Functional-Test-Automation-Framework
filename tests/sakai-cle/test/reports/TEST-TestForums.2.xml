@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="TestForums" tests="1" time="139.588482" failures="0" errors="0" skipped="0" assertions="36">
+  <testcase name="test_forums" time="139.588192" assertions="36">
+  </testcase>
+  <system-out>
+  </system-out>
+  <system-err>
+*** DEPRECATION WARNING
+*** You are calling a method named wait_until_present at /Users/abrahamheward/Work/Kuali-Sakai-Functional-Test-Automation-Framework/lib/sakai-CLE/common_page_elements.rb:1448:in `create_new_group'.
+*** This method does not exist in page-object so it is being passed to the driver.
+*** This feature will be removed in the near future.
+*** Please change your code to call the correct page-object method.
+*** If you are using functionality that does not exist in page-object please request it be added.
+*** DEPRECATION WARNING
+*** You are calling a method named wait_until_present at /Users/abrahamheward/Work/Kuali-Sakai-Functional-Test-Automation-Framework/lib/sakai-CLE/common_page_elements.rb:1448:in `create_new_group'.
+*** This method does not exist in page-object so it is being passed to the driver.
+*** This feature will be removed in the near future.
+*** Please change your code to call the correct page-object method.
+*** If you are using functionality that does not exist in page-object please request it be added.
+  </system-err>
+</testsuite>

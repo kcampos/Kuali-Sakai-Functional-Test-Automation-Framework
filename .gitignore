@@ -1,10 +1,11 @@
 doc
 rakefile
-test/
-data/sakai*
+pkg
+data
 In Progress
 config.yml
 directory.yml
-tests/sakai*/test.rb
+*test.rb
 .DS_Store
 .idea/
+*.gem

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="TestGlossary" tests="1" time="24.803521" failures="0" errors="0" skipped="0" assertions="19">
+  <testcase name="test_glossary" time="24.803218" assertions="19">
+  </testcase>
+  <system-out>
+  </system-out>
+  <system-err>
+  </system-err>
+</testsuite>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="TestCalendarImport" tests="1" time="33.7062" failures="0" errors="0" skipped="0" assertions="23">
+  <testcase name="test_calendar_import" time="33.705901" assertions="23">
+  </testcase>
+  <system-out>
+  </system-out>
+  <system-err>
+  </system-err>
+</testsuite>

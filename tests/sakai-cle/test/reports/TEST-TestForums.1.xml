@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="TestForums" tests="1" time="87.361724" failures="1" errors="0" skipped="0" assertions="12">
+  <testcase name="test_forums" time="87.361455" assertions="12">
+    <failure type="Test::Unit::AssertionFailedError" message="&lt;false&gt; is not true.">
+&lt;false&gt; is not true. (Test::Unit::AssertionFailedError)
+tc_forums.rb:196:in `test_forums'    </failure>
+  </testcase>
+  <system-out>
+  </system-out>
+  <system-err>
+*** DEPRECATION WARNING
+*** You are calling a method named wait_until_present at /Users/abrahamheward/Work/Kuali-Sakai-Functional-Test-Automation-Framework/lib/sakai-CLE/common_page_elements.rb:1448:in `create_new_group'.
+*** This method does not exist in page-object so it is being passed to the driver.
+*** This feature will be removed in the near future.
+*** Please change your code to call the correct page-object method.
+*** If you are using functionality that does not exist in page-object please request it be added.
+*** DEPRECATION WARNING
+*** You are calling a method named wait_until_present at /Users/abrahamheward/Work/Kuali-Sakai-Functional-Test-Automation-Framework/lib/sakai-CLE/common_page_elements.rb:1448:in `create_new_group'.
+*** This method does not exist in page-object so it is being passed to the driver.
+*** This feature will be removed in the near future.
+*** Please change your code to call the correct page-object method.
+*** If you are using functionality that does not exist in page-object please request it be added.
+  </system-err>
+</testsuite>

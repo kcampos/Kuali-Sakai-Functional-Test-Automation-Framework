@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="TestCalendarEvents" tests="1" time="62.132812" failures="0" errors="0" skipped="0" assertions="25">
+  <testcase name="test_calendar_events" time="62.132498" assertions="25">
+  </testcase>
+  <system-out>
+  </system-out>
+  <system-err>
+  </system-err>
+</testsuite>

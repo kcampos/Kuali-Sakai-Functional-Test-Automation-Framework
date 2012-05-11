@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="AddCourseSiteParticipants" tests="1" time="19.667789" failures="0" errors="0" skipped="0" assertions="14">
+  <testcase name="test_adding_participants_to_course" time="19.667512" assertions="14">
+  </testcase>
+  <system-out>
+  </system-out>
+  <system-err>
+  </system-err>
+</testsuite>

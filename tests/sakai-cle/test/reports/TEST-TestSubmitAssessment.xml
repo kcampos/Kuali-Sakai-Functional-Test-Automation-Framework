@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="TestSubmitAssessment" tests="1" time="33.27772" failures="0" errors="0" skipped="0" assertions="4">
+  <testcase name="test_submit_assessment" time="33.27741" assertions="4">
+  </testcase>
+  <system-out>
+  </system-out>
+  <system-err>
+  </system-err>
+</testsuite>

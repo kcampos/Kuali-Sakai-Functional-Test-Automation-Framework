@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="TestSectionCreation" tests="1" time="39.787531" failures="0" errors="0" skipped="0" assertions="12">
+  <testcase name="test_section_creation" time="39.787219" assertions="12">
+  </testcase>
+  <system-out>
+  </system-out>
+  <system-err>
+  </system-err>
+</testsuite>

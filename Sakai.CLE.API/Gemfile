@@ -1,0 +1,7 @@
+source "http://rubygems.org"
+
+gem 'kuali-sakai-common-lib'
+gem 'watir-webdriver'
+gem 'selenium-webdriver'
+gem 'page-object'
+gem 'rake'

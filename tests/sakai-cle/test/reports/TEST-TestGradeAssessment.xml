@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="TestGradeAssessment" tests="1" time="19.765938" failures="0" errors="0" skipped="0" assertions="1">
+  <testcase name="test_grade_assessment" time="19.765621" assertions="1">
+  </testcase>
+  <system-out>
+  </system-out>
+  <system-err>
+  </system-err>
+</testsuite>
