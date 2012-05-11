@@ -9,3 +9,4 @@ directory.yml
 .DS_Store
 .idea/
 *.gem
+*.log

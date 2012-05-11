@@ -775,11 +775,11 @@ class ImportStepTwo
 
   # Enters the specified filename in the file field.
   #
-  # Note that the file should be inside the data/sakai-cle folder.
+  # Note that the file should be inside the data/sakai-cle-test-api folder.
   # The file or folder name used for the filename variable
   # should not include a preceding / character.
   def import_file(filename)
-    frm.file_field(:name=>"importFile").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + filename)
+    frm.file_field(:name=>"importFile").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle-test-api/" + filename)
   end
   
 end
@@ -1132,7 +1132,7 @@ class ResourcesUploadFiles
   
   # Enters the specified folder/filename value into
   # the file field on the page. Note that files are
-  # assumed to be in the relative path ../../data/sakai-cle
+  # assumed to be in the relative path ../../data/sakai-cle-test-api
   # The method will throw an error if the specified file
   # is not found.
   # 
@@ -1141,7 +1141,7 @@ class ResourcesUploadFiles
   # that the add_another_file method is used
   # before it, every time except before the first time.
   def file_to_upload=(file_name)
-    frm.file_field(:id, "content_#{@@filex}").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + file_name)
+    frm.file_field(:id, "content_#{@@filex}").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle-test-api/" + file_name)
     @@filex+=1
   end
   

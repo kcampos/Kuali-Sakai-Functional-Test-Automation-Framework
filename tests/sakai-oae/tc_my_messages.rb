@@ -12,7 +12,7 @@
 # 
 # Author: Abe Heward (aheward@rSmart.com)
 require '../../features/support/env.rb'
-require '../../lib/sakai-oae'
+require '../../lib/sakai-oae-test-api'
 
 describe "My Messages" do
   

@@ -203,7 +203,7 @@ class EditProfile
   end
 
   def picture_file=(filename)
-    frm.file_field(:name=>"editProfileForm:uploadFile.uploadId").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + filename)
+    frm.file_field(:name=>"editProfileForm:uploadFile.uploadId").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle-test-api/" + filename)
   end
 
   in_frame(:class=>"portletMainIframe") do |frame|
@@ -318,11 +318,11 @@ class Profile2
 
   # Enters the specified filename in the file field.
   #
-  # Note that the file should be inside the data/sakai-cle folder.
+  # Note that the file should be inside the data/sakai-cle-test-api folder.
   # The file or folder name used for the filename variable
   # should not include a preceding slash ("/") character.
   def image_file=(filename)
-    frm.file_field(:name=>"picture").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + filename)
+    frm.file_field(:name=>"picture").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle-test-api/" + filename)
   end
   
   def upload

@@ -57,7 +57,7 @@ class TestCalendarImport < Test::Unit::TestCase
   def test_calendar_import
     
     # Create the test CSV file...
-    @csv_file = File.new(%|#{File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + @filename}|, "w")
+    @csv_file = File.new(%|#{File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle-test-api/" + @filename}|, "w")
     @csv_file.puts @header_row
     @events.each do |event|
       string = %|"#{event[:title]}","#{event[:description]}",#{event[:date]},#{event[:start]},#{event[:duration]},#{event[:type]},"#{event[:location]}",#{event[:frequency]},#{event[:interval]},#{event[:ends]},#{event[:repeat]},"#{event[:test_custom_property]}",#{event[:required]}|

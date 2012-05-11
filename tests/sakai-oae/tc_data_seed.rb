@@ -13,11 +13,11 @@
 # There must be a valid user for logging in to the system.
 #
 # The test data files (see line 41 and following) should exist locally in the
-# relative path /../../data/sakai-oae/ directory.
+# relative path /../../data/sakai-oae-test-api/ directory.
 # 
 # Author: Abe Heward (aheward@rSmart.com)
 require '../../features/support/env.rb'
-require '../../lib/sakai-oae'
+require '../../lib/sakai-oae-test-api'
 
 describe "Data Seeding" do
   

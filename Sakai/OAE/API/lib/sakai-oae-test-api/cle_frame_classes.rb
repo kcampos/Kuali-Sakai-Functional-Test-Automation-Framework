@@ -905,10 +905,10 @@ class PoolImport
 
   # Enters the target file into the Choose File
   # file field. Note that it assumes the file is in
-  # the data/sakai-cle folder in the expected resources
+  # the data/sakai-cle-test-api folder in the expected resources
   # tree.
   def choose_file=(file_name)
-    frm.file_field(:name=>"importPoolForm:_id6.upload").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + file_name)
+    frm.file_field(:name=>"importPoolForm:_id6.upload").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle-test-api/" + file_name)
   end
 
   # Clicks the Import button, then
@@ -1067,7 +1067,7 @@ class BeginAssessment
 
   # Enters the specified file name (and subdirectory below the expected target Sakai-CLE path) in the file field.
   def file_answer(file_name)
-    frm.file_field(:name=>/deliverFileUpload/).set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + file_name)
+    frm.file_field(:name=>/deliverFileUpload/).set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle-test-api/" + file_name)
     frm.button(:value=>"Upload").click
   end
 
@@ -1610,7 +1610,7 @@ class AssignmentStudent
   # in case any more files need to be added to the upload
   # list.
   def select_file=(file_name)
-    frm.file_field(:id=>"clonableUpload", :name=>"upload#{@@file_number}").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + file_name)
+    frm.file_field(:id=>"clonableUpload", :name=>"upload#{@@file_number}").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle-test-api/" + file_name)
     @@file_number += 1
   end
 

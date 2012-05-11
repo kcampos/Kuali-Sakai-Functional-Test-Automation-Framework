@@ -5,13 +5,13 @@ require 'cgi'
 
 PageObject.javascript_framework = :jquery
 
-require 'sakai-oae/global_methods'
-require 'sakai-oae/gem_extensions'
-require 'sakai-oae/cle_frame_classes'
-require 'sakai-oae/pop_up_dialogs'
-require 'sakai-oae/toolbars_and_menus'
-require 'sakai-oae/widgets'
-require 'sakai-oae/page_classes'
+require 'sakai-oae-test-api/global_methods'
+require 'sakai-oae-test-api/gem_extensions'
+require 'sakai-oae-test-api/cle_frame_classes'
+require 'sakai-oae-test-api/pop_up_dialogs'
+require 'sakai-oae-test-api/toolbars_and_menus'
+require 'sakai-oae-test-api/widgets'
+require 'sakai-oae-test-api/page_classes'
 
 # Initialize this class at the start of your test cases to
 # open the specified test browser at the specified Sakai welcome page URL.
