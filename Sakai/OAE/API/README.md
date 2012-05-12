@@ -1,27 +1,53 @@
-# Functional Automation testing for Kuali and Sakai
+# Sakai OAE Functional Testing API
 
 ## Description:
 
-Note: Currently this project is limited to Sakai. Kuali development is slated for the future.
+This is the development project for the Sakai OAE Functional Testing API gem for Ruby.
 
-This repository contains the following projects:
+This API provides a framework for interacting with web sites for Sakai-OAE, using
+Ruby and Watir-webdriver--but without needing to know either in detail.
 
-- APIs for the rSmart versions of Sakai's Open Academic Environment (OAE) and Collaborative Learning Environment (CLE)
-- Cucumber features and step definitions for testing OAE and CLE
+## Requirements:
 
-## APIs
+### Ruby 1.9.2 or higher
 
-The APIs are written in Ruby 1.9.2 using the Watir-webdriver and Page Object gems and can themselves be installed locally as Ruby gems with the command:
+### Ruby Gems:
+[Watir-Webdriver](http://www.watirwebdriver.com)
+[Page-Object](https://github.com/cheezy/page-object)
 
-gem install sakai-cle-test-api
+If you're just going to use the API for testing, then simply install it as you would any other Ruby gem: `gem install sakai-oae-test-api`
 
-or
+This repo is here if you're going to take part in extending the capabilities of the gem.
 
-gem install sakai-oae-test-api
+## A Basic Usage Example for OAE:
 
-## Cucumber projects
+````ruby
+#!/usr/bin/env ruby
+require 'sakai-oae-test-api'
 
-You are of course welcome to use the APIs on their own to write your own test scripts using whatever framework you prefer. However, if you're interested in getting a fast start and either learning the API by example or leveraging work we've already done, you're welcome to grab our Cucumber projects.
+# Create an instance of the AutoConfig class.
+# This creates a browser instance, among other things.
+# See the RDocs for the AutoConfig class, for more detail
+@config = AutoConfig.new
+
+# Create a class instance variable for the AutoConfig's browser variable.
+# (highly recommended that you use "@browser" as the variable name)
+@browser = @config.browser
+
+# Create an instance of the SakaiOAE class, passing it the @browser object...
+@sakai = SakaiOAE.new @browser
+
+# Log in to Sakai OAE with "username" and "password"...
+dashboard = @sakai.login("username", "password") # See the SakaiOAE class in the RDocs.
+
+# Go to the course library page for "Econ 101"...
+course_library = dashboard.open_course "Econ 101"   # See the RDocs for info on the
+                                                    # MyDashboard and Library classes.
+
+# Store the contents of the course library in
+# an array called "library_contents"...
+library_contents = course_library.documents
+````
 
 ## Contribute
 
@@ -32,5 +58,4 @@ You are of course welcome to use the APIs on their own to write your own test sc
 * Commit, do not mess with Rakefile, version, or ChangeLog.
   (if you want to have your own version, that is fine but bump version in a commit by itself I can ignore when I pull)
 * Send me a pull request. Bonus points for topic branches.
-
 
