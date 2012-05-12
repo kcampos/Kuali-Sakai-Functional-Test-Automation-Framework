@@ -13,11 +13,13 @@ This repository contains the following projects:
 
 The APIs are written in Ruby 1.9.2 using the Watir-webdriver and Page Object gems and can themselves be installed locally as Ruby gems with the command:
 
-gem install sakai-cle-test-api
+`gem install sakai-cle-test-api`
 
 or
 
-gem install sakai-oae-test-api
+`gem install sakai-oae-test-api`
+
+Installing the gems will also install all necessary dependencies.
 
 ## Cucumber projects
 

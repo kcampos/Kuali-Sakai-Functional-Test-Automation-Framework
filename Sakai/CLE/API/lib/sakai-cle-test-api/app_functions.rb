@@ -399,7 +399,16 @@ module ToolsMenu
     # Add more cases here, as necessary...
     end
   end
-  
+
+  # Clicks the "(Logout)" link in the upper right of the page.
+  # Instantiates the Login class.
+  def logout
+    @browser.link(:text, "Logout").click
+    Login.new(@browser)
+  end
+  alias log_out logout
+  alias sign_out logout
+
   # Shortcut method so you don't have to type out
   # the whole string: @browser.frame(:index=>index)
   def frm

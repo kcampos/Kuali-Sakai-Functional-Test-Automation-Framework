@@ -3,6 +3,11 @@ require 'watir-webdriver'
 require 'page-object'
 require 'cgi'
 
+require 'sakai-cle-test-api/admin_page_elements'
+require 'sakai-cle-test-api/app_functions'
+require 'sakai-cle-test-api/common_page_elements'
+require 'sakai-cle-test-api/site_page_elements'
+
 # Initialize this class at the start of your test cases to
 # open the specified test browser at the specified Sakai welcome page URL.
 #
@@ -10,7 +15,7 @@ require 'cgi'
 # create the @browser variable used throughout the page classes.
 class SakaiCLE
   
-  attr_reader :url, :browser
+  attr_reader :browser
   
   def initialize(web_browser, url)
 

@@ -25,20 +25,12 @@ This repo is here if you're going to take part in extending the capabilities of 
 #!/usr/bin/env ruby
 require 'sakai-oae-test-api'
 
-# Create an instance of the AutoConfig class.
-# This creates a browser instance, among other things.
-# See the RDocs for the AutoConfig class, for more detail
-@config = AutoConfig.new
-
-# Create a class instance variable for the AutoConfig's browser variable.
-# (highly recommended that you use "@browser" as the variable name)
-@browser = @config.browser
-
-# Create an instance of the SakaiOAE class, passing it the @browser object...
-@sakai = SakaiOAE.new @browser
+# Create an instance of the SakaiOAE class, specifying your test browser
+# and the URL of your test site's OAE welcome page.
+sakai = SakaiOAE.new(:firefox, "https://nightly.academic.rsmart.com/")
 
 # Log in to Sakai OAE with "username" and "password"...
-dashboard = @sakai.login("username", "password") # See the SakaiOAE class in the RDocs.
+dashboard = sakai.login("username", "password") # See the LoginPage class and the HeaderFooterBar module in the RDocs.
 
 # Go to the course library page for "Econ 101"...
 course_library = dashboard.open_course "Econ 101"   # See the RDocs for info on the

@@ -19,13 +19,18 @@ If you're just going to use the API for testing, then simply install it as you w
 
 This repo is here if you're going to take part in extending the capabilities of the gem.
 
-## A Basic Usage Example for OAE:
+## A Basic Usage Example for CLE:
 
 ````ruby
 #!/usr/bin/env ruby
 require 'sakai-cle-test-api'
 
-# Stuff goes here!!!
+# create an instance of the SakaiCLE class, providing your test browser and the URL of
+# The Sakai CLE welcome/login page...
+sakai = SakaiCLE.new(:chrome, "https://cle-1.qa.rsmart.com/xsl-portal")
+
+# Log in with your test user and password...
+workspace = sakai.login("username", "password")
 ````
 
 ## Contribute

@@ -20,7 +20,7 @@ require 'sakai-oae-test-api/page_classes'
 # create the @browser variable used throughout the page classes.
 class SakaiOAE
 
-  attr_reader :browser, :url
+  attr_reader :browser
 
   def initialize(web_browser, url)
 
