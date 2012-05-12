@@ -6,7 +6,7 @@ spec = Gem::Specification.new do |s|
   s.files = Dir.glob("**/**/**")
   s.test_files = Dir.glob("test/*test_rb")
   s.authors = ["Abraham Heward"]
-  s.email = ["aheward@rsmart.com"]
-  #s.rubyforge_project = "kuali-sakai-common-lib"
+  s.email = %w{"aheward@rsmart.com"}
+  s.homepage = 'https://github.com/aheward/Kuali-Sakai-Functional-Test-Automation-Framework/tree/Sakai-CLE/Common'
   s.required_ruby_version = '>= 1.9.2'
 end
