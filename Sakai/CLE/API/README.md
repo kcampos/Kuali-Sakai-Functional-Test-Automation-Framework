@@ -33,6 +33,8 @@ sakai = SakaiCLE.new(:chrome, "https://cle-1.qa.rsmart.com/xsl-portal")
 workspace = sakai.login("username", "password")
 ````
 
+For much more extensive examples of using this API, please see the CLE Cucumber directory in this repo.
+
 ## Contribute
 
 * Fork the project.

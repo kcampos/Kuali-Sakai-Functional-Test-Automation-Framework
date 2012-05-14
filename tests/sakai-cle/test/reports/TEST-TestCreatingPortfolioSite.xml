@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="TestCreatingPortfolioSite" tests="1" time="15.318754" failures="0" errors="0" skipped="0" assertions="1">
-  <testcase name="test_create_portfolio_site" time="15.318461" assertions="1">
-  </testcase>
-  <system-out>
-  </system-out>
-  <system-err>
-  </system-err>
-</testsuite>

@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="TestConditionalRelease" tests="1" time="94.480002" failures="0" errors="0" skipped="0" assertions="8">
-  <testcase name="test_conditional_release" time="94.479695" assertions="8">
-  </testcase>
-  <system-out>
-  </system-out>
-  <system-err>
-  </system-err>
-</testsuite>

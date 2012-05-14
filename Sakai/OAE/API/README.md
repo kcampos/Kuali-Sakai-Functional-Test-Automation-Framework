@@ -17,7 +17,7 @@ Ruby and Watir-webdriver--but without needing to know either in detail.
 
 If you're just going to use the API for testing, then simply install it as you would any other Ruby gem: `gem install sakai-oae-test-api`
 
-This repo is here if you're going to take part in extending the capabilities of the gem.
+This repo is here if you're going to take part in extending the API's capabilities--e.g., adding page elements, custom methods, or new page classes.
 
 ## A Basic Usage Example for OAE:
 
@@ -40,6 +40,8 @@ course_library = dashboard.open_course "Econ 101"   # See the RDocs for info on 
 # an array called "library_contents"...
 library_contents = course_library.documents
 ````
+
+For much more extensive usage examples, please see the OAE Cucumber directory in this repo.
 
 ## Contribute
 

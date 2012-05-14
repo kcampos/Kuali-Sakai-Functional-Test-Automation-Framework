@@ -1,6 +1,6 @@
 spec = Gem::Specification.new do |s|
   s.name = 'sakai-cle-test-api'
-  s.version = '0.0.2'
+  s.version = '0.0.3'
   s.summary = %q{Sakai-CLE functional testing API for the rSmart Collaborative Learning Environment}
   s.description = %q{The Sakai-OAE gem provides an API for interacting with pages and page elements in rSmart's deployment of the Sakai Collaborative Learning Environment.}
   s.files = Dir.glob("**/**/**")

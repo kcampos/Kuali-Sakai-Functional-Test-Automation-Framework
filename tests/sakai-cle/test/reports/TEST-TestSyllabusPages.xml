@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="TestSyllabusPages" tests="1" time="36.040915" failures="0" errors="0" skipped="0" assertions="5">
-  <testcase name="test_syllabus" time="36.040469" assertions="5">
-  </testcase>
-  <system-out>
-  </system-out>
-  <system-err>
-  </system-err>
-</testsuite>

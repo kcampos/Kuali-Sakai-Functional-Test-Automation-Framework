@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="TestCompleteAssignment" tests="1" time="33.111715" failures="0" errors="0" skipped="0" assertions="11">
-  <testcase name="test_complete_assignments" time="33.111428" assertions="11">
-  </testcase>
-  <system-out>
-  </system-out>
-  <system-err>
-  </system-err>
-</testsuite>

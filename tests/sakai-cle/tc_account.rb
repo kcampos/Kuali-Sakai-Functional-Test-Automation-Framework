@@ -6,11 +6,9 @@
 #
 # Author: Abe Heward (aheward@rSmart.com)
 gem "test-unit"
-gems = ["test/unit", "watir-webdriver"]
-gems.each { |gem| require gem }
-files = [ "/../../config/CLE/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-CLE/app_functions.rb", "/../../lib/sakai-CLE/admin_page_elements.rb", "/../../lib/sakai-CLE/site_page_elements.rb", "/../../lib/sakai-CLE/common_page_elements.rb" ]
-files.each { |file| require File.dirname(__FILE__) + file }
-require "ci/reporter/rake/test_unit_loader"
+require "test/unit"
+require 'sakai-cle-test-api'
+require 'yaml'
 
 class UserAccountUpdate < Test::Unit::TestCase
   
@@ -18,14 +16,18 @@ class UserAccountUpdate < Test::Unit::TestCase
 
   def setup
     # Get the test configuration data
-    config = AutoConfig.new
-    @browser = config.browser
+    @config = YAML.load_file("config.yml")
+    @directory = YAML.load_file("directory.yml")
+    @sakai = SakaiCLE.new(:firefox, @config['url'])
+    puts "Debug code!"
+    @browser = @sakai.browser  # TODO: Put methodmissing into new Common lib file for gem extensions.
+    @login_page = @sakai.page
+    puts "Debug code!"
     # This test case requires logging in as a student
-    @user_name = config.directory['person7']['id']
-    @user_first = config.directory['person7']['firstname']
-    @user_last = config.directory['person7']['lastname']
-    @password = config.directory['person7']['password']
-    @sakai = SakaiCLE.new(@browser)
+    @user_name = @directory['person7']['id']
+    @user_first = @directory['person7']['firstname']
+    @user_last = @directory['person7']['lastname']
+    @password = @directory['person7']['password']
     
     # Test case data
     @first_name = random_nicelink(99)
@@ -49,10 +51,7 @@ class UserAccountUpdate < Test::Unit::TestCase
   def test_user_update
     
     # Log in to Sakai
-    @sakai.login(@user_name, @password)
-    
-    # Go to Account page
-    workspace = MyWorkspace.new(@browser)
+    workspace = @login_page.login(@user_name, @password)
     
     account = workspace.account
     
@@ -113,7 +112,7 @@ class UserAccountUpdate < Test::Unit::TestCase
     assert_equal @last_name, account.last_name, "Problem with last name"
     assert_equal @first_name, account.first_name, "Problem with first name"
     assert_equal @email_address, account.email, "Problem with email address"
-    assert_equal account.modified, @sakai.make_date(Time.now) #.utc)
+    assert_equal account.modified, make_date(Time.now) #.utc)
     
     # Log out and log back in with new password credentials
     @sakai.logout

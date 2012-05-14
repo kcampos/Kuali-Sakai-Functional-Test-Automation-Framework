@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="TestImportLesson" tests="1" time="61.869179" failures="0" errors="0" skipped="0" assertions="13">
-  <testcase name="test_import_lesson" time="61.868649" assertions="13">
-  </testcase>
-  <system-out>
-  </system-out>
-  <system-err>
-  </system-err>
-</testsuite>

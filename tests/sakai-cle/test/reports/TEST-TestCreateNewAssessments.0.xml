@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="TestCreateNewAssessments" tests="1" time="94.095036" failures="0" errors="0" skipped="0" assertions="16">
-  <testcase name="test_create_assessments" time="94.094749" assertions="16">
-  </testcase>
-  <system-out>
-  </system-out>
-  <system-err>
-  </system-err>
-</testsuite>

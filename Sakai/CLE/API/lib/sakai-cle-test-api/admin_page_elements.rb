@@ -100,7 +100,7 @@ class Login
   # specified credentials. Then it
   # instantiates the MyWorkspace class.
   def login(username, password)
-    frame = self.frame(:id, "ifrm")
+    frame = @browser.frame(:id, "ifrm")
     frame.text_field(:id, "eid").set username
     frame.text_field(:id, "pw").set password
     frame.form(:method, "post").submit
