@@ -35,7 +35,7 @@ describe "Data Seeding" do
     @password = @directory['admin']['password']
     
     @sakai = SakaiOAE.new(config['browser'], config['url'])
-    login_page = @sakai.page
+    @login_page = @sakai.page
     @browser = @sakai.browser
     # Test Data...
     @files = [
@@ -53,7 +53,7 @@ describe "Data Seeding" do
   end
 
   it "logs in" do
-    login_page.login(@username, @password)
+    @login_page.login(@username, @password)
   end
 
   it "uploads public test data" do
