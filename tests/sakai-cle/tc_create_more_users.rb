@@ -5,10 +5,9 @@
 #
 # Author: Abe Heward (aheward@rSmart.com)
 gem "test-unit"
-gems = ["test/unit", "watir-webdriver", "ci/reporter/rake/test_unit_loader"]
-gems.each { |gem| require gem }
-files = [ "/../../config/CLE/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-CLE/app_functions.rb", "/../../lib/sakai-CLE/admin_page_elements.rb", "/../../lib/sakai-CLE/site_page_elements.rb", "/../../lib/sakai-CLE/common_page_elements.rb" ]
-files.each { |file| require File.dirname(__FILE__) + file }
+require "test/unit"
+require 'sakai-cle-test-api'
+require 'yaml'
 
 class CreateUsers < Test::Unit::TestCase
 
@@ -17,12 +16,14 @@ class CreateUsers < Test::Unit::TestCase
   def setup
     
     # Get the test configuration data
-    @config = AutoConfig.new
-    @browser = @config.browser
-    @user_name = @config.directory['admin']['username']
-    @password = @config.directory['admin']['password']
+    @config = YAML.load_file("config.yml")
+    @directory = YAML.load_file("directory.yml")
+    @sakai = SakaiCLE.new(@config['browser'], @config['url'])
+    @browser = @sakai.browser
+    @user_name = @directory['admin']['username']
+    @password = @directory['admin']['password']
     @sakai = SakaiCLE.new(@browser)
-    @site_name = @config.directory["site1"]["name"]
+    @site_name = @directory["site1"]["name"]
     
   end
   
@@ -33,7 +34,7 @@ class CreateUsers < Test::Unit::TestCase
   def test_create_more_users
  
     # Log in to Sakai
-    workspace = @sakai.login(@user_name, @password)
+    workspace = @sakai.page.login(@user_name, @password)
     
     # Go to Users page in Sakai
     users_page = workspace.users

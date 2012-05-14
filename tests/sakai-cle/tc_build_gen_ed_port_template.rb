@@ -10,10 +10,9 @@
 # 
 # Author: Abe Heward (aheward@rSmart.com)
 gem "test-unit"
-gems = ["test/unit", "watir-webdriver", "ci/reporter/rake/test_unit_loader"]
-gems.each { |gem| require gem }
-files = [ "/../../config/CLE/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-CLE/app_functions.rb", "/../../lib/sakai-CLE/admin_page_elements.rb", "/../../lib/sakai-CLE/site_page_elements.rb", "/../../lib/sakai-CLE/common_page_elements.rb" ]
-files.each { |file| require File.dirname(__FILE__) + file }
+require "test/unit"
+require 'sakai-cle-test-api'
+require 'yaml'
 
 class TestBuildPortfolioTemplate < Test::Unit::TestCase
   
@@ -22,19 +21,21 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
   def setup
     
     # Get the test configuration data
-    @config = AutoConfig.new
-    @browser = @config.browser
+    @config = YAML.load_file("config.yml")
+    @directory = YAML.load_file("directory.yml")
+    @sakai = SakaiCLE.new(@config['browser'], @config['url'])
+    @browser = @sakai.browser
     # This test case uses the logins of several users
-    @instructor = @config.directory['person3']['id']
-    @ipassword = @config.directory['person3']['password']
-    @instructor_name = @config.directory['person3']['lastname'] + ", " + @config.directory['person3']['firstname']
-    @instructor2 = @config.directory['person4']['id']
-    @ipassword2 = @config.directory['person4']['password']
-    @instructor2_name = @config.directory['person4']['lastname'] + ", " + @config.directory['person4']['firstname']
-    @student = @config.directory["person1"]["id"]
-    @spassword = @config.directory["person1"]["password"]
-    @site_name = @config.directory['site1']['name']
-    @site_id = @config.directory['site1']['id']
+    @instructor = @directory['person3']['id']
+    @ipassword = @directory['person3']['password']
+    @instructor_name = @directory['person3']['lastname'] + ", " + @directory['person3']['firstname']
+    @instructor2 = @directory['person4']['id']
+    @ipassword2 = @directory['person4']['password']
+    @instructor2_name = @directory['person4']['lastname'] + ", " + @directory['person4']['firstname']
+    @student = @directory["person1"]["id"]
+    @spassword = @directory["person1"]["password"]
+    @site_name = @directory['site1']['name']
+    @site_id = @directory['site1']['id']
     @sakai = SakaiCLE.new(@browser)
     
     # Test case variables
@@ -45,7 +46,7 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
       "documents/reflection.xsd",
     ]
     @folder_name = random_alphanums(5)
-    @portfolio_site = @config.directory["site2"]["name"]
+    @portfolio_site = @directory["site2"]["name"]
     @schema = [ get_filename(@files[0]), get_filename(@files[1]), get_filename(@files[2]), get_filename(@files[3]) ]
     @form_names = ["Evaluation" + random_alphanums, "Feedback for Matrix" + random_alphanums, "General Education Evidence" + random_alphanums, "Reflection for Matrix" + random_alphanums ]
     @form_instructions = [
@@ -179,7 +180,7 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
   def test_build_portfolio_template
 
     # Log in to Sakai
-    workspace = @sakai.login(@instructor, @ipassword)
+    workspace = @sakai.page.login(@instructor, @ipassword)
     resources = workspace.resources
 
     # Add Files to Repository...
@@ -1066,8 +1067,8 @@ sleep 15
     # TEST CASE: Verify assignment 4 appears in the list
     assert assignments.assignments_titles.include?(@assignments[3][:title])
 
-    @sakai.logout
-    workspace = @sakai.login(@instructor2, @ipassword2)
+    assignments.logout
+    workspace = @sakai.page.login(@instructor2, @ipassword2)
     
     home = workspace.open_my_site_by_name @portfolio_site
 
@@ -1117,9 +1118,9 @@ sleep 15
     # TEST CASE: Verify list shows draft
     assert assignments.assignments_titles.include?("Draft - #{@assignments[4][:title]}")
 
-    @sakai.logout
+    assignments.logout
 
-    workspace = @sakai.login(@instructor, @ipassword)
+    workspace = @sakai.page.login(@instructor, @ipassword)
     
     home = workspace.open_my_site_by_name @portfolio_site
 
@@ -1174,9 +1175,9 @@ sleep 15
     # TEST CASE: Verify the reorder happened
     assert_equal assignments.assignment_list[0], @assignments[0][:title]
 
-    @sakai.logout
+    assignments.logout
 
-    workspace = @sakai.login(@student, @spassword)
+    workspace = @sakai.page.login(@student, @spassword)
 
     home = workspace.open_my_site_by_name @portfolio_site
 
@@ -1212,9 +1213,9 @@ sleep 15
     # TEST CASE: Verify assignment has submitted status
     assert_not_equal false, assignments.status_of(@assignments[2][:title])=~/Submitted/
 
-    @sakai.logout
+    assignments.logout
 
-    workspace = @sakai.login(@instructor, @ipassword)
+    workspace = @sakai.page.login(@instructor, @ipassword)
     
     home = workspace.open_my_site_by_name @portfolio_site
     
@@ -1222,7 +1223,7 @@ sleep 15
     
     submissions_list = assignments.grade @assignments[0][:title]
     
-    grade_assignment = submissions_list.grade "#{@config.directory['person1']['lastname']}, #{@config.directory['person1']['firstname']} (#{@config.directory['person1']['id']})"
+    grade_assignment = submissions_list.grade "#{@directory['person1']['lastname']}, #{@directory['person1']['firstname']} (#{@directory['person1']['id']})"
     sleep 4 #FIXME
     grade_assignment.instructor_comments=@assignments[0][:instructor_comment1]
     grade_assignment.remove_assignment_text
@@ -1239,13 +1240,13 @@ sleep 15
     submissions_list = grade_assignment.return_to_list
     submissions_list.release_grades
     
-    grade_assignment = submissions_list.grade "#{@config.directory['person1']['lastname']}, #{@config.directory['person1']['firstname']} (#{@config.directory['person1']['id']})"
+    grade_assignment = submissions_list.grade "#{@directory['person1']['lastname']}, #{@directory['person1']['firstname']} (#{@directory['person1']['id']})"
     grade_assignment.check_allow_resubmission
     grade_assignment.return_to_list
-    
-    @sakai.logout
 
-    workspace = @sakai.login(@student, @spassword)
+    grade_assignment.logout
+
+    workspace = @sakai.page.login(@student, @spassword)
     
     home = workspace.open_my_site_by_name @portfolio_site
     
@@ -1265,10 +1266,10 @@ sleep 15
 
     # TEST CASE: Verify submission status is correct
     assert_not_equal false, assignments.status_of(@assignments[0][:title])=~/Re-submitted/
-    
-    @sakai.logout
 
-    workspace = @sakai.login(@instructor, @ipassword)
+    assignments.logout
+
+    workspace = @sakai.page.login(@instructor, @ipassword)
 
     home = workspace.open_my_site_by_name @portfolio_site
     
@@ -1277,19 +1278,19 @@ sleep 15
     submissions_list = assignments.grade @assignments[0][:title]
     
     # TEST CASE: Verify resubmission status
-    assert_not_equal false, submissions_list.submission_status_of("#{@config.directory['person1']['lastname']}, #{@config.directory['person1']['firstname']} (#{@config.directory['person1']['id']})")=~/Re-submitted/
+    assert_not_equal false, submissions_list.submission_status_of("#{@directory['person1']['lastname']}, #{@directory['person1']['firstname']} (#{@directory['person1']['id']})")=~/Re-submitted/
 
-    grade_assignment = submissions_list.grade "#{@config.directory['person1']['lastname']}, #{@config.directory['person1']['firstname']} (#{@config.directory['person1']['id']})"
+    grade_assignment = submissions_list.grade "#{@directory['person1']['lastname']}, #{@directory['person1']['firstname']} (#{@directory['person1']['id']})"
     grade_assignment.instructor_comments=@assignments[0][:instructor_comment2]
     grade_assignment.select_default_grade=@grades[1]
     grade_assignment.save_and_dont_release
     
     submissions_list = grade_assignment.return_to_list
     submissions_list.release_grades
-    
-    @sakai.logout
 
-    workspace = @sakai.login(@student, @spassword)
+    submissions_list.logout
+
+    workspace = @sakai.page.login(@student, @spassword)
     
     home = workspace.open_my_site_by_name @portfolio_site
     
@@ -1298,7 +1299,7 @@ sleep 15
     
     # TEST CASE: Verify instructor's comments are as expected
     assert_equal assignment_1.instructor_comments, @assignments[0][:instructor_comment2]
-    
-    @sakai.logout
+
+    assignment_1.logout
   end
 end

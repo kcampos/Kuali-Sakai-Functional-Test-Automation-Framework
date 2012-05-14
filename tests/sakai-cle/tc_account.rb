@@ -18,11 +18,9 @@ class UserAccountUpdate < Test::Unit::TestCase
     # Get the test configuration data
     @config = YAML.load_file("config.yml")
     @directory = YAML.load_file("directory.yml")
-    @sakai = SakaiCLE.new(:firefox, @config['url'])
-    puts "Debug code!"
-    @browser = @sakai.browser  # TODO: Put methodmissing into new Common lib file for gem extensions.
+    @sakai = SakaiCLE.new(@config['browser'], @config['url'])
+    @browser = @sakai.browser
     @login_page = @sakai.page
-    puts "Debug code!"
     # This test case requires logging in as a student
     @user_name = @directory['person7']['id']
     @user_first = @directory['person7']['firstname']
@@ -115,9 +113,9 @@ class UserAccountUpdate < Test::Unit::TestCase
     assert_equal account.modified, make_date(Time.now) #.utc)
     
     # Log out and log back in with new password credentials
-    @sakai.logout
+    account.logout
     
-    workspace = @sakai.login(@user_name, @new_password)
+    workspace = @sakai.page.login(@user_name, @new_password)
     
     # TEST CASE: Verify the user successfully logged in
     assert @browser.link(:text, "Logout").exist?, "User was unable to log in with new password"

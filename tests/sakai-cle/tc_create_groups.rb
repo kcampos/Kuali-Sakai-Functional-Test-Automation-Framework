@@ -7,10 +7,9 @@
 #
 # Author: Abe Heward (aheward@rSmart.com)
 gem "test-unit"
-gems = ["test/unit", "watir-webdriver", "ci/reporter/rake/test_unit_loader"]
-gems.each { |gem| require gem }
-files = [ "/../../config/CLE/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-CLE/app_functions.rb", "/../../lib/sakai-CLE/admin_page_elements.rb", "/../../lib/sakai-CLE/site_page_elements.rb", "/../../lib/sakai-CLE/common_page_elements.rb" ]
-files.each { |file| require File.dirname(__FILE__) + file }
+require "test/unit"
+require 'sakai-cle-test-api'
+require 'yaml'
 
 class TestGroups < Test::Unit::TestCase
   
@@ -19,12 +18,14 @@ class TestGroups < Test::Unit::TestCase
   def setup
     
     # Get the test configuration data
-    @config = AutoConfig.new
-    @browser = @config.browser
+    @config = YAML.load_file("config.yml")
+    @directory = YAML.load_file("directory.yml")
+    @sakai = SakaiCLE.new(@config['browser'], @config['url'])
+    @browser = @sakai.browser
     # Test user is an instructor
-    @site_name = @config.directory['site1']['name']
-    @user_name = @config.directory['person3']['id']
-    @password = @config.directory['person3']['password']
+    @site_name = @directory['site1']['name']
+    @user_name = @directory['person3']['id']
+    @password = @directory['person3']['password']
     @sakai = SakaiCLE.new(@browser)
     
   end
@@ -33,7 +34,7 @@ class TestGroups < Test::Unit::TestCase
     
     # Save new groups info for later scripts to use
     File.open("#{File.dirname(__FILE__)}/../../config/CLE/directory.yml", "w+") { |out|
-      YAML::dump(@config.directory, out)
+      YAML::dump(@directory, out)
     }
     
     # Close the browser window
@@ -44,7 +45,7 @@ class TestGroups < Test::Unit::TestCase
   def test_create_groups
     
     # Log in to Sakai
-    @sakai.login(@user_name, @password)
+    @sakai.page.login(@user_name, @password)
     
     # Go to test Site in Sakai
     workspace = MyWorkspace.new(@browser)
@@ -69,7 +70,7 @@ class TestGroups < Test::Unit::TestCase
       new_group.title=group_title
       
       # Store the title in the config.yml file
-      @config.directory["site1"]["group#{x}"] = group_title
+      @directory["site1"]["group#{x}"] = group_title
       
       # Get contents of the Site Member Select list
       # and put those contents into an array

@@ -5,10 +5,9 @@
 #
 # Author: Abe Heward (aheward@rSmart.com)
 gem "test-unit"
-gems = ["test/unit", "watir-webdriver", "ci/reporter/rake/test_unit_loader"]
-gems.each { |gem| require gem }
-files = [ "/../../config/CLE/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-CLE/app_functions.rb", "/../../lib/sakai-CLE/admin_page_elements.rb", "/../../lib/sakai-CLE/site_page_elements.rb", "/../../lib/sakai-CLE/common_page_elements.rb" ]
-files.each { |file| require File.dirname(__FILE__) + file }
+require "test/unit"
+require 'sakai-cle-test-api'
+require 'yaml'
 
 class TestSubmitAssessment < Test::Unit::TestCase
   
@@ -17,16 +16,18 @@ class TestSubmitAssessment < Test::Unit::TestCase
   def setup
     
     # Get the test configuration data
-    @config = AutoConfig.new
-    @browser = @config.browser
+    @config = YAML.load_file("config.yml")
+    @directory = YAML.load_file("directory.yml")
+    @sakai = SakaiCLE.new(@config['browser'], @config['url'])
+    @browser = @sakai.browser
     # Log in with student user
-    @user_name = @config.directory['person1']['id']
-    @password = @config.directory['person1']['password']
-    @test1 = @config.directory['site1']['quiz1']
-    @test2 = @config.directory['site1']['quiz2']
+    @user_name = @directory['person1']['id']
+    @password = @directory['person1']['password']
+    @test1 = @directory['site1']['quiz1']
+    @test2 = @directory['site1']['quiz2']
     # Test site
-    @site_name = @config.directory['site1']['name']
-    @site_id = @config.directory['site1']['id']
+    @site_name = @directory['site1']['name']
+    @site_id = @directory['site1']['id']
     @sakai = SakaiCLE.new(@browser)
     
     # Test case variables
@@ -59,7 +60,7 @@ class TestSubmitAssessment < Test::Unit::TestCase
   
   def test_submit_assessment
     # Log in to Sakai
-    workspace = @sakai.login(@user_name, @password)
+    workspace = @sakai.page.login(@user_name, @password)
     
     # Go to test site.
     home = workspace.open_my_site_by_id(@site_id)
@@ -150,7 +151,7 @@ class TestSubmitAssessment < Test::Unit::TestCase
     # TEST CASE: Verify test is listed as submitted
     assert tests_lists.submitted_assessments.include?(@test2), "#{@test2} not found in #{tests_lists.submitted_assessments}"
 
-    @sakai.logout
+    tests_lists.logout
     
   end
   

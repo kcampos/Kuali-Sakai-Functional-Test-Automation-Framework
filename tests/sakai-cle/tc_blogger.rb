@@ -5,10 +5,9 @@
 # 
 # Author: Abe Heward (aheward@rSmart.com)
 gem "test-unit"
-gems = ["test/unit", "watir-webdriver", "ci/reporter/rake/test_unit_loader"]
-gems.each { |gem| require gem }
-files = [ "/../../config/CLE/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-CLE/app_functions.rb", "/../../lib/sakai-CLE/admin_page_elements.rb", "/../../lib/sakai-CLE/site_page_elements.rb", "/../../lib/sakai-CLE/common_page_elements.rb" ]
-files.each { |file| require File.dirname(__FILE__) + file }
+require "test/unit"
+require 'sakai-cle-test-api'
+require 'yaml'
 
 class TestBlogger < Test::Unit::TestCase
   
@@ -17,22 +16,24 @@ class TestBlogger < Test::Unit::TestCase
   def setup
     
     # Get the test configuration data
-    @config = AutoConfig.new
-    @browser = @config.browser
-    @instructor = @config.directory['person3']['id']
-    @ipassword = @config.directory['person3']['password']
-    @student1 = @config.directory["person1"]["id"]
-    @spass1 = @config.directory["person1"]["password"]
-    @student2 = @config.directory["person2"]["id"]
-    @spass2 = @config.directory["person2"]["password"]
-    @student3 = @config.directory["person5"]["id"]
-    @spass3 = @config.directory["person5"]["password"]
-    @student3_name = @config.directory["person5"]["firstname"] + " " + @config.directory["person5"]["lastname"]
-    @student4 = @config.directory["person6"]["id"]
-    @spass4 = @config.directory["person6"]["password"]
+    @config = YAML.load_file("config.yml")
+    @directory = YAML.load_file("directory.yml")
+    @sakai = SakaiCLE.new(@config['browser'], @config['url'])
+    @browser = @sakai.browser
+    @instructor = @directory['person3']['id']
+    @ipassword = @directory['person3']['password']
+    @student1 = @directory["person1"]["id"]
+    @spass1 = @directory["person1"]["password"]
+    @student2 = @directory["person2"]["id"]
+    @spass2 = @directory["person2"]["password"]
+    @student3 = @directory["person5"]["id"]
+    @spass3 = @directory["person5"]["password"]
+    @student3_name = @directory["person5"]["firstname"] + " " + @directory["person5"]["lastname"]
+    @student4 = @directory["person6"]["id"]
+    @spass4 = @directory["person6"]["password"]
     
-    @site_name = @config.directory['site1']['name']
-    @site_id = @config.directory['site1']['id']
+    @site_name = @directory['site1']['name']
+    @site_id = @directory['site1']['id']
     @sakai = SakaiCLE.new(@browser)
     
     # Test case variables
@@ -63,7 +64,7 @@ class TestBlogger < Test::Unit::TestCase
   def test_blogger
   
     # Log in to Sakai as student 1
-    workspace = @sakai.login(@student1, @spass1)
+    workspace = @sakai.page.login(@student1, @spass1)
     
     home = workspace.open_my_site_by_id(@site_id)
     
@@ -91,11 +92,11 @@ class TestBlogger < Test::Unit::TestCase
 
     # TEST CASE: New Blog post appears on the list page
     assert blogger.post_titles.include? @post_1_title
-    
-    @sakai.logout
+
+    blogger.logout
     
     # Log in as student 2
-    workspace = @sakai.login(@student2, @spass2)
+    workspace = @sakai.page.login(@student2, @spass2)
     
     home = workspace.open_my_site_by_name @site_name
     
@@ -108,11 +109,11 @@ class TestBlogger < Test::Unit::TestCase
     comment.your_comment=@comment_1
     
     post1 = comment.save
-    
-    @sakai.logout
+
+    comment.logout
     
     # Log in as student 3
-    workspace = @sakai.login(@student3, @spass3)
+    workspace = @sakai.page.login(@student3, @spass3)
     
     home = workspace.open_my_site_by_name(@site_name)
     
@@ -141,10 +142,10 @@ class TestBlogger < Test::Unit::TestCase
     # TEST CASE: Verify student 1's post also appears in the list
     assert blogger.post_titles.include? @post_1_title
 
-    @sakai.logout
+    blogger.logout
     
     # Log in as student 4
-    workspace = @sakai.login(@student4, @spass4)
+    workspace = @sakai.page.login(@student4, @spass4)
     
     home = workspace.open_my_site_by_name(@site_name)
     
@@ -176,10 +177,10 @@ class TestBlogger < Test::Unit::TestCase
     
     # TEST CASE: Verify new message appears
     assert blogger.post_titles.include?(@post_3_title), "No #{@post_3_title} present...\n\n#{blogger.post_titles}"
+
+    blogger.logout
     
-    @sakai.logout
-    
-    workspace = @sakai.login(@instructor, @ipassword)
+    workspace = @sakai.page.login(@instructor, @ipassword)
     
     home = workspace.open_my_site_by_name(@site_name)
     

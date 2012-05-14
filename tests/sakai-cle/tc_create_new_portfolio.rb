@@ -6,10 +6,9 @@
 # 
 # Author: Abe Heward (aheward@rSmart.com)
 gem "test-unit"
-gems = ["test/unit", "watir-webdriver", "ci/reporter/rake/test_unit_loader"]
-gems.each { |gem| require gem }
-files = [ "/../../config/CLE/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-CLE/app_functions.rb", "/../../lib/sakai-CLE/admin_page_elements.rb", "/../../lib/sakai-CLE/site_page_elements.rb", "/../../lib/sakai-CLE/common_page_elements.rb" ]
-files.each { |file| require File.dirname(__FILE__) + file }
+require "test/unit"
+require 'sakai-cle-test-api'
+require 'yaml'
 
 class TestCreateNewPortfolio < Test::Unit::TestCase
   
@@ -18,11 +17,13 @@ class TestCreateNewPortfolio < Test::Unit::TestCase
   def setup
     
     # Get the test configuration data
-    @config = AutoConfig.new
-    @browser = @config.browser
-    @student = @config.directory['person1']['id']
-    @password = @config.directory['person1']['password']
-    @site_name = @config.directory['site2']['name']
+    @config = YAML.load_file("config.yml")
+    @directory = YAML.load_file("directory.yml")
+    @sakai = SakaiCLE.new(@config['browser'], @config['url'])
+    @browser = @sakai.browser
+    @student = @directory['person1']['id']
+    @password = @directory['person1']['password']
+    @site_name = @directory['site2']['name']
     @sakai = SakaiCLE.new(@browser)
     
     # Test case variables
@@ -42,7 +43,7 @@ class TestCreateNewPortfolio < Test::Unit::TestCase
   def test_create_new_portfolio
     
     # Log in to Sakai
-    workspace = @sakai.login(@student, @password)
+    workspace = @sakai.page.login(@student, @password)
     
     home = workspace.open_my_site_by_name(@site_name)
     

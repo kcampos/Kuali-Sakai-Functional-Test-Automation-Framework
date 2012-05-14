@@ -5,10 +5,9 @@
 # 
 # Author: Abe Heward (aheward@rSmart.com)
 gem "test-unit"
-gems = ["test/unit", "watir-webdriver", "ci/reporter/rake/test_unit_loader"]
-gems.each { |gem| require gem }
-files = [ "/../../config/CLE/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-CLE/app_functions.rb", "/../../lib/sakai-CLE/admin_page_elements.rb", "/../../lib/sakai-CLE/site_page_elements.rb", "/../../lib/sakai-CLE/common_page_elements.rb" ]
-files.each { |file| require File.dirname(__FILE__) + file }
+require "test/unit"
+require 'sakai-cle-test-api'
+require 'yaml'
 
 class TestImportLesson < Test::Unit::TestCase
   
@@ -17,15 +16,17 @@ class TestImportLesson < Test::Unit::TestCase
   def setup
     
     # Get the test configuration data
-    @config = AutoConfig.new
-    @browser = @config.browser
+    @config = YAML.load_file("config.yml")
+    @directory = YAML.load_file("directory.yml")
+    @sakai = SakaiCLE.new(@config['browser'], @config['url'])
+    @browser = @sakai.browser
     # This test case uses the logins of several users
-    @instructor = @config.directory['person4']['id']
-    @ipassword = @config.directory['person4']['password']
-    @student = @config.directory["person6"]["id"]
-    @spassword = @config.directory["person6"]["password"]
-    @site_name = @config.directory['site1']['name']
-    @site_id = @config.directory['site1']['id']
+    @instructor = @directory['person4']['id']
+    @ipassword = @directory['person4']['password']
+    @student = @directory["person6"]["id"]
+    @spassword = @directory["person6"]["password"]
+    @site_name = @directory['site1']['name']
+    @site_id = @directory['site1']['id']
     @sakai = SakaiCLE.new(@browser)
     
     # Test case variables...
@@ -45,7 +46,7 @@ class TestImportLesson < Test::Unit::TestCase
   def test_import_lesson
     
     # Log in to Sakai
-    workspace = @sakai.login(@instructor, @ipassword)
+    workspace = @sakai.page.login(@instructor, @ipassword)
     
     # Go to the test site
     home = workspace.open_my_site_by_id(@site_id)
@@ -71,10 +72,10 @@ class TestImportLesson < Test::Unit::TestCase
     assert lessons.lessons_list.include? @lesson_names[0]
     assert lessons.sections_list(@lesson_names[0]).include? @section_names[0]
     assert lessons.sections_list(@lesson_names[1]).include? @section_names[3]
+
+    lessons.logout
     
-    @sakai.logout
-    
-    workspace = @sakai.login(@student, @spassword)
+    workspace = @sakai.page.login(@student, @spassword)
     
     home = workspace.open_my_site_by_name @site_name
     

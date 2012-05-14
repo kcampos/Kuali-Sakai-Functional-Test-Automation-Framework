@@ -5,10 +5,9 @@
 #
 # Author: Abe Heward (aheward@rSmart.com)
 gem "test-unit"
-gems = ["test/unit", "watir-webdriver", "ci/reporter/rake/test_unit_loader"]
-gems.each { |gem| require gem }
-files = [ "/../../config/CLE/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-CLE/app_functions.rb", "/../../lib/sakai-CLE/admin_page_elements.rb", "/../../lib/sakai-CLE/site_page_elements.rb", "/../../lib/sakai-CLE/common_page_elements.rb" ]
-files.each { |file| require File.dirname(__FILE__) + file }
+require "test/unit"
+require 'sakai-cle-test-api'
+require 'yaml'
 
 class TestCreateNewAssessments < Test::Unit::TestCase
   
@@ -17,14 +16,16 @@ class TestCreateNewAssessments < Test::Unit::TestCase
   def setup
     
     # Get the test configuration data
-    @config = AutoConfig.new
-    @browser = @config.browser
+    @config = YAML.load_file("config.yml")
+    @directory = YAML.load_file("directory.yml")
+    @sakai = SakaiCLE.new(@config['browser'], @config['url'])
+    @browser = @sakai.browser
     # Test case uses an instructor user
-    @user_name = @config.directory['person3']['id']
-    @password = @config.directory['person3']['password']
+    @user_name = @directory['person3']['id']
+    @password = @directory['person3']['password']
     # Test site
-    @site_name = @config.directory['site1']['name']
-    @site_id = @config.directory['site1']['id']
+    @site_name = @directory['site1']['name']
+    @site_id = @directory['site1']['id']
     @sakai = SakaiCLE.new(@browser)
     
     @assessments = [
@@ -63,8 +64,8 @@ class TestCreateNewAssessments < Test::Unit::TestCase
     @imported_pool_name = "Exam 1"
     
     # Store the quiz titles in the directory.yml for later use
-    @config.directory['site1']['quiz1'] = @assessments[0][:title] 
-    @config.directory['site1']['quiz2'] = @assessments[1][:title]
+    @directory['site1']['quiz1'] = @assessments[0][:title]
+    @directory['site1']['quiz2'] = @assessments[1][:title]
     
     # Validation text -- These contain page content that will be used for
     # test asserts.
@@ -78,7 +79,7 @@ class TestCreateNewAssessments < Test::Unit::TestCase
   def teardown
     # Save new assessment info for later scripts to use
     File.open("#{File.dirname(__FILE__)}/../../config/CLE/directory.yml", "w+") { |out|
-      YAML::dump(@config.directory, out)
+      YAML::dump(@directory, out)
     }
     # Close the browser window
     @browser.close
@@ -87,7 +88,7 @@ class TestCreateNewAssessments < Test::Unit::TestCase
   def test_create_assessments
     
     # Log in to Sakai
-    workspace = @sakai.login(@user_name, @password)
+    workspace = @sakai.page.login(@user_name, @password)
     
     # Go to test site.
     home = workspace.open_my_site_by_id(@site_id)

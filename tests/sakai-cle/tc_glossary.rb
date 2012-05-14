@@ -6,10 +6,9 @@
 #
 # Author: Abe Heward (aheward@rSmart.com)
 gem "test-unit"
-gems = ["test/unit", "watir-webdriver", "ci/reporter/rake/test_unit_loader"]
-gems.each { |gem| require gem }
-files = [ "/../../config/CLE/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-CLE/app_functions.rb", "/../../lib/sakai-CLE/admin_page_elements.rb", "/../../lib/sakai-CLE/site_page_elements.rb", "/../../lib/sakai-CLE/common_page_elements.rb" ]
-files.each { |file| require File.dirname(__FILE__) + file }
+require "test/unit"
+require 'sakai-cle-test-api'
+require 'yaml'
 
 class TestGlossary < Test::Unit::TestCase
   
@@ -50,7 +49,7 @@ class TestGlossary < Test::Unit::TestCase
   def test_glossary
     
     # Log in to Sakai
-    workspace = @sakai.login(@user_name, @password)
+    workspace = @sakai.page.login(@user_name, @password)
     
     # Go to test site
     home = workspace.open_my_site_by_name @portfolio_site

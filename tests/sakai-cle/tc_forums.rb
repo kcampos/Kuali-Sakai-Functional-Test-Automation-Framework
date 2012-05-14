@@ -5,10 +5,9 @@
 # 
 # Author: Abe Heward (aheward@rSmart.com)
 gem "test-unit"
-gems = ["test/unit", "watir-webdriver", "ci/reporter/rake/test_unit_loader"]
-gems.each { |gem| require gem }
-files = [ "/../../config/CLE/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-CLE/app_functions.rb", "/../../lib/sakai-CLE/admin_page_elements.rb", "/../../lib/sakai-CLE/site_page_elements.rb", "/../../lib/sakai-CLE/common_page_elements.rb" ]
-files.each { |file| require File.dirname(__FILE__) + file }
+require "test/unit"
+require 'sakai-cle-test-api'
+require 'yaml'
 
 class TestForums < Test::Unit::TestCase
   
@@ -17,13 +16,15 @@ class TestForums < Test::Unit::TestCase
   def setup
     
     # Get the test configuration data
-    @config = AutoConfig.new
-    @browser = @config.browser
+    @config = YAML.load_file("config.yml")
+    @directory = YAML.load_file("directory.yml")
+    @sakai = SakaiCLE.new(@config['browser'], @config['url'])
+    @browser = @sakai.browser
     # This test case uses the logins of several users
-    @instructor = @config.directory['person3']['id']
-    @ipassword = @config.directory['person3']['password']
-    @site_name = @config.directory['site1']['name']
-    @site_id = @config.directory['site1']['id']
+    @instructor = @directory['person3']['id']
+    @ipassword = @directory['person3']['password']
+    @site_name = @directory['site1']['name']
+    @site_id = @directory['site1']['id']
     @sakai = SakaiCLE.new(@browser)
     
     # Test case variables
@@ -58,7 +59,7 @@ class TestForums < Test::Unit::TestCase
   def test_forums
 
     # Log in to Sakai
-    workspace = @sakai.login(@instructor, @ipassword)
+    workspace = @sakai.page.login(@instructor, @ipassword)
     
     # Go to the test site
     home = workspace.open_my_site_by_id(@site_id)
@@ -72,7 +73,7 @@ class TestForums < Test::Unit::TestCase
       if x == 3
         x = 5 # Need this because of the way the Directory.yml list is made
       end
-      person = @config.directory["person#{x}"]['id']
+      person = @directory["person#{x}"]['id']
       new_group.site_member_list=/#{person}/
     end
     new_group.right
@@ -80,7 +81,7 @@ class TestForums < Test::Unit::TestCase
     new_group = groups.create_new_group
     new_group.title=@groups[1]
     6.upto(10) do |x|
-      person = @config.directory["person#{x}"]['id']
+      person = @directory["person#{x}"]['id']
       new_group.site_member_list=/#{person}/
     end
     new_group.right
@@ -148,13 +149,12 @@ class TestForums < Test::Unit::TestCase
     assert template.page_title=="Default Settings Template"
     
     template.cancel
-    
-    @sakai.logout
+
+    template.logout
 
     # Log in with a student who is NOT in Group 1
-    @sakai.login(@config.directory['person7']['id'], @config.directory['person7']['password'])
-    
-    workspace = MyWorkspace.new(@browser)
+    workspace =@sakai.page.login(@directory['person7']['id'], @directory['person7']['password'])
+
     home = workspace.open_my_site_by_id(@site_id)
     forums = home.forums
     sleep 30
@@ -183,13 +183,12 @@ class TestForums < Test::Unit::TestCase
     
     # TEST CASE: Verify user can read the text
     assert @browser.frame(:index=>$frame_index).table(:id=>"msgForum:expandedThreadedMessages").text.include? @messages[0][:text]
-    
-    @sakai.logout
+
+    message.logout
     
     # Log in with a student who IS in Group 1
-    @sakai.login(@config.directory["person5"]["id"], @config.directory["person5"]["password"])
-    
-    workspace = MyWorkspace.new(@browser)
+    workspace = @sakai.page.login(@directory["person5"]["id"], @directory["person5"]["password"])
+
     home = workspace.open_my_site_by_id(@site_id)
     forums = home.forums
     
@@ -205,11 +204,11 @@ class TestForums < Test::Unit::TestCase
 
     # TEST CASE: Verify the post new thread link is available
     assert @browser.frame(:index=>1).table(:class=>/topicBloc/).link(:text=>"Post New Thread").exist?
-    
-    @sakai.logout
-   
-    @sakai.login(@instructor, @ipassword)
-    workspace = MyWorkspace.new(@browser)
+
+    topic.logout
+
+    workspace = @sakai.page.login(@instructor, @ipassword)
+
     home = workspace.open_my_site_by_id(@site_id)
     
     forums = home.forums
@@ -269,9 +268,9 @@ class TestForums < Test::Unit::TestCase
     assert forums.forums_table.text.include? "2 messages - 0 unread"
     
     # Log out and log back in as a student in Group 1
-    @sakai.logout
-    @sakai.login(@config.directory["person2"]["id"], @config.directory["person2"]["password"])
-    workspace = MyWorkspace.new(@browser)
+    forums.logout
+    workspace = @sakai.page.login(@directory["person2"]["id"], @directory["person2"]["password"])
+
     home = workspace.open_my_site_by_id(@site_id)
     forums = home.forums
     
@@ -280,10 +279,10 @@ class TestForums < Test::Unit::TestCase
     assert_equal forums.topic_titles.include?(@topics[2][:title]), false
     
     # Log out and log back in with a student from Group 2
-    @sakai.logout
-  
-    @sakai.login(@config.directory["person8"]["id"], @config.directory["person8"]["password"])
-    workspace = MyWorkspace.new(@browser)
+    forums.logout
+
+    workspace = @sakai.page.login(@directory["person8"]["id"], @directory["person8"]["password"])
+
     home = workspace.open_my_site_by_id(@site_id)
     forums = home.forums
 
@@ -302,10 +301,10 @@ class TestForums < Test::Unit::TestCase
     
     # Log out and log back in as the instructor, to change the permissions
     # of a topic...
-    @sakai.logout
-    
-    @sakai.login(@instructor, @ipassword)
-    workspace = MyWorkspace.new(@browser)
+    topic_page.logout
+
+    workspace = @sakai.page.login(@instructor, @ipassword)
+
     home = workspace.open_my_site_by_id(@site_id)
     forums = home.forums
     
@@ -314,12 +313,12 @@ class TestForums < Test::Unit::TestCase
     topic_settings.site_role= /#{Regexp.escape(@groups[0])}/
     topic_settings.permission_level="Reviewer"
     topic_settings.save
-    
-    @sakai.logout
+
+    topic_settings.logout
     
     # Log in with a student from Group 1
-    @sakai.login(@config.directory["person5"]["id"], @config.directory["person5"]["password"])
-    workspace = MyWorkspace.new(@browser)
+    workspace = @sakai.page.login(@directory["person5"]["id"], @directory["person5"]["password"])
+
     home = workspace.open_my_site_by_id(@site_id)
     forums = home.forums
     
@@ -330,12 +329,12 @@ class TestForums < Test::Unit::TestCase
     assert_equal @browser.frame(:index=>1).table(:class=>/topicBloc/).link(:text=>"Post New Thread").exist?, false
     assert_equal @browser.frame(:index=>1).table(:class=>/topicBloc/).link(:text=>"Topic Settings").exist?, false
     assert_equal @browser.frame(:index=>1).table(:class=>/topicBloc/).link(:text=>"Delete").exist?, false
-    
-    @sakai.logout
+
+    topic_page.logout
     
     # Log in with a student from Group 2
-    @sakai.login(@config.directory["person6"]["id"], @config.directory["person6"]["password"])
-    workspace = MyWorkspace.new(@browser)
+    workspace = @sakai.page.login(@directory["person6"]["id"], @directory["person6"]["password"])
+
     home = workspace.open_my_site_by_id(@site_id)
     forums = home.forums
     

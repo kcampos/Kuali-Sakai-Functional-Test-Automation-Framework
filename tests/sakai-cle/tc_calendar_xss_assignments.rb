@@ -6,10 +6,9 @@
 #
 # Author: Abe Heward (aheward@rSmart.com)
 gem "test-unit"
-gems = ["test/unit", "watir-webdriver", "ci/reporter/rake/test_unit_loader"]
-gems.each { |gem| require gem }
-files = [ "/../../config/CLE/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-CLE/app_functions.rb", "/../../lib/sakai-CLE/admin_page_elements.rb", "/../../lib/sakai-CLE/site_page_elements.rb", "/../../lib/sakai-CLE/common_page_elements.rb" ]
-files.each { |file| require File.dirname(__FILE__) + file }
+require "test/unit"
+require 'sakai-cle-test-api'
+require 'yaml'
 
 class TestXSSAssignmentsOnCalendar < Test::Unit::TestCase
   
@@ -18,17 +17,19 @@ class TestXSSAssignmentsOnCalendar < Test::Unit::TestCase
   def setup
     
     # Get the test configuration data
-    @config = AutoConfig.new
-    @browser = @config.browser
+    @config = YAML.load_file("config.yml")
+    @directory = YAML.load_file("directory.yml")
+    @sakai = SakaiCLE.new(@config['browser'], @config['url'])
+    @browser = @sakai.browser
     # Test user is an instructor
-    @user_name = @config.directory['person3']['id']
-    @password = @config.directory['person3']['password']
+    @user_name = @directory['person3']['id']
+    @password = @directory['person3']['password']
     # This script requires a second test user (instructor)
-    @user_name1 = @config.directory['person4']['id']
-    @password1 = @config.directory['person4']['password']
+    @user_name1 = @directory['person4']['id']
+    @password1 = @directory['person4']['password']
     # Test site
-    @site_name = @config.directory['site1']['name']
-    @site_id = @config.directory['site1']['id']
+    @site_name = @directory['site1']['name']
+    @site_id = @directory['site1']['id']
     @sakai = SakaiCLE.new(@browser)
     
     # Test case variables
@@ -81,7 +82,7 @@ class TestXSSAssignmentsOnCalendar < Test::Unit::TestCase
   def test_xss_assignments_on_calendar
     
     # Log in to Sakai
-    my_workspace = @sakai.login(@user_name, @password)
+    my_workspace = @sakai.page.login(@user_name, @password)
 
     # Go to test site.
     home = my_workspace.open_my_site_by_id(@site_id)

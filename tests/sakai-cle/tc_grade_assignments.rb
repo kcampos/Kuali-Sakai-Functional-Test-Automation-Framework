@@ -7,10 +7,9 @@
 #
 # Author: Abe Heward (aheward@rSmart.com)
 gem "test-unit"
-gems = ["test/unit", "watir-webdriver", "ci/reporter/rake/test_unit_loader"]
-gems.each { |gem| require gem }
-files = [ "/../../config/CLE/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-CLE/app_functions.rb", "/../../lib/sakai-CLE/admin_page_elements.rb", "/../../lib/sakai-CLE/site_page_elements.rb", "/../../lib/sakai-CLE/common_page_elements.rb" ]
-files.each { |file| require File.dirname(__FILE__) + file }
+require "test/unit"
+require 'sakai-cle-test-api'
+require 'yaml'
 
 class TestGradingAssignments < Test::Unit::TestCase
   
@@ -19,22 +18,24 @@ class TestGradingAssignments < Test::Unit::TestCase
   def setup
     
     # Get the test configuration data
-    @config = AutoConfig.new
-    @browser = @config.browser
-    @site_name = @config.directory['site1']['name']
-    @site_id = @config.directory['site1']['id']
+    @config = YAML.load_file("config.yml")
+    @directory = YAML.load_file("directory.yml")
+    @sakai = SakaiCLE.new(@config['browser'], @config['url'])
+    @browser = @sakai.browser
+    @site_name = @directory['site1']['name']
+    @site_id = @directory['site1']['id']
     # Instructor login
-    @instructor_id = @config.directory['person3']['id']
-    @instructor_pw = @config.directory['person3']['password']
+    @instructor_id = @directory['person3']['id']
+    @instructor_pw = @directory['person3']['password']
     # Student login
-    @student_id = @config.directory['person1']['id']
-    @student_pw = @config.directory['person1']['password']
+    @student_id = @directory['person1']['id']
+    @student_pw = @directory['person1']['password']
     @sakai = SakaiCLE.new(@browser)
     
     # Test case variables
-    @assignment1 = @config.directory["site1"]["assignment4"]
-    @assignment2 = @config.directory["site1"]["assignment2"]
-    @student = @config.directory['person1']['lastname'] + ", " + @config.directory['person1']['firstname']
+    @assignment1 = @directory["site1"]["assignment4"]
+    @assignment2 = @directory["site1"]["assignment2"]
+    @student = @directory['person1']['lastname'] + ", " + @directory['person1']['firstname']
     
     @instructor_comments = random_multiline(156, 9, :string)
     @comment_string = "{{Try again please.}}"
@@ -52,7 +53,7 @@ class TestGradingAssignments < Test::Unit::TestCase
   def test_grade_assignments
     
     # Log in to Sakai as the instructor
-    workspace = @sakai.login(@instructor_id, @instructor_pw)
+    workspace = @sakai.page.login(@instructor_id, @instructor_pw)
     
     # Go to test site
     home = workspace.open_my_site_by_id @site_id
@@ -105,8 +106,8 @@ class TestGradingAssignments < Test::Unit::TestCase
     grade_assignment.save_and_dont_release
 
     # Log out and log back in as student user
-    @sakai.logout
-    workspace = @sakai.login(@student_id, @student_pw)
+    grade_assignment.logout
+    workspace = @sakai.page.login(@student_id, @student_pw)
   
     # Go to the test site
     home = workspace.open_my_site_by_id @site_id

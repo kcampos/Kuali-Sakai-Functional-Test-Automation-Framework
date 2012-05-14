@@ -6,10 +6,9 @@
 #
 # Author: Abe Heward (aheward@rSmart.com)
 gem "test-unit"
-gems = ["test/unit", "watir-webdriver", "ci/reporter/rake/test_unit_loader"]
-gems.each { |gem| require gem }
-files = [ "/../../config/CLE/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-CLE/app_functions.rb", "/../../lib/sakai-CLE/admin_page_elements.rb", "/../../lib/sakai-CLE/site_page_elements.rb", "/../../lib/sakai-CLE/common_page_elements.rb" ]
-files.each { |file| require File.dirname(__FILE__) + file }
+require "test/unit"
+require 'sakai-cle-test-api'
+require 'yaml'
 
 class TestSectionCreation < Test::Unit::TestCase
   
@@ -18,11 +17,13 @@ class TestSectionCreation < Test::Unit::TestCase
   def setup
     
     # Get the test configuration data
-    @config = AutoConfig.new
-    @browser = @config.browser
-    @user_name = @config.directory['person3']['id']
-    @password = @config.directory['person3']['password']
-    @site_name = @config.directory['site1']['name']
+    @config = YAML.load_file("config.yml")
+    @directory = YAML.load_file("directory.yml")
+    @sakai = SakaiCLE.new(@config['browser'], @config['url'])
+    @browser = @sakai.browser
+    @user_name = @directory['person3']['id']
+    @password = @directory['person3']['password']
+    @site_name = @directory['site1']['name']
     @sakai = SakaiCLE.new(@browser)
     
     # Test case variables
@@ -35,15 +36,15 @@ class TestSectionCreation < Test::Unit::TestCase
         :location=>"Lab 12", :max_enrollment=>6}
     ]
     
-    @ta = @config.directory["person9"]["lastname"] + ", " + @config.directory["person9"]["firstname"]
+    @ta = @directory["person9"]["lastname"] + ", " + @directory["person9"]["firstname"]
     
     @students = [
-      @config.directory["person2"]["lastname"] + ", " + @config.directory["person2"]["firstname"],
-      @config.directory["person10"]["lastname"] + ", " + @config.directory["person10"]["firstname"],
-      @config.directory["person12"]["lastname"] + ", " + @config.directory["person12"]["firstname"],
-      @config.directory["person5"]["lastname"] + ", " + @config.directory["person5"]["firstname"],
-      @config.directory["person13"]["lastname"] + ", " + @config.directory["person13"]["firstname"],
-      @config.directory["person8"]["lastname"] + ", " + @config.directory["person8"]["firstname"]
+      @directory["person2"]["lastname"] + ", " + @directory["person2"]["firstname"],
+      @directory["person10"]["lastname"] + ", " + @directory["person10"]["firstname"],
+      @directory["person12"]["lastname"] + ", " + @directory["person12"]["firstname"],
+      @directory["person5"]["lastname"] + ", " + @directory["person5"]["firstname"],
+      @directory["person13"]["lastname"] + ", " + @directory["person13"]["firstname"],
+      @directory["person8"]["lastname"] + ", " + @directory["person8"]["firstname"]
     ]
     
     @total_student_count = 10
@@ -57,12 +58,12 @@ class TestSectionCreation < Test::Unit::TestCase
   
   def teardown
     
-    @config.directory["site1"]["section1"] = @sections[0][:name]
-    @config.directory["site1"]["section2"] = @sections[1][:name]
+    @directory["site1"]["section1"] = @sections[0][:name]
+    @directory["site1"]["section2"] = @sections[1][:name]
     
     # Save new assignment info for later scripts to use
     File.open("#{File.dirname(__FILE__)}/../../config/CLE/directory.yml", "w+") { |out|
-      YAML::dump(@config.directory, out)
+      YAML::dump(@directory, out)
     }
     # Close the browser window
     @browser.close
@@ -71,7 +72,7 @@ class TestSectionCreation < Test::Unit::TestCase
   def test_section_creation
     
     # Log in to Sakai
-    workspace = @sakai.login(@user_name, @password)
+    workspace = @sakai.page.login(@user_name, @password)
     
     # Go to test site
     home = workspace.open_my_site_by_name(@site_name)

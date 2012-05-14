@@ -6,10 +6,9 @@
 # 
 # Author: Abe Heward (aheward@rSmart.com)
 gem "test-unit"
-gems = ["test/unit", "watir-webdriver", "ci/reporter/rake/test_unit_loader"]
-gems.each { |gem| require gem }
-files = [ "/../../config/CLE/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-CLE/app_functions.rb", "/../../lib/sakai-CLE/admin_page_elements.rb", "/../../lib/sakai-CLE/site_page_elements.rb", "/../../lib/sakai-CLE/common_page_elements.rb" ]
-files.each { |file| require File.dirname(__FILE__) + file }
+require "test/unit"
+require 'sakai-cle-test-api'
+require 'yaml'
 
 class TestPollCreation < Test::Unit::TestCase
   
@@ -18,15 +17,17 @@ class TestPollCreation < Test::Unit::TestCase
   def setup
     
     # Get the test configuration data
-    @config = AutoConfig.new
-    @browser = @config.browser
+    @config = YAML.load_file("config.yml")
+    @directory = YAML.load_file("directory.yml")
+    @sakai = SakaiCLE.new(@config['browser'], @config['url'])
+    @browser = @sakai.browser
     # This test case uses the logins of several users
-    @instructor = @config.directory['person3']['id']
-    @ipassword = @config.directory['person3']['password']
-    @student_id = @config.directory['person1']['id']
-    @student_pw = @config.directory['person1']['password']    
-    @site_name = @config.directory['site1']['name']
-    @site_id = @config.directory['site1']['id']
+    @instructor = @directory['person3']['id']
+    @ipassword = @directory['person3']['password']
+    @student_id = @directory['person1']['id']
+    @student_pw = @directory['person1']['password']
+    @site_name = @directory['site1']['name']
+    @site_id = @directory['site1']['id']
     @sakai = SakaiCLE.new(@browser)
     
     # Test case variables...
@@ -51,7 +52,7 @@ class TestPollCreation < Test::Unit::TestCase
   def test_creating_a_poll
     
     # Log in to Sakai
-    workspace = @sakai.login(@instructor, @ipassword)
+    workspace = @sakai.page.login(@instructor, @ipassword)
     
     home = workspace.open_my_site_by_id(@site_id)
     
@@ -83,10 +84,10 @@ class TestPollCreation < Test::Unit::TestCase
     
     #TEST CASE: Verify poll saved
     assert polls.list.include? @poll[:question]
+
+    polls.logout
     
-    @sakai.logout
-    
-    workspace = @sakai.login(@student_id, @student_pw)
+    workspace = @sakai.page.login(@student_id, @student_pw)
     
     home = workspace.open_my_site_by_id(@site_id)
     

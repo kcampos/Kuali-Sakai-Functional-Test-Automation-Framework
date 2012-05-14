@@ -6,11 +6,9 @@
 # 
 # Author: Abe Heward (aheward@rSmart.com)
 gem "test-unit"
-gems = ["test/unit", "watir-webdriver"]
-gems.each { |gem| require gem }
-files = [ "/../../config/CLE/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-CLE/app_functions.rb", "/../../lib/sakai-CLE/admin_page_elements.rb", "/../../lib/sakai-CLE/site_page_elements.rb", "/../../lib/sakai-CLE/common_page_elements.rb" ]
-files.each { |file| require File.dirname(__FILE__) + file }
-require "ci/reporter/rake/test_unit_loader"
+require "test/unit"
+require 'sakai-cle-test-api'
+require 'yaml'
 
 class TestTurnItIn < Test::Unit::TestCase
   
@@ -19,17 +17,19 @@ class TestTurnItIn < Test::Unit::TestCase
   def setup
     
     # Get the test configuration data
-    @config = AutoConfig.new
-    @browser = @config.browser
+    @config = YAML.load_file("config.yml")
+    @directory = YAML.load_file("directory.yml")
+    @sakai = SakaiCLE.new(@config['browser'], @config['url'])
+    @browser = @sakai.browser
     # This test case uses the logins of several users
-    @instructor = @config.directory['person3']['id']
-    @ipassword = @config.directory['person3']['password']
-    @student = @config.directory['person1']['id']
-    @spassword = @config.directory['person1']['password']
-    @admin = @config.directory["admin"]["username"]
-    @apassword = @config.directory["admin"]["password"]
-    @site_name = @config.directory['site1']['name']
-    @site_id = @config.directory['site1']['id']
+    @instructor = @directory['person3']['id']
+    @ipassword = @directory['person3']['password']
+    @student = @directory['person1']['id']
+    @spassword = @directory['person1']['password']
+    @admin = @directory["admin"]["username"]
+    @apassword = @directory["admin"]["password"]
+    @site_name = @directory['site1']['name']
+    @site_id = @directory['site1']['id']
     @sakai = SakaiCLE.new(@browser)
     
     # Test Case Variables
@@ -54,7 +54,7 @@ class TestTurnItIn < Test::Unit::TestCase
   def test_turn_it_in
     
     # Log in to Sakai
-    workspace = @sakai.login(@instructor, @ipassword)
+    workspace = @sakai.page.login(@instructor, @ipassword)
     
     home = workspace.open_my_site_by_id(@site_id)
     
@@ -73,10 +73,10 @@ class TestTurnItIn < Test::Unit::TestCase
     
     # TEST CASE: Assignment appears in the list
     assert assignments.assignment_titles.include?(@assignment_1_title)
+
+    assignments.logout
     
-    @sakai.logout
-    
-    workspace = @sakai.login(@student, @spassword)
+    workspace = @sakai.page.login(@student, @spassword)
     
     home = workspace.open_my_site_by_name(@site_name)
     
@@ -89,10 +89,10 @@ class TestTurnItIn < Test::Unit::TestCase
     confirm = assignment_1.submit
     
     assignments = confirm.back_to_list
+
+    assignments.logout
     
-    @sakai.logout
-    
-    workspace = @sakai.login(@admin, @apassword)
+    workspace = @sakai.page.login(@admin, @apassword)
     
     scheduler = workspace.job_scheduler
     

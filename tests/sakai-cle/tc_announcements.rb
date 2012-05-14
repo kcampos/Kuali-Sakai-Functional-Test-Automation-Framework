@@ -6,10 +6,9 @@
 #
 # Author: Abe Heward (aheward@rSmart.com)
 gem "test-unit"
-gems = ["test/unit", "watir-webdriver", "ci/reporter/rake/test_unit_loader"]
-gems.each { |gem| require gem }
-files = [ "/../../config/CLE/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-CLE/app_functions.rb", "/../../lib/sakai-CLE/admin_page_elements.rb", "/../../lib/sakai-CLE/site_page_elements.rb", "/../../lib/sakai-CLE/common_page_elements.rb" ]
-files.each { |file| require File.dirname(__FILE__) + file }
+require "test/unit"
+require 'sakai-cle-test-api'
+require 'yaml'
 
 class TestAnnouncements < Test::Unit::TestCase
   
@@ -65,7 +64,7 @@ class TestAnnouncements < Test::Unit::TestCase
   def test_announcements
 
     # Log in to Sakai
-    workspace = @sakai.login(@instructor, @ipassword)
+    workspace = @sakai.page.login(@instructor, @ipassword)
     
     # Go to the test site
     home = workspace.open_my_site_by_id(@site_id)
@@ -161,9 +160,7 @@ class TestAnnouncements < Test::Unit::TestCase
     # TEST CASE: Verify the announcement is "For Public"
     assert_equal "public", announcements.for_column(@announcement_5_title)
     
-    @sakai.logout
-
-    login_page = Login.new(@browser)
+    login_page = announcements.logout
     
     site_search = login_page.search_public_courses_and_projects
     site_search.search_for=@site_name[0..3]
@@ -179,7 +176,7 @@ class TestAnnouncements < Test::Unit::TestCase
     
     login_page = results.home
     
-    workspace = @sakai.login(@instructor, @ipassword)
+    workspace = @sakai.page.login(@instructor, @ipassword)
     
     home = workspace.open_my_site_by_name @site_name
     
@@ -289,10 +286,10 @@ class TestAnnouncements < Test::Unit::TestCase
     assert announcements.subjects.include? @announcement_6_title
     assert announcements.subjects.include? @announcement_7_title
     
-    @sakai.logout
+    login_page = announcements.logout
     
     # Log in with a student user
-    workspace = @sakai.login(@student, @spassword)
+    workspace = login_page.login(@student, @spassword)
     
     home = workspace.open_my_site_by_name @site_name
     

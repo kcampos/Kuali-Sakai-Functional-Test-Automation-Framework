@@ -6,10 +6,9 @@
 #
 # Author: Abe Heward (aheward@rSmart.com)
 gem "test-unit"
-gems = ["test/unit", "watir-webdriver", "ci/reporter/rake/test_unit_loader"]
-gems.each { |gem| require gem }
-files = [ "/../../config/CLE/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-CLE/app_functions.rb", "/../../lib/sakai-CLE/admin_page_elements.rb", "/../../lib/sakai-CLE/site_page_elements.rb", "/../../lib/sakai-CLE/common_page_elements.rb" ]
-files.each { |file| require File.dirname(__FILE__) + file }
+require "test/unit"
+require 'sakai-cle-test-api'
+require 'yaml'
 
 class TestCreateAssignments < Test::Unit::TestCase
   
@@ -18,17 +17,19 @@ class TestCreateAssignments < Test::Unit::TestCase
   def setup
     
     # Get the test configuration data
-    @config = AutoConfig.new
-    @browser = @config.browser
+    @config = YAML.load_file("config.yml")
+    @directory = YAML.load_file("directory.yml")
+    @sakai = SakaiCLE.new(@config['browser'], @config['url'])
+    @browser = @sakai.browser
     # Test user is an instructor
-    @user_name = @config.directory['person3']['id']
-    @password = @config.directory['person3']['password']
+    @user_name = @directory['person3']['id']
+    @password = @directory['person3']['password']
     # This script requires a second test user (instructor)
-    @user_name1 = @config.directory['person4']['id']
-    @password1 = @config.directory['person4']['password']
+    @user_name1 = @directory['person4']['id']
+    @password1 = @directory['person4']['password']
     # Test site
-    @site_name = @config.directory['site1']['name']
-    @site_id = @config.directory['site1']['id']
+    @site_name = @directory['site1']['name']
+    @site_id = @directory['site1']['id']
     @sakai = SakaiCLE.new(@browser)
     
     # Test case variables
@@ -49,15 +50,15 @@ class TestCreateAssignments < Test::Unit::TestCase
   
   def teardown
     
-    @config.directory["site1"]["assignment1"] = @assignments[0][:title]
-    @config.directory["site1"]["assignment2"] = @assignments[1][:title]
-    @config.directory["site1"]["assignment3"] = @assignments[2][:title]
-    @config.directory["site1"]["assignment4"] = @assignments[3][:title]
-    @config.directory["site1"]["assignment5"] = @assignments[4][:title]
+    @directory["site1"]["assignment1"] = @assignments[0][:title]
+    @directory["site1"]["assignment2"] = @assignments[1][:title]
+    @directory["site1"]["assignment3"] = @assignments[2][:title]
+    @directory["site1"]["assignment4"] = @assignments[3][:title]
+    @directory["site1"]["assignment5"] = @assignments[4][:title]
     
     # Save new assignment info for later scripts to use
     File.open("#{File.dirname(__FILE__)}/../../config/CLE/directory.yml", "w+") { |out|
-      YAML::dump(@config.directory, out)
+      YAML::dump(@directory, out)
     }
     # Close the browser window
     @browser.close
@@ -66,7 +67,7 @@ class TestCreateAssignments < Test::Unit::TestCase
   def test_assignments_creation
     
     # Log in to Sakai
-    my_workspace = @sakai.login(@user_name, @password)
+    my_workspace = @sakai.page.login(@user_name, @password)
 
     # Go to test site.
     home = my_workspace.open_my_site_by_id(@site_id)
@@ -278,8 +279,8 @@ class TestCreateAssignments < Test::Unit::TestCase
     assert assignments.assignment_list.include? @assignments[3][:title]
   
     # Log out and log back in as instructor2
-    @sakai.logout
-    workspace = @sakai.login(@user_name1, @password1)
+    assignments.logout
+    workspace = @sakai.page.login(@user_name1, @password1)
     
     # Go to the test site
     home = workspace.open_my_site_by_id(@site_id)
@@ -361,8 +362,8 @@ class TestCreateAssignments < Test::Unit::TestCase
     assert assignments.assignment_list.include? "Draft - #{@assignments[4][:title]}"
     
     # Log out and log back in as instructor1
-    @sakai.logout
-    workspace = @sakai.login(@user_name, @password)
+    assignments.logout
+    workspace = @sakai.page.login(@user_name, @password)
     
     # Go to test site
     home = workspace.open_my_site_by_id(@site_id)

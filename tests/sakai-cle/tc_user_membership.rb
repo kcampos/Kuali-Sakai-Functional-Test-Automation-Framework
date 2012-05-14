@@ -5,10 +5,9 @@
 #
 # Author: Abe Heward (aheward@rSmart.com)
 gem "test-unit"
-gems = ["test/unit", "watir-webdriver", "ci/reporter/rake/test_unit_loader"]
-gems.each { |g| require g }
-files = [ "/../../config/CLE/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-CLE/app_functions.rb", "/../../lib/sakai-CLE/admin_page_elements.rb", "/../../lib/sakai-CLE/site_page_elements.rb", "/../../lib/sakai-CLE/common_page_elements.rb" ]
-files.each { |file| require File.dirname(__FILE__) + file }
+require "test/unit"
+require 'sakai-cle-test-api'
+require 'yaml'
 
 class TestUserMembership < Test::Unit::TestCase
   
@@ -18,13 +17,15 @@ class TestUserMembership < Test::Unit::TestCase
     @verification_errors = []
     
     # Get the test configuration data
-    @config = AutoConfig.new
-    @browser = @config.browser
+    @config = YAML.load_file("config.yml")
+    @directory = YAML.load_file("directory.yml")
+    @sakai = SakaiCLE.new(@config['browser'], @config['url'])
+    @browser = @sakai.browser
     # This test case uses the logins of several users
-    @admin = @config.directory['admin']['username']
-    @password = @config.directory['admin']['password']
-    @site_name = @config.directory['site1']['name']
-    @site_id = @config.directory['site1']['id']
+    @admin = @directory['admin']['username']
+    @password = @directory['admin']['password']
+    @site_name = @directory['site1']['name']
+    @site_id = @directory['site1']['id']
     @sakai = SakaiCLE.new(@browser)
     
     # Test case variables
@@ -45,7 +46,7 @@ class TestUserMembership < Test::Unit::TestCase
   def test_user_membership
     
     # Log in to Sakai
-    my_workspace = @sakai.login(@admin, @password)
+    my_workspace = @sakai.page.login(@admin, @password)
     
     user_membership = my_workspace.user_membership
     user_membership.search_field=@search_name

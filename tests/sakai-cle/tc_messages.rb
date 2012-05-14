@@ -5,10 +5,9 @@
 # 
 # Author: Abe Heward (aheward@rSmart.com)
 gem "test-unit"
-gems = ["test/unit", "watir-webdriver", "ci/reporter/rake/test_unit_loader"]
-gems.each { |gem| require gem }
-files = [ "/../../config/CLE/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-CLE/app_functions.rb", "/../../lib/sakai-CLE/admin_page_elements.rb", "/../../lib/sakai-CLE/site_page_elements.rb", "/../../lib/sakai-CLE/common_page_elements.rb" ]
-files.each { |file| require File.dirname(__FILE__) + file }
+require "test/unit"
+require 'sakai-cle-test-api'
+require 'yaml'
 
 class TestMessages < Test::Unit::TestCase
   
@@ -17,30 +16,32 @@ class TestMessages < Test::Unit::TestCase
   def setup
     
     # Get the test configuration data
-    @config = AutoConfig.new
-    @browser = @config.browser
+    @config = YAML.load_file("config.yml")
+    @directory = YAML.load_file("directory.yml")
+    @sakai = SakaiCLE.new(@config['browser'], @config['url'])
+    @browser = @sakai.browser
     # This test case uses the logins of several users
-    @instructor = @config.directory['person3']['id']
-    @ipassword = @config.directory['person3']['password']
-    @instructor2 = @config.directory['person4']['id']
-    @ipassword2 = @config.directory['person4']['password']
-    @student = @config.directory["person1"]["id"]
-    @spassword = @config.directory["person1"]["password"]
-    @student2 = @config.directory["person12"]["id"]
-    @spassword2 = @config.directory["person12"]["password"]
-    @student3 = @config.directory["person2"]["id"]
-    @spassword3 = @config.directory["person2"]["password"]
-    @site_id = @config.directory["site1"]["id"]
+    @instructor = @directory['person3']['id']
+    @ipassword = @directory['person3']['password']
+    @instructor2 = @directory['person4']['id']
+    @ipassword2 = @directory['person4']['password']
+    @student = @directory["person1"]["id"]
+    @spassword = @directory["person1"]["password"]
+    @student2 = @directory["person12"]["id"]
+    @spassword2 = @directory["person12"]["password"]
+    @student3 = @directory["person2"]["id"]
+    @spassword3 = @directory["person2"]["password"]
+    @site_id = @directory["site1"]["id"]
     @sakai = SakaiCLE.new(@browser)
     
     #Test case variables
     @messages = [
-      {:send_to=>@config.directory["person2"]["lastname"] + ", " + @config.directory["person2"]["firstname"], :attach=>"resources.JPG", :subject=>"Personal Message", :text=>"This is a personal message" },
+      {:send_to=>@directory["person2"]["lastname"] + ", " + @directory["person2"]["firstname"], :attach=>"resources.JPG", :subject=>"Personal Message", :text=>"This is a personal message" },
       {:send_to=>"All Participants", :subject=>"Everyone Message", :text=>"This message is for everyone." },
       {:send_to=>"All Participants", :subject=>"Access Message", :text=>"This message is for participants only." },
       {:send_to=>"Instructor Role", :subject=>"Maintain Message", :text=>"This message is for instructors only." },
       {:text=>"Reply to access message"},
-      {:forward_to=>@config.directory["person12"]["lastname"] + ", " + @config.directory["person12"]["firstname"], :text=>"Forwarded message" }
+      {:forward_to=>@directory["person12"]["lastname"] + ", " + @directory["person12"]["firstname"], :text=>"Forwarded message" }
     ]
     
     @folder1 = "Test Folder"
@@ -60,7 +61,7 @@ class TestMessages < Test::Unit::TestCase
   def test_messages
 
     # Log in to Sakai
-    workspace = @sakai.login(@instructor, @ipassword)
+    workspace = @sakai.page.login(@instructor, @ipassword)
     
     home = workspace.open_my_site_by_id(@site_id)
     
@@ -131,10 +132,10 @@ class TestMessages < Test::Unit::TestCase
     assert sent.subjects.include?(@messages[2][:subject])
     assert sent.subjects.include?(@messages[3][:subject])
     assert @browser.frame(:index=>1).image(:alt, "Has attachment(s)").exist? #FIXME
-    
-    @sakai.logout
 
-    workspace = @sakai.login(@student, @spassword)
+    sent.logout
+
+    workspace = @sakai.page.login(@student, @spassword)
     home = workspace.open_my_site_by_id(@site_id)
     messages = home.messages
  
@@ -220,8 +221,8 @@ class TestMessages < Test::Unit::TestCase
     assert_equal delete.subjects.include?(@messages[2][:subject]), false
     assert_equal delete.subjects.include?(@messages[1][:subject]), false
 
-    @sakai.logout
-    workspace = @sakai.login(@instructor2, @ipassword2)
+    delete.logout
+    workspace = @sakai.page.login(@instructor2, @ipassword2)
     home = workspace.open_my_site_by_id(@site_id)
     
     messages = home.messages
@@ -245,9 +246,9 @@ class TestMessages < Test::Unit::TestCase
     # TEST CASE: Verify the count of unread messages has updated
     assert_equal "1", messages.unread_messages_in_folder("Received")
 
-    @sakai.logout
+    messages.logout
 
-    workspace = @sakai.login(@instructor, @ipassword)
+    workspace = @sakai.page.login(@instructor, @ipassword)
     
     home = workspace.open_my_site_by_id(@site_id)
     
@@ -268,11 +269,11 @@ class TestMessages < Test::Unit::TestCase
     forward.select_forward_recipients=@messages[5][:forward_to]
     forward.message_text=@messages[5][:text]
     
-    received = forward.send 
-    
-    @sakai.logout
+    received = forward.send
 
-    workspace = @sakai.login(@student2, @spassword2)
+    received.logout
+
+    workspace = @sakai.page.login(@student2, @spassword2)
     home = workspace.open_my_site_by_id(@site_id)
     
     messages = home.messages
@@ -285,9 +286,9 @@ class TestMessages < Test::Unit::TestCase
     # TEST CASE: Ensure the personal message does not appear
     assert_equal false, received.subjects.include?(@messages[0][:subject])
 
-    @sakai.logout
+    received.logout
 
-    workspace = @sakai.login(@student3, @spassword3)
+    workspace = @sakai.page.login(@student3, @spassword3)
     
     home = workspace.open_my_site_by_id(@site_id)
     

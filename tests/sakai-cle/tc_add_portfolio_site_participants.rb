@@ -6,11 +6,9 @@
 #
 # Author: Abe Heward (aheward@rSmart.com)
 gem "test-unit"
-gems = ["test/unit", "watir-webdriver"]
-gems.each { |gem| require gem }
-files = [ "/../../config/CLE/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-CLE/app_functions.rb", "/../../lib/sakai-CLE/admin_page_elements.rb", "/../../lib/sakai-CLE/site_page_elements.rb", "/../../lib/sakai-CLE/common_page_elements.rb" ]
-files.each { |file| require File.dirname(__FILE__) + file }
-require "ci/reporter/rake/test_unit_loader"
+require "test/unit"
+require 'sakai-cle-test-api'
+require 'yaml'
 
 class AddPortfolioSiteParticipants < Test::Unit::TestCase
   
@@ -19,13 +17,14 @@ class AddPortfolioSiteParticipants < Test::Unit::TestCase
   def setup
     
     # Get the test configuration data
-    @config = AutoConfig.new
-    @browser = @config.browser
+    @config = YAML.load_file("config.yml")
+    @directory = YAML.load_file("directory.yml")
+    @sakai = SakaiCLE.new(@config['browser'], @config['url'])
+    @browser = @sakai.browser
     # Must log in as admin
-    @site_name = @config.directory['site2']['name']
-    @user_name = @config.directory['admin']['username']
-    @password = @config.directory['admin']['password']
-    @sakai = SakaiCLE.new(@browser)
+    @site_name = @directory['site2']['name']
+    @user_name = @directory['admin']['username']
+    @password = @directory['admin']['password']
     
   end
   
@@ -47,11 +46,11 @@ class AddPortfolioSiteParticipants < Test::Unit::TestCase
     
     x = 1
     
-    while @config.directory["person#{x}"] != nil do
+    while @directory["person#{x}"] != nil do
       
-      type = @config.directory["person#{x}"]["type"]
-      id = @config.directory["person#{x}"]["id"]
-      name = @config.directory["person#{x}"]["lastname"] + ", " + @config.directory["person#{x}"]["firstname"]
+      type = @directory["person#{x}"]["type"]
+      id = @directory["person#{x}"]["id"]
+      name = @directory["person#{x}"]["lastname"] + ", " + @directory["person#{x}"]["firstname"]
       
       case(type)
       when "registered" then
@@ -80,7 +79,7 @@ class AddPortfolioSiteParticipants < Test::Unit::TestCase
     users = { :participants=>participants_list, :organizers=>organizers_list, :guests=>guests_list }
     
     # Log in to Sakai
-    workspace = @sakai.login(@user_name, @password)
+    workspace = @sakai.page.login(@user_name, @password)
     
     # Go to Site Setup
     site_setup = workspace.site_setup

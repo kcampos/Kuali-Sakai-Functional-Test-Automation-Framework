@@ -16,7 +16,6 @@
 # Author: Abe Heward (aheward@rSmart.com)
 require 'sakai-oae-test-api'
 require 'yaml'
-require 'rspec'
 
 describe "Data Seeding" do
   

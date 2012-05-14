@@ -6,10 +6,9 @@
 #
 # Author: Abe Heward (aheward@rSmart.com)
 gem "test-unit"
-gems = ["test/unit", "watir-webdriver", "ci/reporter/rake/test_unit_loader"]
-gems.each { |gem| require gem }
-files = [ "/../../config/CLE/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-CLE/app_functions.rb", "/../../lib/sakai-CLE/admin_page_elements.rb", "/../../lib/sakai-CLE/site_page_elements.rb", "/../../lib/sakai-CLE/common_page_elements.rb" ]
-files.each { |file| require File.dirname(__FILE__) + file }
+require "test/unit"
+require 'sakai-cle-test-api'
+require 'yaml'
 
 class TestGradeAssessment < Test::Unit::TestCase
   
@@ -18,16 +17,18 @@ class TestGradeAssessment < Test::Unit::TestCase
   def setup
     
     # Get the test configuration data
-    @config = AutoConfig.new
-    @browser = @config.browser
+    @config = YAML.load_file("config.yml")
+    @directory = YAML.load_file("directory.yml")
+    @sakai = SakaiCLE.new(@config['browser'], @config['url'])
+    @browser = @sakai.browser
     # Test case uses an instructor user and student user
-    @instructor = @config.directory['person3']['id']
-    @ipassword = @config.directory['person3']['password']
-    @student = @config.directory['person1']['id']
-    @spassword = @config.directory['person1']['password']
-    @site_name = @config.directory['site1']['name']
-    @site_id = @config.directory['site1']['id']
-    @test1 = @config.directory['site1']['quiz1']
+    @instructor = @directory['person3']['id']
+    @ipassword = @directory['person3']['password']
+    @student = @directory['person1']['id']
+    @spassword = @directory['person1']['password']
+    @site_name = @directory['site1']['name']
+    @site_id = @directory['site1']['id']
+    @test1 = @directory['site1']['quiz1']
     @sakai = SakaiCLE.new(@browser)
     
     # Test case variables
@@ -43,7 +44,7 @@ class TestGradeAssessment < Test::Unit::TestCase
   def test_grade_assessment
     
     # Log in to Sakai as instructor
-    workspace = @sakai.login(@instructor, @ipassword)
+    workspace = @sakai.page.login(@instructor, @ipassword)
     
     # Go to test site.
     home = workspace.open_my_site_by_id(@site_id)
@@ -67,10 +68,10 @@ class TestGradeAssessment < Test::Unit::TestCase
     score_test.assessments
     
     # Log out
-    @sakai.logout
+    score_test.logout
     
     # Log in as the student
-    workspace = @sakai.login(@student, @spassword)
+    workspace = @sakai.page.login(@student, @spassword)
     
     # Go to the Assessments page
     home = workspace.open_my_site_by_id(@site_id)

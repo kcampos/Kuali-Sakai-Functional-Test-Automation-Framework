@@ -5,10 +5,9 @@
 #
 # Author: Abe Heward (aheward@rSmart.com)
 gem "test-unit"
-gems = ["test/unit", "watir-webdriver", "ci/reporter/rake/test_unit_loader"]
-gems.each { |gem| require gem }
-files = [ "/../../config/CLE/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-CLE/app_functions.rb", "/../../lib/sakai-CLE/admin_page_elements.rb", "/../../lib/sakai-CLE/site_page_elements.rb", "/../../lib/sakai-CLE/common_page_elements.rb" ]
-files.each { |file| require File.dirname(__FILE__) + file }
+require "test/unit"
+require 'sakai-cle-test-api'
+require 'yaml'
 
 class TestCreatingPortfolioSite < Test::Unit::TestCase
   
@@ -17,10 +16,12 @@ class TestCreatingPortfolioSite < Test::Unit::TestCase
   def setup
 
     # Get the test configuration data
-    @config = AutoConfig.new
-    @browser = @config.browser
-    @user_name = @config.directory['admin']['username']
-    @password = @config.directory['admin']['password']
+    @config = YAML.load_file("config.yml")
+    @directory = YAML.load_file("directory.yml")
+    @sakai = SakaiCLE.new(@config['browser'], @config['url'])
+    @browser = @sakai.browser
+    @user_name = @directory['admin']['username']
+    @password = @directory['admin']['password']
     @sakai = SakaiCLE.new(@browser)
     
     # Test case variables
@@ -41,7 +42,7 @@ class TestCreatingPortfolioSite < Test::Unit::TestCase
   def teardown
     # Save new site info for later scripts to use
     File.open("#{File.dirname(__FILE__)}/../../config/CLE/directory.yml", "w+") { |out|
-      YAML::dump(@config.directory, out)
+      YAML::dump(@directory, out)
     }
     # Close the browser window
     @browser.close
@@ -50,7 +51,7 @@ class TestCreatingPortfolioSite < Test::Unit::TestCase
   def test_create_portfolio_site
     
     # Log in to Sakai
-    @sakai.login(@user_name, @password)
+    @sakai.page.login(@user_name, @password)
     
     #Go to Site Setup page
     workspace = MyWorkspace.new(@browser)
@@ -68,7 +69,7 @@ class TestCreatingPortfolioSite < Test::Unit::TestCase
     port_site_info.title=@site_name
     port_site_info.description=@description
     
-    @config.directory['site2']['name'] = @site_name
+    @directory['site2']['name'] = @site_name
     
     site_tools = port_site_info.continue
     site_tools.check_all_tools

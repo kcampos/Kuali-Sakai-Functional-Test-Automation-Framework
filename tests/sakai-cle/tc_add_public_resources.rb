@@ -6,11 +6,9 @@
 # 
 # Author: Abe Heward (aheward@rSmart.com)
 gem "test-unit"
-gems = ["test/unit", "watir-webdriver"]
-gems.each { |gem| require gem }
-files = [ "/../../config/CLE/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-CLE/app_functions.rb", "/../../lib/sakai-CLE/admin_page_elements.rb", "/../../lib/sakai-CLE/site_page_elements.rb", "/../../lib/sakai-CLE/common_page_elements.rb" ]
-files.each { |file| require File.dirname(__FILE__) + file }
-require "ci/reporter/rake/test_unit_loader"
+require "test/unit"
+require 'sakai-cle-test-api'
+require 'yaml'
 
 class AddPublicResources < Test::Unit::TestCase
   
@@ -19,13 +17,15 @@ class AddPublicResources < Test::Unit::TestCase
   def setup
     
     # Get the test configuration data
-    @config = AutoConfig.new
-    @browser = @config.browser
+    @config = YAML.load_file("config.yml")
+    @directory = YAML.load_file("directory.yml")
+    @sakai = SakaiCLE.new(@config['browser'], @config['url'])
+    @browser = @sakai.browser
     # This test case uses an admin login
-    @username = @config.directory['admin']['username']
-    @password = @config.directory['admin']['password']
-    @site_name = @config.directory['site1']['name']
-    @site_id = @config.directory['site1']['id']
+    @username = @directory['admin']['username']
+    @password = @directory['admin']['password']
+    @site_name = @directory['site1']['name']
+    @site_id = @directory['site1']['id']
     @sakai = SakaiCLE.new(@browser)
     
     # Test case variables...
@@ -54,7 +54,7 @@ class AddPublicResources < Test::Unit::TestCase
   def test_adding_resources
     
     # Log in to Sakai
-    workspace = @sakai.login(@username, @password)
+    workspace = @sakai.page.login(@username, @password)
     
     # Go to the test site
     home = workspace.open_my_site_by_id(@site_id)

@@ -6,10 +6,9 @@
 # 
 # Author: Abe Heward (aheward@rSmart.com)
 gem "test-unit"
-gems = ["test/unit", "watir-webdriver", "ci/reporter/rake/test_unit_loader"]
-gems.each { |gem| require gem }
-files = [ "/../../config/CLE/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-CLE/app_functions.rb", "/../../lib/sakai-CLE/admin_page_elements.rb", "/../../lib/sakai-CLE/site_page_elements.rb", "/../../lib/sakai-CLE/common_page_elements.rb" ]
-files.each { |file| require File.dirname(__FILE__) + file }
+require "test/unit"
+require 'sakai-cle-test-api'
+require 'yaml'
 
 class TestCalendarEvents < Test::Unit::TestCase
   
@@ -18,19 +17,21 @@ class TestCalendarEvents < Test::Unit::TestCase
   def setup
     
     # Get the test configuration data
-    @config = AutoConfig.new
-    @browser = @config.browser
+    @config = YAML.load_file("config.yml")
+    @directory = YAML.load_file("directory.yml")
+    @sakai = SakaiCLE.new(@config['browser'], @config['url'])
+    @browser = @sakai.browser
     # This test case uses the logins of several users
-    @instructor = @config.directory['person3']['id']
-    @ipassword = @config.directory['person3']['password']
-    @student1 = @config.directory['person1']['id']
-    @spassword = @config.directory['person1']['password']
-    @site_name = @config.directory['site1']['name']
-    @site_id = @config.directory['site1']['id']
+    @instructor = @directory['person3']['id']
+    @ipassword = @directory['person3']['password']
+    @student1 = @directory['person1']['id']
+    @spassword = @directory['person1']['password']
+    @site_name = @directory['site1']['name']
+    @site_id = @directory['site1']['id']
     @sakai = SakaiCLE.new(@browser)
     
     # Test case variables
-    @assignment_event = "Due #{@config.directory['site1']['assignment2']} - #{@site_name}"
+    @assignment_event = "Due #{@directory['site1']['assignment2']} - #{@site_name}"
     
     @event_title = random_alphanums # for more robust testing of the title field, see the xss test cases.
     @event_message = %|">| + random_xss_string
@@ -66,7 +67,7 @@ class TestCalendarEvents < Test::Unit::TestCase
   def test_calendar_events
     
     # Log in to Sakai
-    workspace = @sakai.login(@student1, @spassword)
+    workspace = @sakai.page.login(@student1, @spassword)
     
     calendar = workspace.calendar
 
@@ -257,10 +258,10 @@ class TestCalendarEvents < Test::Unit::TestCase
     
     # TEST CASE: Verify the event appears below the calendar
     assert my_workspace.calendar_events.include?(@event_title)
+
+    my_workspace.logout
     
-    @sakai.logout
-    
-    workspace = @sakai.login(@instructor, @ipassword)
+    workspace = @sakai.page.login(@instructor, @ipassword)
     
     home = workspace.open_my_site_by_name @site_name
     
@@ -274,7 +275,7 @@ class TestCalendarEvents < Test::Unit::TestCase
     #@sakai.logout #FIXME
     @browser.link(:text=>"Logout").click
     
-    workspace = @sakai.login(@student1, @spassword)
+    workspace = @sakai.page.login(@student1, @spassword)
     
     home = workspace.open_my_site_by_name @site_name
     
@@ -282,8 +283,8 @@ class TestCalendarEvents < Test::Unit::TestCase
     
     # TEST CASE: The default view is now by Month
     assert_equal "Calendar by Month", calendar.header
-    
-    @sakai.logout
+
+    calendar.logout
     
   end
   

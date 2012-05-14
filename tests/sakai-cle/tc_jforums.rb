@@ -5,10 +5,9 @@
 # 
 # Author: Abe Heward (aheward@rSmart.com)
 gem "test-unit"
-gems = ["test/unit", "watir-webdriver", "ci/reporter/rake/test_unit_loader"]
-gems.each { |gem| require gem }
-files = [ "/../../config/CLE/config.rb", "/../../lib/utilities.rb", "/../../lib/sakai-CLE/app_functions.rb", "/../../lib/sakai-CLE/admin_page_elements.rb", "/../../lib/sakai-CLE/site_page_elements.rb", "/../../lib/sakai-CLE/common_page_elements.rb" ]
-files.each { |file| require File.dirname(__FILE__) + file }
+require "test/unit"
+require 'sakai-cle-test-api'
+require 'yaml'
 
 class TestJForums < Test::Unit::TestCase
   
@@ -17,18 +16,20 @@ class TestJForums < Test::Unit::TestCase
   def setup
     
     # Get the test configuration data
-    @config = AutoConfig.new
-    @browser = @config.browser
+    @config = YAML.load_file("config.yml")
+    @directory = YAML.load_file("directory.yml")
+    @sakai = SakaiCLE.new(@config['browser'], @config['url'])
+    @browser = @sakai.browser
     # This test case uses the logins of several users
-    @student = @config.directory['person6']['id']
-    @spassword = @config.directory['person6']['password']
-    @student_name = @config.directory["person6"]['firstname'] + " " + @config.directory["person6"]['lastname']
-    @student2 = @config.directory["person1"]["id"]
-    @spassword2 = @config.directory["person1"]["password"]
-    @instructor = @config.directory["person3"]["id"]
-    @ipassword = @config.directory["person3"]["password"]
-    @site_name = @config.directory['site1']['name']
-    @site_id = @config.directory['site1']['id']
+    @student = @directory['person6']['id']
+    @spassword = @directory['person6']['password']
+    @student_name = @directory["person6"]['firstname'] + " " + @directory["person6"]['lastname']
+    @student2 = @directory["person1"]["id"]
+    @spassword2 = @directory["person1"]["password"]
+    @instructor = @directory["person3"]["id"]
+    @ipassword = @directory["person3"]["password"]
+    @site_name = @directory['site1']['name']
+    @site_id = @directory['site1']['id']
     @sakai = SakaiCLE.new(@browser)
     
     #Test case variables
@@ -46,7 +47,7 @@ class TestJForums < Test::Unit::TestCase
     
     @count_of_persons = 13 # Count of site participants (from the directory.yml file)
     
-    @pm_to = @config.directory["person1"]['lastname'] + ", " + @config.directory["person1"]['firstname']
+    @pm_to = @directory["person1"]['lastname'] + ", " + @directory["person1"]['firstname']
     @pm_subject = random_alphanums
     @pm_text = "Aenean magna augue, porta et, molestie et, rutrum id, turpis. <script>alert('xss');</script> Praesent hendrerit posuere justo. Nunc id odio at purus bibendum rutrum? Integer id nunc. Donec blandit metus sed urna. Nunc consequat libero non lorem. Maecenas venenatis urna sit amet est. Nullam sit amet metus imperdiet massa tempor bibendum. Ut eleifend, orci non vulputate imperdiet, mi ante dictum urna, quis pellentesque libero pede non lacus. Ut ultrices tempor lacus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos amet."
     
@@ -81,7 +82,7 @@ class TestJForums < Test::Unit::TestCase
     end
  
     # Log in to Sakai
-    workspace = @sakai.login(@student, @spassword)
+    workspace = @sakai.page.login(@student, @spassword)
     
     home = workspace.open_my_site_by_id(@site_id)
     
@@ -128,7 +129,7 @@ class TestJForums < Test::Unit::TestCase
 
     # TEST CASE: Verify members are listed
     1.upto(@count_of_persons) do |x|
-      assert member_list.name_present? @config.directory["person#{x}"]['lastname'] + ", " + @config.directory["person#{x}"]['firstname']
+      assert member_list.name_present? @directory["person#{x}"]['lastname'] + ", " + @directory["person#{x}"]['firstname']
     end
     
     private_msg = member_list.private_messages
@@ -142,10 +143,10 @@ class TestJForums < Test::Unit::TestCase
     
     #TEST CASE: Verify the message is sent
     assert info.information_text.include?(@successful_send)
+
+    info.logout
     
-    @sakai.logout
-    
-    workspace = @sakai.login(@student2, @spassword2)
+    workspace = @sakai.page.login(@student2, @spassword2)
     
     home = workspace.open_my_site_by_id(@site_id)
     
@@ -188,10 +189,10 @@ class TestJForums < Test::Unit::TestCase
     reply_page.message_text=@msg_txt2
     
     view_topic = reply_page.submit
+
+    view_topic.logout
     
-    @sakai.logout
-    
-    workspace = @sakai.login(@student, @spassword)
+    workspace = @sakai.page.login(@student, @spassword)
     
     home = workspace.open_my_site_by_id(@site_id)
     
@@ -207,10 +208,10 @@ class TestJForums < Test::Unit::TestCase
     
     # TEST CASE: Verify the message text appears
     assert_equal view_q_topic.message_text(1), @topics[1][:message]
+
+    view_q_topic.logout
     
-    @sakai.logout
-    
-    workspace = @sakai.login(@student2, @spassword2)
+    workspace = @sakai.page.login(@student2, @spassword2)
     
     home = workspace.open_my_site_by_id(@site_id)
     
@@ -224,10 +225,10 @@ class TestJForums < Test::Unit::TestCase
     q_1_topic_page.reply_text=@reply_text
     
     q_1_topic_page = q_1_topic_page.submit
-    
-    @sakai.logout
+
+    q_1_topic_page.logout
  
-    workspace = @sakai.login(@student, @spassword)
+    workspace = @sakai.page.login(@student, @spassword)
     
     home = workspace.open_my_site_by_id(@site_id)
     
@@ -244,10 +245,10 @@ class TestJForums < Test::Unit::TestCase
     
     # TEST CASE: Verify message about no bookmarks
     assert_equal @no_bookmarks, frm.span(:class=>"gen").text
-    
-    @sakai.logout
+
+    q_topic_page.logout
  
-    workspace = @sakai.login(@instructor, @ipassword)
+    workspace = @sakai.page.login(@instructor, @ipassword)
     
     home = workspace.open_my_site_by_id(@site_id)
     
