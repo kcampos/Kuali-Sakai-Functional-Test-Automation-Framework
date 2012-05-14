@@ -9,7 +9,7 @@
 #
 # == Prerequisites:
 #
-# The system should have various items of content--run the tc_data_seed.rb script
+# The system should have various items of content--run the tc_data_seed_spec.rb script
 # before this one. See the before section starting on line 25 for specifics.
 # Also ensure that user1 and user2 are contacts.
 # 

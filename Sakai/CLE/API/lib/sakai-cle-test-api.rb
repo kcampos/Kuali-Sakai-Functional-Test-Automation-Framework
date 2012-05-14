@@ -19,7 +19,7 @@ class SakaiCLE
   #include PageObject
   #include ToolsMenu
 
-  attr_reader :browser, :page
+  attr_reader :browser
 
   def initialize(web_browser, url)
     @browser = Watir::Browser.new web_browser

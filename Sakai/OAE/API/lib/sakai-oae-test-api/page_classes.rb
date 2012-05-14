@@ -1,10 +1,4 @@
 # coding: UTF-8
-require 'sakai-OAE/gem_extensions'
-require 'sakai-OAE/global_methods'
-require 'sakai-OAE/toolbars_and_menus'
-require 'sakai-OAE/pop_up_dialogs'
-require 'sakai-OAE/widgets'
-require 'sakai-OAE/cle_frame_classes'
 
 # The Login page for OAE.
 class LoginPage
