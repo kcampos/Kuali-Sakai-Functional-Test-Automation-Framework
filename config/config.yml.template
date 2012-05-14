@@ -1,9 +1,0 @@
-server:
-    host: 'localhost'
-    port: '5555'
-    browser: '*firefox'
-    url: 'http://server.test.com/'
-    app_context: 'kr-dev'
-user:
-    username: 'admin'
-    password: ''

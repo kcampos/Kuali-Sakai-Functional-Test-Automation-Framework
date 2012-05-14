@@ -1,0 +1,5 @@
+server:
+    browser: :firefox # Can be :firefox, :ie, or :chrome
+    url: '' # Should be the full http path to the web server that has the test build
+app:
+    :cle: 'sakai-cle' # Add keys and values of test projects here, as needed

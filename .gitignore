@@ -1,1 +1,12 @@
+doc
+rakefile
+pkg
+data
+In Progress
+config.yml
+directory.yml
+*test.rb
 .DS_Store
+.idea/
+*.gem
+*.log
