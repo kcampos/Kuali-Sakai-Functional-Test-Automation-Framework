@@ -11,10 +11,6 @@ Ruby and Watir-webdriver--but without needing to know either in detail.
 
 ### Ruby 1.9.2 or higher
 
-### Ruby Gems:
-[Watir-Webdriver](http://www.watirwebdriver.com)
-[Page-Object](https://github.com/cheezy/page-object)
-
 If you're just going to use the API for testing, then simply install it as you would any other Ruby gem: `gem install sakai-oae-test-api`
 
 This repo is here if you're going to take part in extending the API's capabilities--e.g., adding page elements, custom methods, or new page classes.
@@ -74,6 +70,7 @@ if explore.results.include?("Title")
   puts "Passed"
 else
   puts "Failed"
+end
 
 # Enjoy!
 ````
