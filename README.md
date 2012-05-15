@@ -25,7 +25,7 @@ Installing the gems will also install all necessary dependencies.
 
 You are of course welcome to use the APIs on their own to write your own test scripts using whatever framework you prefer. However, if you're interested in getting a fast start and either learning the API by example or leveraging work we've already done, you're welcome to grab our Cucumber projects.
 
-Obviously, at the moment the Cucumber projects are in their infancy.
+Obviously, at the moment the Cucumber projects are in their infancy. Our legacy test cases are available in the `tests` folder.
 
 ## Contribute
 

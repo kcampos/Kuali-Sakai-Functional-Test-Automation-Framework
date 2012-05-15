@@ -7,6 +7,10 @@ This is the development project for the Sakai OAE Functional Testing API gem for
 This API provides a framework for interacting with web sites for Sakai-OAE, using
 Ruby and Watir-webdriver--but without needing to know either in detail.
 
+## Documentation:
+
+RDocs can be found at [rubydoc.info](http://rubydoc.info/gems/sakai-oae-test-api)
+
 ## Requirements:
 
 ### Ruby 1.9.2 or higher
@@ -17,32 +21,36 @@ This repo is here if you're going to take part in extending the API's capabiliti
 
 ## A Basic Usage Example for OAE:
 
+Require the gem...
 ````ruby
 #!/usr/bin/env ruby
 require 'sakai-oae-test-api'
+````
 
-# Create an instance of the SakaiOAE class, specifying your test browser
-# and the URL of your test site's OAE welcome page.
+Create an instance of the SakaiOAE class, specifying your test browser and the URL of your test site's OAE welcome page.
+````ruby
 sakai = SakaiOAE.new(:firefox, "https://academic.rsmart.com/")
+````
 
-# define the LoginPage class object, which allows you to interact with elements
-# on the login page. This is available via the SakaiOAE class, "page" method...
+Define the LoginPage class object, which allows you to interact with elements on the login page. This is available via the `SakaiOAE` class, "page" method...
+````ruby
 login_page = sakai.page
+````
 
-# Define the browser object using SakaiOAE's 'browser' method. This is Ruby/Watir's
-# representation of the test browser itself and is used by every page class in the
-# Sakai-OAE-test-api, so it *must* be explicitly defined here as "@browser"...
+Define the browser object using the `SakaiOAE` 'browser' method. This is Ruby/Watir's representation of the test browser itself and is used by every page class in the Sakai-OAE-test-api, so it **must** be explicitly defined here as `@browser` ...
+````ruby
 @browser = sakai.browser
+````
 
-# The above code is all necessary for proper setup and usage of the API. Below, we
-# present a short and simple example of how you can use the API to interact with
-# the Open Academic Environment...
+The above code is all necessary for proper setup and usage of the API. Below, we present a short and simple example of how you can use the API to interact with the Open Academic Environment...
+
+First, log in...
+````ruby
 dash = login_page.login("username", "password")
+````
 
-# There are two ways to invoke page classes. The first way, hinted at in the code
-# above, will be explained below. The second way uses the "on_page" method,
-# and is most useful when you are going to stay on the given page for a while. It
-# requires that you know the name of the relevant page class..
+Next, invoke the current page's 'class'. Note that there are two ways to invoke page classes. The first way, hinted at in the code above, will be explained below. The second way uses the "on_page" method, and is most useful when you are going to stay on the given page for a while. It requires that you know the name of the page class you want...
+````ruby
 on_page MyDashboard do |page|
   page.add_content
   page.upload_file=("filename.doc", "Full/Path/To/File")
@@ -52,30 +60,33 @@ on_page MyDashboard do |page|
   page.add
   page.done_add_collected
 end
+````
 
-# So, back to the first way, which is most useful when you're doing lots of quick
-# navigating around the site, not staying on a given page for too long.
-# You'll notice by looking at the available methods in the page classes that those
-# methods involving navigating to new pages will return the target page's page class.
-# So, for example, going from My Dashboard to Explore Content (notice we're using
-# the "dash" object defined earlier, here...
+So, back to the first way, which is most useful when you're doing lots of quick navigating around the site, not staying on a given page for too long. You'll notice by looking at the available methods in the page classes that those methods involving navigating to new pages will return the target page's page class. So, for example, going from My Dashboard to Explore Content (notice we're using the "dash" object defined earlier, here)...
+````ruby
 explore = dash.explore_content
+````
 
-# Now we can use the "explore" object to interact with the "Explore Content" page...
+Now we can use the "explore" object to interact with the "Explore Content" page...
+````ruby
 explore.search_for="Title"
+````
 
-# A bit of verification code (use your own favorite test framework, here, if
-# writing Ruby conditionals isn't too your liking)...
+A bit of verification code (use your own favorite test framework, here, if writing Ruby conditionals isn't too your liking)...
+````
 if explore.results.include?("Title")
   puts "Passed"
 else
   puts "Failed"
 end
-
-# Enjoy!
 ````
 
-For much more extensive usage examples, please see the OAE Cucumber directory in this repo.
+For much more extensive usage examples, please see the tests created by rSmart and current kept at the github repository here:
+[https://github.com/aheward/Kuali-Sakai-Functional-Test-Automation-Framework](https://github.com/aheward/Kuali-Sakai-Functional-Test-Automation-Framework)
+
+## Support
+
+If you have questions, bugs to report, or requests to add any page elements that are currently missing (and there are many) then please contact us.
 
 ## Contribute
 
