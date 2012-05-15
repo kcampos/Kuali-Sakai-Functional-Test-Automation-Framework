@@ -16,11 +16,8 @@ describe "Create Test Accounts" do
   before :all do
     @config = YAML.load_file("config.yml")
     @sakai = SakaiOAE.new(@config['browser'], @config['url'])
-    @directory = YAML.load_file("directory.yml")
+    @people = YAML.load_file("directory.yml")
     @browser = @sakai.browser
-    
-    #Hash of user information to use
-    @people = YAML.load_file("#{File.dirname(__FILE__)}/../../config/OAE/directory.yml")
     
     # Get a count of how many users will be added
     @count = 0
