@@ -32,7 +32,6 @@ class TestMessages < Test::Unit::TestCase
     @student3 = @directory["person2"]["id"]
     @spassword3 = @directory["person2"]["password"]
     @site_id = @directory["site1"]["id"]
-    @sakai = SakaiCLE.new(@browser)
     
     #Test case variables
     @messages = [

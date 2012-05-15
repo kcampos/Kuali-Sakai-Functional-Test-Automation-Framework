@@ -10,8 +10,8 @@
 # A valid user login.
 # 
 # Author: Abe Heward (aheward@rSmart.com)
-require '../../features/support/env.rb'
-require '../../lib/sakai-oae-test-api'
+require 'sakai-oae-test-api'
+require 'yaml'
 
 describe "My Profile" do
   
@@ -27,20 +27,22 @@ describe "My Profile" do
   before :all do
     
     # Get the test configuration data
-    @config = AutoConfig.new
-    @browser = @config.browser
+    @config = YAML.load_file("config.yml")
+    @sakai = SakaiOAE.new(@config['browser'], @config['url'])
+    @directory = YAML.load_file("directory.yml")
+    @browser = @sakai.browser
     # Test user information from directory.yml...
-    @user1 = @config.directory['person17']['id']
-    @pass1 = @config.directory['person17']['password']
-    @user1_name = "#{@config.directory['person17']['firstname']} #{@config.directory['person17']['lastname']}"
-    @first = "#{@config.directory['person17']['firstname']}"
-    @last = "#{@config.directory['person17']['lastname']}"
-    @user2 = @config.directory['person2']['id']
-    @pass2 = @config.directory['person2']['password']
-    @user2_name = "#{@config.directory['person2']['firstname']} #{@config.directory['person2']['lastname']}"
+    @user1 = @directory['person17']['id']
+    @pass1 = @directory['person17']['password']
+    @user1_name = "#{@directory['person17']['firstname']} #{@directory['person17']['lastname']}"
+    @first = "#{@directory['person17']['firstname']}"
+    @last = "#{@directory['person17']['lastname']}"
+    @user2 = @directory['person2']['id']
+    @pass2 = @directory['person2']['password']
+    @user2_name = "#{@directory['person2']['firstname']} #{@directory['person2']['lastname']}"
     
     @sakai = SakaiOAE.new(@browser)
-    dash = @sakai.login(@user1, @pass1)
+    dash = @sakai.page.login(@user1, @pass1)
     dash.my_profile
     
     # Test case variables...
@@ -371,7 +373,7 @@ describe "My Profile" do
 
   it "user view Basic Info" do
     @sakai.logout
-    dash = @sakai.login(@user2, @pass2)
+    dash = @sakai.page.login(@user2, @pass2)
     explore = dash.explore_people
     explore.search_for="#{@given_name2} #{@family_name2}"
     profile = explore.view_person "#{@given_name2} #{@family_name2}"

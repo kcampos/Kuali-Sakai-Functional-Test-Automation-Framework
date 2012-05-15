@@ -9,8 +9,8 @@
 # available for joining, and that those options work as expected.
 # 
 # Author: Abe Heward (aheward@rSmart.com)
-require '../../features/support/env.rb'
-require '../../lib/sakai-oae-test-api'
+require 'sakai-oae-test-api'
+require 'yaml'
 
 describe "Group Memberships" do
   
@@ -21,13 +21,15 @@ describe "Group Memberships" do
   before :all do
     
     # Get the test configuration data
-    @config = AutoConfig.new
-    @browser = @config.browser
-    @instructor = @config.directory['person3']['id']
-    @ipassword = @config.directory['person3']['password']
-    @user2 = @config.directory['person1']['id']
-    @u2password = @config.directory['person1']['password']
-    @student_name = "#{@config.directory['person1']['firstname']} #{@config.directory['person1']['lastname']}"
+    @config = YAML.load_file("config.yml")
+    @sakai = SakaiOAE.new(@config['browser'], @config['url'])
+    @directory = YAML.load_file("directory.yml")
+    @browser = @sakai.browser
+    @instructor = @directory['person3']['id']
+    @ipassword = @directory['person3']['password']
+    @user2 = @directory['person1']['id']
+    @u2password = @directory['person1']['password']
+    @student_name = "#{@directory['person1']['firstname']} #{@directory['person1']['lastname']}"
     
     @sakai = SakaiOAE.new(@browser)
     
@@ -60,7 +62,7 @@ describe "Group Memberships" do
   it "Create three groups" do
     
     # Log in to Sakai
-    dashboard = @sakai.login(@instructor, @ipassword)
+    dashboard = @sakai.page.login(@instructor, @ipassword)
 
     new_group_info = dashboard.create_a_group
     
@@ -93,7 +95,7 @@ describe "Group Memberships" do
   end
   
   it "'Managers add' course does not show any join buttons" do
-    dashboard = @sakai.login(@user2, @u2password)
+    dashboard = @sakai.page.login(@user2, @u2password)
     
     explore = dashboard.explore_groups
     explore.search=@managers_group[:title]
@@ -147,7 +149,7 @@ describe "Group Memberships" do
   end
   
   it "'Join Request' email sent to appropriate user" do
-    dashboard = @sakai.login(@instructor, @ipassword)
+    dashboard = @sakai.page.login(@instructor, @ipassword)
     inbox = dashboard.my_messages
     # TEST CASE: Verify Email sent to Group manager requesting to join
     inbox.message_subjects.should include(@email_subject_prefix + @request_group[:title])

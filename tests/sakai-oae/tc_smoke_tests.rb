@@ -12,8 +12,8 @@
 # Existing content in the system (see line 76)
 #
 # Author: Abe Heward (aheward@rSmart.com)
-require '../../features/support/env.rb'
-require '../../lib/sakai-oae-test-api'
+require 'sakai-oae-test-api'
+require 'yaml'
 
 describe "Smoke Tests" do
   
@@ -22,24 +22,26 @@ describe "Smoke Tests" do
   before :all do
     
     # Get the test configuration data
-    @config = AutoConfig.new
-    @browser = @config.browser
+    @config = YAML.load_file("config.yml")
+    @sakai = SakaiOAE.new(@config['browser'], @config['url'])
+    @directory = YAML.load_file("directory.yml")
+    @browser = @sakai.browser
     # Test user information from directory.yml...
-    @user1 = @config.directory['person8']['id']
-    @pass1 = @config.directory['person8']['password']
-    @user1_name = "#{@config.directory['person8']['firstname']} #{@config.directory['person8']['lastname']}"
-    @user2 = @config.directory['person7']['id']
-    @pass2 = @config.directory['person7']['password']
-    @user2_name = "#{@config.directory['person7']['firstname']} #{@config.directory['person7']['lastname']}"
-    @user3 = @config.directory['person6']['id']
-    @pass3 = @config.directory['person6']['password']
-    @user3_name = "#{@config.directory['person6']['firstname']} #{@config.directory['person6']['lastname']}"
-    @user4 = @config.directory['person9']['id']
-    @pass4 = @config.directory['person9']['password']
-    @user4_name = "#{@config.directory['person9']['firstname']} #{@config.directory['person9']['lastname']}"
-    @user5 = @config.directory['person5']['id']
-    @pass5 = @config.directory['person5']['password']
-    @user5_name = "#{@config.directory['person5']['firstname']} #{@config.directory['person5']['lastname']}"
+    @user1 = @directory['person8']['id']
+    @pass1 = @directory['person8']['password']
+    @user1_name = "#{@directory['person8']['firstname']} #{@directory['person8']['lastname']}"
+    @user2 = @directory['person7']['id']
+    @pass2 = @directory['person7']['password']
+    @user2_name = "#{@directory['person7']['firstname']} #{@directory['person7']['lastname']}"
+    @user3 = @directory['person6']['id']
+    @pass3 = @directory['person6']['password']
+    @user3_name = "#{@directory['person6']['firstname']} #{@directory['person6']['lastname']}"
+    @user4 = @directory['person9']['id']
+    @pass4 = @directory['person9']['password']
+    @user4_name = "#{@directory['person9']['firstname']} #{@directory['person9']['lastname']}"
+    @user5 = @directory['person5']['id']
+    @pass5 = @directory['person5']['password']
+    @user5_name = "#{@directory['person5']['firstname']} #{@directory['person5']['lastname']}"
     
     @sakai = SakaiOAE.new(@browser)
     
@@ -106,7 +108,7 @@ describe "Smoke Tests" do
   end
 
   it "User 1 invites contacts" do
-    dash = @sakai.login(@user1, @pass1) 
+    dash = @sakai.page.login(@user1, @pass1)
 
     my_contacts = dash.my_contacts
 
@@ -127,17 +129,17 @@ describe "Smoke Tests" do
   end
     
   it "Other users accept User 1's invite" do
-    dash = @sakai.login(@user3, @pass3)
+    dash = @sakai.page.login(@user3, @pass3)
     my_contacts = dash.my_contacts
     my_contacts.accept_connection @user1_name
     @sakai.sign_out
-    dash = @sakai.login(@user4, @pass4)
+    dash = @sakai.page.login(@user4, @pass4)
     my_contacts = dash.my_contacts
     my_contacts.accept_connection @user1_name
     
     @sakai.sign_out
     
-    dash = @sakai.login(@user2, @pass2)
+    dash = @sakai.page.login(@user2, @pass2)
     my_contacts = dash.my_contacts
 
     # TEST CASE: Verify there is a pending invitation from
@@ -165,7 +167,7 @@ describe "Smoke Tests" do
   end
   
   it "User 1 reads message inbox" do
-    dash = @sakai.login(@user1, @pass1)
+    dash = @sakai.page.login(@user1, @pass1)
     
     # User 1 goes to My Messages and checks that expected messages are there
     inbox = dash.my_messages
@@ -248,7 +250,7 @@ describe "Smoke Tests" do
   end
 
   it "User 2 logs in and checks to see if the document is in ‘My Library’" do
-    dash = @sakai.login(@user2, @pass2)
+    dash = @sakai.page.login(@user2, @pass2)
 
     my_library = dash.my_library
 
@@ -347,8 +349,8 @@ describe "Smoke Tests" do
     my_profile.given_name=@basic[:given]
     my_profile.family_name=@basic[:family]
     # Need to store the new name info in the directory.yml file!
-    @config.directory['person5']['firstname'] = @basic[:given]
-    @config.directory['person5']['lastname'] = @basic[:family]
+    @directory['person5']['firstname'] = @basic[:given]
+    @directory['person5']['lastname'] = @basic[:family]
     @user1_name = "#{@basic[:given]} #{@basic[:family]}"
     @save_new_name=1
     my_profile.preferred_name=@basic[:preferred]
@@ -417,7 +419,7 @@ describe "Smoke Tests" do
     
   it "User 5 has expected course and library doc" do
     #User 5 logs in
-    dash = @sakai.login(@user5, @pass5)
+    dash = @sakai.page.login(@user5, @pass5)
     
     # User 5 goes to My Memberships to see what's there...
     my_memberships = dash.my_memberships
@@ -499,7 +501,7 @@ describe "Smoke Tests" do
     
   after :all do
     if @save_new_name==1
-      File.open("#{File.dirname(__FILE__)}/../../config/OAE/directory.yml", "w+") { |out| YAML::dump(@config.directory, out) }
+      File.open("#{File.dirname(__FILE__)}/../../config/OAE/directory.yml", "w+") { |out| YAML::dump(@directory, out) }
     end
     
     # Close the browser window

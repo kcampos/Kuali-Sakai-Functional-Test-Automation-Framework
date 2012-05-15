@@ -22,7 +22,6 @@ class CreateUsers < Test::Unit::TestCase
     @browser = @sakai.browser
     @user_name = @directory['admin']['username']
     @password = @directory['admin']['password']
-    @sakai = SakaiCLE.new(@browser)
     @site_name = @directory["site1"]["name"]
     
   end

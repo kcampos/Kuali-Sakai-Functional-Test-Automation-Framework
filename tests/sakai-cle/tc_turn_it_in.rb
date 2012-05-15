@@ -30,7 +30,6 @@ class TestTurnItIn < Test::Unit::TestCase
     @apassword = @directory["admin"]["password"]
     @site_name = @directory['site1']['name']
     @site_id = @directory['site1']['id']
-    @sakai = SakaiCLE.new(@browser)
     
     # Test Case Variables
     @assignment_1_title = random_string(32)

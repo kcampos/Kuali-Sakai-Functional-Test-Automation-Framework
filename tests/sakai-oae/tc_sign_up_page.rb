@@ -10,8 +10,8 @@
 # Access to the sign-up page.
 # 
 # Author: Abe Heward (aheward@rSmart.com)
-require '../../features/support/env.rb'
-require '../../lib/sakai-oae-test-api'
+require 'sakai-oae-test-api'
+require 'yaml'
 
 describe "Sign-Up Page" do
   
@@ -22,8 +22,10 @@ describe "Sign-Up Page" do
   before :all do
     
     # Get the test configuration data
-    @config = AutoConfig.new
-    @browser = @config.browser
+    @config = YAML.load_file("config.yml")
+    @sakai = SakaiOAE.new(@config['browser'], @config['url'])
+    @directory = YAML.load_file("directory.yml")
+    @browser = @sakai.browser
     
     # Test user information from directory.yml...
     @user1 = random_alphanums

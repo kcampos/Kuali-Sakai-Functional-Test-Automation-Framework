@@ -29,7 +29,6 @@ class TestGradeAssessment < Test::Unit::TestCase
     @site_name = @directory['site1']['name']
     @site_id = @directory['site1']['id']
     @test1 = @directory['site1']['quiz1']
-    @sakai = SakaiCLE.new(@browser)
     
     # Test case variables
     @instructor_comment = "I am very disappointed. :("

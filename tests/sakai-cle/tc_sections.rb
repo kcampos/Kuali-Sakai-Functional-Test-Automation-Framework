@@ -24,7 +24,6 @@ class TestSectionCreation < Test::Unit::TestCase
     @user_name = @directory['person3']['id']
     @password = @directory['person3']['password']
     @site_name = @directory['site1']['name']
-    @sakai = SakaiCLE.new(@browser)
     
     # Test case variables
     @sections = [

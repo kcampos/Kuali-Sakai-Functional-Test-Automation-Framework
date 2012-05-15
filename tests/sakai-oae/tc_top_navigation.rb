@@ -15,8 +15,8 @@
 # One user (see lines 32-33)
 #
 # Author: Abe Heward (aheward@rSmart.com)
-require '../../features/support/env.rb'
-require '../../lib/sakai-oae-test-api'
+require 'sakai-oae-test-api'
+require 'yaml'
 
 describe "Header Menu Navigation" do
   
@@ -28,10 +28,12 @@ describe "Header Menu Navigation" do
   before :all do
     
     # Get the test configuration data
-    @config = AutoConfig.new
-    @browser = @config.browser
-    @instructor = @config.directory['admin']['username']
-    @ipassword = @config.directory['admin']['password']
+    @config = YAML.load_file("config.yml")
+    @sakai = SakaiOAE.new(@config['browser'], @config['url'])
+    @directory = YAML.load_file("directory.yml")
+    @browser = @sakai.browser
+    @instructor = @directory['admin']['username']
+    @ipassword = @directory['admin']['password']
     
     @sakai = SakaiOAE.new(@browser)
     
@@ -133,7 +135,7 @@ describe "Header Menu Navigation" do
   
   it "Explore menu present when logged in" do  
     # Log in to Sakai
-    dashboard = @sakai.login(@instructor, @ipassword)
+    dashboard = @sakai.page.login(@instructor, @ipassword)
     
     # TEST CASE: 
     dashboard.explore_element.should be_visible

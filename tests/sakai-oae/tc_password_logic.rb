@@ -11,8 +11,8 @@
 # An existing test user (see lines 31-32)
 # 
 # Author: Abe Heward (aheward@rSmart.com)
-require '../../features/support/env.rb'
-require '../../lib/sakai-oae-test-api'
+require 'sakai-oae-test-api'
+require 'yaml'
 
 describe "Updating the user password" do
   
@@ -23,13 +23,15 @@ describe "Updating the user password" do
   before :all do
     
     # Get the test configuration data
-    @config = AutoConfig.new
-    @browser = @config.browser
+    @config = YAML.load_file("config.yml")
+    @sakai = SakaiOAE.new(@config['browser'], @config['url'])
+    @directory = YAML.load_file("directory.yml")
+    @browser = @sakai.browser
     @sakai = SakaiOAE.new(@browser)
     
     # Test case variables...
-    @user = @config.directory['person1']['id']
-    @password = @config.directory['person1']['password']
+    @user = @directory['person1']['id']
+    @password = @directory['person1']['password']
     
     @new_password = random_string(30)
     puts @new_password
@@ -52,7 +54,7 @@ describe "Updating the user password" do
   end
 
   it "Cancel prevents change to password" do
-    dashboard = @sakai.login(@user, @password)
+    dashboard = @sakai.page.login(@user, @password)
     
     dashboard.my_account
     dashboard.password
@@ -67,7 +69,7 @@ describe "Updating the user password" do
   end
   
   it "rejects bad current password for change" do
-    dashboard = @sakai.login(@user, @password)
+    dashboard = @sakai.page.login(@user, @password)
     dashboard.my_account
     dashboard.password
     
@@ -151,7 +153,7 @@ describe "Updating the user password" do
   end
   
   it "New password works for logging in" do
-    dashboard = @sakai.login(@user, @new_password)
+    dashboard = @sakai.page.login(@user, @new_password)
     # TEST CASE: Log in with new password works
     dashboard.profile_pic_element.should exist
   end
@@ -160,7 +162,7 @@ describe "Updating the user password" do
     # Change password back to default, if necessary...
     if @changed == 1
       @sakai.logout
-      dashboard = @sakai.login(@user, @new_password)
+      dashboard = @sakai.page.login(@user, @new_password)
       dashboard.my_account
       dashboard.password
       dashboard.current_password=@new_password

@@ -15,8 +15,8 @@
 # Two test users (see lines 32-36)
 #
 # Author: Abe Heward (aheward@rSmart.com)
-require '../../features/support/env.rb'
-require '../../lib/sakai-oae-test-api'
+require 'sakai-oae-test-api'
+require 'yaml'
 
 describe "Research Project/Group Memberships" do
   
@@ -28,13 +28,15 @@ describe "Research Project/Group Memberships" do
   before :all do
     
     # Get the test configuration data
-    @config = AutoConfig.new
-    @browser = @config.browser
-    @instructor = @config.directory['person3']['id']
-    @ipassword = @config.directory['person3']['password']
-    @user2 = @config.directory['person2']['id']
-    @u2password = @config.directory['person2']['password']
-    @student_name = "#{@config.directory['person2']['firstname']} #{@config.directory['person2']['lastname']}"
+    @config = YAML.load_file("config.yml")
+    @sakai = SakaiOAE.new(@config['browser'], @config['url'])
+    @directory = YAML.load_file("directory.yml")
+    @browser = @sakai.browser
+    @instructor = @directory['person3']['id']
+    @ipassword = @directory['person3']['password']
+    @user2 = @directory['person2']['id']
+    @u2password = @directory['person2']['password']
+    @student_name = "#{@directory['person2']['firstname']} #{@directory['person2']['lastname']}"
     
     @sakai = SakaiOAE.new(@browser)
     
@@ -86,7 +88,7 @@ describe "Research Project/Group Memberships" do
   it "Memberships with different join settings created" do
     
     # Log in to Sakai
-    dashboard = @sakai.login(@instructor, @ipassword)
+    dashboard = @sakai.page.login(@instructor, @ipassword)
 
     project = dashboard.create_a_research_project
     
@@ -147,7 +149,7 @@ describe "Research Project/Group Memberships" do
   end
   
   it "'Managers' research project does not show 'join' buttons" do
-    dashboard = @sakai.login(@user2, @u2password)
+    dashboard = @sakai.page.login(@user2, @u2password)
     
     explore = dashboard.explore_research
     explore.search=@managers_res1[:title]
@@ -233,7 +235,7 @@ describe "Research Project/Group Memberships" do
   end
   
   it "Request messages are delivered to the appropriate user" do
-    dashboard = @sakai.login(@instructor, @ipassword)
+    dashboard = @sakai.page.login(@instructor, @ipassword)
     inbox = dashboard.my_messages
     # TEST CASE: Verify Email sent to Group manager requesting to join
     inbox.message_subjects.should include(@email_subject_prefix + @request_res1[:title])

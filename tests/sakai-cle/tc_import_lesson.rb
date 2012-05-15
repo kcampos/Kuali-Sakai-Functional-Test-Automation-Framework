@@ -27,7 +27,6 @@ class TestImportLesson < Test::Unit::TestCase
     @spassword = @directory["person6"]["password"]
     @site_name = @directory['site1']['name']
     @site_id = @directory['site1']['id']
-    @sakai = SakaiCLE.new(@browser)
     
     # Test case variables...
     @zip_file = "zips/Melete1.zip"

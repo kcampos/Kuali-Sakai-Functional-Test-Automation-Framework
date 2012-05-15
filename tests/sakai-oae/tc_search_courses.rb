@@ -13,8 +13,8 @@
 # Three test users (see lines 30-36)
 #
 # Author: Abe Heward (aheward@rSmart.com)
-require '../../features/support/env.rb'
-require '../../lib/sakai-oae-test-api'
+require 'sakai-oae-test-api'
+require 'yaml'
 
 describe "Course Memberships" do
   
@@ -25,15 +25,17 @@ describe "Course Memberships" do
   before :all do
     
     # Get the test configuration data
-    @config = AutoConfig.new
-    @browser = @config.browser
-    @instructor = @config.directory['person3']['id']
-    @ipassword = @config.directory['person3']['password']
-    @participant = @config.directory['person1']['id']
-    @participant_pw = @config.directory['person1']['password']
-    @participant_name = "#{@config.directory['person1']['firstname']} #{@config.directory['person1']['lastname']}"
-    @non_participant = @config.directory['person2']['id']
-    @non_participant_pw = @config.directory['person2']['password']
+    @config = YAML.load_file("config.yml")
+    @sakai = SakaiOAE.new(@config['browser'], @config['url'])
+    @directory = YAML.load_file("directory.yml")
+    @browser = @sakai.browser
+    @instructor = @directory['person3']['id']
+    @ipassword = @directory['person3']['password']
+    @participant = @directory['person1']['id']
+    @participant_pw = @directory['person1']['password']
+    @participant_name = "#{@directory['person1']['firstname']} #{@directory['person1']['lastname']}"
+    @non_participant = @directory['person2']['id']
+    @non_participant_pw = @directory['person2']['password']
     
     @sakai = SakaiOAE.new(@browser)
     
@@ -65,7 +67,7 @@ describe "Course Memberships" do
   it "creates 3 courses with different join settings" do
     
     # Log in to Sakai
-    dashboard = @sakai.login(@instructor, @ipassword)
+    dashboard = @sakai.page.login(@instructor, @ipassword)
 
     create_course = dashboard.create_a_course
     
@@ -125,7 +127,7 @@ describe "Course Memberships" do
   end
   
   it "Public course can be found while logged in" do
-    dashboard = @sakai.login(@participant, @participant_pw)
+    dashboard = @sakai.page.login(@participant, @participant_pw)
     explore = dashboard.explore_courses
     explore.search_for=@public_course[:title]
     # TEST CASE: Public course displays when logged in
@@ -147,7 +149,7 @@ describe "Course Memberships" do
   
   it "Participants-only course does not appear for a non-participant" do
     @sakai.logout
-    dashboard = @sakai.login(@non_participant, @non_participant_pw)
+    dashboard = @sakai.page.login(@non_participant, @non_participant_pw)
     explore = dashboard.explore_courses
     explore.search_for=@participant_course[:title]
     # TEST CASE: Participant course does not display to non-participant

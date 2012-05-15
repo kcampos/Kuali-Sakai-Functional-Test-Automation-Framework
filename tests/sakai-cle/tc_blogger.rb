@@ -34,7 +34,6 @@ class TestBlogger < Test::Unit::TestCase
     
     @site_name = @directory['site1']['name']
     @site_id = @directory['site1']['id']
-    @sakai = SakaiCLE.new(@browser)
     
     # Test case variables
     @post_1_title = random_alphanums

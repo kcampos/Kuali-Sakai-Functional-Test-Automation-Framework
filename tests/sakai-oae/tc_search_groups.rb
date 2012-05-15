@@ -13,8 +13,8 @@
 # Three test users (see lines 30-36)
 #
 # Author: Abe Heward (aheward@rSmart.com)
-require '../../features/support/env.rb'
-require '../../lib/sakai-oae-test-api'
+require 'sakai-oae-test-api'
+require 'yaml'
 
 describe "Group Membership" do
   
@@ -25,15 +25,17 @@ describe "Group Membership" do
   before :all do
     
     # Get the test configuration data
-    @config = AutoConfig.new
-    @browser = @config.browser
-    @instructor = @config.directory['admin']['username']
-    @ipassword = @config.directory['admin']['password']
-    @participant = @config.directory['person5']['id']
-    @participant_pw = @config.directory['person5']['password']
-    @participant_name = "#{@config.directory['person5']['firstname']} #{@config.directory['person5']['lastname']}"
-    @non_participant = @config.directory['person6']['id']
-    @non_participant_pw = @config.directory['person6']['password']
+    @config = YAML.load_file("config.yml")
+    @sakai = SakaiOAE.new(@config['browser'], @config['url'])
+    @directory = YAML.load_file("directory.yml")
+    @browser = @sakai.browser
+    @instructor = @directory['admin']['username']
+    @ipassword = @directory['admin']['password']
+    @participant = @directory['person5']['id']
+    @participant_pw = @directory['person5']['password']
+    @participant_name = "#{@directory['person5']['firstname']} #{@directory['person5']['lastname']}"
+    @non_participant = @directory['person6']['id']
+    @non_participant_pw = @directory['person6']['password']
     
     @sakai = SakaiOAE.new(@browser)
     
@@ -62,7 +64,7 @@ describe "Group Membership" do
 
   it "creates 3 groups with different join settings" do
     # Log in to Sakai
-    dashboard = @sakai.login(@instructor, @ipassword)
+    dashboard = @sakai.page.login(@instructor, @ipassword)
 
     new_group_info = dashboard.create_a_group
     
@@ -121,7 +123,7 @@ describe "Group Membership" do
   end
   
   it "Public Group can be found by a logged-in non-participant" do
-    dashboard = @sakai.login(@participant, @participant_pw)
+    dashboard = @sakai.page.login(@participant, @participant_pw)
     
     explore = dashboard.explore_groups
     
@@ -148,7 +150,7 @@ describe "Group Membership" do
   end
   
   it "Participants-only Group cannot be found by a logged-in non-participant user" do
-    dashboard = @sakai.login(@non_participant, @non_participant_pw)
+    dashboard = @sakai.page.login(@non_participant, @non_participant_pw)
     
     explore = dashboard.explore_groups
     

@@ -24,7 +24,6 @@ class TestCreateNewPortfolio < Test::Unit::TestCase
     @student = @directory['person1']['id']
     @password = @directory['person1']['password']
     @site_name = @directory['site2']['name']
-    @sakai = SakaiCLE.new(@browser)
     
     # Test case variables
     @name = random_string

@@ -17,15 +17,16 @@ class TestAnnouncements < Test::Unit::TestCase
   def setup
     
     # Get the test configuration data
-    config = AutoConfig.new
-    @browser = config.browser
-    @instructor = config.directory['person3']['id']
-    @ipassword = config.directory['person3']['password']
-    @student = config.directory['person1']['id']
-    @spassword = config.directory['person1']['password']
-    @sakai = SakaiCLE.new(@browser)
-    @site_name = config.directory["site1"]["name"]
-    @site_id = config.directory["site1"]["id"]
+    @config = YAML.load_file("config.yml")
+    @directory = YAML.load_file("directory.yml")
+    @sakai = SakaiCLE.new(@config['browser'], @config['url'])
+    @browser = @sakai.browser
+    @instructor = @directory['person3']['id']
+    @ipassword = @directory['person3']['password']
+    @student = @directory['person1']['id']
+    @spassword = @directory['person1']['password']
+    @site_name = @directory["site1"]["name"]
+    @site_id = @directory["site1"]["id"]
     
     # Test Case Variables
     @announcement_1_title = random_string(64)
@@ -45,10 +46,10 @@ class TestAnnouncements < Test::Unit::TestCase
     @announcement_7_title = random_xss_string(50)
     @announcement_7_body = random_xss_string(100)
     
-    @group1 = config.directory["site1"]["group0"]
-    @group2 = config.directory["site1"]["group1"]
+    @group1 = @directory["site1"]["group0"]
+    @group2 = @directory["site1"]["group1"]
     
-    @portfolio_site = config.directory["site2"]["name"]
+    @portfolio_site = @directory["site2"]["name"]
     
     # Validation text -- These contain page content that will be used for
     # test asserts.

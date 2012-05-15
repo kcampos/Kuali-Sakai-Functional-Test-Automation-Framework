@@ -22,7 +22,6 @@ class TestCreatingPortfolioSite < Test::Unit::TestCase
     @browser = @sakai.browser
     @user_name = @directory['admin']['username']
     @password = @directory['admin']['password']
-    @sakai = SakaiCLE.new(@browser)
     
     # Test case variables
     @site_name = random_alphanums

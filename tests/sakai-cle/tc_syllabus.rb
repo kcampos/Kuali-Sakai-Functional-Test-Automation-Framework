@@ -26,7 +26,6 @@ class TestSyllabusPages < Test::Unit::TestCase
     @ipassword = @directory['person3']['password']
     @site_name = @directory['site1']['name']
     @site_id = @directory['site1']['id']
-    @sakai = SakaiCLE.new(@browser)
     
     # Test case variables
     @title = random_string(24)

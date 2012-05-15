@@ -13,8 +13,8 @@
 # cannot be run against a build with an empty DB.
 # 
 # Author: Abe Heward (aheward@rSmart.com)
-require '../../features/support/env.rb'
-require '../../lib/sakai-oae-test-api'
+require 'sakai-oae-test-api'
+require 'yaml'
 
 describe "Signing In" do
   
@@ -25,10 +25,12 @@ describe "Signing In" do
 
   before :all do
     # Get the test configuration data
-    @config = AutoConfig.new
-    @browser = @config.browser
-    @username = @config.directory['person1']['id']
-    @password = @config.directory['person1']['password']
+    @config = YAML.load_file("config.yml")
+    @sakai = SakaiOAE.new(@config['browser'], @config['url'])
+    @directory = YAML.load_file("directory.yml")
+    @browser = @sakai.browser
+    @username = @directory['person1']['id']
+    @password = @directory['person1']['password']
     
     @sakai = SakaiOAE.new(@browser)
     
@@ -81,7 +83,7 @@ describe "Signing In" do
   end
   
   it "Logging in from the main page takes user to the My Dashboard page" do
-    dashboard = @sakai.login(@username, @password)
+    dashboard = @sakai.page.login(@username, @password)
     dashboard.page_title.should == "My dashboard"
   end
   
@@ -95,7 +97,7 @@ describe "Signing In" do
   end
   
   it "Logins viewing profile, user stays on profile page" do
-    @sakai.login(@username, @password)
+    @sakai.page.login(@username, @password)
     sleep 2
     person = ViewPerson.new @browser
     person.contact_name.should == $random_person
@@ -111,7 +113,7 @@ describe "Signing In" do
   end
   
   it "Logging in from content page, user stays on content page" do
-    @sakai.login(@username, @password)
+    @sakai.page.login(@username, @password)
     sleep 2
     content_again = ContentDetailsPage.new @browser
     content_again.name.should == $random_content

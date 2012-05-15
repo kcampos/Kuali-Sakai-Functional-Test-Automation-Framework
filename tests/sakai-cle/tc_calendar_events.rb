@@ -28,7 +28,6 @@ class TestCalendarEvents < Test::Unit::TestCase
     @spassword = @directory['person1']['password']
     @site_name = @directory['site1']['name']
     @site_id = @directory['site1']['id']
-    @sakai = SakaiCLE.new(@browser)
     
     # Test case variables
     @assignment_event = "Due #{@directory['site1']['assignment2']} - #{@site_name}"

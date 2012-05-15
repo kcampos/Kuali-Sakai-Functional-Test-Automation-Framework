@@ -13,8 +13,8 @@
 # Two existing users.
 # 
 # Author: Abe Heward (aheward@rSmart.com)
-require '../../features/support/env.rb'
-require '../../lib/sakai-oae-test-api'
+require 'sakai-oae-test-api'
+require 'yaml'
 
 describe "Course Membership Rules" do
   
@@ -23,13 +23,15 @@ describe "Course Membership Rules" do
   before :all do
     
     # Get the test configuration data
-    @config = AutoConfig.new
-    @browser = @config.browser
-    @instructor = @config.directory['admin']['username']
-    @ipassword = @config.directory['admin']['password']
-    @user2 = @config.directory['person1']['id']
-    @u2password = @config.directory['person1']['password']
-    @student_name = "#{@config.directory['person1']['firstname']} #{@config.directory['person1']['lastname']}"
+    @config = YAML.load_file("config.yml")
+    @sakai = SakaiOAE.new(@config['browser'], @config['url'])
+    @directory = YAML.load_file("directory.yml")
+    @browser = @sakai.browser
+    @instructor = @directory['admin']['username']
+    @ipassword = @directory['admin']['password']
+    @user2 = @directory['person1']['id']
+    @u2password = @directory['person1']['password']
+    @student_name = "#{@directory['person1']['firstname']} #{@directory['person1']['lastname']}"
     
     @sakai = SakaiOAE.new(@browser)
     
@@ -64,7 +66,7 @@ describe "Course Membership Rules" do
 
   it "creates three courses with different membership settings" do
     # Log in to Sakai
-    dashboard = @sakai.login(@instructor, @ipassword)
+    dashboard = @sakai.page.login(@instructor, @ipassword)
 
     create_course = dashboard.create_a_course
     
@@ -100,7 +102,7 @@ describe "Course Membership Rules" do
   end
   
   it "'Student' tries to join 'Manager add' course" do
-    dashboard = @sakai.login(@user2, @u2password)
+    dashboard = @sakai.page.login(@user2, @u2password)
     
     explore = dashboard.explore_courses
     explore.search=@managers_course[:title]
@@ -154,7 +156,7 @@ describe "Course Membership Rules" do
   end
   
   it "Request email sent to course manager" do
-    dashboard = @sakai.login(@instructor, @ipassword)
+    dashboard = @sakai.page.login(@instructor, @ipassword)
     
     inbox = dashboard.my_messages
     

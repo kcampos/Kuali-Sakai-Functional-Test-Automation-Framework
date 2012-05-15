@@ -6,16 +6,18 @@
 # Creates user accounts based on the contents of the directory.yml file
 # 
 # Author: Abe Heward (aheward@rSmart.com)
-require '../../features/support/env.rb'
-require '../../lib/sakai-oae-test-api'
+require 'sakai-oae-test-api'
+require 'yaml'
 
 describe "Create Test Accounts" do
   
   include Utilities
 
   before :all do
-    @config = AutoConfig.new
-    @browser = @config.browser
+    @config = YAML.load_file("config.yml")
+    @sakai = SakaiOAE.new(@config['browser'], @config['url'])
+    @directory = YAML.load_file("directory.yml")
+    @browser = @sakai.browser
     
     #Hash of user information to use
     @people = YAML.load_file("#{File.dirname(__FILE__)}/../../config/OAE/directory.yml")

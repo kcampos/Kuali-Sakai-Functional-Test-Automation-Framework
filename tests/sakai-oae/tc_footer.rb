@@ -11,8 +11,8 @@
 # There must be a valid user for logging in to the system.
 # 
 # Author: Abe Heward (aheward@rSmart.com)
-require '../../features/support/env.rb'
-require '../../lib/sakai-oae-test-api'
+require 'sakai-oae-test-api'
+require 'yaml'
 
 describe "Page Footer" do
   
@@ -23,10 +23,12 @@ describe "Page Footer" do
 
   before :all do
     # Get the test configuration data
-    @config = AutoConfig.new
-    @browser = @config.browser
-    @username = @config.directory['person1']['id']
-    @password = @config.directory['person1']['password']
+    @config = YAML.load_file("config.yml")
+    @sakai = SakaiOAE.new(@config['browser'], @config['url'])
+    @directory = YAML.load_file("directory.yml")
+    @browser = @sakai.browser
+    @username = @directory['person1']['id']
+    @password = @directory['person1']['password']
     
     @sakai = SakaiOAE.new(@browser)
   end
@@ -108,7 +110,7 @@ describe "Page Footer" do
   end
   
   it "The footer is there when user logs in" do
-    dashboard = @sakai.login(@username, @password)
+    dashboard = @sakai.page.login(@username, @password)
     
     # TEST CASE: Dashboard page has the footer
     dashboard.footer_element.should be_visible

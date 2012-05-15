@@ -28,7 +28,6 @@ class TestPollCreation < Test::Unit::TestCase
     @student_pw = @directory['person1']['password']
     @site_name = @directory['site1']['name']
     @site_id = @directory['site1']['id']
-    @sakai = SakaiCLE.new(@browser)
     
     # Test case variables...
     @poll = {

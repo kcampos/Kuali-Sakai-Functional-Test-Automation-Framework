@@ -30,7 +30,6 @@ class TestGradingAssignments < Test::Unit::TestCase
     # Student login
     @student_id = @directory['person1']['id']
     @student_pw = @directory['person1']['password']
-    @sakai = SakaiCLE.new(@browser)
     
     # Test case variables
     @assignment1 = @directory["site1"]["assignment4"]

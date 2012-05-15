@@ -22,7 +22,6 @@ class TestCreatingXSSCourseSite < Test::Unit::TestCase
     @browser = @sakai.browser
     @user_name = @directory['admin']['username']
     @password = @directory['admin']['password']
-    @sakai = SakaiCLE.new(@browser)
     
     # Test case variables
     @subject = random_xss_string(40)
@@ -201,7 +200,7 @@ class TestCreatingXSSCourseSite < Test::Unit::TestCase
     site_setup = review.request_site
     
     # Create a string that will match the new Site's "creation date" string
-    creation_date = @sakai.make_date(Time.now)
+    creation_date = make_date(Time.now)
     
     site_setup.search(Regexp.escape(@subject))
     
@@ -215,7 +214,7 @@ class TestCreatingXSSCourseSite < Test::Unit::TestCase
     #begin
     #  assert @browser.text.include?("#{creation_date}")
     #rescue 
-    #  assert @browser.text.include?("#{@sakai.make_date(Time.now)}"), "Could not find a site with a creation date of #{creation_date} or #{@sakai.make_date(Time.now)}"
+    #  assert @browser.text.include?("#{make_date(Time.now)}"), "Could not find a site with a creation date of #{creation_date} or #{make_date(Time.now)}"
     #end
     
     # Get the site id for storage

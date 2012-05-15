@@ -13,8 +13,8 @@
 # user. See line 58.
 # 
 # Author: Abe Heward (aheward@rSmart.com)
-require '../../features/support/env.rb'
-require '../../lib/sakai-oae-test-api'
+require 'sakai-oae-test-api'
+require 'yaml'
 
 describe "Create Course" do
   
@@ -25,10 +25,12 @@ describe "Create Course" do
   before :all do
     
     # Get the test configuration data
-    @config = AutoConfig.new
-    @browser = @config.browser
-    @instructor = @config.directory['admin']['username']
-    @ipassword = @config.directory['admin']['password']
+    @config = YAML.load_file("config.yml")
+    @sakai = SakaiOAE.new(@config['browser'], @config['url'])
+    @directory = YAML.load_file("directory.yml")
+    @browser = @sakai.browser
+    @instructor = @directory['admin']['username']
+    @ipassword = @directory['admin']['password']
     @sakai = SakaiOAE.new(@browser)
     
     # Test case variables...
@@ -57,7 +59,7 @@ describe "Create Course" do
       {:name=>random_alphanums,:widget=>"Forum",:visible=>"Public"},
       {:name=>random_alphanums,:widget=>"Files and documents",:visible=>"Public"}
     ]
-    @participant="#{@config.directory['person1']['firstname']} #{@config.directory['person1']['lastname']}"
+    @participant="#{@directory['person1']['firstname']} #{@directory['person1']['lastname']}"
     @doc_header=random_alphanums(32)
     @comment=random_multiline(30, 5)
     @comment2=random_multiline(20, 5)
@@ -69,7 +71,7 @@ describe "Create Course" do
 
   it "prevents creation of duplicate course title" do 
     # Log in to Sakai
-    dashboard = @sakai.login(@instructor, @ipassword)
+    dashboard = @sakai.page.login(@instructor, @ipassword)
 
     dashboard.add_widgets
     dashboard.add_all_widgets

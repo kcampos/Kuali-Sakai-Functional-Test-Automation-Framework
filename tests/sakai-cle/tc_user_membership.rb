@@ -26,7 +26,6 @@ class TestUserMembership < Test::Unit::TestCase
     @password = @directory['admin']['password']
     @site_name = @directory['site1']['name']
     @site_id = @directory['site1']['id']
-    @sakai = SakaiCLE.new(@browser)
     
     # Test case variables
     @search_name = "joe"

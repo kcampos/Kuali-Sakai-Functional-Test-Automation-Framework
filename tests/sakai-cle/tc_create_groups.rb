@@ -26,7 +26,6 @@ class TestGroups < Test::Unit::TestCase
     @site_name = @directory['site1']['name']
     @user_name = @directory['person3']['id']
     @password = @directory['person3']['password']
-    @sakai = SakaiCLE.new(@browser)
     
   end
   

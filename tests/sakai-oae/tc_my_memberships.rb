@@ -10,8 +10,8 @@
 # See lines 28-35 for required user information
 # 
 # Author: Abe Heward (aheward@rSmart.com)
-require '../../features/support/env.rb'
-require '../../lib/sakai-oae-test-api'
+require 'sakai-oae-test-api'
+require 'yaml'
 
 describe "My Memberships" do
   
@@ -22,17 +22,19 @@ describe "My Memberships" do
   before :all do
     
     # Get the test configuration data
-    @config = AutoConfig.new
-    @browser = @config.browser
+    @config = YAML.load_file("config.yml")
+    @sakai = SakaiOAE.new(@config['browser'], @config['url'])
+    @directory = YAML.load_file("directory.yml")
+    @browser = @sakai.browser
     # Test user information from directory.yml...
-    @user1 = @config.directory['person10']['id']
-    @pass1 = @config.directory['person10']['password']
-    @user1_name = "#{@config.directory['person10']['firstname']} #{@config.directory['person10']['lastname']}"
-    @user2 = @config.directory['person1']['id']
-    @pass2 = @config.directory['person1']['password']
-    @user2_name = "#{@config.directory['person1']['firstname']} #{@config.directory['person1']['lastname']}"
-    @user3 = @config.directory['person5']['id']
-    @pass3 = @config.directory['person5']['password']
+    @user1 = @directory['person10']['id']
+    @pass1 = @directory['person10']['password']
+    @user1_name = "#{@directory['person10']['firstname']} #{@directory['person10']['lastname']}"
+    @user2 = @directory['person1']['id']
+    @pass2 = @directory['person1']['password']
+    @user2_name = "#{@directory['person1']['firstname']} #{@directory['person1']['lastname']}"
+    @user3 = @directory['person5']['id']
+    @pass3 = @directory['person5']['password']
     
     @sakai = SakaiOAE.new(@browser)
     
@@ -49,7 +51,7 @@ describe "My Memberships" do
   end
 
   it "With Zero memberships, blue 'quote bubble' displays" do
-    dash = @sakai.login(@user1, @pass1)
+    dash = @sakai.page.login(@user1, @pass1)
     memberships = dash.my_memberships
     memberships.quote_bubble.should be_present
   end
@@ -68,7 +70,7 @@ describe "My Memberships" do
 
   it "Sorting membership list works as expected" do
     @sakai.log_out
-    dash = @sakai.login(@user2, @pass2)
+    dash = @sakai.page.login(@user2, @pass2)
     explore = dash.explore_groups
     explore.join_group @group1_name
     create_group = explore.create_a_group

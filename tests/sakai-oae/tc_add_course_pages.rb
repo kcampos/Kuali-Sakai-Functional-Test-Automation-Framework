@@ -10,8 +10,8 @@
 # A user who manages at least one course.
 # 
 # Author: Abe Heward (aheward@rSmart.com)
-require '../../features/support/env.rb'
-require '../../lib/sakai-oae-test-api'
+require 'sakai-oae-test-api'
+require 'yaml'
 
 describe "Adding Course Pages" do
   
@@ -20,15 +20,15 @@ describe "Adding Course Pages" do
   before :all do
     
     # Get the test configuration data
-    @config = AutoConfig.new
-    @browser = @config.browser
-    @instructor = @config.directory['admin']['username']
-    @ipassword = @config.directory['admin']['password']
-    @user2 = @config.directory['person1']['id']
-    @u2password = @config.directory['person1']['password']
-    @student_name = "#{@config.directory['person1']['firstname']} #{@config.directory['person1']['lastname']}"
-    
-    @sakai = SakaiOAE.new(@browser)
+    @config = YAML.load_file("config.yml")
+    @sakai = SakaiOAE.new(@config['browser'], @config['url'])
+    @directory = YAML.load_file("directory.yml")
+    @browser = @sakai.browser
+    @instructor = @directory['admin']['username']
+    @ipassword = @directory['admin']['password']
+    @user2 = @directory['person1']['id']
+    @u2password = @directory['person1']['password']
+    @student_name = "#{@directory['person1']['firstname']} #{@directory['person1']['lastname']}"
     
     # Test case variables...
     @doc1 = {
@@ -46,7 +46,7 @@ describe "Adding Course Pages" do
 
   it "page name appears in left menu" do
     # Log in to Sakai
-    dashboard = @sakai.login(@instructor, @ipassword)
+    dashboard = @sakai.page.login(@instructor, @ipassword)
 
     # Find a course the user manages
     explore = dashboard.explore_courses
@@ -103,7 +103,7 @@ describe "Adding Course Pages" do
 
   it "pages can be deleted" do
     # Log in to Sakai
-    dashboard = @sakai.login(@instructor, @ipassword)
+    dashboard = @sakai.page.login(@instructor, @ipassword)
 
     # Find a course the user manages
     explore = dashboard.explore_courses
@@ -139,7 +139,7 @@ describe "Adding Course Pages" do
 
   it "page deletes can be canceled" do
     # Log in to Sakai
-    dashboard = @sakai.login(@instructor, @ipassword)
+    dashboard = @sakai.page.login(@instructor, @ipassword)
 
     # Find a course the user manages
     explore = dashboard.explore_courses

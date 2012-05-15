@@ -25,7 +25,6 @@ class TestMasterPortfolioSite < Test::Unit::TestCase
     @password = @directory['admin']['password']
     @site_name = @directory['site1']['name']
     @site_id = @directory['site1']['id']
-    @sakai = SakaiCLE.new(@browser)
     @master_portfolio_site_id = "87654321-abcd-1234-wxyz-ab12cd34ef56"
     
     # Test case variables

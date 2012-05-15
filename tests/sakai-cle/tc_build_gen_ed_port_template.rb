@@ -36,7 +36,6 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     @spassword = @directory["person1"]["password"]
     @site_name = @directory['site1']['name']
     @site_id = @directory['site1']['id']
-    @sakai = SakaiCLE.new(@browser)
     
     # Test case variables
     @files = [

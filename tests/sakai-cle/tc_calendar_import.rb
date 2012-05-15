@@ -26,7 +26,6 @@ class TestCalendarImport < Test::Unit::TestCase
     @ipassword = @directory['person3']['password']
     @site_name = @directory['site1']['name']
     @site_id = @directory['site1']['id']
-    @sakai = SakaiCLE.new(@browser)
     
     # Test case variables
     @filename = "documents/master_calendar_import_file.txt"

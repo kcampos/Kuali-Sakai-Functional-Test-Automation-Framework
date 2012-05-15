@@ -25,7 +25,6 @@ class TestCompleteAssignment < Test::Unit::TestCase
     @password = @directory['person1']['password']
     @site_name = @directory['site1']['name']
     @site_id = @directory['site1']['id']
-    @sakai = SakaiCLE.new(@browser)
     
     # Test case variables
     @assignment_1_title = @directory["site1"]["assignment4"]
@@ -97,7 +96,7 @@ class TestCompleteAssignment < Test::Unit::TestCase
     
     assignments = confirm.back_to_list
     
-    submitted_date = @sakai.make_date(Time.now) #.utc)
+    submitted_date = make_date(Time.now) #.utc)
     
     # TEST CASE: Verify list shows assignment submitted
     assert_equal("Submitted #{submitted_date}", assignments.status_of(@assignment_1_title))

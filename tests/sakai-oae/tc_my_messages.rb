@@ -11,8 +11,8 @@
 # in each others' Contacts lists. User 5 should have zero messages in any boxes.
 # 
 # Author: Abe Heward (aheward@rSmart.com)
-require '../../features/support/env.rb'
-require '../../lib/sakai-oae-test-api'
+require 'sakai-oae-test-api'
+require 'yaml'
 
 describe "My Messages" do
   
@@ -24,22 +24,24 @@ describe "My Messages" do
   before :all do
     
     # Get the test configuration data
-    @config = AutoConfig.new
-    @browser = @config.browser
-    @user1 = @config.directory['person1']['id']
-    @pass1 = @config.directory['person1']['password']
-    @name1 = "#{@config.directory['person1']['firstname']} #{@config.directory['person1']['lastname']}"
-    @user2 = @config.directory['person2']['id']
-    @pass2 = @config.directory['person2']['password']
-    @name2 = "#{@config.directory['person2']['firstname']} #{@config.directory['person2']['lastname']}"
-    @user3 = @config.directory['person5']['id']
-    @pass3 = @config.directory['person5']['password']
-    @name3 = "#{@config.directory['person5']['firstname']} #{@config.directory['person5']['lastname']}"
-    @user4 = @config.directory['person6']['id']
-    @pass4 = @config.directory['person6']['password']
-    @name4 = "#{@config.directory['person6']['firstname']} #{@config.directory['person6']['lastname']}"
-    @user5 = @config.directory['person11']['id']
-    @pass5 = @config.directory['person11']['password']
+    @config = YAML.load_file("config.yml")
+    @sakai = SakaiOAE.new(@config['browser'], @config['url'])
+    @directory = YAML.load_file("directory.yml")
+    @browser = @sakai.browser
+    @user1 = @directory['person1']['id']
+    @pass1 = @directory['person1']['password']
+    @name1 = "#{@directory['person1']['firstname']} #{@directory['person1']['lastname']}"
+    @user2 = @directory['person2']['id']
+    @pass2 = @directory['person2']['password']
+    @name2 = "#{@directory['person2']['firstname']} #{@directory['person2']['lastname']}"
+    @user3 = @directory['person5']['id']
+    @pass3 = @directory['person5']['password']
+    @name3 = "#{@directory['person5']['firstname']} #{@directory['person5']['lastname']}"
+    @user4 = @directory['person6']['id']
+    @pass4 = @directory['person6']['password']
+    @name4 = "#{@directory['person6']['firstname']} #{@directory['person6']['lastname']}"
+    @user5 = @directory['person11']['id']
+    @pass5 = @directory['person11']['password']
     
     @sakai = SakaiOAE.new(@browser)
     
@@ -89,7 +91,7 @@ describe "My Messages" do
   end
   
   it "Use of inbox link will take user directly there after login" do
-    @sakai.login(@user5, @pass5)
+    @sakai.page.login(@user5, @pass5)
     
     # TEST CASE: When user signs in, taken directly to inbox
     inbox.page_title.should == "INBOX"
@@ -115,7 +117,7 @@ describe "My Messages" do
   end
   
   it "Compose message button is present on Inbox page" do
-    dash = @sakai.login(@user1, @pass1)
+    dash = @sakai.page.login(@user1, @pass1)
     inbox = dash.my_messages
     inbox.compose_message
     
@@ -210,14 +212,14 @@ describe "My Messages" do
     $usr1thumb = inbox.thumbnail_source
     inbox.save_new_selection
     @sakai.logout
-    dash = @sakai.login(@user4, @pass4)
+    dash = @sakai.page.login(@user4, @pass4)
     inbox = dash.my_messages
     inbox.preview_profile_pic(@message2[:subject]).should == $usr1thumb
   end
 
   it "The Inbox () count in the left nav reflects the current number of unread messages" do
     @sakai.logout # TODO - This must be removed if/when the above test becomes workable.
-    dash = @sakai.login(@user4, @pass4)
+    dash = @sakai.page.login(@user4, @pass4)
     inbox = dash.my_messages
     inbox.message_counts[:unread].should == inbox.unread_inbox_count
   end
@@ -339,20 +341,20 @@ describe "My Messages" do
   end
   
   it "Displays notifications of requests to join groups of which you are a manager" do
-    dash = @sakai.login(@user2, @pass2)
+    dash = @sakai.page.login(@user2, @pass2)
     explore = dash.explore_groups
     explore.search_for=@group
     group = explore.open_group @group
     group.request_to_join_group
     @sakai.logout
-    dash = @sakai.login(@user4, @pass4)
+    dash = @sakai.page.login(@user4, @pass4)
     inbox = dash.my_messages
     inbox.message_subjects.should include @join_request
     @sakai.logout
   end
  
   it "Inbox displays notifications of users adding you as members of groups" do
-    dash = @sakai.login(@user3, @pass3)
+    dash = @sakai.page.login(@user3, @pass3)
     inbox = dash.my_messages
     inbox.message_subjects.should include @group_invitation
   end

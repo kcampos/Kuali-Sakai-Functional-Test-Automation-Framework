@@ -25,7 +25,6 @@ class CreateSiteTemplate < Test::Unit::TestCase
     @ipassword = @directory['admin']['password']
     @site_name = @directory['site1']['name']
     @site_id = @directory['site1']['id']
-    @sakai = SakaiCLE.new(@browser)
     
     # Test case variables
     @template_site_id = "88888888-7777-6666-5555-abcdefghijklm"

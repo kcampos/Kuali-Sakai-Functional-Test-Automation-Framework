@@ -11,8 +11,8 @@
 # their contact lists. User 1 should not have any contacts at all.
 # 
 # Author: Abe Heward (aheward@rSmart.com)
-require '../../features/support/env.rb'
-require '../../lib/sakai-oae-test-api'
+require 'sakai-oae-test-api'
+require 'yaml'
 
 describe "My Contacts" do
   
@@ -21,24 +21,26 @@ describe "My Contacts" do
   before :all do
     
     # Get the test configuration data
-    @config = AutoConfig.new
-    @browser = @config.browser
+    @config = YAML.load_file("config.yml")
+    @sakai = SakaiOAE.new(@config['browser'], @config['url'])
+    @directory = YAML.load_file("directory.yml")
+    @browser = @sakai.browser
     # Test user information from directory.yml...
-    @user1 = @config.directory['person1']['id']
-    @pass1 = @config.directory['person1']['password']
-    @user1_name = "#{@config.directory['person1']['firstname']} #{@config.directory['person1']['lastname']}"
-    @user2 = @config.directory['person2']['id']
-    @pass2 = @config.directory['person2']['password']
-    @user2_name = "#{@config.directory['person2']['firstname']} #{@config.directory['person2']['lastname']}"
-    @user3 = @config.directory['person5']['id']
-    @pass3 = @config.directory['person5']['password']
-    @user3_name = "#{@config.directory['person5']['firstname']} #{@config.directory['person5']['lastname']}"
-    @user4 = @config.directory['person6']['id']
-    @pass4 = @config.directory['person6']['password']
-    @user4_name = "#{@config.directory['person6']['firstname']} #{@config.directory['person6']['lastname']}"
-    @user5 = @config.directory['person7']['id']
-    @pass5 = @config.directory['person7']['password']
-    @user5_name = "#{@config.directory['person7']['firstname']} #{@config.directory['person7']['lastname']}"
+    @user1 = @directory['person1']['id']
+    @pass1 = @directory['person1']['password']
+    @user1_name = "#{@directory['person1']['firstname']} #{@directory['person1']['lastname']}"
+    @user2 = @directory['person2']['id']
+    @pass2 = @directory['person2']['password']
+    @user2_name = "#{@directory['person2']['firstname']} #{@directory['person2']['lastname']}"
+    @user3 = @directory['person5']['id']
+    @pass3 = @directory['person5']['password']
+    @user3_name = "#{@directory['person5']['firstname']} #{@directory['person5']['lastname']}"
+    @user4 = @directory['person6']['id']
+    @pass4 = @directory['person6']['password']
+    @user4_name = "#{@directory['person6']['firstname']} #{@directory['person6']['lastname']}"
+    @user5 = @directory['person7']['id']
+    @pass5 = @directory['person7']['password']
+    @user5_name = "#{@directory['person7']['firstname']} #{@directory['person7']['lastname']}"
     
     @sakai = SakaiOAE.new(@browser)
     
@@ -48,7 +50,7 @@ describe "My Contacts" do
   end
 
   it "'Find and add people' is present when expected" do
-    dash = @sakai.login(@user1, @pass1)
+    dash = @sakai.page.login(@user1, @pass1)
     my_contacts = dash.my_contacts
     search = my_contacts.find_and_add_people
     search.search_for=@user2_name
@@ -65,7 +67,7 @@ describe "My Contacts" do
   end
 
   it "'Add' button changes to 'invitation sent'" do
-    dash = @sakai.login(@user1, @pass1)
+    dash = @sakai.page.login(@user1, @pass1)
     my_contacts = dash.my_contacts
     search = my_contacts.find_and_add_people
     search.search_for=@user4_name
@@ -89,7 +91,7 @@ describe "My Contacts" do
   end
 
   it "verify pending invitation" do
-    dash = @sakai.login(@user2, @pass2)
+    dash = @sakai.page.login(@user2, @pass2)
     
     my_contacts = dash.my_contacts
 
@@ -108,7 +110,7 @@ describe "My Contacts" do
   end
 
   it "Connection request delivered" do
-    dash = @sakai.login(@user3, @pass3)
+    dash = @sakai.page.login(@user3, @pass3)
     my_messages = dash.my_messages
     
     my_messages.invitations
@@ -130,7 +132,7 @@ describe "My Contacts" do
   end
 
   it "Invitation can be accepted" do
-    dash = @sakai.login(@user4, @pass4)
+    dash = @sakai.page.login(@user4, @pass4)
     
     my_contacts = dash.my_contacts
     
@@ -146,7 +148,7 @@ describe "My Contacts" do
   end
 
   it "The contacts list contains expected items" do
-    dash = @sakai.login(@user1, @pass1)
+    dash = @sakai.page.login(@user1, @pass1)
     
     my_contacts = dash.my_contacts
 
@@ -157,7 +159,7 @@ describe "My Contacts" do
   end
 
   it "Contacts can be removed" do
-    dash = @sakai.login(@user5, @pass5)
+    dash = @sakai.page.login(@user5, @pass5)
     
     my_contacts = dash.my_contacts
     
@@ -167,7 +169,7 @@ describe "My Contacts" do
     
     @sakai.logout
     
-    dash = @sakai.login(@user1, @pass1)
+    dash = @sakai.page.login(@user1, @pass1)
     
     my_contacts = dash.my_contacts
     
@@ -181,7 +183,7 @@ describe "My Contacts" do
   end
   
   it "Removed user no longer sees remover in their contact list" do
-    dash = @sakai.login(@user5, @pass5)
+    dash = @sakai.page.login(@user5, @pass5)
     
     my_contacts = dash.my_contacts
     

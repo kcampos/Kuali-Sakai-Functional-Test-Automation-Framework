@@ -22,7 +22,6 @@ class TestCreatingCourseSite < Test::Unit::TestCase
     @browser = @sakai.browser
     @user_name = @directory['admin']['username']
     @password = @directory['admin']['password']
-    @sakai = SakaiCLE.new(@browser)
     
     # Test case variables
     @subject = random_string(8)
@@ -51,7 +50,7 @@ class TestCreatingCourseSite < Test::Unit::TestCase
   
   def teardown
     # Save new site info for later scripts to use
-    File.open("#{File.dirname(__FILE__)}/../../config/CLE/directory.yml", "w+") { |out|
+    File.open("directory.yml", "w+") { |out|
       YAML::dump(@directory, out)
     }
     # Close the browser window
@@ -61,10 +60,9 @@ class TestCreatingCourseSite < Test::Unit::TestCase
   def test_create_site1
     
     # Log in to Sakai
-    @sakai.page.login(@user_name, @password)
+    workspace = @sakai.page.login(@user_name, @password)
     
     #Go to Site Setup page
-    workspace = MyWorkspace.new(@browser)
     site_setup = workspace.site_setup
     
     # TEST CASE: Check the Site Setup page contents
@@ -201,7 +199,7 @@ class TestCreatingCourseSite < Test::Unit::TestCase
     site_setup = review.request_site
     
     # Create a string that will match the new Site's "creation date" string
-    creation_date = @sakai.make_date(Time.now)
+    creation_date = make_date(Time.now)
     
     site_setup.search(Regexp.escape(@subject))
 
@@ -215,7 +213,7 @@ class TestCreatingCourseSite < Test::Unit::TestCase
     #begin
     #  assert @browser.text.include?("#{creation_date}")
     #rescue 
-    #  assert @browser.text.include?("#{@sakai.make_date(Time.now)}"), "Could not find a site with a creation date of #{creation_date} or #{@sakai.make_date(Time.now)}"
+    #  assert @browser.text.include?("#{make_date(Time.now)}"), "Could not find a site with a creation date of #{creation_date} or #{make_date(Time.now)}"
     #end
     
     # Get the site id for storage

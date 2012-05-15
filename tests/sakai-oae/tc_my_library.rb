@@ -14,8 +14,8 @@
 # Also ensure that user1 and user2 are contacts.
 # 
 # Author: Abe Heward (aheward@rSmart.com)
-require '../../features/support/env.rb'
-require '../../lib/sakai-oae-test-api'
+require 'sakai-oae-test-api'
+require 'yaml'
 
 describe "My Library" do
   
@@ -26,18 +26,20 @@ describe "My Library" do
   before :all do
     
     # Get the test configuration data
-    @config = AutoConfig.new
-    @browser = @config.browser
+    @config = YAML.load_file("config.yml")
+    @sakai = SakaiOAE.new(@config['browser'], @config['url'])
+    @directory = YAML.load_file("directory.yml")
+    @browser = @sakai.browser
     # Test user information from directory.yml...
-    @user1 = @config.directory['person1']['id']
-    @pass1 = @config.directory['person1']['password']
-    @name1 = "#{@config.directory['person1']['firstname']} #{@config.directory['person1']['lastname']}"
-    @user2 = @config.directory['person2']['id']
-    @pass2 = @config.directory['person2']['password']
-    @name2 = "#{@config.directory['person2']['firstname']} #{@config.directory['person2']['lastname']}"
+    @user1 = @directory['person1']['id']
+    @pass1 = @directory['person1']['password']
+    @name1 = "#{@directory['person1']['firstname']} #{@directory['person1']['lastname']}"
+    @user2 = @directory['person2']['id']
+    @pass2 = @directory['person2']['password']
+    @name2 = "#{@directory['person2']['firstname']} #{@directory['person2']['lastname']}"
     
     @sakai = SakaiOAE.new(@browser)
-    dash = @sakai.login(@user1, @pass1)
+    dash = @sakai.page.login(@user1, @pass1)
     dash.my_library
     
     @file = "Earth and Moon.gif"
@@ -98,7 +100,7 @@ describe "My Library" do
   end
 
   it "shows content shared with user" do
-    dash = @sakai.login(@user2, @pass2)
+    dash = @sakai.page.login(@user2, @pass2)
     library = dash.my_library
     library.documents.should include @file
   end

@@ -22,7 +22,6 @@ class TestGlossary < Test::Unit::TestCase
     # This is an admin user test case
     @user_name = config.directory['admin']['username']
     @password = config.directory['admin']['password']
-    @sakai = SakaiCLE.new(@browser)
     
     # Test case variables
     @portfolio_site = "PortfolioAdmin"

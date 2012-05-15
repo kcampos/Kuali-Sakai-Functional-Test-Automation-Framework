@@ -26,7 +26,6 @@ class AddCourseSiteParticipants < Test::Unit::TestCase
     @site_id = @directory['site1']['id']
     @user_name = @directory['admin']['username']
     @password = @directory['admin']['password']
-    @sakai = SakaiCLE.new(@browser)
     
   end
   

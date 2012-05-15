@@ -15,8 +15,8 @@
 # Three test users (see lines 35-41)
 #
 # Author: Abe Heward (aheward@rSmart.com)
-require '../../features/support/env.rb'
-require '../../lib/sakai-oae-test-api'
+require 'sakai-oae-test-api'
+require 'yaml'
 
 describe "Research Project/Group Membership" do
   
@@ -26,15 +26,17 @@ describe "Research Project/Group Membership" do
 
   before :all do
     # Get the test configuration data
-    @config = AutoConfig.new
-    @browser = @config.browser
-    @instructor = @config.directory['admin']['username']
-    @ipassword = @config.directory['admin']['password']
-    @participant = @config.directory['person5']['id']
-    @participant_pw = @config.directory['person5']['password']
-    @participant_name = "#{@config.directory['person5']['firstname']} #{@config.directory['person5']['lastname']}"
-    @non_participant = @config.directory['person6']['id']
-    @non_participant_pw = @config.directory['person6']['password']
+    @config = YAML.load_file("config.yml")
+    @sakai = SakaiOAE.new(@config['browser'], @config['url'])
+    @directory = YAML.load_file("directory.yml")
+    @browser = @sakai.browser
+    @instructor = @directory['admin']['username']
+    @ipassword = @directory['admin']['password']
+    @participant = @directory['person5']['id']
+    @participant_pw = @directory['person5']['password']
+    @participant_name = "#{@directory['person5']['firstname']} #{@directory['person5']['lastname']}"
+    @non_participant = @directory['person6']['id']
+    @non_participant_pw = @directory['person6']['password']
     
     @sakai = SakaiOAE.new(@browser)
     
@@ -73,7 +75,7 @@ describe "Research Project/Group Membership" do
  
   it "creates 3 research projects and 3 research groups with different join settings" do
     # Log in to Sakai
-    dashboard = @sakai.login(@instructor, @ipassword)
+    dashboard = @sakai.page.login(@instructor, @ipassword)
 
     create_research = dashboard.create_a_research_project
     
@@ -189,7 +191,7 @@ describe "Research Project/Group Membership" do
   end
   
   it "Public Research Project can be searched by non-participant, logged-in user" do
-    dashboard = @sakai.login(@participant, @participant_pw)
+    dashboard = @sakai.page.login(@participant, @participant_pw)
     explore = dashboard.explore_research
     explore.search_for=@public_res1[:title]
     # TEST CASE: Public research project displays when logged in
@@ -228,7 +230,7 @@ describe "Research Project/Group Membership" do
   end
   
   it "Participants-only Research Project not searchable by logged-in non-participant" do
-    dashboard = @sakai.login(@non_participant, @non_participant_pw)
+    dashboard = @sakai.page.login(@non_participant, @non_participant_pw)
     explore = dashboard.explore_research
     explore.search_for=@participant_res1[:title]
     # TEST CASE: Participant research project does not display to non-participant

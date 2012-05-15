@@ -11,8 +11,8 @@
 # A valid user login.
 # 
 # Author: Abe Heward (aheward@rSmart.com)
-require '../../features/support/env.rb'
-require '../../lib/sakai-oae-test-api'
+require 'sakai-oae-test-api'
+require 'yaml'
 
 describe "Name Field Tests" do
 
@@ -25,8 +25,8 @@ describe "Name Field Tests" do
     basic_info.family_name=last
     basic_info.update
     basic_info.notification.should=="Your profile information has been updated"
-    @sakai.sign_out
-    dash = @sakai.login(@user1, @pass1)
+    login_page = basic_info.sign_out
+    dash = login_page.login(@user1, @pass1)
     dash.my_profile
     basic_info.given_name.should == first
     basic_info.family_name.should == last
@@ -38,16 +38,18 @@ describe "Name Field Tests" do
   before :all do
 
     # Get the test configuration data
-    @config = AutoConfig.new
-    @browser = @config.browser
+    @config = YAML.load_file("config.yml")
+    @sakai = SakaiOAE.new(@config['browser'], @config['url'])
+    @directory = YAML.load_file("directory.yml")
+    @browser = @sakai.browser
     # Test user information from directory.yml...
-    @user1 = @config.directory['person17']['id']
-    @pass1 = @config.directory['person17']['password']
-    @first = "#{@config.directory['person17']['firstname']}"
-    @last = "#{@config.directory['person17']['lastname']}"
+    @user1 = @directory['person17']['id']
+    @pass1 = @directory['person17']['password']
+    @first = "#{@directory['person17']['firstname']}"
+    @last = "#{@directory['person17']['lastname']}"
 
-    @sakai = SakaiOAE.new(@browser)
-    dash = @sakai.login(@user1, @pass1)
+    
+    dash = @sakai.page.login(@user1, @pass1)
     @offset1 = dash.user_options_name_element.attribute_value("offsetTop")
     @offset2 = dash.help_element.attribute_value("offsetTop")
     dash.my_profile

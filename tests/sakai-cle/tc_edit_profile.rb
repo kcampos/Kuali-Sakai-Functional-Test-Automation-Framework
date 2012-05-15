@@ -23,7 +23,6 @@ class TestUpdatingUserProfile < Test::Unit::TestCase
     @browser = @sakai.browser
     @student = @directory['person5']['id']
     @password = @directory['person5']['password']
-    @sakai = SakaiCLE.new(@browser)
     
     # Test case variables...
     @first_name = random_string
