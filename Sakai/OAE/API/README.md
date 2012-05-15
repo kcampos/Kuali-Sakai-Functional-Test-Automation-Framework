@@ -9,7 +9,7 @@ Ruby and Watir-webdriver--but without needing to know either in detail.
 
 ## Documentation:
 
-RDocs can be found at [rubydoc.info](http://rubydoc.info/gems/sakai-oae-test-api)
+RDocs for this project can be found at [rubydoc.info](http://rubydoc.info/gems/sakai-oae-test-api)
 
 ## Requirements:
 
@@ -52,27 +52,27 @@ dash = login_page.login("username", "password")
 Next, invoke the current page's 'class'. Note that there are two ways to invoke page classes. The first way, hinted at in the code above, will be explained below. The second way uses the "on_page" method, and is most useful when you are going to stay on the given page for a while. It requires that you know the name of the page class you want...
 ````ruby
 on_page MyDashboard do |page|
-  page.add_content
-  page.upload_file=("filename.doc", "Full/Path/To/File")
-  page.file_title="Title"
-  page.file_description="This is a file description."
-  page.tags_and_categories="document"
-  page.add
-  page.done_add_collected
+  page.add_content  # Click the 'Add content' button
+  page.upload_file=("filename.doc", "Full/Path/To/File")  # Enter the filename and full path. The path value is an optional parameter (but recommended)
+  page.file_title="Title"  # Enter 'Title' in the title field.
+  page.file_description="This is a file description."  # Enter the file description.
+  page.tags_and_categories="document"  # Enter the tag 'document'
+  page.add  # Click the 'Add' button
+  page.done_add_collected  # Click the 'Done, add collected' button
 end
 ````
 
-So, back to the first way, which is most useful when you're doing lots of quick navigating around the site, not staying on a given page for too long. You'll notice by looking at the available methods in the page classes that those methods involving navigating to new pages will return the target page's page class. So, for example, going from My Dashboard to Explore Content (notice we're using the "dash" object defined earlier, here)...
+So, back to the first way to invoke a page's class, which is most useful when you're doing lots of quick navigating around the site, not staying on a given page for too long. You'll notice by looking at the available methods in the page classes that those methods involving navigating to new pages will return the target page's page class. So, for example, going from My Dashboard to Explore Content (notice we're using the "dash" object defined earlier, here)...
 ````ruby
-explore = dash.explore_content
+explore = dash.explore_content  # Click the 'Explore Content' command in the drop-down menu
 ````
 
 Now we can use the "explore" object to interact with the "Explore Content" page...
 ````ruby
-explore.search_for="Title"
+explore.search_for="Title"  # Enter 'Title' in the Search field and search
 ````
 
-A bit of verification code (use your own favorite test framework, here, if writing Ruby conditionals isn't too your liking)...
+A bit of verification code (use your own favorite test framework, here, if writing Ruby conditionals isn't to your liking)...
 ````
 if explore.results.include?("Title")
   puts "Passed"
