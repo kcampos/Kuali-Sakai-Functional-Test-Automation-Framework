@@ -1,16 +1,10 @@
 #coding:UTF-8
-Before do
-  # Test user information from directory.yml...
-  @user1 = random_alphanums
-  @first = random_alphanums
-  @last = random_alphanums
-  @full = %|#{@first} #{@last}|
-  @institution = random_alphanums
-  @title = "Dr."
-  @role = "Student"
-  @phone = "2133450987"
+Before "@sign_up_start" do
+  @welcome_page.sign_up
+end
 
-  @sign_up = @welcome_page.sign_up
+Before do
+  @sign_up = CreateNewAccount.new @browser
 end
 
 Given /^I have not entered (a|an) (.*)$/ do |a, arg|
@@ -47,7 +41,6 @@ Then /^I should see '(.*)'$/ do |error|
     when "Please repeat your password" then @sign_up.password_repeat_error.should == error
     when "Please enter your first name" then @sign_up.firstname_error.should == error
     when "Please enter your last name" then @sign_up.lastname_error.should == error
-    when "Please enter a valid email address" then @sign_up.email_error.should == error
     when "This is an invalid email address" then @sign_up.email_error.should == error
     when "This username is already taken" then @sign_up.username_error.should == error
     when "Please repeat your password" then @sign_up.password_repeat_error.should == error
@@ -75,46 +68,64 @@ Given /^I have entered a confirmation password that matches except for letter ca
   @sign_up.new_password=@password.swapcase
 end
 
-Given /^I have entered a (\d+)\-character password$/ do |length|
-  @password = random_alphanums(length)
-  @sign_up
+Given /^I have a (\d+)\-character password$/ do |length|
+  @password = random_alphanums(length.to_i)
+end
+
+Given /^I have a (\d+)\-character password that is all the same character$/ do |length|
+  string = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+  letter = string[rand(string.length)]
+  password = ""
+  length.to_i.times { password << letter }
+  @password = password
+end
+
+When /^I enter the password$/ do
+  @sign_up.new_password=""
+  @sign_up.new_password=@password
 end
 
 Given /^I have entered a matching confirmation password$/ do
+  @sign_up.retype_password=""
   @sign_up.retype_password=@password
 end
 
 Then /^I should see a warning that the password is too short$/ do
-  @sign_up.password_repeat_error.should == "Your password should be at least 4 characters long"
+  @sign_up.password_error.should == "Your password should be at least 4 characters long"
 end
 
-When /^I have entered a (\d+)\-character password with only lower\-case letters$/ do |arg1|
-  pending # express the regexp above with the code you wish you had
+When /^I have a (\d+)\-character password with only non\-repeating lower\-case letters$/ do |length|
+  string = ('a'..'z').sort_by {rand}[0,length.to_i].join
+  @password = string
 end
 
-When /^I have entered a (\d+)\-character password that is a keyboard pattern$/ do |arg1|
-  pending # express the regexp above with the code you wish you had
+When /^I have a (\d+)\-character password that is a keyboard pattern$/ do |length|
+  num = rand(5)
+  pattern="qwertyuiopasdfghjkl;zxcvbnm,./123456789qwertyuiopasdfghjkl;zxcvbnm,./123456789"
+  @password=pattern[num..(num + length.to_i - 1)]
 end
 
-When /^I enter a long mixed\-case dictionary word into the password field$/ do
-  pending # express the regexp above with the code you wish you had
+When /^I have a long mixed\-case dictionary word$/ do
+  @password="Functionality"
 end
 
-When /^I enter a password that is random, mixed\-case, (\d+) characters long and only letters and numbers$/ do |arg1|
-  pending # express the regexp above with the code you wish you had
+When /^I have a password that is non-repeating, random, mixed\-case, (\d+) characters long and only letters and numbers$/ do |length|
+  @password=random_alphanums(length.to_i)
 end
 
-When /^I enter a password containing (\d+) characters, mixed\-case, with letters, numbers, and symbols$/ do |arg1|
-  pending # express the regexp above with the code you wish you had
+When /^I have a password containing (\d+) characters, mixed\-case, with letters, numbers, and symbols$/ do |length|
+  @password=random_string(length.to_i)
 end
 
-When /^I enter a (\d+)\-char password containing a high\-ascii character, letters, and numbers$/ do |length|
-  @password = random_high_ascii(length)
-  @sign_up.new_password=@password
+When /^I have a (\d+)\-char password containing a high\-ascii character, letters, and numbers$/ do |length|
+  @password = "ü6f" + random_alphanums(length.to_i - 3)
 end
 
-Given /^I enter an invalid email address$/ do
+Given /^I have an invalid email address$/ do
   @entered_address = random_alphanums
+end
+
+When /^I enter the email address$/ do
   @sign_up.email=@entered_address
 end
 
@@ -122,10 +133,8 @@ Given /^I enter a matching confirmation email address$/ do
   @sign_up.email_confirm = @entered_address
 end
 
-
-Given /^I enter a valid email address$/ do
+Given /^I have a valid email address$/ do
   @entered_address = random_email
-  @sign_up.email=@entered_address
 end
 
 Given /^I enter a valid confirmation email address that does not match$/ do
@@ -133,30 +142,38 @@ Given /^I enter a valid confirmation email address that does not match$/ do
 end
 
 Given /^I enter all required information correctly$/ do
-  pending # express the regexp above with the code you wish you had
+  @user1 = random_alphanums
+  @first = random_alphanums
+  @last = random_alphanums
+  @email = random_email
+  @full = %|#{@first} #{@last}|
+  @institution = random_alphanums
+  @title = "Dr."
+  @role = "Student"
+  @phone = "2133450987"
+  @password = random_string
+  @sign_up.user_name=@user1
+  @sign_up.first_name=@first
+  @sign_up.last_name=@last
+  @sign_up.email=@email
+  @sign_up.email_confirm=@email
+  @sign_up.phone_number=@phone
+  @sign_up.role=@role
+  @sign_up.title=@title
+  @sign_up.new_password=@password
+  @sign_up.retype_password=@password
 end
 
 Then /^I should see my dashboard$/ do
-  pending # express the regexp above with the code you wish you had
+  on_page MyDashboard do |dash|
+    dash.my_name.should == @full
+  end
 end
 
 Then /^I should see the welcome message$/ do
   pending # express the regexp above with the code you wish you had
 end
-=begin
-Given /^I am not logged in$/ do
-  @sign_up = CreateNewAccount.new @browser
-  if @sign_up.sign_in_menu_element.text == "Sign in"
-    # do nothing
-  else
-    @login_page = @sign_up.sign_out
-  end
-end
 
-Given /^I am on the sign\-up page$/ do
-    @browser.goto "#{@config['url']/register}"
-end
-=end
 Given /^I enter an existing user name with a different letter case$/ do
   @sign_up.user_name=@user1.swapcase
 end
