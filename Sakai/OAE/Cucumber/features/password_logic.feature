@@ -46,13 +46,15 @@ Scenario: New passwords must match
 Scenario: Blank password not allowed
   Given I have entered my current password
   And I have a blank new password
+  And I enter the new password
   And I enter the same confirmation password
   When I save the changes
   Then I should see a message about the password being blank
 
 Scenario: New password can't be the same as the old
   Given I have entered my current password
-  And I have entered the same new password
+  And I have the same new password
+  And I enter the new password
   And I enter the same confirmation password
   When I save the changes
   Then I should see a message about the new password being the old
@@ -65,22 +67,15 @@ Scenario: New password can't be less than 4 characters long
   When I save the changes
   Then I should see an error about the password being too short
 
-#Scenario: Valid new password accepted
-#  Given I have entered my current password
-#  And I have a valid new password
-#  And I enter the new password
-#  And I enter the same confirmation password
-#  When I save the changes
-#  Then I should see a message about the password being changed
-#
-#Scenario: Old password cannot be used to log in
-#  Given I am logged out
-#  And I am on the welcome page
-#  When I log in with old password
-#  Then I should see a message about an invalid login
-#
-#Scenario: New password works to log in
-#  Given I am logged out
-#  And I am on the welcome page
-#  When I log in with the new password
-#  Then I should see my dashboard
+Scenario: Valid new password accepted
+  Given I have entered my current password
+  And I have a valid new password
+  And I enter the new password
+  And I enter the same confirmation password
+  When I save the changes
+  Then I should see a message about the password being changed
+
+Scenario: New password works to log in
+  Given I am logged out
+  When I log in
+  Then I should see my dashboard

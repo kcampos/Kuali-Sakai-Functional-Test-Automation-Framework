@@ -6,9 +6,10 @@ module AccountPreferencesPopUp
   include PageObject
 
   # Page Object Definitions
+  h1(:account_preferences_title, :id=>"accountpreferences_title")
   button(:preferences, :id=>"accountpreferences_preferences_tab")
   button(:privacy_settings, :id=>"accountpreferences_privacy_tab")
-  button(:password, :id=>"accountpreferences_password_tab")
+  button(:password_tab, :id=>"accountpreferences_password_tab")
 
   select_list(:time_zone, :id=>"time_zone")
   select_list(:language, :id=>"pass_language")
