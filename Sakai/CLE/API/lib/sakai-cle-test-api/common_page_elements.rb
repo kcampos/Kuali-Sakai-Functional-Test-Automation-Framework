@@ -1140,8 +1140,8 @@ class ResourcesUploadFiles
   # multiple times, but it assumes
   # that the add_another_file method is used
   # before it, every time except before the first time.
-  def file_to_upload=(file_name)
-    frm.file_field(:id, "content_#{@@filex}").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle-test-api/" + file_name)
+  def file_to_upload(file_name, file_path="")
+    frm.file_field(:id, "content_#{@@filex}").set(file_path + file_name)
     @@filex+=1
   end
   

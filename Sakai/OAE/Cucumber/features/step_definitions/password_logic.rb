@@ -123,11 +123,3 @@ end
 Given /^I am logged out$/ do
   @welcome_page.sign_in_menu_element.should_be visible
 end
-
-Then /^I should see a message about an invalid login$/ do
-pending
-end
-
-When /^I log in with the new password$/ do
-pending
-end

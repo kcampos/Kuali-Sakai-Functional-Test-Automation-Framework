@@ -28,6 +28,7 @@ class AddPublicResources < Test::Unit::TestCase
     @site_id = @directory['site1']['id']
     
     # Test case variables...
+    @file_path = File.realpath("#{File.dirname(__FILE__)}/../../data/sakai-cle") + "/"
     @files_1 = [
     "documents/accomplishment.xsd",
     "images/flower01.jpg",
@@ -68,7 +69,7 @@ class AddPublicResources < Test::Unit::TestCase
     @files_1.each do |file|
       file =~ /(?<=\/).+/
       filenames_1 << $~.to_s
-      upload_files.file_to_upload=file
+      upload_files.file_to_upload(file, @file_path)
       upload_files.add_another_file
     end
     resources = upload_files.upload_files_now
@@ -77,7 +78,7 @@ class AddPublicResources < Test::Unit::TestCase
     filenames_1.each do |file|
       unless resources.file_names.include?(file)
         upload_files = resources.upload_files_to_folder("#{@site_name} Resources")
-        upload_files.file_to_upload=@files_1[filenames_1.index(file)]
+        upload_files.file_to_upload(@files_1[filenames_1.index(file)], @file_path)
         resources = upload_files.upload_files_now
       end
     end
@@ -110,7 +111,7 @@ class AddPublicResources < Test::Unit::TestCase
     @files_2.each do |file|
       file =~ /(?<=\/).+/
       filenames_2 << $~.to_s
-      upload_files.file_to_upload=file
+      upload_files.file_to_upload(file, @file_path)
       upload_files.add_another_file
     end
     resources = upload_files.upload_files_now

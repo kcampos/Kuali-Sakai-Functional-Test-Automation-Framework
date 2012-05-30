@@ -563,8 +563,8 @@ class AttachPageTools
   # data/sakai-cle-test-api folder or a subfolder therein)
   #
   # Does NOT instantiate any class, so use only when no page refresh occurs.
-  def upload_file(filename)
-    frm.file_field(:id=>"upload").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle-test-api/" + filename)
+  def upload_file(filename, filepath="")
+    frm.file_field(:id=>"upload").set(filepath + filename)
     if frm.div(:class=>"alertMessage").exist?
       sleep 2
       upload_file(filename)
@@ -576,8 +576,8 @@ class AttachPageTools
   #
   # Use this method ONLY for instances where there's a file field on the page
   # with an "upload" id.
-  def upload_local_file(filename)
-    frm.file_field(:id=>"upload").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle-test-api/" + filename)
+  def upload_local_file(filename, filepath="")
+    frm.file_field(:id=>"upload").set(filepath + filename)
     if frm.div(:class=>"alertMessage").exist?
       sleep 2
       upload_local_file(filename)

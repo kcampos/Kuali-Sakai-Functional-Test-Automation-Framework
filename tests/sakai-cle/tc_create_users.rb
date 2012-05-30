@@ -66,9 +66,9 @@ class CreateUsers < Test::Unit::TestCase
       users_page = Users.new(@browser)
       
       # TEST CASE: Verify that the user has been created
-      users_page.search_field=people["person#{x}"]['id']
+      users_page.search_field=@directory["person#{x}"]['id']
       users_page.search_button
-      assert @browser.frame(:index=>0).link(:text, people["person#{x}"]['id']).exist?
+      assert @browser.frame(:index=>0).link(:text, @directory["person#{x}"]['id']).exist?
     end 
   end
   
