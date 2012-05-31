@@ -113,7 +113,8 @@ class UserAccountUpdate < Test::Unit::TestCase
     assert_equal account.modified, make_date(Time.now) #.utc)
     
     # Log out and log back in with new password credentials
-    account.logout
+    home = account.home
+    home.logout
     
     workspace = @sakai.page.login(@user_name, @new_password)
     

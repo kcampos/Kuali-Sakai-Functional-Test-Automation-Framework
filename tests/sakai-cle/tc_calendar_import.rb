@@ -26,6 +26,7 @@ class TestCalendarImport < Test::Unit::TestCase
     @ipassword = @directory['person3']['password']
     @site_name = @directory['site1']['name']
     @site_id = @directory['site1']['id']
+    @file_path = @config['data_directory']
     
     # Test case variables
     @filename = "documents/master_calendar_import_file.txt"
@@ -57,7 +58,7 @@ class TestCalendarImport < Test::Unit::TestCase
   def test_calendar_import
     
     # Create the test CSV file...
-    @csv_file = File.new(%|#{File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle-test-api/" + @filename}|, "w")
+    @csv_file = File.new(%|#{File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle/" + @filename}|, "w")
     @csv_file.puts @header_row
     @events.each do |event|
       string = %|"#{event[:title]}","#{event[:description]}",#{event[:date]},#{event[:start]},#{event[:duration]},#{event[:type]},"#{event[:location]}",#{event[:frequency]},#{event[:interval]},#{event[:ends]},#{event[:repeat]},"#{event[:test_custom_property]}",#{event[:required]}|
@@ -79,7 +80,7 @@ class TestCalendarImport < Test::Unit::TestCase
     
     import_2 = import_1.continue
     
-    import_2.import_file @filename 
+    import_2.import_file(@filename, @file_path)
     
     import_3 = import_2.continue
     
@@ -90,7 +91,7 @@ class TestCalendarImport < Test::Unit::TestCase
     @events.each { |event| assert import_3.events.include?(event[:title]) }
     
     # TEST CASE: Verify listed events occur on expected date
-    @events.each { |event| assert_equal Time.strptime(event[:date], "%x"), Time.strptime(import_3.event_date(event[:title]), "%b %d, %Y") }
+    @events.each { |event| assert_equal DateTime.strptime(event[:date], "%x"), DateTime.strptime(import_3.event_date(event[:title]), "%b %d, %Y") } # TODO Methodize these DateTime items
     
     calendar = import_3.import_events
     calendar = calendar.select_view "List of Events"

@@ -92,7 +92,7 @@ class Login
   include ToolsMenu
   
   def search_public_courses_and_projects
-    self.frame(:index=>0).link(:text=>"Search Public Courses and Projects").click
+    @browser.frame(:index=>0).link(:text=>"Search Public Courses and Projects").click
     SearchPublic.new(@browser)
   end
 
@@ -216,8 +216,8 @@ class EditProfile
     Profile.new(@browser)
   end
 
-  def picture_file=(filename)
-    frm.file_field(:name=>"editProfileForm:uploadFile.uploadId").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle-test-api/" + filename)
+  def picture_file(filename, filepath="")
+    frm.file_field(:name=>"editProfileForm:uploadFile.uploadId").set(filepath + filename)
   end
 
   in_frame(:class=>"portletMainIframe") do |frame|

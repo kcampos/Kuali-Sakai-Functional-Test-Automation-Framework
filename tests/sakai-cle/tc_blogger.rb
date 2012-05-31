@@ -31,6 +31,7 @@ class TestBlogger < Test::Unit::TestCase
     @student3_name = @directory["person5"]["firstname"] + " " + @directory["person5"]["lastname"]
     @student4 = @directory["person6"]["id"]
     @spass4 = @directory["person6"]["password"]
+    @file_path = @config['data_directory']
     
     @site_name = @directory['site1']['name']
     @site_id = @directory['site1']['id']
@@ -76,7 +77,7 @@ class TestBlogger < Test::Unit::TestCase
     post1.access="SITE"
     post1.check_allow_comments
     post1.images
-    post1.image_file=@post_1_imagefile
+    post1.image_file(@post_1_imagefile, @file_path)
     post1.add_image_to_document
     post1.links
     post1.description=@post_1_link_description
@@ -127,7 +128,7 @@ class TestBlogger < Test::Unit::TestCase
     post2.access="PRIVATE"
     post2.keywords=@post_2_keywords
     post2.files
-    post2.file_field=@post_2_file
+    post2.file_field(@post_2_file, @file_path)
     post2.add_file_to_document
     
     blogger = post2.save

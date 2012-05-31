@@ -775,11 +775,10 @@ class ImportStepTwo
 
   # Enters the specified filename in the file field.
   #
-  # Note that the file should be inside the data/sakai-cle-test-api folder.
-  # The file or folder name used for the filename variable
-  # should not include a preceding / character.
-  def import_file(filename)
-    frm.file_field(:name=>"importFile").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle-test-api/" + filename)
+  # Note that the file path is an optional second parameter, if you do not want to
+  # include the full path in the filename.
+  def import_file(filename, filepath="")
+    frm.file_field(:name=>"importFile").set(filepath + filename)
   end
   
 end

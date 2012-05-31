@@ -911,11 +911,9 @@ class PoolImport
   include ToolsMenu
   
   # Enters the target file into the Choose File
-  # file field. Note that it assumes the file is in
-  # the data/sakai-cle-test-api folder in the expected resources
-  # tree.
-  def choose_file=(file_name)
-    frm.file_field(:name=>"importPoolForm:_id6.upload").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle-test-api/" + file_name)
+  # file field. Including the file path separately is optional.
+  def choose_file(file_name, file_path="")
+    frm.file_field(:name=>"importPoolForm:_id6.upload").set(file_path + file_name)
   end
   
   # Clicks the Import button, then
@@ -1075,9 +1073,10 @@ class BeginAssessment
     frm.select(:name=>/deliverMatching/, :index=>index).select(answer)
   end
 
-  # Enters the specified file name (and subdirectory below the expected target Sakai-CLE path) in the file field.
-  def file_answer(file_name)
-    frm.file_field(:name=>/deliverFileUpload/).set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle-test-api/" + file_name)
+  # Enters the specified file name in the file field. You can include the path to the file
+  # as an optional second parameter.
+  def file_answer(file_name, file_path="")
+    frm.file_field(:name=>/deliverFileUpload/).set(file_path + file_name)
     frm.button(:value=>"Upload").click
   end
 
@@ -1109,6 +1108,10 @@ class ConfirmSubmission
     SubmissionSummary.new(@browser)
   end
 
+  in_frame(:class=>"portletMainIframe") do |frame|
+    span(:validation, :class=>"validation", :frame=>frame)
+  end
+
 end
 
 # The summary page that appears when an Assessment has been submitted.
@@ -1122,6 +1125,10 @@ class SubmissionSummary
   def continue
     frm.button(:value=>"Continue").click
     TakeAssessmentList.new(@browser)
+  end
+
+  in_frame(:class=>"portletMainIframe") do |frame|
+    div(:summary_info, :class=>"tier1", :frame=>frame)
   end
 
 end
@@ -1661,15 +1668,14 @@ class AssignmentStudent
   # selecting the file and clicking the add more files button
   @@file_number = 0
   
-  # Enters the specified file name into the file field (the
-  # file is assumed to be in the data/sakai_cle folder in the
-  # correct file path relative to the script being run).
+  # Enters the specified file name into the file field. Entering the path
+  # separately is optional.
   # Once the filename is entered in the field, the
   # @@file_number class variable is increased by one
   # in case any more files need to be added to the upload
   # list.
-  def select_file=(file_name)
-    frm.file_field(:id=>"clonableUpload", :name=>"upload#{@@file_number}").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle-test-api/" + file_name)
+  def select_file(file_name, file_path="")
+    frm.file_field(:id=>"clonableUpload", :name=>"upload#{@@file_number}").set(file_path + file_name)
     @@file_number += 1
   end
   
@@ -2183,16 +2189,14 @@ class CreateBloggerPost
   
   # Enters the specified filename in the file field for images.
   #
-  # Note that the file should be inside the data/sakai-cle-test-api folder.
-  # The file or folder name used for the filename variable
-  # should not include a preceding / character.
-  def image_file=(filename)
-    frm.file_field(:name=>"PostForm:tab1:_id29").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle-test-api/" + filename)
+  # The file path can be entered as an optional second parameter.
+  def image_file(filename, filepath="")
+    frm.file_field(:name=>"PostForm:tab1:_id29").set(filepath + filename)
   end
   
   # Enters the specified directory/filename in the file field.
-  def file_field=(filename)
-    frm().file_field(:name=>"PostForm:tab3:_id51").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle-test-api/" + filename)
+  def file_field(filename, filepath="")
+    frm().file_field(:name=>"PostForm:tab3:_id51").set(filepath + filename)
   end
   
   # Clicks the Preview button and instantiates the PreviewBloggerPost Class.
@@ -2534,9 +2538,9 @@ class NewTopic
     PreviewDiscussionTopic.new(@browser)
   end
   
-  # Enters the specified filename in the file field.
-  def filename1(filename)
-    frm.file_field(:name=>"file_0").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle-test-api/" + filename)
+  # Enters the specified filename in the file field. The path to the file can be entered as an optional second parameter
+  def filename1(filename, filepath="")
+    frm.file_field(:name=>"file_0").set(filepath + filename)
   end
 
   # Enters the specified filename in the file field.
@@ -2620,11 +2624,9 @@ class DiscussionsMyProfile
   
   # Enters the specified filename in the file field.
   #
-  # Note that the file should be inside the data/sakai-cle-test-api folder.
-  # The file or folder name used for the filename variable
-  # should not include a preceding / character.
-  def avatar=(filename)
-    frm.file_field(:name=>"avatar").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle-test-api/" + filename)
+  # The method takes the filepath as an optional second parameter.
+  def avatar(filename, filepath="")
+    frm.file_field(:name=>"avatar").set(filepath + filename)
   end
   
   in_frame(:index=>1) do |frame|
@@ -3448,8 +3450,8 @@ class GlossaryFileUpload
   # multiple times, but it assumes
   # that the add_another_file method is used
   # before it, every time except before the first time.
-  def file_to_upload=(file_name)
-    frm.file_field(:id, "content_#{@@filex}").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle-test-api/" + file_name)
+  def file_to_upload(file_name, file_path="")
+    frm.file_field(:id, "content_#{@@filex}").set(file_path + file_name)
     @@filex+=1
   end
   
@@ -3774,10 +3776,9 @@ class LessonImportExport
   # the target file information, then clicks the import
   # button.
   # 
-  # Note that it pulls the file from the
-  # data/sakai-cle-test-api folder.
-  def upload_IMS(file_name)
-    frm.file_field(:name, "impfile").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle-test-api/" + file_name)
+  # The file path is an optional parameter.
+  def upload_IMS(file_name, file_path="")
+    frm.file_field(:name, "impfile").set(file_path + file_name)
     frm.link(:id=>"importexportform:importModule").click
     frm.table(:id=>"AutoNumber1").div(:text=>"Processing...").wait_while_present
   end
@@ -5336,7 +5337,7 @@ class BuildTemplate
 end
 
 #
-class PortfoliosUploadFiles
+class PortfoliosUploadFiles # TODO - This class is not DRY. Identical methods in multiple classes
   
   include PageObject
   include ToolsMenu
@@ -5347,8 +5348,8 @@ class PortfoliosUploadFiles
   # multiple times, but it assumes
   # that the add_another_file method is used
   # before it, every time except before the first time.
-  def file_to_upload=(file_name)
-    frm.file_field(:id, "content_#{@@filex}").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle-test-api/" + file_name)
+  def file_to_upload(file_name, file_path)
+    frm.file_field(:id, "content_#{@@filex}").set(file_path + file_name)
     @@filex+=1
   end
   
@@ -5827,8 +5828,8 @@ class StylesUploadFiles
   # multiple times, but it assumes
   # that the add_another_file method is used
   # before it, every time except before the first time.
-  def file_to_upload=(file_name)
-    frm.file_field(:id, "content_#{@@filex}").set(File.expand_path(File.dirname(__FILE__)) + "/../../data/sakai-cle-test-api/" + file_name)
+  def file_to_upload(file_name, file_path="")
+    frm.file_field(:id, "content_#{@@filex}").set(file_path + file_name)
     @@filex+=1
   end
   

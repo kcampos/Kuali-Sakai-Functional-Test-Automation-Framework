@@ -631,13 +631,14 @@ class AttachPageTools
   # the folder specified, checks if they all uploaded properly and
   # if not, re-tries the ones that failed the first time.
   #
-  # Finally, it re-instantiates the AnnouncementsAttach page class.
-  def upload_multiple_files_to_folder(folder, file_array)
+  # Finally, it re-instantiates the appropriate page class.
+  # Note that it expects all files to be located in the same folder (can be in subfolders of that folder).
+  def upload_multiple_files_to_folder(folder, file_array, file_path="")
     
     upload = upload_files_to_folder folder
     
     file_array.each do |file|
-      upload.file_to_upload=file
+      upload.file_to_upload(file, file_path)
       upload.add_another_file
     end
     
@@ -648,7 +649,7 @@ class AttachPageTools
       # puts $~.to_s # For debugging purposes
       unless resources.file_names.include?($~.to_s)
         upload_files = resources.upload_files_to_folder(folder)
-        upload_files.file_to_upload=file
+        upload_files.file_to_upload(file, file_path)
         resources = upload_files.upload_files_now
       end
     end

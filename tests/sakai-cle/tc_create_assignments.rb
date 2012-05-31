@@ -56,7 +56,7 @@ class TestCreateAssignments < Test::Unit::TestCase
     @directory["site1"]["assignment5"] = @assignments[4][:title]
     
     # Save new assignment info for later scripts to use
-    File.open("#{File.dirname(__FILE__)}/../../config/CLE/directory.yml", "w+") { |out|
+    File.open("directory.yml", "w+") { |out|
       YAML::dump(@directory, out)
     }
     # Close the browser window

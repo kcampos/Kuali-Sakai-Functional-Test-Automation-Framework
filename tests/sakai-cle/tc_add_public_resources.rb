@@ -28,7 +28,7 @@ class AddPublicResources < Test::Unit::TestCase
     @site_id = @directory['site1']['id']
     
     # Test case variables...
-    @file_path = File.realpath("#{File.dirname(__FILE__)}/../../data/sakai-cle") + "/"
+    @file_path = @config['data_directory']
     @files_1 = [
     "documents/accomplishment.xsd",
     "images/flower01.jpg",

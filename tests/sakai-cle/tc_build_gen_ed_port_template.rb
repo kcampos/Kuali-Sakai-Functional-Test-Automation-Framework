@@ -36,6 +36,7 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     @spassword = @directory["person1"]["password"]
     @site_name = @directory['site1']['name']
     @site_id = @directory['site1']['id']
+    @file_path = @config['data_directory']
     
     # Test case variables
     @files = [
@@ -188,7 +189,7 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     
     resources = create_folder.create_folders_now
 
-    resources = resources.upload_multiple_files_to_folder(@folder_name, @files)
+    resources = resources.upload_multiple_files_to_folder(@folder_name, @files, @file_path)
 
     home = resources.open_my_site_by_name @portfolio_site
 
@@ -273,7 +274,7 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     attach.open_folder @default_folder
     
     upload = attach.upload_files_to_folder @folder_name
-    upload.file_to_upload=@style_file
+    upload.file_to_upload(@style_file, @file_path)
     
     attach = upload.upload_files_now
     
@@ -350,11 +351,9 @@ class TestBuildPortfolioTemplate < Test::Unit::TestCase
     row5.font_color=@font_color
     
     add_matrix = row5.update
-sleep 5
     edit_cells = add_matrix.save_changes
-sleep 5
     edit = edit_cells.edit(1, 1)
-sleep 15
+
     # TEST CASE: Verify the title is correct
     assert_equal edit.title_element.value, "Row: #{@row_names[0]}; Column: #{@column_names[0]}"
     
@@ -817,7 +816,7 @@ sleep 15
     
     resources.open_folder @default_folder
     
-    resources = resources.upload_multiple_files_to_folder(@folder_name, @files_to_upload)
+    resources = resources.upload_multiple_files_to_folder(@folder_name, @files_to_upload, @file_path)
 
     forms = resources.forms
 
@@ -867,7 +866,7 @@ sleep 15
     attach.open_folder @default_folder
     
     upload = attach.upload_files_to_folder @folder_name
-    upload.file_to_upload=@files_to_upload[2]
+    upload.file_to_upload(@files_to_upload[2], @file_path)
 
     attach = upload.upload_files_now
     #sleep 15
@@ -1021,7 +1020,7 @@ sleep 15
     add_assgn3.check_add_open_announcement
     
     attach = add_assgn3.add_attachments
-    attach = attach.upload_local_file @assignments[2][:file]
+    attach = attach.upload_local_file(@assignments[2][:file], @file_path)
 
     add_assgn3 = attach.continue
     
@@ -1108,7 +1107,7 @@ sleep 15
     add_assgn5.grade_scale="Checkmark"
     
     attach = add_assgn5.add_attachments
-    attach.upload_local_file @assignments[4][:file]
+    attach.upload_local_file(@assignments[4][:file], @file_path)
     
     add_assgn5 = attach.continue
     

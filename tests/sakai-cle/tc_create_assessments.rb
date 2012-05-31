@@ -56,7 +56,7 @@ class TestCreateNewAssessments < Test::Unit::TestCase
       :due_date=>((Time.now + (86400*3)).strftime("%m/%d/%Y %I:%M:%S %p")),
       :retract_date=>((Time.now + (86400*3)).strftime("%m/%d/%Y %I:%M:%S %p"))
     }
-    
+    @file_path = @config['data_directory']
     @pool_title = random_alphanums
     @pool_description = "Sample Question Pool"
     @pool_file = "documents/Exam1.xml"
@@ -77,7 +77,7 @@ class TestCreateNewAssessments < Test::Unit::TestCase
   
   def teardown
     # Save new assessment info for later scripts to use
-    File.open("#{File.dirname(__FILE__)}/../../config/CLE/directory.yml", "w+") { |out|
+    File.open("directory.yml", "w+") { |out|
       YAML::dump(@directory, out)
     }
     # Close the browser window
@@ -302,7 +302,7 @@ class TestCreateNewAssessments < Test::Unit::TestCase
 
     # Import a Question Pool
     import_page = pools_list.import
-    import_page.choose_file=@pool_file
+    import_page.choose_file(@pool_file, @file_path)
     pools_list = import_page.import
 
     # TEST CASE: Verify import worked

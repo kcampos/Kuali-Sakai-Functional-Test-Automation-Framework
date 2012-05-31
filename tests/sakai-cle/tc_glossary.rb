@@ -17,11 +17,14 @@ class TestGlossary < Test::Unit::TestCase
   def setup
     
     # Get the test configuration data
-    config = AutoConfig.new
-    @browser = config.browser
+    @config = YAML.load_file("config.yml")
+    @directory = YAML.load_file("directory.yml")
+    @sakai = SakaiCLE.new(@config['browser'], @config['url'])
+    @browser = @sakai.browser
     # This is an admin user test case
-    @user_name = config.directory['admin']['username']
-    @password = config.directory['admin']['password']
+    @user_name = @directory['admin']['username']
+    @password = @directory['admin']['password']
+    @file_path = @config['data_directory']
     
     # Test case variables
     @portfolio_site = "PortfolioAdmin"

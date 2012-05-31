@@ -28,7 +28,7 @@ class TestSubmitAssessment < Test::Unit::TestCase
     # Test site
     @site_name = @directory['site1']['name']
     @site_id = @directory['site1']['id']
-    
+    @file_path = @config['data_directory']
     # Test case variables
     @answers = [
       "D",
@@ -63,12 +63,6 @@ class TestSubmitAssessment < Test::Unit::TestCase
     
     # Go to test site.
     home = workspace.open_my_site_by_id(@site_id)
-    
-    # Defining the frame code for ease of
-    # step writing...
-    def frm
-      @browser.frame(:index=>$frame_index)
-    end
     
     # Go to Tests & Quizzes
     quiz_list = home.tests_and_quizzes
@@ -109,7 +103,7 @@ class TestSubmitAssessment < Test::Unit::TestCase
     quiz1.true_false_rationale @answers[10]
     quiz1 = quiz1.next
     
-    quiz1.file_answer @answers[11]
+    quiz1.file_answer(@answers[11], @file_path)
     quiz1 = quiz1.next
     
     quiz1.fill_in_blank_answer(@answers[12][:answer], @answers[12][:space])
@@ -119,12 +113,12 @@ class TestSubmitAssessment < Test::Unit::TestCase
     confirm = quiz1.submit_for_grading
     
     # TEST CASE: Confirm warning screen contents
-    assert_match(/You are about to submit this assessment for grading./, frm.span(:class=>"validation").text)
+    assert_match(/You are about to submit this assessment for grading./, confirm.validation)
     
     summary = confirm.submit_for_grading
     
     # TEST CASE: Verify confirmation page contents
-    assert_match(/You have completed this assessment./, frm.div(:class=>"portletBody").div(:class=>"tier1").text)
+    assert_match(/You have completed this assessment./, summary.summary_info)
     
     tests = summary.continue
     

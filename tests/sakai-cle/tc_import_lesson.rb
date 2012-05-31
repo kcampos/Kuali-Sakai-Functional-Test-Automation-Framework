@@ -27,6 +27,7 @@ class TestImportLesson < Test::Unit::TestCase
     @spassword = @directory["person6"]["password"]
     @site_name = @directory['site1']['name']
     @site_id = @directory['site1']['id']
+    @file_path = @config['data_directory']
     
     # Test case variables...
     @zip_file = "zips/Melete1.zip"
@@ -60,7 +61,7 @@ class TestImportLesson < Test::Unit::TestCase
     import = manage.import_export
     
     # File Attach
-    import.upload_IMS @zip_file
+    import.upload_IMS(@zip_file, @file_path)
     
     # TEST CASE: Verify the import occurs successfully
     assert_equal(import.alert_text, @import_alert, "Import failed")

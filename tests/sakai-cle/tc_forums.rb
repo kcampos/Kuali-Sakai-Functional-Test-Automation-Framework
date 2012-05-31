@@ -25,6 +25,7 @@ class TestForums < Test::Unit::TestCase
     @ipassword = @directory['person3']['password']
     @site_name = @directory['site1']['name']
     @site_id = @directory['site1']['id']
+    @file_path = @config['data_directory']
     
     # Test case variables
     @groups = [ random_alphanums, random_alphanums ]
@@ -105,7 +106,7 @@ class TestForums < Test::Unit::TestCase
     
     # Add a file to the topic
     attach_file = add_topic.add_attachments
-    attach_file.upload_file @topics[0][:file]
+    attach_file.upload_file(@topics[0][:file], @file_path)
     
     add_topic = attach_file.continue
     
@@ -345,8 +346,8 @@ class TestForums < Test::Unit::TestCase
     assert_equal @browser.frame(:index=>1).table(:class=>/topicBloc/).link(:text=>"Topic Settings").exist?, false
     assert_equal @browser.frame(:index=>1).table(:class=>/topicBloc/).link(:text=>"Delete").exist?, false
     
-    #FIXME ADD TEST CASE for saving a group in DRAFT mode
-    #FIXME ADD TEST CASE for clicking to view full descriptions and attachments
+    #TODO ADD TEST CASE for saving a group in DRAFT mode
+    #TODO ADD TEST CASE for clicking to view full descriptions and attachments
   end
   
 end

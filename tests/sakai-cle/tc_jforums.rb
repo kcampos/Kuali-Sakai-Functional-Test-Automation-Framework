@@ -30,6 +30,7 @@ class TestJForums < Test::Unit::TestCase
     @ipassword = @directory["person3"]["password"]
     @site_name = @directory['site1']['name']
     @site_id = @directory['site1']['id']
+    @file_path = @config['data_directory']
     
     #Test case variables
     @topics = [
@@ -44,7 +45,7 @@ class TestJForums < Test::Unit::TestCase
     @occupation = "Tester"
     @avatar = "images/resources.JPG"
     
-    @count_of_persons = 13 # Count of site participants (from the directory.yml file)
+    @count_of_persons = 3 # Should be <= Count of site participants (from the directory.yml file)
     
     @pm_to = @directory["person1"]['lastname'] + ", " + @directory["person1"]['firstname']
     @pm_subject = random_alphanums
@@ -95,7 +96,7 @@ class TestJForums < Test::Unit::TestCase
     topic.subject=@topics[0][:subject]
     topic.message_text=@topics[0][:message]
     topic.attach_files
-    topic.filename1 @topics[0][:file]
+    topic.filename1(@topics[0][:file], @file_path)
     
     view = topic.submit
     
@@ -118,7 +119,7 @@ class TestJForums < Test::Unit::TestCase
     my_profile.web_site=@web_site
     my_profile.occupation=@occupation
     my_profile.select_view_email
-    my_profile.avatar=@avatar
+    my_profile.avatar(@avatar, @file_path)
     my_profile = my_profile.submit
     
     # TEST CASE: Verify information was saved

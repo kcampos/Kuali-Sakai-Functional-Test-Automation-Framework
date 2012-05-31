@@ -30,6 +30,7 @@ class TestTurnItIn < Test::Unit::TestCase
     @apassword = @directory["admin"]["password"]
     @site_name = @directory['site1']['name']
     @site_id = @directory['site1']['id']
+    @file_path = @config['data_directory']
     
     # Test Case Variables
     @assignment_1_title = random_string(32)
@@ -83,7 +84,7 @@ class TestTurnItIn < Test::Unit::TestCase
     
     assignment_1 = assignments.open_assignment @assignment_1_title
     assignment_1.assignment_text=@assignment_1_student_text
-    assignment_1.select_file=@assignment_1_file
+    assignment_1.select_file(@assignment_1_file, @file_path)
     
     confirm = assignment_1.submit
     

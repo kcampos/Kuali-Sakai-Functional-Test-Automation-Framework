@@ -23,6 +23,7 @@ class TestUpdatingUserProfile < Test::Unit::TestCase
     @browser = @sakai.browser
     @student = @directory['person5']['id']
     @password = @directory['person5']['password']
+    @file_path = @config['data_directory']
     
     # Test case variables...
     @first_name = random_string
@@ -52,7 +53,7 @@ class TestUpdatingUserProfile < Test::Unit::TestCase
     edit.nickname=@nickname
     edit.position=@position
     edit.select_upload_new_picture
-    edit.picture_file=@picture_file
+    edit.picture_file(@picture_file, @file_path)
     edit.email=@email
     
     profile = edit.save
