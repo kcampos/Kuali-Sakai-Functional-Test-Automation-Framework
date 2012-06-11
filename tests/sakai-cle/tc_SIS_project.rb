@@ -29,6 +29,7 @@ class TestMasterProjectSite < Test::Unit::TestCase
     # Test case variables
     @master_project_site_id = "12345678-abcd-1234-wxyz-12ab34cd56ef"
     @site_title = "Test Project"
+    @file_path = @config['data_directory']
     @files_to_upload = [ "documents/resources.doc", "presentations/resources.ppt", "documents/resources.txt", "spreadsheets/resources.xls", "audio/resources.mp3" ]
     @site_description = "Project site for testers."
     @page_title = "Site Editor"
@@ -133,7 +134,7 @@ class TestMasterProjectSite < Test::Unit::TestCase
     upload_page = tst_proj_resources.upload_files_to_folder @site_title
     
     @files_to_upload.each do |filename|
-      upload_page.file_to_upload=filename
+      upload_page.file_to_upload(filename, @file_path)
       upload_page.add_another_file
     end
     

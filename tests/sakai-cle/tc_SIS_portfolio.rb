@@ -30,6 +30,7 @@ class TestMasterPortfolioSite < Test::Unit::TestCase
     # Test case variables
     @site_title = "Test Portfolio"
     @site_description  = "Portfolio Site For Testing"
+    @file_path = @config['data_directory']
     @files_to_upload = [ "documents/resources.doc", "presentations/resources.ppt", "documents/resources.txt", "spreadsheets/resources.xls", "audio/resources.mp3" ]
     @page_title = "Site Editor"
     @email = "testportfolio"
@@ -135,7 +136,7 @@ class TestMasterPortfolioSite < Test::Unit::TestCase
     upload_page = port_resources_page.upload_files_to_folder @site_title
     
     @files_to_upload.each do |filename|
-      upload_page.file_to_upload=filename
+      upload_page.file_to_upload(filename, @file_path)
       upload_page.add_another_file
     end
     

@@ -28,6 +28,7 @@ class TestMasterCourseSite < Test::Unit::TestCase
     @master_course_site_id = "87654321-abcd-1234-wxyz-12ab34cd56ef"
     
     # Test case variables
+    @file_path = @config['data_directory']
     @files_to_upload = [ "documents/resources.doc", "presentations/resources.ppt", "documents/resources.txt", "spreadsheets/resources.xls", "audio/resources.mp3" ]
     @subject = "TST"
     @course = "101"
@@ -134,7 +135,7 @@ class TestMasterCourseSite < Test::Unit::TestCase
     upload_page = tst_resources_page.upload_files_to_folder "#{@subject} #{@course} #{@section}"
     
     @files_to_upload.each do |filename|
-      upload_page.file_to_upload=filename
+      upload_page.file_to_upload(filename, @file_path)
       upload_page.add_another_file
     end
     

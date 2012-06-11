@@ -65,7 +65,7 @@ class TestGlossary < Test::Unit::TestCase
     attach = import.select_file
     
     upload = attach.upload_file_to_folder @portfolio_site
-    upload.file_to_upload=@glossary_file1
+    upload.file_to_upload(@glossary_file1, @file_path)
 
     attach = upload.upload_files_now
 
@@ -82,7 +82,7 @@ class TestGlossary < Test::Unit::TestCase
     attach = import.select_file
     
     upload = attach.upload_file_to_folder @portfolio_site
-    upload.file_to_upload=@glossary_file2
+    upload.file_to_upload(@glossary_file2, @file_path)
 
     attach = upload.upload_files_now
 
