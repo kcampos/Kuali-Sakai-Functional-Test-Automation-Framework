@@ -5,7 +5,7 @@ data
 In Progress
 config.yml
 directory.yml
-*test.rb
+/test.rb
 .DS_Store
 .idea/
 *.gem

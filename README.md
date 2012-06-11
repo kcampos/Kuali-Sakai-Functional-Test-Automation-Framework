@@ -30,9 +30,6 @@ Obviously, at the moment the Cucumber projects are in their infancy. Our legacy 
 ## Contribute
 
 * Fork the project.
-* Test drive your feature addition or bug fix. Adding specs is important and I will not accept a pull request that does not have tests.
-* Make sure you describe your new feature with a cucumber scenario.
-* Make sure you provide RDoc comments for any new public method you add. Remember, others will be using this gem.
-* Commit, do not mess with Rakefile, version, or ChangeLog.
-  (if you want to have your own version, that is fine but bump version in a commit by itself I can ignore when I pull)
+* Additional or bug-fixed Classes, Elements, or Methods should be demonstrated in accompanying tests. Pull requests with out test scripts that use the new code won't be accepted.
+* Make sure you provide RDoc comments for any new public method or page class you add. Remember, others will be using this gem.
 * Send me a pull request. Bonus points for topic branches.
