@@ -11,7 +11,10 @@ require 'sakai-oae-test-api/pop_up_dialogs'
 require 'sakai-oae-test-api/toolbars_and_menus'
 require 'sakai-oae-test-api/widgets'
 require 'sakai-oae-test-api/page_classes'
-require 'sakai-oae-test-api/cle_frame_classes'
+require 'sakai-oae-test-api/cle_assessments'
+require 'sakai-oae-test-api/cle_assignments'
+require 'sakai-oae-test-api/cle_forum'
+require 'sakai-oae-test-api/cle_gradebook'
 
 # Initialize this class at the start of your test cases to
 # open the specified test browser at the specified Sakai welcome page URL.

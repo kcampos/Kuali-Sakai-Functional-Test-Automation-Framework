@@ -42,7 +42,7 @@ module GlobalMethods
   open_link(:forum, "Forum")
   open_link(:comments, "Comments")
   open_link(:jisc, "JISC")
-  open_link(:assignments, "Assignments")
+  open_link(:assignments, "AssignmentsList")
   open_link(:feed, "RSS")
   open_link(:rss_feed, "RSS")
   open_link(:rss, "RSS")

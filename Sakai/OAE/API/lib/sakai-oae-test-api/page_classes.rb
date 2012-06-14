@@ -1711,22 +1711,7 @@ class RSS
   
 end
 
-# TODO - describe class
-class Tests
-  
-  include PageObject
-  include GlobalMethods
-  include HeaderFooterBar
-  include LeftMenuBar
-  include HeaderBar
-  include DocButtons
 
-  # The frame object that contains all of the CLE Tests and Quizzes objects
-  def tests_frame
-    self.frame(:src=>/sakai2samigo.launch.html/)
-  end
-  
-end
 
 # TODO - describe class
 class Files
@@ -1756,21 +1741,7 @@ class Files
   
 end
 
-# Methods related to the Forum page in Courses/Groups
-class Forum
 
-  include GlobalMethods
-  include LeftMenuBar
-  include HeaderBar
-  include HeaderFooterBar
-  include DocButtons
-
-  # The frame that contains the CLE Forums objects
-  def forum_frame
-    self.frame(:src=>/sakai2forums.launch.html/)
-  end
-
-end
 
 # TODO - describe class
 class Gadget
@@ -1788,23 +1759,6 @@ class Gadget
   end
   
   
-  
-end
-
-# TODO - describe class
-class Gradebook
-  
-  include PageObject
-  include GlobalMethods
-  include HeaderFooterBar
-  include LeftMenuBar
-  include HeaderBar
-  include DocButtons
-
-  # TODO - Describe method
-  def gradebook_frame
-    self.frame(:src=>/sakai2gradebook.launch.html/)
-  end
   
 end
 
