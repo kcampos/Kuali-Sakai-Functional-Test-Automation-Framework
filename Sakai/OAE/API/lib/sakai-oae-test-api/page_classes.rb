@@ -50,22 +50,6 @@ class AllCategoriesPage
   
 end
 
-# TODO - Write a class description
-class Calendar
-  
-  include PageObject
-  include HeaderFooterBar
-  include LeftMenuBar
-  include HeaderBar
-  include DocButtons
-  include GlobalMethods
-  
-  def calendar_frame
-    self.frame(:src=>/sakai2calendar.launch.html/)
-  end
-  
-end
-
 # Methods related to the Content Details page.
 class ContentDetailsPage
   

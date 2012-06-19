@@ -1,6 +1,4 @@
 require 'kuali-sakai-common-lib'
-require 'watir-webdriver'
-require 'page-object'
 require 'cgi'
 
 PageObject.javascript_framework = :jquery
@@ -13,8 +11,8 @@ require 'sakai-oae-test-api/widgets'
 require 'sakai-oae-test-api/page_classes'
 require 'sakai-oae-test-api/cle_assessments'
 require 'sakai-oae-test-api/cle_assignments'
-require 'sakai-oae-test-api/cle_forum'
-require 'sakai-oae-test-api/cle_gradebook'
+require 'sakai-oae-test-api/cle_forums'
+require 'sakai-oae-test-api/cle_gradebook2'
 
 # Initialize this class at the start of your test cases to
 # open the specified test browser at the specified Sakai welcome page URL.

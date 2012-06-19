@@ -1,7 +1,6 @@
 #
 module AssignmentsListMethods
 
-  include PageObject
   # Returns an array of the displayed assignment titles.
   # Use for verification of test steps.
   def assignments_titles
@@ -149,8 +148,6 @@ end
 
 # The page where you create a new assignment
 module AssignmentAddMethods
-
-  include PageObject
 
   # Clicks the Post button, then
   # instantiates the AssignmentsList page class.
@@ -310,8 +307,6 @@ end
 # The Permissions Page in Assignments
 module AssignmentsPermissionsMethods
 
-  include PageObject
-
   # Clicks the Save button, then instantiates
   # the AssignmentsList page class.
   def save
@@ -384,8 +379,6 @@ end
 # Page that appears when you click to preview an Assignment
 module AssignmentsPreviewMethods
 
-  include PageObject
-
   # Returns the text content of the page header
   def header
     frm.div(:class=>"portletBody").h3.text
@@ -452,8 +445,6 @@ end
 # The reorder page for Assignments
 module AssignmentsReorderMethods
 
-  include PageObject
-
   # Clicks the Save button, then instantiates
   # the AssignmentsList page class.
   def save
@@ -488,8 +479,6 @@ end
 
 # A Student user's page for editing/submitting/view an assignment.
 module AssignmentStudentMethods
-
-  include PageObject
 
   # Returns the text content of the page header
   def header
@@ -625,8 +614,6 @@ end
 # assignment that is in progress.
 module AssignmentStudentPreviewMethods
 
-  include PageObject
-
   # Clicks the Submit button, then
   # instantiates the SubmissionConfirmation
   # page class.
@@ -662,8 +649,6 @@ end
 # or saves it as a draft.
 module SubmissionConfirmationMethods
 
-  include PageObject
-
   # Returns the text of the success message on the page.
   def confirmation_text
     frm.div(:class=>"portletBody").div(:class=>"success").text
@@ -687,8 +672,6 @@ end
 # as an instructor. Shows the list of students and their
 # assignment submission status.
 module AssignmentSubmissionListMethods
-
-  include PageObject
 
   # Clicks the Assignment List link and instantiates the AssignmentsList Class.
   def assignment_list
@@ -772,8 +755,6 @@ end
 # The page that shows a student's submitted assignment to an instructor user.
 module AssignmentSubmissionMethods
 
-  include PageObject
-
   # Enters the specified text string in the FCKEditor box for the assignment text.
   def assignment_text=(text)
     frm.frame(:id, "grade_submission_feedback_text___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(text)
@@ -824,8 +805,6 @@ end
 # The Grade Report page accessed from the Assignments page
 module GradeReportMethods
 
-  include PageObject
-
   def self.page_elements(identifier)
     in_frame(identifier) do |frame|
       #(:, :=>"", :frame=>frame)
@@ -840,8 +819,6 @@ end
 
 # The Student View page accessed from the Assignments page
 module StudentViewMethods
-
-  include PageObject
 
   def self.page_elements(identifier)
     in_frame(identifier) do |frame|

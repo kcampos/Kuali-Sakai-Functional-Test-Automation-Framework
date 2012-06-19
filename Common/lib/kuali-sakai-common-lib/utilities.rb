@@ -259,5 +259,16 @@ module Utilities
       :meridian =>t.strftime("%P")
     }
   end
-  
+
 end # Utilities
+
+module CLEElements
+  # Used to add configured modules to classes in OAE and CLE
+  # That share common page methods, like Assessments and Assignments
+  def self.modularize(module_name, identifier)
+    include module_name
+    module_name.page_elements(identifier)
+  end
+
+end
+

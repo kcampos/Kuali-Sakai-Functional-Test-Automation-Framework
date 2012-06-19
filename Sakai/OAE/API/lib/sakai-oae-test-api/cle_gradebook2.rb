@@ -1,5 +1,5 @@
 # TODO - describe class
-class Gradebook
+module Gradebook2Frame
 
   include PageObject
   include GlobalMethods
@@ -13,4 +13,10 @@ class Gradebook
     self.frame(:src=>/sakai2gradebook.launch.html/)
   end
 
+end
+
+#
+class Gradebook2
+  include Gradebook2Frame
+  CLEElements.modularize(Gradebook2Methods, :index=>2)
 end

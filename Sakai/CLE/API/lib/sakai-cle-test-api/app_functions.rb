@@ -414,45 +414,9 @@ module ToolsMenu
   def frm
     @browser.frame(:class=>"portletMainIframe")
   end
-  
+
 end
 
-# This is a module containing methods that are
-# common to all the question pages inside the
-# Assessment section of a Site.
-module QuestionHelpers
-  
-  include PageObject
-  
-  # Saves the question by clicking the Save button, then makes the determination
-  # whether to instantiate the EditAssessment class, or the EditQuestionPool class.
-  def save
-    
-    quiz = frm.div(:class=>"portletBody").div(:index=>0).text
-    pool = frm.div(:class=>"portletBody").div(:index=>1).text
-    
-    frm.button(:value=>"Save").click
-    
-    if quiz =~ /^Assessments/
-      EditAssessment.new(@browser)
-    elsif pool =~ /^Question Pools/
-      EditQuestionPool.new(@browser)
-    else
-      puts "Unexpected text: "
-      p pool
-      p quiz
-    end
-    
-  end
-  
-  in_frame(:index=>1) do |frame|
-    link(:assessments, :text=>"Assessments", :frame=>frame)
-    link(:assessment_types, :text=>"Assessment Types", :frame=>frame)
-    link(:question_pools, :text=>"Question Pools", :frame=>frame)
-    link(:questions, :text=>/Questions:/, :frame=>frame)
-  end
-  
-end
 
 # This class consolidates the code that can be shared among all the
 # File Upload and Attachment pages.
