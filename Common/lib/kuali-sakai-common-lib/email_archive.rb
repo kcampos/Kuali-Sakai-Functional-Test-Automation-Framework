@@ -2,11 +2,7 @@
 # Email Archive pages
 #================
 
-#
-class EmailArchive
-
-  include PageObject
-  include ToolsMenu
+module EmailArchiveMethods
 
   def options
     frm.link(:text=>"Options").click
@@ -17,8 +13,16 @@ class EmailArchive
   def email_list
   end
 
-  in_frame(:class=>"portletMainIframe") do |frame|
-    text_field(:search_field, :id=>"search", :frame=>frame)
-    button(:search_button, :value=>"Search", :frame=>frame)
+  def self.page_elements(identifier)
+    in_frame(identifier) do |frame|
+      text_field(:search_field, :id=>"search", :frame=>frame)
+      button(:search_button, :value=>"Search", :frame=>frame)
+    end
   end
+end
+
+module EmailArchiveOptionsMethods
+
+
+
 end

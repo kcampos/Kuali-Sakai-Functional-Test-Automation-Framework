@@ -1,6 +1,7 @@
 require 'cgi'
 require 'kuali-sakai-common-lib'
 require 'sakai-cle-test-api/utilities'
+require 'sakai-cle-test-api/tools_menu'
 require 'sakai-cle-test-api/app_functions'
 require 'sakai-cle-test-api/admin_page_elements'
 require 'sakai-cle-test-api/common_page_elements'

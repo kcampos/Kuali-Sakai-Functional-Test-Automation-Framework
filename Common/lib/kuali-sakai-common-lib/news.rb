@@ -1,14 +1,8 @@
-#================
-# News pages
-#================
+module NewsMethods
 
-#
-class News
+  def self.page_elements(identifier)
+    in_frame(identifier) do |frame|
 
-  include PageObject
-  include ToolsMenu
-
-  in_frame(:class=>"portletMainIframe") do |frame|
-
+    end
   end
 end

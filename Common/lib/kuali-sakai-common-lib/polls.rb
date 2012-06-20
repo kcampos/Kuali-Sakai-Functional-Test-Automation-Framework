@@ -1,12 +1,4 @@
-#================
-# Polls pages
-#================
-
-#
-class Polls
-
-  include PageObject
-  include ToolsMenu
+module PollsMethods
 
   def add
     frm.link(:text=>"Add").click
@@ -37,16 +29,13 @@ class Polls
     return list
   end
 
-  in_frame(:class=>"portletMainIframe") do |frame|
-
+  def self.page_elements(identifier)
+    in_frame(identifier) do |frame|
+    end
   end
 end
 
-#
-class AddEditPoll
-
-  include PageObject
-  include ToolsMenu
+ module AddEditPollMethods
 
   def additional_instructions=(text)
     frm.frame(:id, "newpolldescr::input___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(text)
@@ -62,16 +51,14 @@ class AddEditPoll
     Polls.new(@browser)
   end
 
-  in_frame(:class=>"portletMainIframe") do |frame|
-    text_field(:question, :id=>"new-poll-text", :frame=>frame)
+  def self.page_elements(identifier)
+    in_frame(identifier) do |frame|
+      text_field(:question, :id=>"new-poll-text", :frame=>frame)
+    end
   end
 end
 
-#
-class AddAnOption
-
-  include PageObject
-  include ToolsMenu
+module AddAnOptionMethods
 
   def answer_option=(text)
     frm.frame(:id, "optText::input___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(text)

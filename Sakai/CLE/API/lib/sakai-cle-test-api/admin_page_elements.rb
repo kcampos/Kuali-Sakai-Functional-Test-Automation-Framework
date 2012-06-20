@@ -32,7 +32,7 @@
 
 # The Aliases page - "icon-sakai-aliases", found in the Administration Workspace
 class Aliases
-  
+
   include PageObject
   include ToolsMenu
   
@@ -171,6 +171,13 @@ class SiteSummaryPage
   end
 
 end
+
+
+
+
+
+
+
 
 #================
 # Realms Pages

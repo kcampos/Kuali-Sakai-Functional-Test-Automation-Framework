@@ -1,12 +1,4 @@
-#================
-# Profile Pages
-#================
-
-#
-class Profile
-
-  include PageObject
-  include ToolsMenu
+module ProfileMethods
 
   def edit_my_profile
     frm.link(:text=>"Edit my Profile").click
@@ -30,10 +22,7 @@ class Profile
 end
 
 #
-class EditProfile
-
-  include PageObject
-  include ToolsMenu
+module EditProfileMethods
 
   def save
     frm.button(:value=>"Save").click
@@ -44,12 +33,14 @@ class EditProfile
     frm.file_field(:name=>"editProfileForm:uploadFile.uploadId").set(filepath + filename)
   end
 
-  in_frame(:class=>"portletMainIframe") do |frame|
-    text_field(:first_name, :id=>"editProfileForm:first_name", :frame=>frame)
-    text_field(:last_name, :id=>"editProfileForm:lname", :frame=>frame)
-    text_field(:nickname, :id=>"editProfileForm:nickname", :frame=>frame)
-    text_field(:position, :id=>"editProfileForm:position", :frame=>frame)
-    text_field(:email, :id=>"editProfileForm:email", :frame=>frame)
-    radio_button(:upload_new_picture, :value=>"pictureUpload", :frame=>frame)
+  def self.page_elements(identifier)
+    in_frame(identifier) do |frame|
+      text_field(:first_name, :id=>"editProfileForm:first_name", :frame=>frame)
+      text_field(:last_name, :id=>"editProfileForm:lname", :frame=>frame)
+      text_field(:nickname, :id=>"editProfileForm:nickname", :frame=>frame)
+      text_field(:position, :id=>"editProfileForm:position", :frame=>frame)
+      text_field(:email, :id=>"editProfileForm:email", :frame=>frame)
+      radio_button(:upload_new_picture, :value=>"pictureUpload", :frame=>frame)
+    end
   end
 end
