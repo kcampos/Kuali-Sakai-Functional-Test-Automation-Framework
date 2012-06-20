@@ -1,4 +1,4 @@
-# TODO - describe class
+# TODO - describe
 module Gradebook2Frame
 
   include PageObject
@@ -17,6 +17,7 @@ end
 
 #
 class Gradebook2
+  include PageObject
   include Gradebook2Frame
   CLEElements.modularize(Gradebook2Methods, :index=>2)
 end
