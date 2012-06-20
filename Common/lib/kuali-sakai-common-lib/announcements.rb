@@ -5,12 +5,15 @@
 # The Announcements list page for a Site.
 module AnnouncementsMethods
 
+  # Clicks the add button, instantiates the AddEditAnnouncements class.
   def add
     frm.div(:class=>"portletBody").link(:title=>"Add").click
     frm.frame(:id, "body___Frame").td(:id, "xEditingArea").frame(:index=>0).wait_until_present(60)
     AddEditAnnouncements.new(@browser)
   end
 
+  # Edits the specified announcement in the list.
+  # @param subject [String] the text of the announcement listing link.
   def edit(subject)
     frm.table(:class=>"listHier").row(:text=>/#{Regexp.escape(subject)}/).link(:text=>"Edit").click
     AddEditAnnouncements.new(@browser)
@@ -25,6 +28,8 @@ module AnnouncementsMethods
     return subjects
   end
 
+  # Returns true or false depending on whether the specified announcement has an attachment.
+  # @param subject [String] the text of the announcement listing link.
   def has_attachment?(subject)
     if frm.table(:class=>"listHier").row(:text=>/#{Regexp.escape(subject)}/).exist?
       return frm.table(:class=>"listHier").row(:text=>/#{Regexp.escape(subject)}/).image(:alt=>"attachment").exist?
@@ -36,19 +41,25 @@ module AnnouncementsMethods
 
   # Returns the text of the "For" column for
   # the specified announcement.
+  # @param subject [String] the text of the announcement listing link.
   def for_column(subject)
     frm.table(:class=>"listHier").row(:text=>/#{Regexp.escape(subject)}/)[4].text
   end
 
+  # Clicks the specified announcement link and instantiates the PreviewAnnouncements class.
+  # @param subject [String] the text of the announcement listing link.
   def preview_announcement(subject)
     frm.link(:text=>subject).click
     PreviewAnnouncements.new(@browser)
   end
 
+  # Selects the specified list item from the View selection list.
+  # @param list_item [String] the text of the option in the selection list.
   def view=(list_item)
     frm.select(:id=>"view").set(list_item)
   end
 
+  # Clicks the Merge link and instantiates the AnnouncementsMerge class.
   def merge
     frm.link(:text=>"Merge").click
     AnnouncementsMerge.new(@browser)
@@ -57,14 +68,17 @@ module AnnouncementsMethods
 end
 
 # Show Announcements from Another Site. On this page you select what announcements
-# you want to merge into the current Site.
+# you want to merge into the current Site. This module contains definitions for the
+# page elements that are common between OAE and CLE.
 module AnnouncementsMergeMethods
 
   # Checks the checkbox for the specified site name
+  # @param site_name [String] the name of the relevant site displayed in the table
   def check(site_name)
     frm.table(:class=>"listHier lines nolines").row(:text=>/#{Regexp.escape(site_name)}/).checkbox(:id=>/site/).set
   end
 
+  # Clicks the Save button and returns the Announcements class.
   def save
     frm.button(:value=>"Save").click
     Announcements.new(@browser)
@@ -72,18 +86,22 @@ module AnnouncementsMergeMethods
 
 end
 
+# Contains the common page elements for the Announcements Preview page
 module PreviewAnnouncementsMethods
 
+  # Clicks the Return to list button and returns the Announcements class.
   def return_to_list
     frm.button(:value=>"Return to List").click
     Announcements.new(@browser)
   end
 
+  # Clicks the Save changes button and returns the Announcements class.
   def save_changes
     frm.button(:value=>"Save Changes").click
     Announcements.new(@browser)
   end
 
+  # Clicks the Edit button and returns the AddEditAnnouncements class.
   def edit
     frm.button(:value=>"Edit").click
     AddEditAnnouncements.new(@browser)
@@ -91,9 +109,11 @@ module PreviewAnnouncementsMethods
 
 end
 
-# The page where an announcement is created or edited.
+# Contains the common page elements for the Add/Edit Announcements page.
 module AddEditAnnouncementsMethods
 
+  # Clicks the Add Announcement button and then determines whether to return
+  # AddEditAnnouncements or Announcements class.
   def add_announcement
     frm.button(:value=>"Add Announcement").click
     if frm.div(:class=>"portletBody").h3.text=~/Add Announcement/
@@ -103,20 +123,25 @@ module AddEditAnnouncementsMethods
     end
   end
 
+  # Clicks the Save changes button and returns the Announcements class.
   def save_changes
     frm.button(:value=>"Save Changes").click
     Announcements.new(@browser)
   end
 
+  # Clicks the Preview button and returns the PreviewAnnouncements class.
   def preview
     frm.button(:value=>"Preview").click
     PreviewAnnouncements.new(@browser)
   end
 
+  # Sends the specified text block to the rich text editor
+  # @param text [String] the text that you want to add to the editor.
   def body=(text)
     frm.frame(:id, "body___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(text)
   end
 
+  # Clicks the Add attachments button and returns the Announcments Attach class.
   def add_attachments
     frm.button(:value=>"Add Attachments").click
     AnnouncementsAttach.new(@browser)
@@ -125,12 +150,14 @@ module AddEditAnnouncementsMethods
   # Clicks the checkbox for the specified group name
   # when you've set the announcement access to display
   # to groups.
+  # @param group_name [String] the name of the group in the table that you intend to select.
   def check_group(group_name)
     frm.table(:id=>"groupTable").row(:text=>/#{Regexp.escape(group_name)}/).checkbox(:name=>"selectedGroups").set
   end
 
   # Sets the Announcement Title field to the specified
   # string value.
+  # @param string [String] the text you want to put in the title field.
   def title=(string)
     frm.text_field(:id=>"subject").set(string)
   end

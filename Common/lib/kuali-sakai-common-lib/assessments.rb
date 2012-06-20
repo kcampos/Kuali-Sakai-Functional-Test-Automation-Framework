@@ -6,7 +6,7 @@
 # common to all the question pages inside the
 # Assessment section of a Site.
 module QuestionHelpers
-
+  include PageObject
   # Saves the question by clicking the Save button, then makes the determination
   # whether to instantiate the EditAssessment class, or the EditQuestionPool class.
   def save
@@ -28,6 +28,9 @@ module QuestionHelpers
 
   end
 
+  # Encapsulates all the PageObject code into a module
+  # method that can be called from the necessary class.
+  # @private
   def self.menu_elements(identifier)
     in_frame(identifier) do |frame|
       link(:assessments, :text=>"Assessments", :frame=>frame)
@@ -42,7 +45,7 @@ end
 # The Course Tools "Tests and Quizzes" page for a given site.
 # (Instructor view)
 module AssessmentsListMethods
-
+  include PageObject
   # This method reads the type of assessment selected for creation,
   # then clicks the Create button and instantiates the proper class.
   #
@@ -64,13 +67,7 @@ module AssessmentsListMethods
   # Clicks the Question Pools link, then instantiates
   # the QuestionPoolsList class.
   def question_pools
-    #puts "clicking question pools"
-    #10.times {frm.link(:text=>"Question Pools").flash}
     frm.link(:text=>"Question Pools").click
-    #sleep 200
-    #puts "clicked..."
-    #frm.link(:text=>"Add New Pool").wait_until_present
-    #frm.h3(:text=>"Question Pools").wait_until_present(120)
     QuestionPoolsList.new(@browser)
   end
 
@@ -109,11 +106,15 @@ module AssessmentsListMethods
 
   # Opens the selected test for scoring
   # then instantiates the AssessmentTotalScores class.
+  # @param test_title [String] the title of the test to be clicked.
   def score_test(test_title)
     frm.tbody(:id=>"authorIndexForm:_id88:tbody_element").row(:text=>/#{Regexp.escape(test_title)}/).link(:id=>/authorIndexToScore/).click
     AssessmentTotalScores.new(@browser)
   end
 
+  # Encapsulates all the PageObject code into a module
+  # method that can be called from the necessary class.
+  # @private
   def self.page_elements(identifier)
     in_frame(identifier) do |frame|
       link(:assessment_types, :text=>"Assessment Types", :frame=>frame)
@@ -133,7 +134,7 @@ end
 # Page that appears when previewing an assessment.
 # It shows the basic information about the assessment.
 module PreviewOverviewMethods
-
+  include PageObject
   # Scrapes the value of the due date from the page. Returns it as a string.
   def due_date
     frm.div(:class=>"tier2").table(:index=>0)[0][0].text
@@ -161,6 +162,9 @@ module PreviewOverviewMethods
     EditAssessment.new(@browser)
   end
 
+  # Encapsulates all the PageObject code into a module
+  # method that can be called from the necessary class.
+  # @private
   def self.page_elements(identifier)
     in_frame(identifier) do |frame|
       button(:begin_assessment, :id=>"takeAssessmentForm:beginAssessment3", :frame=>frame)
@@ -172,7 +176,7 @@ end
 
 # The Settings page for a particular Assessment
 module AssessmentSettingsMethods
-
+  include PageObject
   # Scrapes the Assessment Type from the page and returns it as a string.
   def assessment_type_title
     frm.div(:class=>"tier2").table(:index=>0)[0][1].text
@@ -195,6 +199,9 @@ module AssessmentSettingsMethods
     PublishAssessment.new(@browser)
   end
 
+  # Encapsulates all the PageObject code into a module
+  # method that can be called from the necessary class.
+  # @private
   def self.page_elements(identifier)
     in_frame(identifier) do |frame|
       link(:open, :text=>"Open", :frame=>frame)
@@ -271,7 +278,7 @@ end
 
 # Instructor's view of Students' assessment scores
 module AssessmentTotalScoresMethods
-
+  include PageObject
   # Gets the user ids listed in the
   # scores table, returns them as an Array
   # object.
@@ -293,6 +300,8 @@ module AssessmentTotalScoresMethods
   # Note that this method assumes that the student identities are not being
   # obscured on this page. If they are, then this method will not work for
   # selecting the appropriate comment box.
+  # @param student_id [String] the target student id
+  # @param comment [String] the text of the comment being made to the student
   def comment_for_student(student_id, comment)
     index_val = student_ids.index(student_id)
     frm.text_field(:name=>"editTotalResults:totalScoreTable:#{index_val}:_id345").value=comment
@@ -307,6 +316,7 @@ module AssessmentTotalScoresMethods
   #
   # This method is especially useful when the student identities are obscured, since
   # in that situation you can't target a specific student's comment box, obviously.
+  # @param comment [String] the text to be entered into the Comment box
   def comment_in_first_box=(comment)
     frm.text_field(:name=>"editTotalResults:totalScoreTable:0:_id345").value=comment
   end
@@ -330,7 +340,7 @@ end
 # The page that appears when you're creating a new quiz
 # or editing an existing one
 module EditAssessmentMethods
-
+  include PageObject
   # Allows insertion of a question at a specified
   # point in the Assessment. Must include the
   # part number, the question number, and the type of
@@ -364,23 +374,29 @@ module EditAssessmentMethods
   end
 
   # Allows removal of question by part number and question number.
+  # @param part_num [String] the Part number containing the question you want to remove
+  # @param question_num [String] the number of the question you want to remove
   def remove_question(part_num, question_num)
     frm.link(:id=>"assesssmentForm:parts:#{part_num.to_i-1}:parts:#{question_num.to_i-1}:deleteitem").click
   end
 
   # Allows editing of a question by specifying its part number
   # and question number.
+  # @param part_num [String] the Part number containing the question you want
+  # @param question_num [String] the number of the question you want
   def edit_question(part_num, question_num)
     frm.link(:id=>"assesssmentForm:parts:#{part_num.to_i-1}:parts:#{question_num.to_i-1}:modify").click
   end
 
   # Allows copying an Assessment part to a Pool.
+  # @param part_num [String] the part number of the assessment you want
   def copy_part_to_pool(part_num)
     frm.link(:id=>"assesssmentForm:parts:#{part_num.to_i-1}:copyToPool").click
   end
 
   # Allows removing a specified
   # Assessment part number.
+  # @param part_num [String] the part number of the assessment you want
   def remove_part(part_num)
     frm.link(:xpath, "//a[contains(@onclick, 'assesssmentForm:parts:#{part_num.to_i-1}:copyToPool')]").click
   end
@@ -395,6 +411,7 @@ module EditAssessmentMethods
   # Selects the desired question type from the
   # drop down list, then instantiates the appropriate
   # page class.
+  # @param qtype [String] the text of the item you want to select from the list
   def select_question_type(qtype)
     frm.select(:id=>"assesssmentForm:changeQType").select(qtype)
 
@@ -445,6 +462,8 @@ module EditAssessmentMethods
 
   # Allows retrieval of a specified question's
   # text, by part and question number.
+  # @param part_num [String] the Part number containing the question you want
+  # @param question_num [String] the number of the question you want
   def get_question_text(part_number, question_number)
     frm.table(:id=>"assesssmentForm:parts:#{part_number.to_i-1}:parts").div(:class=>"tier3", :index=>question_number.to_i-1).text
   end
@@ -461,7 +480,7 @@ end
 
 # This is the page for adding and editing a part of an assessment
 module AddEditAssessmentPartMethods
-
+  include PageObject
   # Clicks the Save button, then instantiates
   # the EditAssessment page class.
   def save
@@ -469,6 +488,9 @@ module AddEditAssessmentPartMethods
     EditAssessment.new(@browser)
   end
 
+  # Encapsulates all the PageObject code into a module
+  # method that can be called from the necessary class.
+  # @private
   def self.page_elements(identifier)
     in_frame(identifier) do |frame|
       text_field(:title, :id=>"modifyPartForm:title", :frame=>frame)
@@ -495,7 +517,7 @@ end
 # The review page once you've selected to Save and Publish
 # the assessment
 module PublishAssessmentMethods
-
+  include PageObject
   # Clicks the Publish button, then
   # instantiates the AssessmentsList page class.
   def publish
@@ -503,6 +525,9 @@ module PublishAssessmentMethods
     AssessmentsList.new(@browser)
   end
 
+  # Encapsulates all the PageObject code into a module
+  # method that can be called from the necessary class.
+  # @private
   def self.page_elements(identifier)
     in_frame(identifier) do |frame|
       button(:cancel, :value=>"Cancel", :frame=>frame)
@@ -515,9 +540,12 @@ end
 
 # The page for setting up a multiple choice question
 module MultipleChoiceMethods
-
+  include PageObject
   include QuestionHelpers
 
+  # Encapsulates all the PageObject code into a module
+  # method that can be called from the necessary class.
+  # @private
   def self.page_elements(identifier)
     QuestionHelpers.menu_elements(identifier)
     in_frame(identifier) do |frame|
@@ -582,9 +610,12 @@ end
 
 # The page for setting up a Survey question
 module SurveyMethods
-
+  include PageObject
   include QuestionHelpers
 
+  # Encapsulates all the PageObject code into a module
+  # method that can be called from the necessary class.
+  # @private
   def self.page_elements(identifier)
     QuestionHelpers.menu_elements(identifier)
     in_frame(identifier) do |frame|
@@ -609,9 +640,12 @@ end
 
 #  The page for setting up a Short Answer/Essay question
 module ShortAnswerMethods
-
+  include PageObject
   include QuestionHelpers
 
+  # Encapsulates all the PageObject code into a module
+  # method that can be called from the necessary class.
+  # @private
   def self.page_elements(identifier)
     QuestionHelpers.menu_elements(identifier)
     in_frame(identifier) do |frame|
@@ -630,9 +664,12 @@ end
 
 #  The page for setting up a Fill-in-the-blank question
 module FillInBlankMethods
-
+  include PageObject
   include QuestionHelpers
 
+  # Encapsulates all the PageObject code into a module
+  # method that can be called from the necessary class.
+  # @private
   def self.page_elements(identifier)
     QuestionHelpers.menu_elements(identifier)
     in_frame(identifier) do |frame|
@@ -651,9 +688,12 @@ end
 
 #  The page for setting up a numeric response question
 module NumericResponseMethods
-
+  include PageObject
   include QuestionHelpers
 
+  # Encapsulates all the PageObject code into a module
+  # method that can be called from the necessary class.
+  # @private
   def self.page_elements(identifier)
     QuestionHelpers.menu_elements(identifier)
     in_frame(identifier) do |frame|
@@ -672,9 +712,12 @@ end
 
 #  The page for setting up a matching question
 module MatchingMethods
-
+  include PageObject
   include QuestionHelpers
 
+  # Encapsulates all the PageObject code into a module
+  # method that can be called from the necessary class.
+  # @private
   def self.page_elements(identifier)
     QuestionHelpers.menu_elements(identifier)
     in_frame(identifier) do |frame|
@@ -696,9 +739,12 @@ end
 
 #  The page for setting up a True/False question
 module TrueFalseMethods
-
+  include PageObject
   include QuestionHelpers
 
+  # Encapsulates all the PageObject code into a module
+  # method that can be called from the necessary class.
+  # @private
   def self.page_elements(identifier)
     QuestionHelpers.menu_elements(identifier)
     in_frame(identifier) do |frame|
@@ -722,9 +768,12 @@ end
 
 #  The page for setting up a question that requires an audio response
 module AudioRecordingMethods
-
+  include PageObject
   include QuestionHelpers
 
+  # Encapsulates all the PageObject code into a module
+  # method that can be called from the necessary class.
+  # @private
   def self.page_elements(identifier)
     QuestionHelpers.menu_elements(identifier)
     in_frame(identifier) do |frame|
@@ -745,9 +794,12 @@ end
 # The page for setting up a question that requires
 # attaching a file
 module FileUploadMethods
-
+  include PageObject
   include QuestionHelpers
 
+  # Encapsulates all the PageObject code into a module
+  # method that can be called from the necessary class.
+  # @private
   def self.page_elements(identifier)
     QuestionHelpers.menu_elements(identifier)
     in_frame(identifier) do |frame|
@@ -765,7 +817,7 @@ end
 
 # The page that appears when you are editing a type of assessment
 module EditAssessmentTypeMethods
-
+  include PageObject
   def self.page_elements(identifier)
     in_frame(identifier) do |frame|
       #(:, :=>"", :frame=>frame)
@@ -780,7 +832,7 @@ end
 
 # The Page that appears when adding a new question pool
 module AddQuestionPoolMethods
-
+  include PageObject
   # Clicks the Save button, then
   # instantiates the QuestionPoolsList page class.
   def save
@@ -796,6 +848,9 @@ module AddQuestionPoolMethods
     QuestionPoolsList.new @browser
   end
 
+  # Encapsulates all the PageObject code into a module
+  # method that can be called from the necessary class.
+  # @private
   def self.page_elements(identifier)
     in_frame(identifier) do |frame|
       text_field(:pool_name, :id=>"questionpool:namefield", :frame=>frame)
@@ -810,7 +865,7 @@ end
 
 # The Page that appears when editing an existing question pool
 module EditQuestionPoolMethods
-
+  include PageObject
   # Clicks the Add Question link, then
   # instantiates the SelectQuestionType class.
   def add_question
@@ -825,6 +880,9 @@ module EditQuestionPoolMethods
     QuestionPoolsList.new(@browser)
   end
 
+  # Encapsulates all the PageObject code into a module
+  # method that can be called from the necessary class.
+  # @private
   def self.page_elements(identifier)
     in_frame(identifier) do |frame|
       text_field(:pool_name, :id=>"editform:namefield", :frame=>frame)
@@ -842,9 +900,10 @@ end
 
 # The page with the list of existing Question Pools
 module QuestionPoolsListMethods
-
+  include PageObject
   # Clicks the edit button, then instantiates
   # the EditQuestionPool page class.
+  # @param name [String] the name of the pool you want to edit
   def edit_pool(name)
     frm.span(:text=>name).fire_event("onclick")
     EditQuestionPool.new(@browser)
@@ -887,6 +946,9 @@ module QuestionPoolsListMethods
     AssessmentsList.new(@browser)
   end
 
+  # Encapsulates all the PageObject code into a module
+  # method that can be called from the necessary class.
+  # @private
   def self.page_elements(identifier)
     in_frame(identifier) do |frame|
       link(:assessment_types, :text=>"Assessment Types", :frame=>frame)
@@ -898,9 +960,11 @@ end
 # The page that appears when you click to import
 # a pool.
 module PoolImportMethods
-
+  include PageObject
   # Enters the target file into the Choose File
   # file field. Including the file path separately is optional.
+  # @param file_name [String] the name of the file you want to choose. Can include path info, if desired.
+  # @param file_path [String] Optional. This is the path information for the file location.
   def choose_file(file_name, file_path="")
     frm.file_field(:name=>"importPoolForm:_id6.upload").set(file_path + file_name)
   end
@@ -917,10 +981,11 @@ end
 
 # This page appears when adding a question to a pool
 module SelectQuestionTypeMethods
-
+  include PageObject
   # Selects the specified question type from the
   # drop-down list, then instantiates the appropriate
   # page class, based on the question type selected.
+  # @param qtype [String] the text of the question type you want to select from the drop down list.
   def select_question_type(qtype)
     frm.select(:id=>"_id1:selType").select(qtype)
     frm.button(:value=>"Save").click
@@ -942,6 +1007,9 @@ module SelectQuestionTypeMethods
 
   end
 
+  # Encapsulates all the PageObject code into a module
+  # method that can be called from the necessary class.
+  # @private
   def self.page_elements(identifier)
     in_frame(identifier) do |frame|
       button(:cancel, :value=>"Cancel", :frame=>frame)
@@ -954,7 +1022,7 @@ end
 # It may be that we want to deprecate this class and simply use
 # the AssessmentsList class alone.
 module TakeAssessmentListMethods
-
+  include PageObject
   # Returns an array containing the assessment names that appear on the page.
   def available_assessments
     # define this later
@@ -980,6 +1048,7 @@ module TakeAssessmentListMethods
   # Clicks the specified assessment
   # then instantiates the BeginAssessment
   # page class.
+  # @param name [String] the name of the assessment you want to take
   def take_assessment(name)
     begin
       frm.link(:text=>name).click
@@ -989,8 +1058,8 @@ module TakeAssessmentListMethods
     BeginAssessment.new(@browser)
   end
 
-  # This method is in need of improvement to make it
-  # more generalized for finding the correct test.
+  # TODO This method is in need of improvement to make it more generalized for finding the correct test.
+  #
   def feedback(test_name)
     test_table = frm.table(:id=>"selectIndexForm:reviewTable").to_a
     test_table.delete_if { |row| row[3] != "Immediate" }
@@ -1003,7 +1072,7 @@ end
 
 # The student view of the overview page of an Assessment
 module BeginAssessmentMethods
-
+  include PageObject
   # Clicks the Begin Assessment button.
   def begin_assessment
     frm.button(:value=>"Begin Assessment").click
@@ -1027,6 +1096,7 @@ module BeginAssessmentMethods
   end
 
   # Enters the answer into the specified blank number (1-based).
+  # @param answer [String]
   def fill_in_blank_answer(answer, blank_number)
     index = blank_number.to_i-1
     frm.text_field(:name=>/deliverFillInTheBlank:_id.+:#{index}/).value=answer
@@ -1078,7 +1148,7 @@ end
 # The confirmation page that appears when submitting an Assessment.
 # The last step before actually submitting the the Assessment.
 module ConfirmSubmissionMethods
-
+  include PageObject
   # Clicks the Submit for Grading button and instantiates
   # the SubmissionSummary Class.
   def submit_for_grading
@@ -1096,7 +1166,7 @@ end
 
 # The summary page that appears when an Assessment has been submitted.
 module SubmissionSummaryMethods
-
+  include PageObject
   # Clicks the Continue button and instantiates
   # the TakeAssessmentList Class.
   def continue

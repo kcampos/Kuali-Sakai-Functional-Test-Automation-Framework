@@ -4,7 +4,7 @@
 
 #
 module BlogsMethods
-
+  include PageObject
   # Returns an array containing the list of Bloggers
   # in the "All the blogs" table.
   def blogger_list

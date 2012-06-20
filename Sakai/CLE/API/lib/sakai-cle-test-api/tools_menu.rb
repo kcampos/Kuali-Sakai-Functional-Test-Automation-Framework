@@ -406,10 +406,10 @@ module ToolsMenu
 
   private
 
-  # Shortcut method so you don't have to type out
-  # the whole string: @browser.frame(:index=>index)
+  # Shortcut method so we can put all the
+  # elements into the Common gem...
   def frm
-    @browser.frame(identifier)
+    @browser.frame(:class=>"portletMainIframe")
   end
 
 end
