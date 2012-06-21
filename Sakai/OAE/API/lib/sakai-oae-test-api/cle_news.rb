@@ -1,6 +1,4 @@
 module NewsFrame
-
-  include PageObject
   include GlobalMethods
   include HeaderFooterBar
   include LeftMenuBar

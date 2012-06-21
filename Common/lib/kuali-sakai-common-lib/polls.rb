@@ -1,5 +1,5 @@
 module PollsMethods
-
+  include PageObject
   def add
     frm.link(:text=>"Add").click
     frm.frame(:id, "newpolldescr::input___Frame").td(:id, "xEditingArea").wait_until_present
@@ -36,7 +36,7 @@ module PollsMethods
 end
 
  module AddEditPollMethods
-
+   include PageObject
   def additional_instructions=(text)
     frm.frame(:id, "newpolldescr::input___Frame").td(:id, "xEditingArea").frame(:index=>0).send_keys(text)
   end

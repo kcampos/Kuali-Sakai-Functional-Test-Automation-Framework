@@ -3,7 +3,7 @@
 #================
 
 module SectionsMenu
-
+  include PageObject
   # Clicks the Add Sections button/link and instantiates
   # the AddEditSections Class.
   def add_sections
@@ -30,7 +30,7 @@ end
 
 # Topmost page for Sections in Site Management
 module SectionsMethods
-
+  include PageObject
   # Clicks the Edit link for the specified section.
   # Then instantiates the AddEditSections class.
   def edit(title)
@@ -114,7 +114,7 @@ end
 # The same goes for adding days with different meeting times. This will hopefully
 # be supported in the future.
 module AddEditSectionsMethods
-
+  include PageObject
   # Clicks the Add Sections button then instantiates the Sections Class,
   # unless there's an Alert message, in which case it will reinstantiate
   # the class.
@@ -181,7 +181,7 @@ end
 
 #
 module AssignTeachingAssistantsMethods
-
+  include PageObject
   def assign_TAs
     frm.button(:value=>"Assign TAs").click
     Sections.new(@browser)
@@ -201,7 +201,7 @@ end
 
 #
 module AssignStudentsMethods
-
+  include PageObject
   def assign_students
     frm.button(:value=>"Assign students").click
     Sections.new(@browser)
@@ -221,7 +221,7 @@ end
 
 # The Options page for Sections.
 module SectionsOptionsMethods
-
+  include PageObject
   def update
     frm().button(:value=>"Update").click
     Sections.new(@browser)

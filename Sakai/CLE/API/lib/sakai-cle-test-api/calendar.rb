@@ -25,7 +25,7 @@ end
 # Event page.
 class EventFrequency
   include ToolsMenu
-  CLEElements.modularize(EventFrequency, :class=>"portletMainIframe")
+  CLEElements.modularize(EventFrequencyMethods, :class=>"portletMainIframe")
 end
 
 class AddEditFields
@@ -48,3 +48,18 @@ class ImportStepThree
   CLEElements.modularize(ImportStepThreeMethods, :class=>"portletMainIframe")
 end
 
+# TODO: Rethink this!!!
+class EventAttach < AddFiles
+
+  include ToolsMenu
+
+  def initialize(browser)
+    @browser = browser
+
+    @@classes = {
+        :this=>"EventAttach",
+        :parent=>"AddEditEvent"
+    }
+  end
+
+end

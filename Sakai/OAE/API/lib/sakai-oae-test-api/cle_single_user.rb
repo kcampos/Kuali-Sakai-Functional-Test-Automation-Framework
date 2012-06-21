@@ -1,6 +1,4 @@
 module SingleUserFrame
-
-  include PageObject
   include GlobalMethods
   include HeaderFooterBar
   include LeftMenuBar

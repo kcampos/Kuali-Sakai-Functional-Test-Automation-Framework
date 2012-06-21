@@ -56,7 +56,7 @@ end
 
 # TODO: This needs to be fixed!
 # The page for attaching files to a Syllabus record.
-class SyllabusAttach < AttachPageTools
+class SyllabusAttach < AddFiles
 
   include ToolsMenu
 

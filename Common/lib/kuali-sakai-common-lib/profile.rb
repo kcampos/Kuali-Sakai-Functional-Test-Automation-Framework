@@ -23,7 +23,7 @@ end
 
 #
 module EditProfileMethods
-
+  include PageObject
   def save
     frm.button(:value=>"Save").click
     Profile.new(@browser)

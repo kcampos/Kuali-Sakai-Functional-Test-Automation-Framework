@@ -9,10 +9,13 @@ require 'sakai-oae-test-api/pop_up_dialogs'
 require 'sakai-oae-test-api/toolbars_and_menus'
 require 'sakai-oae-test-api/widgets'
 require 'sakai-oae-test-api/page_classes'
+=begin
 require 'sakai-oae-test-api/cle_assessments'
 require 'sakai-oae-test-api/cle_assignments'
 require 'sakai-oae-test-api/cle_forums'
 require 'sakai-oae-test-api/cle_gradebook2'
+=end
+Dir["#{File.dirname(__FILE__)}/sakai-oae-test-api/cle_*.rb"].each {|f| require f }
 
 # Initialize this class at the start of your test cases to
 # open the specified test browser at the specified Sakai welcome page URL.

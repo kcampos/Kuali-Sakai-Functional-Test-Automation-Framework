@@ -83,6 +83,8 @@ end
 # The page showing the user's Sent Messages.
 module MessagesSentListMethods
 
+  include PageObject
+
   # Clicks the "Messages" breadcrumb link to return
   # to the top level of Messages. Then instantiates
   # the Messages class.
@@ -135,7 +137,7 @@ end
 
 # The page showing the list of received messages.
 module MessagesReceivedListMethods
-
+  include PageObject
   # Returns a string consisting of the content of the
   # page header--or "breadcrumb", as it's called.
   def header
@@ -225,7 +227,7 @@ module MessagesReceivedListMethods
 end
 
 module FolderListMethods
-
+  include PageObject
   def compose_message
     frm.link(:text=>"Compose Message").click
     ComposeMessage.new(@browser)
@@ -305,7 +307,7 @@ module FolderListMethods
 end
 
 module MoveMessageToMethods
-
+  include PageObject
   def move_messages
     frm.button(:value=>"Move Messages").click
     Messages.new(@browser)
@@ -330,7 +332,7 @@ module MoveMessageToMethods
 end
 
 module MessagesDeletedListMethods
-
+  include PageObject
   # Returns a string consisting of the content of the
   # page header--or "breadcrumb", as it's called.
   def header
@@ -400,7 +402,7 @@ end
 
 # The page showing the list of Draft messages.
 module MessagesDraftListMethods
-
+  include PageObject
   def compose_message
     frm.link(:text=>"Compose Message").click
     ComposeMessage.new(@browser)
@@ -458,7 +460,7 @@ end
 
 # The page for composing a message
 module ComposeMessageMethods
-
+  include PageObject
   def send
     frm.button(:value=>"Send ").click
     Messages.new(@browser)
@@ -496,7 +498,7 @@ end
 
 # The page for composing a message
 module ReplyToMessageMethods
-
+  include PageObject
   def send
     frm.button(:value=>"Send ").click
     # Need logic here to ensure the
@@ -538,10 +540,9 @@ module ReplyToMessageMethods
 end
 
 # The page for composing a message
-class ForwardMessageMethods
+module ForwardMessageMethods
 
   include PageObject
-  include ToolsMenu
 
   def send
     frm.button(:value=>"Send ").click
@@ -579,7 +580,7 @@ end
 
 
 module MessageDeleteConfirmationMethods
-
+  include PageObject
   def alert_message_text
     frm.span(:class=>"alertMessage").text
   end
@@ -596,7 +597,7 @@ module MessageDeleteConfirmationMethods
 end
 
 module MessagesNewFolderMethods
-
+  include PageObject
   def add
     frm.button(:value=>"Add").click
     Messages.new(@browser)

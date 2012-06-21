@@ -42,7 +42,7 @@ module Profile2Nav
 end
 
 module Profile2Methods
-
+  include PageObject
   def edit_basic_info
     frm.div(:id=>"mainPanel").span(:text=>"Basic Information").fire_event("onmouseover")
     frm.div(:id=>"mainPanel").link(:href=>/myInfo:editButton/).click
@@ -166,7 +166,7 @@ module Profile2Methods
 end
 
 module Profile2PreferencesMethods
-
+  include PageObject
   def save_settings
     frm.button(:value=>"Save settings").click
     Profile2Preferences.new(@browser)
@@ -180,7 +180,7 @@ end
 
 #
 module Profile2PrivacyMethods
-
+  include PageObject
   def self.page_elements(identifier)
     in_frame(identifier) do |frame|
       select_list(:profile_image, :name=>"profileImageContainer:profileImage", :frame=>frame)
@@ -203,7 +203,7 @@ end
 
 #
 module Profile2SearchMethods
-
+  include PageObject
   def search_by_name_or_email
     frm.button(:value=>"Search by name or email").click
     sleep 0.5
@@ -257,7 +257,7 @@ end
 
 #
 module Profile2ConnectionsMethods
-
+  include PageObject
   def confirm_request(name)
     frm.div(:class=>"connection", :text=>name).link(:title=>"Confirm connection request").click
     frm.div(:class=>"modalWindowButtons").wait_until_present

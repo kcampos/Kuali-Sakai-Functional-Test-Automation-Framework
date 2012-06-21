@@ -729,7 +729,7 @@ end
 #================
 
 # 
-class DropBox < AttachPageTools
+class DropBox < AddFiles
   
   include ToolsMenu
   
@@ -844,7 +844,7 @@ class ImportForms
   
 end
 
-class AttachFileFormImport < AttachPageTools
+class AttachFileFormImport < AddFiles
   
   include ToolsMenu
   
@@ -1058,7 +1058,7 @@ class GlossaryFileUpload
 end
 
 # Page for uploading or grabbing files that will be imported to the Glossary.
-class GlossaryAttach < AttachPageTools
+class GlossaryAttach < AddFiles
 
   include ToolsMenu
 
@@ -1486,7 +1486,7 @@ class SelectingContent
 end
 
 # 
-class LessonAddAttachment < AttachPageTools
+class LessonAddAttachment < AddFiles
 
   include ToolsMenu
   
@@ -2154,7 +2154,7 @@ class SupportingFilesPortfolio
 end
 
 # 
-class PortfolioAttachFiles < AttachPageTools
+class PortfolioAttachFiles < AddFiles
 
   include ToolsMenu
   
@@ -2248,11 +2248,6 @@ class RosterProfileView
 
 end
 
-
-
-
-
-
 #================
 # Styles pages in a Portfolio Site
 #================
@@ -2335,7 +2330,7 @@ class StylesUploadFiles
 end
 
 # 
-class StylesAddAttachment < AttachPageTools
+class StylesAddAttachment < AddFiles
 
   include ToolsMenu
 
@@ -2353,37 +2348,3 @@ class StylesAddAttachment < AttachPageTools
   
 end
 
-
-
-
-
-#================
-# Web Content pages in a Site
-#================
-
-# 
-class WebContent
-  
-  include PageObject
-  include ToolsMenu
-
-  in_frame(:class=>"portletMainIframe") do |frame|
-    
-  end
-end
-
-
-#================
-# Wikis pages in a Site
-#================
-
-# 
-class Wikis
-  
-  include PageObject
-  include ToolsMenu
-  
-  in_frame(:class=>"portletMainIframe") do |frame|
-    
-  end
-end

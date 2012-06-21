@@ -1,6 +1,4 @@
 module MessagesFrame
-
-  include PageObject
   include GlobalMethods
   include HeaderFooterBar
   include LeftMenuBar
@@ -93,7 +91,7 @@ end
 class MessageDeleteConfirmation
   include PageObject
   include MessagesFrame
-  CLEElements.modularize(MessageDeleteConfirmationMethods, :class=>"portletMainIframe")
+  include MessageDeleteConfirmationMethods
 end
 
 # The page for creating a new folder for Messages
@@ -118,7 +116,7 @@ class FolderDeleteConfirm
 end
 
 # The attachment page for Messages
-class MessagesAttachment < AttachPageTools
+class MessagesAttachment < AddFiles
 
   include MessagesFrame
 

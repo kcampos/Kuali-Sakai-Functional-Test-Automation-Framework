@@ -844,7 +844,7 @@ end
 # TODO - Need to figure out whether this stays here or goes to CLE only.
 =begin
 # Page for attaching files to Assignments
-class AssignmentAttachments < AttachPageTools
+class AssignmentAttachments < AddFiles
 
   def initialize(browser)
     @browser = browser

@@ -4,7 +4,7 @@
 
 #
 module Gradebook2Methods
-
+  include PageObject
   # Returns an array of names of Gradebook items
   def gradebook_items
     items = []

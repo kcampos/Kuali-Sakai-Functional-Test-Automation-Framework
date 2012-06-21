@@ -85,7 +85,7 @@ module SyllabusEditMethods
 end
 
 module AddEditSyllabusItemMethods
-
+  include PageObject
   # Clicks the "Post" button and instantiates
   # the Syllabus Class.
   def post
@@ -141,7 +141,7 @@ module AddEditSyllabusItemMethods
 end
 
 module SyllabusPreviewMethods
-
+  include PageObject
   def edit
     frm.button(:value=>"Edit").click
     AddEditSyllabusItem.new(@browser)
@@ -154,7 +154,7 @@ module SyllabusPreviewMethods
 end
 
 module SyllabusRedirectMethods
-
+  include PageObject
   def save
     frm.button(:value=>"Save").click
     SyllabusEdit.new(@browser)

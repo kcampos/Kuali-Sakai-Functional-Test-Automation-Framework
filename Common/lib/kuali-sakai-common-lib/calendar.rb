@@ -252,7 +252,7 @@ module EventDetailMethods
 end
 
 module AddEditEventMethods
-
+  include PageObject
   #
   def save_event
     frm.button(:value=>"Save Event").click
@@ -319,26 +319,10 @@ module AddEditEventMethods
   end
 end
 
-# TODO: Rethink this!!!
-class EventAttach < AttachPageTools
-
-  include ToolsMenu
-
-  def initialize(browser)
-    @browser = browser
-
-    @@classes = {
-        :this=>"EventAttach",
-        :parent=>"AddEditEvent"
-    }
-  end
-
-end
-
 # The page that appears when the Frequency button is clicked on the Add/Edit
 # Event page.
 module EventFrequencyMethods
-
+  include PageObject
   def save_frequency
     frm.button(:value=>"Save Frequency").click
     AddEditEvent.new(@browser)
@@ -366,7 +350,7 @@ end
 
 #
 module AddEditFieldsMethods
-
+  include PageObject
   # Clicks the Save Field Changes buton and instantiates
   # The Calendar or EventDetail class--unless the Alert Message box appears,
   # in which case it re-instantiates the class.
@@ -405,7 +389,7 @@ end
 
 #
 module ImportStepOneMethods
-
+  include PageObject
   def continue
     frm.button(:value=>"Continue").click
     ImportStepTwo.new(@browser)
@@ -440,7 +424,7 @@ end
 
 # The page for reviewing activities and confirming them for import.
 module ImportStepThreeMethods
-
+  include PageObject
   def import_events
     frm.button(:value=>"Import Events").click
     Calendar.new(@browser)

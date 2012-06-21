@@ -41,7 +41,7 @@ end
 # Event page.
 class EventFrequency
   include CalendarFrame
-  CLEElements.modularize(EventFrequency, :class=>"portletMainIframe")
+  CLEElements.modularize(EventFrequencyMethods, :class=>"portletMainIframe")
 end
 
 class AddEditFields

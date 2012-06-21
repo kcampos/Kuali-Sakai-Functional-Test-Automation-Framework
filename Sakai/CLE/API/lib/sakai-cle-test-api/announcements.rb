@@ -21,11 +21,11 @@ end
 # The page where an announcement is created or edited.
 class AddEditAnnouncements
   include ToolsMenu
-  include AddEditAnnouncmentsMethods
+  include AddEditAnnouncementsMethods
 end
 
 # The page for attaching files and links to Announcements.
-class AnnouncementsAttach < AttachPageTools
+class AnnouncementsAttach < AddFiles
 
   include ToolsMenu
 

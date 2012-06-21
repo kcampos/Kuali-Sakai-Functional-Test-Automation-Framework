@@ -90,8 +90,6 @@ end
 
 module TopicPageMethods
 
-  include ToolsMenu
-
   def post_new_thread
     frm.link(:text=>"Post New Thread").click
     ComposeForumMessage.new(@browser)
@@ -133,6 +131,7 @@ module ViewForumThreadMethods
 end
 
 module ComposeForumMessageMethods
+  include PageObject
   def post_message
     frm.button(:text=>"Post Message").click
     # Not sure if we need logic here...
@@ -226,7 +225,7 @@ end
 
 # The page for creating/editing a forum in a Site
 module EditForumMethods
-
+  include PageObject
   def save
     frm.button(:value=>"Save").click
     Forums.new(@browser)
@@ -259,6 +258,8 @@ module EditForumMethods
 end
 
 module AddEditTopicMethods
+
+  include PageObject
 
   @@table_index=0
 
@@ -310,9 +311,7 @@ module AddEditTopicMethods
 end
 
 # TODO: Determine where this should go and a better way to organize the code
-class ForumsAddAttachments < AttachPageTools
-
-  include ToolsMenu
+class ForumsAddAttachments < AddFiles
 
   def initialize(browser)
     @browser = browser

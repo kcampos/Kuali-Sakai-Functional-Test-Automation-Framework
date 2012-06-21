@@ -77,7 +77,7 @@ end
 class MessageDeleteConfirmation
   include PageObject
   include ToolsMenu
-  CLEElements.modularize(MessageDeleteConfirmationMethods, :class=>"portletMainIframe")
+  include MessageDeleteConfirmationMethods
 end
 
 # The page for creating a new folder for Messages
@@ -102,7 +102,7 @@ class FolderDeleteConfirm
 end
 
 # The attachment page for Messages
-class MessagesAttachment < AttachPageTools
+class MessagesAttachment < AddFiles
 
   include ToolsMenu
 

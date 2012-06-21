@@ -414,7 +414,7 @@ class CreateFolders #FIXME - Need to add functions for adding multiple folders
 end
 
 # Resources page for a given Site, in the Course Tools menu
-class Resources < AttachPageTools
+class Resources < AddFiles
 
   include ToolsMenu
   

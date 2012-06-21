@@ -94,7 +94,7 @@ class StudentView
 end
 
 # Page for attaching files to Assignments
-class AssignmentAttachments < AttachPageTools
+class AssignmentAttachments < AddFiles
   include PageObject
   include ToolsMenu
 

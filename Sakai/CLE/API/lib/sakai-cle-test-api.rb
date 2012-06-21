@@ -2,12 +2,8 @@ require 'cgi'
 require 'kuali-sakai-common-lib'
 require 'sakai-cle-test-api/utilities'
 require 'sakai-cle-test-api/tools_menu'
-require 'sakai-cle-test-api/app_functions'
 require 'sakai-cle-test-api/admin_page_elements'
-require 'sakai-cle-test-api/common_page_elements'
-require 'sakai-cle-test-api/site_page_elements'
-require 'sakai-cle-test-api/assessments'
-require 'sakai-cle-test-api/assignments'
+Dir["#{File.dirname(__FILE__)}/sakai-cle-test-api/*.rb"].each {|f| require f }
 
 # Initialize this class at the start of your test cases to
 # open the specified test browser at the specified Sakai welcome page URL.
