@@ -16,9 +16,8 @@ module Gradebook2Methods
     return items
   end
 
-  def self.page_elements(identifier)
-    in_frame(identifier) do |frame|
+  in_frame(:class=>"portletMainIframe") do |frame|
 
-    end
+
   end
 end

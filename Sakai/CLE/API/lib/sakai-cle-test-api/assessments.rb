@@ -8,7 +8,7 @@
 class AssessmentsList
   include PageObject
   include ToolsMenu
-  CLEElements.modularize(AssessmentsListMethods, :class=>"portletMainIframe")
+  include AssessmentsListMethods
 end
 
 # Page that appears when previewing an assessment.
@@ -16,14 +16,14 @@ end
 class PreviewOverview
   include PageObject
   include ToolsMenu
-  CLEElements.modularize(PreviewOverviewMethods, :class=>"portletMainIframe")
+  include PreviewOverviewMethods
 end
 
 # The Settings page for a particular Assessment
 class AssessmentSettings
   include PageObject
   include ToolsMenu
-  CLEElements.modularize(AssessmentSettingsMethods, :class=>"portletMainIframe")
+  include AssessmentSettingsMethods
 end
 
 # Instructor's view of Students' assessment scores
@@ -38,14 +38,14 @@ end
 class EditAssessment
   include PageObject
   include ToolsMenu
-  CLEElements.modularize(EditAssessmentMethods, :class=>"portletMainIframe")
+  include EditAssessmentMethods
 end
 
 # This is the page for adding and editing a part of an assessment
 class AddEditAssessmentPart
   include PageObject
   include ToolsMenu
-  CLEElements.modularize(AddEditAssessmentPartMethods, :class=>"portletMainIframe")
+  include AddEditAssessmentPartMethods
 end
 
 # The review page once you've selected to Save and Publish
@@ -53,63 +53,63 @@ end
 class PublishAssessment
   include PageObject
   include ToolsMenu
-  CLEElements.modularize(PublishAssessmentMethods, :class=>"portletMainIframe")
+  include PublishAssessmentMethods
 end
 
 # The page for setting up a multiple choice question
 class MultipleChoice
   include PageObject
   include ToolsMenu
-  CLEElements.modularize(MultipleChoiceMethods, :class=>"portletMainIframe")
+  include MultipleChoiceMethods
 end
 
 # The page for setting up a Survey question
 class Survey
   include PageObject
   include ToolsMenu
-  CLEElements.modularize(SurveyMethods, :class=>"portletMainIframe")
+  include SurveyMethods
 end
 
 #  The page for setting up a Short Answer/Essay question
 class ShortAnswer
   include PageObject
   include ToolsMenu
-  CLEElements.modularize(ShortAnswerMethods, :class=>"portletMainIframe")
+  include ShortAnswerMethods
 end
 
 #  The page for setting up a Fill-in-the-blank question
 class FillInBlank
   include PageObject
   include ToolsMenu
-  CLEElements.modularize(FillInBlankMethods, :class=>"portletMainIframe")
+  include FillInBlankMethods
 end
 
 #  The page for setting up a numeric response question
 class NumericResponse
   include PageObject
   include ToolsMenu
-  CLEElements.modularize(NumericResponseMethods, :class=>"portletMainIframe")
+  include NumericResponseMethods
 end
 
 #  The page for setting up a matching question
 class Matching
   include PageObject
   include ToolsMenu
-  CLEElements.modularize(MatchingMethods, :class=>"portletMainIframe")
+  include MatchingMethods
 end
 
 #  The page for setting up a True/False question
 class TrueFalse
   include PageObject
   include ToolsMenu
-  CLEElements.modularize(TrueFalseMethods, :class=>"portletMainIframe")
+  include TrueFalseMethods
 end
 
 #  The page for setting up a question that requires an audio response
 class AudioRecording
   include PageObject
   include ToolsMenu
-  CLEElements.modularize(AudioRecordingMethods, :class=>"portletMainIframe")
+  include AudioRecordingMethods
 end
 
 # The page for setting up a question that requires
@@ -117,35 +117,35 @@ end
 class FileUpload
   include PageObject
   include ToolsMenu
-  CLEElements.modularize(FileUploadMethods, :class=>"portletMainIframe")
+  include FileUploadMethods
 end
 
 # The page that appears when you are editing a type of assessment
 class EditAssessmentType
   include PageObject
   include ToolsMenu
-  CLEElements.modularize(EditAssessmentTypeMethods, :class=>"portletMainIframe")
+  include EditAssessmentTypeMethods
 end
 
 # The Page that appears when adding a new question pool
 class AddQuestionPool
   include PageObject
   include ToolsMenu
-  CLEElements.modularize(AddQuestionPoolMethods, :class=>"portletMainIframe")
+  include AddQuestionPoolMethods
 end
 
 # The Page that appears when editing an existing question pool
 class EditQuestionPool
   include PageObject
   include ToolsMenu
-  CLEElements.modularize(EditQuestionPoolMethods, :class=>"portletMainIframe")
+  include EditQuestionPoolMethods
 end
 
 # The page with the list of existing Question Pools
 class QuestionPoolsList
   include PageObject
   include ToolsMenu
-  CLEElements.modularize(QuestionPoolsListMethods, :class=>"portletMainIframe")
+  include QuestionPoolsListMethods
 end
 
 # The page that appears when you click to import
@@ -160,7 +160,7 @@ end
 class SelectQuestionType
   include PageObject
   include ToolsMenu
-  CLEElements.modularize(SelectQuestionTypeMethods, :class=>"portletMainIframe")
+  include SelectQuestionTypeMethods
 end
 
 # Page of Assessments accessible to a student user
@@ -184,11 +184,11 @@ end
 # The last step before actually submitting the the Assessment.
 class ConfirmSubmission
   include ToolsMenu
-  CLEElements.modularize(ConfirmSubmissionMethods, :class=>"portletMainIframe")
+  include ConfirmSubmissionMethods
 end
 
 # The summary page that appears when an Assessment has been submitted.
 class SubmissionSummary
   include ToolsMenu
-  CLEElements.modularize(SubmissionSummaryMethods, :class=>"portletMainIframe")
+  include SubmissionSummaryMethods
 end

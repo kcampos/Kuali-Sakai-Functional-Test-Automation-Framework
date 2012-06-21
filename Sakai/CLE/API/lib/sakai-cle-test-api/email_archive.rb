@@ -1,7 +1,7 @@
 #
 class EmailArchive
   include ToolsMenu
-  CLEElements.modularize(EmailArchiveMethods, :class=>"portletMainIframe")
+  include EmailArchiveMethods
 end
 
 class EmailArchiveOptions

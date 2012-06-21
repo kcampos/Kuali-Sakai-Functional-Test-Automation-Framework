@@ -13,5 +13,5 @@ end
 class EditProfile
   include PageObject
   include ToolsMenu
-  CLEElements.modularize(EditProfileMethods, :class=>"portletMainIframe")
+  include EditProfileMethods
 end

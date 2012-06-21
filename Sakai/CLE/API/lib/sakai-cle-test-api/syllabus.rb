@@ -24,21 +24,21 @@ end
 class AddEditSyllabusItem
   include PageObject
   include ToolsMenu
-  CLEElements.modularize(AddEditSyllabusItemMethods, :class=>"portletMainIframe")
+  include AddEditSyllabusItemMethods 
 end
 
 # The page for previewing a syllabus.
 class SyllabusPreview
   include PageObject
   include ToolsMenu
-  CLEElements.modularize(SyllabusPreviewMethods, :class=>"portletMainIframe")
+  include SyllabusPreviewMethods 
 end
 
 #
 class SyllabusRedirect
   include PageObject
   include ToolsMenu
-  CLEElements.modularize(SyllabusRedirectMethods, :class=>"portletMainIframe")
+  include SyllabusRedirectMethods 
 end
 
 # The page where Syllabus Items can be deleted.

@@ -27,19 +27,19 @@ end
 class AddEditSyllabusItem
   include PageObject
   include SyllabusFrame
-  CLEElements.modularize(AddEditSyllabusItemMethods, :index=>2)
+  include AddEditSyllabusItemMethods, :index=>2)
 end
 
 class SyllabusPreview
   include PageObject
   include SyllabusFrame
-  CLEElements.modularize(SyllabusPreviewMethods, :index=>2)
+  include SyllabusPreviewMethods, :index=>2)
 end
 
 class SyllabusRedirect
   include PageObject
   include SyllabusFrame
-  CLEElements.modularize(SyllabusRedirectMethods, :index=>2)
+  include SyllabusRedirectMethods, :index=>2)
 end
 
 class DeleteSyllabusItems

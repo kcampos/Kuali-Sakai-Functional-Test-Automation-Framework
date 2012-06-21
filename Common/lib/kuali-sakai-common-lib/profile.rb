@@ -33,14 +33,13 @@ module EditProfileMethods
     frm.file_field(:name=>"editProfileForm:uploadFile.uploadId").set(filepath + filename)
   end
 
-  def self.page_elements(identifier)
-    in_frame(identifier) do |frame|
-      text_field(:first_name, :id=>"editProfileForm:first_name", :frame=>frame)
-      text_field(:last_name, :id=>"editProfileForm:lname", :frame=>frame)
-      text_field(:nickname, :id=>"editProfileForm:nickname", :frame=>frame)
-      text_field(:position, :id=>"editProfileForm:position", :frame=>frame)
-      text_field(:email, :id=>"editProfileForm:email", :frame=>frame)
-      radio_button(:upload_new_picture, :value=>"pictureUpload", :frame=>frame)
-    end
+  in_frame(:class=>"portletMainIframe") do |frame|
+    text_field(:first_name, :id=>"editProfileForm:first_name", :frame=>frame)
+    text_field(:last_name, :id=>"editProfileForm:lname", :frame=>frame)
+    text_field(:nickname, :id=>"editProfileForm:nickname", :frame=>frame)
+    text_field(:position, :id=>"editProfileForm:position", :frame=>frame)
+    text_field(:email, :id=>"editProfileForm:email", :frame=>frame)
+    radio_button(:upload_new_picture, :value=>"pictureUpload", :frame=>frame)
+
   end
 end

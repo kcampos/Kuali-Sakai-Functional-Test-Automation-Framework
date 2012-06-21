@@ -7,14 +7,14 @@
 class AssignmentAdd
   include PageObject
   include ToolsMenu
-  CLEElements.modularize(AssignmentAddMethods, :class=>"portletMainIframe")
+  include AssignmentAddMethods 
 end
 
 # Page that appears when you first click the Assignments link
 class AssignmentsList
   include PageObject
   include ToolsMenu
-  CLEElements.modularize(AssignmentsListMethods, :class=>"portletMainIframe")
+  include AssignmentsListMethods 
 end
 
 
@@ -22,7 +22,7 @@ end
 class AssignmentsPermissions
   include PageObject
   include ToolsMenu
-  CLEElements.modularize(AssignmentsPermissionsMethods, :class=>"portletMainIframe")
+  include AssignmentsPermissionsMethods 
 
 end
 
@@ -30,21 +30,21 @@ end
 class AssignmentsPreview
   include PageObject
   include ToolsMenu
-  CLEElements.modularize(AssignmentsPreviewMethods, :class=>"portletMainIframe")
+  include AssignmentsPreviewMethods 
 end
 
 # The reorder page for Assignments
 class AssignmentsReorder
   include PageObject
   include ToolsMenu
-  CLEElements.modularize(AssignmentsReorderMethods, :class=>"portletMainIframe")
+  include AssignmentsReorderMethods 
 end
 
 # A Student user's page for editing/submitting/view an assignment.
 class AssignmentStudent
   include PageObject
   include ToolsMenu
-  CLEElements.modularize(AssignmentStudentMethods, :class=>"portletMainIframe")
+  include AssignmentStudentMethods 
 end
 
 # Page that appears when a Student User clicks to Preview an
@@ -69,28 +69,28 @@ end
 class AssignmentSubmissionList
   include PageObject
   include ToolsMenu
-  CLEElements.modularize(AssignmentSubmissionListMethods, :class=>"portletMainIframe")
+  include AssignmentSubmissionListMethods 
 end
 
 # The page that shows a student's submitted assignment to an instructor user.
 class AssignmentSubmission
   include PageObject
   include ToolsMenu
-  CLEElements.modularize(AssignmentSubmissionMethods, :class=>"portletMainIframe")
+  include AssignmentSubmissionMethods 
 end
 
 # The Grade Report page accessed from the Assignments page
 class GradeReport
   include PageObject
   include ToolsMenu
-  CLEElements.modularize(GradeReportMethods, :class=>"portletMainIframe")
+  include GradeReportMethods 
 end
 
 # The Student View page accessed from the Assignments page
 class StudentView
   include PageObject
   include ToolsMenu
-  CLEElements.modularize(StudentViewMethods, :class=>"portletMainIframe")
+  include StudentViewMethods 
 end
 
 # Page for attaching files to Assignments

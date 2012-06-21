@@ -115,6 +115,7 @@ end
 # be supported in the future.
 module AddEditSectionsMethods
   include PageObject
+
   # Clicks the Add Sections button then instantiates the Sections Class,
   # unless there's an Alert message, in which case it will reinstantiate
   # the class.
@@ -154,29 +155,28 @@ module AddEditSectionsMethods
     frm.checkbox(:id=>/SectionsForm:sectionTable:0:meetingsTable:0:sunday/).set if array.include?(/sun/i)
   end
 
-  def self.page_elements(identifier)
-    in_frame(identifier) do |frame|
-      select_list(:category, :id=>/SectionsForm:category/, :frame=>frame)
-      text_field(:name, :id=>/SectionsForm:sectionTable:0:titleInput/, :frame=>frame)
-      checkbox(:monday, :id=>/SectionsForm:sectionTable:0:meetingsTable:0:monday/, :frame=>frame)
-      checkbox(:tuesday, :id=>/SectionsForm:sectionTable:0:meetingsTable:0:tuesday/, :frame=>frame)
-      checkbox(:wednesday, :id=>/SectionsForm:sectionTable:0:meetingsTable:0:wednesday/, :frame=>frame)
-      checkbox(:thursday, :id=>/SectionsForm:sectionTable:0:meetingsTable:0:thursday/, :frame=>frame)
-      checkbox(:friday, :id=>/SectionsForm:sectionTable:0:meetingsTable:0:friday/, :frame=>frame)
-      checkbox(:saturday, :id=>/SectionsForm:sectionTable:0:meetingsTable:0:saturday/, :frame=>frame)
-      checkbox(:sunday, :id=>/SectionsForm:sectionTable:0:meetingsTable:0:sunday/, :frame=>frame)
-      text_field(:start_time, :id=>/SectionsForm:sectionTable:0:meetingsTable:0:startTime/, :frame=>frame)
-      text_field(:end_time, :id=>/SectionsForm:sectionTable:0:meetingsTable:0:endTime/, :frame=>frame)
-      text_field(:location, :id=>/SectionsForm:sectionTable:0:meetingsTable:0:location/, :frame=>frame)
-      radio_button(:startAM) { |page| page.radio_button_element(:name=>/SectionsForm:sectionTable:0:meetingsTable:0:startTimeAm/, :index=>0, :frame=>frame) }
-      radio_button(:startPM) { |page| page.radio_button_element(:name=>/SectionsForm:sectionTable:0:meetingsTable:0:startTimeAm/, :index=>1, :frame=>frame) }
-      radio_button(:endAM) { |page| page.radio_button_element(:name=>/SectionsForm:sectionTable:0:meetingsTable:0:endTimeAm/, :index=>0, :frame=>frame) }
-      radio_button(:endPM) { |page| page.radio_button_element(:name=>/SectionsForm:sectionTable:0:meetingsTable:0:endTimeAm/, :index=>1, :frame=>frame) }
-      radio_button(:unlimited_students) { |page| page.radio_button_element(:name=>/SectionsForm:sectionTable:0:limit/, :index=>0, :frame=>frame) }
-      radio_button(:limited_students) { |page| page.radio_button_element(:name=>/SectionsForm:sectionTable:0:limit/, :index=>1, :frame=>frame) }
-      text_field(:max_students, :id=>/SectionsForm:sectionTable:0:maxEnrollmentInput/, :frame=>frame)
-    end
+  in_frame(:class=>"portletMainIframe") do |frame|
+    select_list(:category, :id=>/SectionsForm:category/, :frame=>frame)
+    text_field(:name, :id=>/SectionsForm:sectionTable:0:titleInput/, :frame=>frame)
+    checkbox(:monday, :id=>/SectionsForm:sectionTable:0:meetingsTable:0:monday/, :frame=>frame)
+    checkbox(:tuesday, :id=>/SectionsForm:sectionTable:0:meetingsTable:0:tuesday/, :frame=>frame)
+    checkbox(:wednesday, :id=>/SectionsForm:sectionTable:0:meetingsTable:0:wednesday/, :frame=>frame)
+    checkbox(:thursday, :id=>/SectionsForm:sectionTable:0:meetingsTable:0:thursday/, :frame=>frame)
+    checkbox(:friday, :id=>/SectionsForm:sectionTable:0:meetingsTable:0:friday/, :frame=>frame)
+    checkbox(:saturday, :id=>/SectionsForm:sectionTable:0:meetingsTable:0:saturday/, :frame=>frame)
+    checkbox(:sunday, :id=>/SectionsForm:sectionTable:0:meetingsTable:0:sunday/, :frame=>frame)
+    text_field(:start_time, :id=>/SectionsForm:sectionTable:0:meetingsTable:0:startTime/, :frame=>frame)
+    text_field(:end_time, :id=>/SectionsForm:sectionTable:0:meetingsTable:0:endTime/, :frame=>frame)
+    text_field(:location, :id=>/SectionsForm:sectionTable:0:meetingsTable:0:location/, :frame=>frame)
+    radio_button(:startAM) { |page| page.radio_button_element(:name=>/SectionsForm:sectionTable:0:meetingsTable:0:startTimeAm/, :index=>0, :frame=>frame) }
+    radio_button(:startPM) { |page| page.radio_button_element(:name=>/SectionsForm:sectionTable:0:meetingsTable:0:startTimeAm/, :index=>1, :frame=>frame) }
+    radio_button(:endAM) { |page| page.radio_button_element(:name=>/SectionsForm:sectionTable:0:meetingsTable:0:endTimeAm/, :index=>0, :frame=>frame) }
+    radio_button(:endPM) { |page| page.radio_button_element(:name=>/SectionsForm:sectionTable:0:meetingsTable:0:endTimeAm/, :index=>1, :frame=>frame) }
+    radio_button(:unlimited_students) { |page| page.radio_button_element(:name=>/SectionsForm:sectionTable:0:limit/, :index=>0, :frame=>frame) }
+    radio_button(:limited_students) { |page| page.radio_button_element(:name=>/SectionsForm:sectionTable:0:limit/, :index=>1, :frame=>frame) }
+    text_field(:max_students, :id=>/SectionsForm:sectionTable:0:maxEnrollmentInput/, :frame=>frame)
   end
+
 end
 
 #
@@ -187,16 +187,15 @@ module AssignTeachingAssistantsMethods
     Sections.new(@browser)
   end
 
-  def self.page_elements(identifier)
-    in_frame(identifier) do |frame|
-      select_list(:available_tas, :id=>"memberForm:availableUsers", :frame=>frame)
-      select_list(:assigned_tas, :id=>"memberForm:selectedUsers", :frame=>frame)
-      button(:assign, :value=>">", :frame=>frame)
-      button(:unassign, :value=>"<", :frame=>frame)
-      button(:assign_all, :value=>">>", :frame=>frame)
-      button(:unassign_all, :value=>"<<", :frame=>frame)
-    end
+  in_frame(:class=>"portletMainIframe") do |frame|
+    select_list(:available_tas, :id=>"memberForm:availableUsers", :frame=>frame)
+    select_list(:assigned_tas, :id=>"memberForm:selectedUsers", :frame=>frame)
+    button(:assign, :value=>">", :frame=>frame)
+    button(:unassign, :value=>"<", :frame=>frame)
+    button(:assign_all, :value=>">>", :frame=>frame)
+    button(:unassign_all, :value=>"<<", :frame=>frame)
   end
+
 end
 
 #
@@ -207,15 +206,13 @@ module AssignStudentsMethods
     Sections.new(@browser)
   end
 
-  def self.page_elements(identifier)
-    in_frame(identifier) do |frame|
-      select_list(:available_students, :id=>"memberForm:availableUsers", :frame=>frame)
-      select_list(:assigned_students, :id=>"memberForm:selectedUsers", :frame=>frame)
-      button(:assign, :value=>">", :frame=>frame)
-      button(:unassign, :value=>"<", :frame=>frame)
-      button(:assign_all, :value=>">>", :frame=>frame)
-      button(:unassign_all, :value=>"<<", :frame=>frame)
-    end
+  in_frame(:class=>"portletMainIframe") do |frame|
+    select_list(:available_students, :id=>"memberForm:availableUsers", :frame=>frame)
+    select_list(:assigned_students, :id=>"memberForm:selectedUsers", :frame=>frame)
+    button(:assign, :value=>">", :frame=>frame)
+    button(:unassign, :value=>"<", :frame=>frame)
+    button(:assign_all, :value=>">>", :frame=>frame)
+    button(:unassign_all, :value=>"<<", :frame=>frame)
   end
 end
 
@@ -227,11 +224,8 @@ module SectionsOptionsMethods
     Sections.new(@browser)
   end
 
-  def self.page_elements(identifier)
-    in_frame(identifier) do |frame|
-      checkbox(:students_can_sign_up, :id=>"optionsForm:selfRegister", :frame=>frame)
-      checkbox(:students_can_switch, :id=>"optionsForm:selfSwitch", :frame=>frame)
-    end
+  in_frame(:class=>"portletMainIframe") do |frame|
+    checkbox(:students_can_sign_up, :id=>"optionsForm:selfRegister", :frame=>frame)
+    checkbox(:students_can_switch, :id=>"optionsForm:selfSwitch", :frame=>frame)
   end
-
 end

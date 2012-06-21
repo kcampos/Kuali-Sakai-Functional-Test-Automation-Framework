@@ -17,7 +17,7 @@ end
 class EmailArchive
   include PageObject
   include EmailArchiveFrame
-  CLEElements.modularize(EmailArchiveMethods, :index=>2)
+  include EmailArchiveMethods, :index=>2)
 end
 
 class EmailArchiveOptions

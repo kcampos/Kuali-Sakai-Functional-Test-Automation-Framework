@@ -130,14 +130,13 @@ module AddEditSyllabusItemMethods
     SyllabusPreview.new(@browser)
   end
 
-  def self.page_elements(identifier)
-    in_frame(identifier) do |frame|
-      text_field(:title, :id=>"_id4:title", :frame=>frame)
-      radio_button(:only_members_of_this_site) { |page| page.radio_button_element(:name=>/_id\d+:_id\d+/, :value=>"no", :frame=>frame) }
-      radio_button(:publicly_viewable) { |page| page.radio_button_element(:name=>/_id\d+:_id\d+/, :value=>"yes", :frame=>frame) }
+  in_frame(:class=>"portletMainIframe") do |frame|
+    text_field(:title, :id=>"_id4:title", :frame=>frame)
+    radio_button(:only_members_of_this_site) { |page| page.radio_button_element(:name=>/_id\d+:_id\d+/, :value=>"no", :frame=>frame) }
+    radio_button(:publicly_viewable) { |page| page.radio_button_element(:name=>/_id\d+:_id\d+/, :value=>"yes", :frame=>frame) }
 
-    end
   end
+
 end
 
 module SyllabusPreviewMethods

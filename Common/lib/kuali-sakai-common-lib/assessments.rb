@@ -28,16 +28,11 @@ module QuestionHelpers
 
   end
 
-  # Encapsulates all the PageObject code into a module
-  # method that can be called from the necessary class.
-  # @private
-  def self.menu_elements(identifier)
-    in_frame(identifier) do |frame|
-      link(:assessments, :text=>"Assessments", :frame=>frame)
-      link(:assessment_types, :text=>"Assessment Types", :frame=>frame)
-      link(:question_pools, :text=>"Question Pools", :frame=>frame)
-      link(:questions, :text=>/Questions:/, :frame=>frame)
-    end
+  in_frame(:class=>"portletMainIframe") do |frame|
+    link(:assessments, :text=>"Assessments", :frame=>frame)
+    link(:assessment_types, :text=>"Assessment Types", :frame=>frame)
+    link(:question_pools, :text=>"Question Pools", :frame=>frame)
+    link(:questions, :text=>/Questions:/, :frame=>frame)
   end
 
 end
@@ -112,21 +107,16 @@ module AssessmentsListMethods
     AssessmentTotalScores.new(@browser)
   end
 
-  # Encapsulates all the PageObject code into a module
-  # method that can be called from the necessary class.
-  # @private
-  def self.page_elements(identifier)
-    in_frame(identifier) do |frame|
-      link(:assessment_types, :text=>"Assessment Types", :frame=>frame)
-      text_field(:title, :id=>"authorIndexForm:title", :frame=>frame)
-      radio_button(:create_using_builder) { |page| page.radio_button_element(:name=>"authorIndexForm:_id29", index=>0, :frame=>frame) }
-      radio_button(:create_using_text) { |page| page.radio_button_element(:name=>"authorIndexForm:_id29", :index=>$frame_index, :frame=>frame) }
-      select_list(:select_assessment_type, :id=>"authorIndexForm:assessmentTemplate", :frame=>frame)
-      button(:import, :id=>"authorIndexForm:import", :frame=>frame)
-      #(:, :=>"", :frame=>frame)
-      #(:, :=>"", :frame=>frame)
-  
-    end
+  in_frame(:class=>"portletMainIframe") do |frame|
+    link(:assessment_types, :text=>"Assessment Types", :frame=>frame)
+    text_field(:title, :id=>"authorIndexForm:title", :frame=>frame)
+    radio_button(:create_using_builder) { |page| page.radio_button_element(:name=>"authorIndexForm:_id29", index=>0, :frame=>frame) }
+    radio_button(:create_using_text) { |page| page.radio_button_element(:name=>"authorIndexForm:_id29", :index=>$frame_index, :frame=>frame) }
+    select_list(:select_assessment_type, :id=>"authorIndexForm:assessmentTemplate", :frame=>frame)
+    button(:import, :id=>"authorIndexForm:import", :frame=>frame)
+    #(:, :=>"", :frame=>frame)
+    #(:, :=>"", :frame=>frame)
+
   end
   
 end
@@ -162,14 +152,9 @@ module PreviewOverviewMethods
     EditAssessment.new(@browser)
   end
 
-  # Encapsulates all the PageObject code into a module
-  # method that can be called from the necessary class.
-  # @private
-  def self.page_elements(identifier)
-    in_frame(identifier) do |frame|
-      button(:begin_assessment, :id=>"takeAssessmentForm:beginAssessment3", :frame=>frame)
-  
-    end
+  in_frame(:class=>"portletMainIframe") do |frame|
+    button(:begin_assessment, :id=>"takeAssessmentForm:beginAssessment3", :frame=>frame)
+
   end
   
 end
@@ -199,79 +184,74 @@ module AssessmentSettingsMethods
     PublishAssessment.new(@browser)
   end
 
-  # Encapsulates all the PageObject code into a module
-  # method that can be called from the necessary class.
-  # @private
-  def self.page_elements(identifier)
-    in_frame(identifier) do |frame|
-      link(:open, :text=>"Open", :frame=>frame)
-      link(:close, :text=>"Close", :frame=>frame)
-      text_field(:title, :id=>"assessmentSettingsAction:intro:assessment_title", :frame=>frame)
-      text_field(:authors, :id=>"assessmentSettingsAction:intro:assessment_author", :frame=>frame)
-      text_area(:description, :id=>"assessmentSettingsAction:intro:_id44_textinput", :frame=>frame)
-      button(:add_attachments_to_intro, :name=>"assessmentSettingsAction:intro:_id90", :frame=>frame)
-      text_field(:available_date, :id=>"assessmentSettingsAction:startDate", :frame=>frame)
-      text_field(:due_date, :id=>"assessmentSettingsAction:endDate", :frame=>frame)
-      text_field(:retract_date, :id=>"assessmentSettingsAction:retractDate", :frame=>frame)
-      radio_button(:released_to_anonymous) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:_id117", :index=>$frame_index, :frame=>frame) }
-      radio_button(:released_to_site) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:_id117", :index=>$frame_index, :frame=>frame) }
-      text_area(:specified_ips, :name=>"assessmentSettingsAction:_id132", :frame=>frame)
-      text_field(:secondary_id, :id=>"assessmentSettingsAction:username", :frame=>frame)
-      text_field(:secondary_pw, :id=>"assessmentSettingsAction:password", :frame=>frame)
-      checkbox(:timed_assessment, :id=>"assessmentSettingsAction:selTimeAssess", :frame=>frame)
-      select_list(:limit_hour, :id=>"assessmentSettingsAction:timedHours", :frame=>frame)
-      select_list(:limit_mins, :id=>"assessmentSettingsAction:timedMinutes", :frame=>frame)
-      radio_button(:linear_access) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:itemNavigation", :index=>$frame_index, :frame=>frame) }
-      radio_button(:random_access) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:itemNavigation", :index=>$frame_index, :frame=>frame) }
-      radio_button(:question_per_page) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:assessmentFormat", :index=>$frame_index, :frame=>frame) }
-      radio_button(:part_per_page) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:assessmentFormat", :index=>$frame_index, :frame=>frame) }
-      radio_button(:assessment_per_page) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:assessmentFormat", :index=>2, :frame=>frame) }
-      radio_button(:continuous_numbering) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:itemNumbering", :index=>$frame_index, :frame=>frame) }
-      radio_button(:restart_per_part) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:itemNumbering", :index=>$frame_index, :frame=>frame) }
-      checkbox(:add_mark_for_review, :id=>"assessmentSettingsAction:markForReview1", :frame=>frame)
-      radio_button(:unlimited_submissions) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:unlimitedSubmissions", :index=>$frame_index, :frame=>frame) }
-      radio_button(:only_x_submissions) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:unlimitedSubmissions", :index=>$frame_index, :frame=>frame) }
-      text_field(:allowed_submissions, :id=>"assessmentSettingsAction:submissions_Allowed", :frame=>frame)
-      radio_button(:late_submissions_not_accepted) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:lateHandling", :index=>$frame_index, :frame=>frame) }
-      radio_button(:late_submissions_accepted) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:lateHandling", :index=>$frame_index, :frame=>frame) }
-      text_area(:submission_message, :id=>"assessmentSettingsAction:_id245_textinput", :frame=>frame)
-      text_field(:final_page_url, :id=>"assessmentSettingsAction:finalPageUrl", :frame=>frame)
-      radio_button(:question_level_feedback) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:feedbackAuthoring", :index=>$frame_index, :frame=>frame) }
-      radio_button(:selection_level_feedback) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:feedbackAuthoring", :index=>$frame_index, :frame=>frame) }
-      radio_button(:both_feedback_levels) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:feedbackAuthoring", :index=>2, :frame=>frame) }
-      radio_button(:immediate_feedback) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:feedbackDelivery", :index=>$frame_index, :frame=>frame) }
-      radio_button(:feedback_on_submission) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:feedbackDelivery", :index=>$frame_index, :frame=>frame) }
-      radio_button(:no_feedback) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:feedbackDelivery", :index=>2, :frame=>frame) }
-      radio_button(:feedback_on_date) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:feedbackDelivery", :index=>3, :frame=>frame) }
-      text_field(:feedback_date, :id=>"assessmentSettingsAction:feedbackDate", :frame=>frame)
-      radio_button(:only_release_scores) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:feedbackComponentOption", :index=>$frame_index, :frame=>frame) }
-      radio_button(:release_questions_and) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:feedbackComponentOption", :index=>$frame_index, :frame=>frame) }
-      checkbox(:release_student_response, :id=>"assessmentSettingsAction:feedbackCheckbox1", :frame=>frame)
-      checkbox(:release_correct_response, :id=>"assessmentSettingsAction:feedbackCheckbox3", :frame=>frame)
-      checkbox(:release_students_assessment_scores, :id=>"assessmentSettingsAction:feedbackCheckbox5", :frame=>frame)
-      checkbox(:release_students_question_and_part_scores, :id=>"assessmentSettingsAction:feedbackCheckbox7", :frame=>frame)
-      checkbox(:release_question_level_feedback, :id=>"assessmentSettingsAction:feedbackCheckbox2", :frame=>frame)
-      checkbox(:release_selection_level_feedback, :id=>"assessmentSettingsAction:feedbackCheckbox4", :frame=>frame)
-      checkbox(:release_graders_comments, :id=>"assessmentSettingsAction:feedbackCheckbox6", :frame=>frame)
-      checkbox(:release_statistics, :id=>"assessmentSettingsAction:feedbackCheckbox8", :frame=>frame)
-      radio_button(:student_ids_seen) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:anonymousGrading1", :index=>$frame_index, :frame=>frame) }
-      radio_button(:anonymous_grading) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:anonymousGrading1", :index=>$frame_index, :frame=>frame) }
-      #radio_button(:no_gradebook_options) { |page| page.radio_button_element( :name=>"", :index=>$frame_index, :frame=>frame) }
-      #radio_button(:grades_sent_to_gradebook) { |page| page.radio_button_element( :name=>"", :index=>$frame_index, :frame=>frame) }
-      #radio_button(:record_highest_score) { |page| page.radio_button_element( :name=>"", :index=>$frame_index, :frame=>frame) }
-      #radio_button(:record_last_score) { |page| page.radio_button_element( :name=>"", :index=>$frame_index, :frame=>frame) }
-      #radio_button(:background_color) { |page| page.radio_button_element( :name=>"", :index=>$frame_index, :frame=>frame) }
-      #text_field(:color_value, :id=>"", :frame=>frame)
-      #radio_button(:background_image) { |page| page.radio_button_element( :name=>"", :index=>$frame_index, :frame=>frame) }
-      #text_field(:image_name, :=>"", :frame=>frame)
-      #text_field(:keywords, :=>"", :frame=>frame)
-      #text_field(:objectives, :=>"", :frame=>frame)
-      #text_field(:rubrics, :=>"", :frame=>frame)
-      #checkbox(:record_metadata_for_questions, :=>"", :frame=>frame)
-      button(:save, :name=>"assessmentSettingsAction:_id383", :frame=>frame)
-      button(:cancel, :name=>"assessmentSettingsAction:_id385", :frame=>frame)
+  in_frame(:class=>"portletMainIframe") do |frame|
+    link(:open, :text=>"Open", :frame=>frame)
+    link(:close, :text=>"Close", :frame=>frame)
+    text_field(:title, :id=>"assessmentSettingsAction:intro:assessment_title", :frame=>frame)
+    text_field(:authors, :id=>"assessmentSettingsAction:intro:assessment_author", :frame=>frame)
+    text_area(:description, :id=>"assessmentSettingsAction:intro:_id44_textinput", :frame=>frame)
+    button(:add_attachments_to_intro, :name=>"assessmentSettingsAction:intro:_id90", :frame=>frame)
+    text_field(:available_date, :id=>"assessmentSettingsAction:startDate", :frame=>frame)
+    text_field(:due_date, :id=>"assessmentSettingsAction:endDate", :frame=>frame)
+    text_field(:retract_date, :id=>"assessmentSettingsAction:retractDate", :frame=>frame)
+    radio_button(:released_to_anonymous) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:_id117", :index=>$frame_index, :frame=>frame) }
+    radio_button(:released_to_site) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:_id117", :index=>$frame_index, :frame=>frame) }
+    text_area(:specified_ips, :name=>"assessmentSettingsAction:_id132", :frame=>frame)
+    text_field(:secondary_id, :id=>"assessmentSettingsAction:username", :frame=>frame)
+    text_field(:secondary_pw, :id=>"assessmentSettingsAction:password", :frame=>frame)
+    checkbox(:timed_assessment, :id=>"assessmentSettingsAction:selTimeAssess", :frame=>frame)
+    select_list(:limit_hour, :id=>"assessmentSettingsAction:timedHours", :frame=>frame)
+    select_list(:limit_mins, :id=>"assessmentSettingsAction:timedMinutes", :frame=>frame)
+    radio_button(:linear_access) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:itemNavigation", :index=>$frame_index, :frame=>frame) }
+    radio_button(:random_access) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:itemNavigation", :index=>$frame_index, :frame=>frame) }
+    radio_button(:question_per_page) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:assessmentFormat", :index=>$frame_index, :frame=>frame) }
+    radio_button(:part_per_page) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:assessmentFormat", :index=>$frame_index, :frame=>frame) }
+    radio_button(:assessment_per_page) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:assessmentFormat", :index=>2, :frame=>frame) }
+    radio_button(:continuous_numbering) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:itemNumbering", :index=>$frame_index, :frame=>frame) }
+    radio_button(:restart_per_part) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:itemNumbering", :index=>$frame_index, :frame=>frame) }
+    checkbox(:add_mark_for_review, :id=>"assessmentSettingsAction:markForReview1", :frame=>frame)
+    radio_button(:unlimited_submissions) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:unlimitedSubmissions", :index=>$frame_index, :frame=>frame) }
+    radio_button(:only_x_submissions) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:unlimitedSubmissions", :index=>$frame_index, :frame=>frame) }
+    text_field(:allowed_submissions, :id=>"assessmentSettingsAction:submissions_Allowed", :frame=>frame)
+    radio_button(:late_submissions_not_accepted) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:lateHandling", :index=>$frame_index, :frame=>frame) }
+    radio_button(:late_submissions_accepted) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:lateHandling", :index=>$frame_index, :frame=>frame) }
+    text_area(:submission_message, :id=>"assessmentSettingsAction:_id245_textinput", :frame=>frame)
+    text_field(:final_page_url, :id=>"assessmentSettingsAction:finalPageUrl", :frame=>frame)
+    radio_button(:question_level_feedback) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:feedbackAuthoring", :index=>$frame_index, :frame=>frame) }
+    radio_button(:selection_level_feedback) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:feedbackAuthoring", :index=>$frame_index, :frame=>frame) }
+    radio_button(:both_feedback_levels) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:feedbackAuthoring", :index=>2, :frame=>frame) }
+    radio_button(:immediate_feedback) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:feedbackDelivery", :index=>$frame_index, :frame=>frame) }
+    radio_button(:feedback_on_submission) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:feedbackDelivery", :index=>$frame_index, :frame=>frame) }
+    radio_button(:no_feedback) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:feedbackDelivery", :index=>2, :frame=>frame) }
+    radio_button(:feedback_on_date) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:feedbackDelivery", :index=>3, :frame=>frame) }
+    text_field(:feedback_date, :id=>"assessmentSettingsAction:feedbackDate", :frame=>frame)
+    radio_button(:only_release_scores) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:feedbackComponentOption", :index=>$frame_index, :frame=>frame) }
+    radio_button(:release_questions_and) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:feedbackComponentOption", :index=>$frame_index, :frame=>frame) }
+    checkbox(:release_student_response, :id=>"assessmentSettingsAction:feedbackCheckbox1", :frame=>frame)
+    checkbox(:release_correct_response, :id=>"assessmentSettingsAction:feedbackCheckbox3", :frame=>frame)
+    checkbox(:release_students_assessment_scores, :id=>"assessmentSettingsAction:feedbackCheckbox5", :frame=>frame)
+    checkbox(:release_students_question_and_part_scores, :id=>"assessmentSettingsAction:feedbackCheckbox7", :frame=>frame)
+    checkbox(:release_question_level_feedback, :id=>"assessmentSettingsAction:feedbackCheckbox2", :frame=>frame)
+    checkbox(:release_selection_level_feedback, :id=>"assessmentSettingsAction:feedbackCheckbox4", :frame=>frame)
+    checkbox(:release_graders_comments, :id=>"assessmentSettingsAction:feedbackCheckbox6", :frame=>frame)
+    checkbox(:release_statistics, :id=>"assessmentSettingsAction:feedbackCheckbox8", :frame=>frame)
+    radio_button(:student_ids_seen) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:anonymousGrading1", :index=>$frame_index, :frame=>frame) }
+    radio_button(:anonymous_grading) { |page| page.radio_button_element( :name=>"assessmentSettingsAction:anonymousGrading1", :index=>$frame_index, :frame=>frame) }
+    #radio_button(:no_gradebook_options) { |page| page.radio_button_element( :name=>"", :index=>$frame_index, :frame=>frame) }
+    #radio_button(:grades_sent_to_gradebook) { |page| page.radio_button_element( :name=>"", :index=>$frame_index, :frame=>frame) }
+    #radio_button(:record_highest_score) { |page| page.radio_button_element( :name=>"", :index=>$frame_index, :frame=>frame) }
+    #radio_button(:record_last_score) { |page| page.radio_button_element( :name=>"", :index=>$frame_index, :frame=>frame) }
+    #radio_button(:background_color) { |page| page.radio_button_element( :name=>"", :index=>$frame_index, :frame=>frame) }
+    #text_field(:color_value, :id=>"", :frame=>frame)
+    #radio_button(:background_image) { |page| page.radio_button_element( :name=>"", :index=>$frame_index, :frame=>frame) }
+    #text_field(:image_name, :=>"", :frame=>frame)
+    #text_field(:keywords, :=>"", :frame=>frame)
+    #text_field(:objectives, :=>"", :frame=>frame)
+    #text_field(:rubrics, :=>"", :frame=>frame)
+    #checkbox(:record_metadata_for_questions, :=>"", :frame=>frame)
+    button(:save, :name=>"assessmentSettingsAction:_id383", :frame=>frame)
+    button(:cancel, :name=>"assessmentSettingsAction:_id385", :frame=>frame)
 
-    end
   end
 
 end
@@ -468,13 +448,12 @@ module EditAssessmentMethods
     frm.table(:id=>"assesssmentForm:parts:#{part_number.to_i-1}:parts").div(:class=>"tier3", :index=>question_number.to_i-1).text
   end
 
-  def self.page_elements(identifier)
-    in_frame(identifier) do |frame|
-      link(:assessments, :text=>"Assessments", :frame=>frame)
-      link(:assessment_types, :text=>"Assessment Types", :frame=>frame)
-      link(:print, :text=>"Print", :frame=>frame)
-      button(:update_points, :id=>"assesssmentForm:pointsUpdate", :frame=>frame)
-    end
+  in_frame(:class=>"portletMainIframe") do |frame|
+    link(:assessments, :text=>"Assessments", :frame=>frame)
+    link(:assessment_types, :text=>"Assessment Types", :frame=>frame)
+    link(:print, :text=>"Print", :frame=>frame)
+    button(:update_points, :id=>"assesssmentForm:pointsUpdate", :frame=>frame)
+
   end
 end
 
@@ -488,30 +467,26 @@ module AddEditAssessmentPartMethods
     EditAssessment.new(@browser)
   end
 
-  # Encapsulates all the PageObject code into a module
-  # method that can be called from the necessary class.
-  # @private
-  def self.page_elements(identifier)
-    in_frame(identifier) do |frame|
-      text_field(:title, :id=>"modifyPartForm:title", :frame=>frame)
-      text_area(:information, :id=>"modifyPartForm:_id10_textinput", :frame=>frame)
-      button(:add_attachments, :name=>"modifyPartForm:_id54", :frame=>frame)
-      radio_button(:questions_one_by_one) { |page| page.radio_button_element(:index=>0, :name=>"modifyPartForm:_id60", :frame=>frame)}
-      radio_button(:random_draw) { |page| page.radio_button_element(:index=>1, :name=>"modifyPartForm:_id60", :frame=>frame) }
-      select_list(:pool_name, :id=>"modifyPartForm:assignToPool", :frame=>frame)
-      text_field(:number_of_questions, :id=>"modifyPartForm:numSelected", :frame=>frame)
-      text_field(:point_value_of_questions, :id=>"modifyPartForm:numPointsRandom", :frame=>frame)
-      text_field(:negative_point_value, :id=>"modifyPartForm:numDiscountRandom", :frame=>frame)
-      radio_button(:randomized_each_time) { |page| page.radio_button_element(:index=>0, :name=>"modifyPartForm:randomizationType", :frame=>frame) }
-      radio_button(:randomized_once) { |page| page.radio_button_element(:index=>1, :name=>"modifyPartForm:randomizationType", :frame=>frame) }
-      radio_button(:order_as_listed) { |page| page.radio_button_element(:index=>0, :name=>"modifyPartForm:_id81", :frame=>frame) }
-      radio_button(:random_within_part) { |page| page.radio_button_element(:index=>1, :name=>"modifyPartForm:_id81", :frame=>frame) }
-      text_field(:objective, :id=>"modifyPartForm:obj", :frame=>frame)
-      text_field(:keyword, :id=>"modifyPartForm:keyword", :frame=>frame)
-      text_field(:rubric, :id=>"modifyPartForm:rubric", :frame=>frame)
-      button(:cancel, :name=>"modifyPartForm:_id90", :frame=>frame)
-    end
+  in_frame(:class=>"portletMainIframe") do |frame|
+    text_field(:title, :id=>"modifyPartForm:title", :frame=>frame)
+    text_area(:information, :id=>"modifyPartForm:_id10_textinput", :frame=>frame)
+    button(:add_attachments, :name=>"modifyPartForm:_id54", :frame=>frame)
+    radio_button(:questions_one_by_one) { |page| page.radio_button_element(:index=>0, :name=>"modifyPartForm:_id60", :frame=>frame)}
+    radio_button(:random_draw) { |page| page.radio_button_element(:index=>1, :name=>"modifyPartForm:_id60", :frame=>frame) }
+    select_list(:pool_name, :id=>"modifyPartForm:assignToPool", :frame=>frame)
+    text_field(:number_of_questions, :id=>"modifyPartForm:numSelected", :frame=>frame)
+    text_field(:point_value_of_questions, :id=>"modifyPartForm:numPointsRandom", :frame=>frame)
+    text_field(:negative_point_value, :id=>"modifyPartForm:numDiscountRandom", :frame=>frame)
+    radio_button(:randomized_each_time) { |page| page.radio_button_element(:index=>0, :name=>"modifyPartForm:randomizationType", :frame=>frame) }
+    radio_button(:randomized_once) { |page| page.radio_button_element(:index=>1, :name=>"modifyPartForm:randomizationType", :frame=>frame) }
+    radio_button(:order_as_listed) { |page| page.radio_button_element(:index=>0, :name=>"modifyPartForm:_id81", :frame=>frame) }
+    radio_button(:random_within_part) { |page| page.radio_button_element(:index=>1, :name=>"modifyPartForm:_id81", :frame=>frame) }
+    text_field(:objective, :id=>"modifyPartForm:obj", :frame=>frame)
+    text_field(:keyword, :id=>"modifyPartForm:keyword", :frame=>frame)
+    text_field(:rubric, :id=>"modifyPartForm:rubric", :frame=>frame)
+    button(:cancel, :name=>"modifyPartForm:_id90", :frame=>frame)
   end
+
 end
 
 # The review page once you've selected to Save and Publish
@@ -525,269 +500,207 @@ module PublishAssessmentMethods
     AssessmentsList.new(@browser)
   end
 
-  # Encapsulates all the PageObject code into a module
-  # method that can be called from the necessary class.
-  # @private
-  def self.page_elements(identifier)
-    in_frame(identifier) do |frame|
-      button(:cancel, :value=>"Cancel", :frame=>frame)
-      button(:edit, :name=>"publishAssessmentForm:_id23", :frame=>frame)
-      select_list(:notification, :id=>"publishAssessmentForm:number", :frame=>frame)
+  in_frame(:class=>"portletMainIframe") do |frame|
+    button(:cancel, :value=>"Cancel", :frame=>frame)
+    button(:edit, :name=>"publishAssessmentForm:_id23", :frame=>frame)
+    select_list(:notification, :id=>"publishAssessmentForm:number", :frame=>frame)
 
-    end
   end
+
 end
 
 # The page for setting up a multiple choice question
 module MultipleChoiceMethods
   include PageObject
-  include QuestionHelpers
 
-  # Encapsulates all the PageObject code into a module
-  # method that can be called from the necessary class.
-  # @private
-  def self.page_elements(identifier)
-    QuestionHelpers.menu_elements(identifier)
-    in_frame(identifier) do |frame|
-      button(:cancel, :value=>"Cancel", :frame=>frame)
-      text_field(:answer_point_value, :id=>"itemForm:answerptr", :frame=>frame)
-      link(:whats_this, :text=>"(What's This?)", :frame=>frame)
-      radio_button(:single_correct) { |page| page.radio_button_element(:name=>"itemForm:chooseAnswerTypeForMC", :index=>0, :frame=>frame) }
-      radio_button(:enable_negative_marking) { |page| page.radio_button_element(:name=>"itemForm:partialCreadit_NegativeMarking", :index=>0, :frame=>frame) }
+  in_frame(:class=>"portletMainIframe") do |frame|
+    button(:cancel, :value=>"Cancel", :frame=>frame)
+    text_field(:answer_point_value, :id=>"itemForm:answerptr", :frame=>frame)
+    link(:whats_this, :text=>"(What's This?)", :frame=>frame)
+    radio_button(:single_correct) { |page| page.radio_button_element(:name=>"itemForm:chooseAnswerTypeForMC", :index=>0, :frame=>frame) }
+    radio_button(:enable_negative_marking) { |page| page.radio_button_element(:name=>"itemForm:partialCreadit_NegativeMarking", :index=>0, :frame=>frame) }
 
-      # Element present when negative marking selected:
-      text_field(:negative_point_value, :id=>"itemForm:answerdsc", :frame=>frame)
+    # Element present when negative marking selected:
+    text_field(:negative_point_value, :id=>"itemForm:answerdsc", :frame=>frame)
 
-      radio_button(:enable_partial_credit) { |page| page.radio_button_element(:name=>"itemForm:partialCreadit_NegativeMarking", :index=>1, :frame=>frame) }
-      link(:reset_to_default, :text=>"Reset to Default Grading Logic", :frame=>frame)
-      radio_button(:multi_single) {|page| page.radio_button_element(:name=>"itemForm:chooseAnswerTypeForMC", :index=>1, :frame=>frame) }
-      radio_button(:multi_multi) {|page| page.radio_button_element(:name=>"itemForm:chooseAnswerTypeForMC", :index=>2, :frame=>frame) }
-      text_area(:question_text, :id=>"itemForm:_id82_textinput", :frame=>frame)
-      button(:add_attachments, :name=>"itemForm:_id126", :frame=>frame)
+    radio_button(:enable_partial_credit) { |page| page.radio_button_element(:name=>"itemForm:partialCreadit_NegativeMarking", :index=>1, :frame=>frame) }
+    link(:reset_to_default, :text=>"Reset to Default Grading Logic", :frame=>frame)
+    radio_button(:multi_single) {|page| page.radio_button_element(:name=>"itemForm:chooseAnswerTypeForMC", :index=>1, :frame=>frame) }
+    radio_button(:multi_multi) {|page| page.radio_button_element(:name=>"itemForm:chooseAnswerTypeForMC", :index=>2, :frame=>frame) }
+    text_area(:question_text, :id=>"itemForm:_id82_textinput", :frame=>frame)
+    button(:add_attachments, :name=>"itemForm:_id126", :frame=>frame)
 
-      text_area(:answer_a, :id=>"itemForm:mcchoices:0:_id140_textinput", :frame=>frame)
-      link(:remove_a, :id=>"itemForm:mcchoices:0:removelinkSingle", :frame=>frame)
-      text_area(:answer_b, :id=>"itemForm:mcchoices:1:_id140_textinput", :frame=>frame)
-      link(:remove_b, :id=>"itemForm:mcchoices:1:removelinkSingle", :frame=>frame)
-      text_area(:answer_c, :id=>"itemForm:mcchoices:2:_id140_textinput", :frame=>frame)
-      link(:remove_c, :id=>"itemForm:mcchoices:2:removelinkSingle", :frame=>frame)
-      text_area(:answer_d, :id=>"itemForm:mcchoices:3:_id140_textinput", :frame=>frame)
-      link(:remove_d, :id=>"itemForm:mcchoices:3:removelinkSingle", :frame=>frame)
+    text_area(:answer_a, :id=>"itemForm:mcchoices:0:_id140_textinput", :frame=>frame)
+    link(:remove_a, :id=>"itemForm:mcchoices:0:removelinkSingle", :frame=>frame)
+    text_area(:answer_b, :id=>"itemForm:mcchoices:1:_id140_textinput", :frame=>frame)
+    link(:remove_b, :id=>"itemForm:mcchoices:1:removelinkSingle", :frame=>frame)
+    text_area(:answer_c, :id=>"itemForm:mcchoices:2:_id140_textinput", :frame=>frame)
+    link(:remove_c, :id=>"itemForm:mcchoices:2:removelinkSingle", :frame=>frame)
+    text_area(:answer_d, :id=>"itemForm:mcchoices:3:_id140_textinput", :frame=>frame)
+    link(:remove_d, :id=>"itemForm:mcchoices:3:removelinkSingle", :frame=>frame)
 
-      # Radio buttons that appear when "single correct" is selected
-      radio_button(:a_correct, :name=>"itemForm:mcchoices:0:mcradiobtn", :frame=>frame)
-      radio_button(:b_correct, :name=>"itemForm:mcchoices:1:mcradiobtn", :frame=>frame)
-      radio_button(:c_correct, :name=>"itemForm:mcchoices:2:mcradiobtn", :frame=>frame)
-      radio_button(:d_correct, :name=>"itemForm:mcchoices:3:mcradiobtn", :frame=>frame)
+    # Radio buttons that appear when "single correct" is selected
+    radio_button(:a_correct, :name=>"itemForm:mcchoices:0:mcradiobtn", :frame=>frame)
+    radio_button(:b_correct, :name=>"itemForm:mcchoices:1:mcradiobtn", :frame=>frame)
+    radio_button(:c_correct, :name=>"itemForm:mcchoices:2:mcradiobtn", :frame=>frame)
+    radio_button(:d_correct, :name=>"itemForm:mcchoices:3:mcradiobtn", :frame=>frame)
 
-      # % Value fields that appear when "single correct" and "partial credit" selected
-      text_field(:a_value, :id=>"itemForm:mcchoices:0:partialCredit", :frame=>frame)
-      text_field(:b_value, :id=>"itemForm:mcchoices:1:partialCredit", :frame=>frame)
-      text_field(:c_value, :id=>"itemForm:mcchoices:2:partialCredit", :frame=>frame)
-      text_field(:d_value, :id=>"itemForm:mcchoices:3:partialCredit", :frame=>frame)
+    # % Value fields that appear when "single correct" and "partial credit" selected
+    text_field(:a_value, :id=>"itemForm:mcchoices:0:partialCredit", :frame=>frame)
+    text_field(:b_value, :id=>"itemForm:mcchoices:1:partialCredit", :frame=>frame)
+    text_field(:c_value, :id=>"itemForm:mcchoices:2:partialCredit", :frame=>frame)
+    text_field(:d_value, :id=>"itemForm:mcchoices:3:partialCredit", :frame=>frame)
 
-      link(:reset_score_values, :text=>"Reset Score Values", :frame=>frame)
+    link(:reset_score_values, :text=>"Reset Score Values", :frame=>frame)
 
-      # Checkboxes that appear when "multiple correct" is selected
-      checkbox(:a_correct, :name=>"itemForm:mcchoices:0:mccheckboxes", :frame=>frame)
-      checkbox(:b_correct, :name=>"itemForm:mcchoices:1:mccheckboxes", :frame=>frame)
-      checkbox(:c_correct, :name=>"itemForm:mcchoices:2:mccheckboxes", :frame=>frame)
-      checkbox(:d_correct, :name=>"itemForm:mcchoices:3:mccheckboxes", :frame=>frame)
+    # Checkboxes that appear when "multiple correct" is selected
+    checkbox(:a_correct, :name=>"itemForm:mcchoices:0:mccheckboxes", :frame=>frame)
+    checkbox(:b_correct, :name=>"itemForm:mcchoices:1:mccheckboxes", :frame=>frame)
+    checkbox(:c_correct, :name=>"itemForm:mcchoices:2:mccheckboxes", :frame=>frame)
+    checkbox(:d_correct, :name=>"itemForm:mcchoices:3:mccheckboxes", :frame=>frame)
 
-      select_list(:insert_additional_answers, :id=>"itemForm:insertAdditionalAnswerSelectMenu", :frame=>frame)
-      radio_button(:randomize_answers_yes) {|page| page.radio_button_element(:index=>0, :name=>"itemForm:_id162", :frame=>frame) }
-      radio_button(:randomize_answers_no) {|page| page.radio_button_element(:index=>1, :name=>"itemForm:_id162", :frame=>frame) }
-      radio_button(:require_rationale_yes) {|page| page.radio_button_element(:index=>0, :name=>"itemForm:_id166", :frame=>frame) }
-      radio_button(:require_rationale_no) {|page| page.radio_button_element(:index=>1, :name=>"itemForm:_id166", :frame=>frame) }
-      select_list(:assign_to_part, :id=>"itemForm:assignToPart", :frame=>frame)
-      select_list(:assign_to_pool, :id=>"itemForm:assignToPool", :frame=>frame)
-      text_area(:feedback_for_correct, :id=>"itemForm:_id186_textinput", :frame=>frame)
-      text_area(:feedback_for_incorrect, :id=>"itemForm:_id190_textinput", :frame=>frame)
+    select_list(:insert_additional_answers, :id=>"itemForm:insertAdditionalAnswerSelectMenu", :frame=>frame)
+    radio_button(:randomize_answers_yes) {|page| page.radio_button_element(:index=>0, :name=>"itemForm:_id162", :frame=>frame) }
+    radio_button(:randomize_answers_no) {|page| page.radio_button_element(:index=>1, :name=>"itemForm:_id162", :frame=>frame) }
+    radio_button(:require_rationale_yes) {|page| page.radio_button_element(:index=>0, :name=>"itemForm:_id166", :frame=>frame) }
+    radio_button(:require_rationale_no) {|page| page.radio_button_element(:index=>1, :name=>"itemForm:_id166", :frame=>frame) }
+    select_list(:assign_to_part, :id=>"itemForm:assignToPart", :frame=>frame)
+    select_list(:assign_to_pool, :id=>"itemForm:assignToPool", :frame=>frame)
+    text_area(:feedback_for_correct, :id=>"itemForm:_id186_textinput", :frame=>frame)
+    text_area(:feedback_for_incorrect, :id=>"itemForm:_id190_textinput", :frame=>frame)
 
-    end
   end
 end
 
 # The page for setting up a Survey question
 module SurveyMethods
   include PageObject
-  include QuestionHelpers
 
-  # Encapsulates all the PageObject code into a module
-  # method that can be called from the necessary class.
-  # @private
-  def self.page_elements(identifier)
-    QuestionHelpers.menu_elements(identifier)
-    in_frame(identifier) do |frame|
-      button(:cancel, :id=>"itemForm:_id63", :frame=>frame)
-      text_area(:question_text, :id=>"itemForm:_id69_textinput", :frame=>frame)
-      button(:add_attachments, :id=>"itemForm:_id113", :frame=>frame)
-      radio_button(:yes_no) { |page| page.radio_button_element(:index=>0, :name=>"itemForm:selectscale", :frame=>frame) }
-      radio_button(:disagree_agree) {|page| page.radio_button_element(:index=>1, :name=>"itemForm:selectscale", :frame=>frame) }
-      radio_button(:disagree_undecided) {|page| page.radio_button_element(:index=>2, :name=>"itemForm:selectscale", :frame=>frame) }
-      radio_button(:below_above) {|page| page.radio_button_element(:index=>3, :name=>"itemForm:selectscale", :frame=>frame)}
-      radio_button(:strongly_agree) {|page| page.radio_button_element(:index=>4, :name=>"itemForm:selectscale", :frame=>frame)}
-      radio_button(:unacceptable_excellent) {|page| page.radio_button_element(:index=>5, :name=>"itemForm:selectscale", :frame=>frame)}
-      radio_button(:one_to_five) {|page| page.radio_button_element(:index=>6, :name=>"itemForm:selectscale", :frame=>frame)}
-      radio_button(:one_to_ten) {|page| page.radio_button_element(:index=>7, :name=>"itemForm:selectscale", :frame=>frame)}
-      text_area(:feedback, :id=>"itemForm:_id140_textinput", :frame=>frame)
-      select_list(:assign_to_part, :id=>"itemForm:assignToPart", :frame=>frame)
-      select_list(:assign_to_pool, :id=>"itemForm:assignToPool", :frame=>frame)
-
-    end
+  in_frame(:class=>"portletMainIframe") do |frame|
+    button(:cancel, :id=>"itemForm:_id63", :frame=>frame)
+    text_area(:question_text, :id=>"itemForm:_id69_textinput", :frame=>frame)
+    button(:add_attachments, :id=>"itemForm:_id113", :frame=>frame)
+    radio_button(:yes_no) { |page| page.radio_button_element(:index=>0, :name=>"itemForm:selectscale", :frame=>frame) }
+    radio_button(:disagree_agree) {|page| page.radio_button_element(:index=>1, :name=>"itemForm:selectscale", :frame=>frame) }
+    radio_button(:disagree_undecided) {|page| page.radio_button_element(:index=>2, :name=>"itemForm:selectscale", :frame=>frame) }
+    radio_button(:below_above) {|page| page.radio_button_element(:index=>3, :name=>"itemForm:selectscale", :frame=>frame)}
+    radio_button(:strongly_agree) {|page| page.radio_button_element(:index=>4, :name=>"itemForm:selectscale", :frame=>frame)}
+    radio_button(:unacceptable_excellent) {|page| page.radio_button_element(:index=>5, :name=>"itemForm:selectscale", :frame=>frame)}
+    radio_button(:one_to_five) {|page| page.radio_button_element(:index=>6, :name=>"itemForm:selectscale", :frame=>frame)}
+    radio_button(:one_to_ten) {|page| page.radio_button_element(:index=>7, :name=>"itemForm:selectscale", :frame=>frame)}
+    text_area(:feedback, :id=>"itemForm:_id140_textinput", :frame=>frame)
+    select_list(:assign_to_part, :id=>"itemForm:assignToPart", :frame=>frame)
+    select_list(:assign_to_pool, :id=>"itemForm:assignToPool", :frame=>frame)
   end
 end
 
 #  The page for setting up a Short Answer/Essay question
 module ShortAnswerMethods
   include PageObject
-  include QuestionHelpers
 
-  # Encapsulates all the PageObject code into a module
-  # method that can be called from the necessary class.
-  # @private
-  def self.page_elements(identifier)
-    QuestionHelpers.menu_elements(identifier)
-    in_frame(identifier) do |frame|
-      button(:cancel, :id=>"itemForm:_id63", :frame=>frame)
-      text_field(:answer_point_value, :id=>"itemForm:answerptr", :frame=>frame)
-      text_area(:question_text, :id=>"itemForm:_id69_textinput", :frame=>frame)
-      button(:add_attachments, :id=>"itemForm:_id113", :frame=>frame)
-      text_area(:model_short_answer, :id=>"itemForm:_id129_textinput", :frame=>frame)
-      text_area(:feedback, :id=>"itemForm:_id133_textinput", :frame=>frame)
-      select_list(:assign_to_part, :id=>"itemForm:assignToPart", :frame=>frame)
-      select_list(:assign_to_pool, :id=>"itemForm:assignToPool", :frame=>frame)
-
-    end
+  in_frame(:class=>"portletMainIframe") do |frame|
+    button(:cancel, :id=>"itemForm:_id63", :frame=>frame)
+    text_field(:answer_point_value, :id=>"itemForm:answerptr", :frame=>frame)
+    text_area(:question_text, :id=>"itemForm:_id69_textinput", :frame=>frame)
+    button(:add_attachments, :id=>"itemForm:_id113", :frame=>frame)
+    text_area(:model_short_answer, :id=>"itemForm:_id129_textinput", :frame=>frame)
+    text_area(:feedback, :id=>"itemForm:_id133_textinput", :frame=>frame)
+    select_list(:assign_to_part, :id=>"itemForm:assignToPart", :frame=>frame)
+    select_list(:assign_to_pool, :id=>"itemForm:assignToPool", :frame=>frame)
   end
 end
 
 #  The page for setting up a Fill-in-the-blank question
 module FillInBlankMethods
   include PageObject
-  include QuestionHelpers
 
-  # Encapsulates all the PageObject code into a module
-  # method that can be called from the necessary class.
-  # @private
-  def self.page_elements(identifier)
-    QuestionHelpers.menu_elements(identifier)
-    in_frame(identifier) do |frame|
-      button(:cancel, :id=>"itemForm:_id63", :frame=>frame)
-      text_field(:answer_point_value, :id=>"itemForm:answerptr", :frame=>frame)
-      text_area(:question_text, :id=>"itemForm:_id75_textinput", :frame=>frame)
-      checkbox(:case_sensitive, :name=>"itemForm:_id76", :frame=>frame)
-      checkbox(:mutually_exclusive, :name=>"itemForm:_id78", :frame=>frame)
-      button(:add_attachments, :id=>"itemForm:_id126", :frame=>frame)
-      select_list(:assign_to_part, :id=>"itemForm:assignToPart", :frame=>frame)
-      select_list(:assign_to_pool, :id=>"itemForm:assignToPool", :frame=>frame)
+  in_frame(:class=>"portletMainIframe") do |frame|
+    button(:cancel, :id=>"itemForm:_id63", :frame=>frame)
+    text_field(:answer_point_value, :id=>"itemForm:answerptr", :frame=>frame)
+    text_area(:question_text, :id=>"itemForm:_id75_textinput", :frame=>frame)
+    checkbox(:case_sensitive, :name=>"itemForm:_id76", :frame=>frame)
+    checkbox(:mutually_exclusive, :name=>"itemForm:_id78", :frame=>frame)
+    button(:add_attachments, :id=>"itemForm:_id126", :frame=>frame)
+    select_list(:assign_to_part, :id=>"itemForm:assignToPart", :frame=>frame)
+    select_list(:assign_to_pool, :id=>"itemForm:assignToPool", :frame=>frame)
 
-    end
   end
 end
 
 #  The page for setting up a numeric response question
 module NumericResponseMethods
   include PageObject
-  include QuestionHelpers
 
-  # Encapsulates all the PageObject code into a module
-  # method that can be called from the necessary class.
-  # @private
-  def self.page_elements(identifier)
-    QuestionHelpers.menu_elements(identifier)
-    in_frame(identifier) do |frame|
-      button(:cancel, :id=>"itemForm:_id63", :frame=>frame)
-      text_field(:answer_point_value, :id=>"itemForm:answerptr", :frame=>frame)
-      text_area(:question_text, :id=>"itemForm:_id73_textinput", :frame=>frame)
-      button(:add_attachments, :id=>"itemForm:_id117", :frame=>frame)
-      text_area(:feedback_for_correct, :id=>"itemForm:_id133_textinput", :frame=>frame)
-      text_area(:feedback_for_incorrect, :id=>"itemForm:_id135_textinput", :frame=>frame)
-      select_list(:assign_to_part, :id=>"itemForm:assignToPart", :frame=>frame)
-      select_list(:assign_to_pool, :id=>"itemForm:assignToPool", :frame=>frame)
+  in_frame(:class=>"portletMainIframe") do |frame|
+    button(:cancel, :id=>"itemForm:_id63", :frame=>frame)
+    text_field(:answer_point_value, :id=>"itemForm:answerptr", :frame=>frame)
+    text_area(:question_text, :id=>"itemForm:_id73_textinput", :frame=>frame)
+    button(:add_attachments, :id=>"itemForm:_id117", :frame=>frame)
+    text_area(:feedback_for_correct, :id=>"itemForm:_id133_textinput", :frame=>frame)
+    text_area(:feedback_for_incorrect, :id=>"itemForm:_id135_textinput", :frame=>frame)
+    select_list(:assign_to_part, :id=>"itemForm:assignToPart", :frame=>frame)
+    select_list(:assign_to_pool, :id=>"itemForm:assignToPool", :frame=>frame)
 
-    end
   end
 end
 
 #  The page for setting up a matching question
 module MatchingMethods
   include PageObject
-  include QuestionHelpers
 
-  # Encapsulates all the PageObject code into a module
-  # method that can be called from the necessary class.
-  # @private
-  def self.page_elements(identifier)
-    QuestionHelpers.menu_elements(identifier)
-    in_frame(identifier) do |frame|
-      button(:cancel, :id=>"itemForm:_id63", :frame=>frame)
-      text_field(:answer_point_value, :id=>"itemForm:answerptr", :frame=>frame)
-      text_area(:question_text, :id=>"itemForm:_id78_textinput", :frame=>frame)
-      button(:add_attachments, :id=>"itemForm:_id122", :frame=>frame)
-      text_area(:choice, :id=>"itemForm:_id147_textinput", :frame=>frame)
-      text_area(:match, :id=>"itemForm:_id151_textinput", :frame=>frame)
-      button(:save_pairing, :name=>"itemForm:_id164", :frame=>frame)
-      text_area(:feedback_for_correct, :id=>"itemForm:_id184_textinput", :frame=>frame)
-      text_area(:feedback_for_incorrect, :id=>"itemForm:_id189_textinput", :frame=>frame)
-      select_list(:assign_to_part, :id=>"itemForm:assignToPart", :frame=>frame)
-      select_list(:assign_to_pool, :id=>"itemForm:assignToPool", :frame=>frame)
+  in_frame(:class=>"portletMainIframe") do |frame|
+    button(:cancel, :id=>"itemForm:_id63", :frame=>frame)
+    text_field(:answer_point_value, :id=>"itemForm:answerptr", :frame=>frame)
+    text_area(:question_text, :id=>"itemForm:_id78_textinput", :frame=>frame)
+    button(:add_attachments, :id=>"itemForm:_id122", :frame=>frame)
+    text_area(:choice, :id=>"itemForm:_id147_textinput", :frame=>frame)
+    text_area(:match, :id=>"itemForm:_id151_textinput", :frame=>frame)
+    button(:save_pairing, :name=>"itemForm:_id164", :frame=>frame)
+    text_area(:feedback_for_correct, :id=>"itemForm:_id184_textinput", :frame=>frame)
+    text_area(:feedback_for_incorrect, :id=>"itemForm:_id189_textinput", :frame=>frame)
+    select_list(:assign_to_part, :id=>"itemForm:assignToPart", :frame=>frame)
+    select_list(:assign_to_pool, :id=>"itemForm:assignToPool", :frame=>frame)
 
-    end
   end
 end
 
 #  The page for setting up a True/False question
 module TrueFalseMethods
   include PageObject
-  include QuestionHelpers
 
-  # Encapsulates all the PageObject code into a module
-  # method that can be called from the necessary class.
-  # @private
-  def self.page_elements(identifier)
-    QuestionHelpers.menu_elements(identifier)
-    in_frame(identifier) do |frame|
-      button(:cancel, :id=>"itemForm:_id63", :frame=>frame)
-      text_field(:answer_point_value, :id=>"itemForm:answerptr", :frame=>frame)
-      text_area(:question_text, :id=>"itemForm:_id77_textinput", :frame=>frame)
-      button(:add_attachments, :id=>"itemForm:_id121", :frame=>frame)
-      text_field(:negative_point_value, :id=>"itemForm:answerdsc", :frame=>frame)
-      radio_button(:answer_true) {|page| page.radio_button_element(:index=>0, :name=>"itemForm:TF", :frame=>frame)}
-      radio_button(:answer_false) {|page| page.radio_button_element(:index=>1, :name=>"itemForm:TF", :frame=>frame)}
-      radio_button(:required_rationale_yes) {|page| page.radio_button_element(:index=>0, :name=>"itemForm:rational", :frame=>frame)}
-      radio_button(:required_rationale_no) {|page| page.radio_button_element(:index=>1, :name=>"itemForm:rational", :frame=>frame)}
-      text_area(:feedback_for_correct, :id=>"itemForm:_id148_textinput", :frame=>frame)
-      text_area(:feedback_for_incorrect, :id=>"itemForm:_id152_textinput", :frame=>frame)
-      select_list(:assign_to_part, :id=>"itemForm:assignToPart", :frame=>frame)
-      select_list(:assign_to_pool, :id=>"itemForm:assignToPool", :frame=>frame)
+  in_frame(:class=>"portletMainIframe") do |frame|
+    button(:cancel, :id=>"itemForm:_id63", :frame=>frame)
+    text_field(:answer_point_value, :id=>"itemForm:answerptr", :frame=>frame)
+    text_area(:question_text, :id=>"itemForm:_id77_textinput", :frame=>frame)
+    button(:add_attachments, :id=>"itemForm:_id121", :frame=>frame)
+    text_field(:negative_point_value, :id=>"itemForm:answerdsc", :frame=>frame)
+    radio_button(:answer_true) {|page| page.radio_button_element(:index=>0, :name=>"itemForm:TF", :frame=>frame)}
+    radio_button(:answer_false) {|page| page.radio_button_element(:index=>1, :name=>"itemForm:TF", :frame=>frame)}
+    radio_button(:required_rationale_yes) {|page| page.radio_button_element(:index=>0, :name=>"itemForm:rational", :frame=>frame)}
+    radio_button(:required_rationale_no) {|page| page.radio_button_element(:index=>1, :name=>"itemForm:rational", :frame=>frame)}
+    text_area(:feedback_for_correct, :id=>"itemForm:_id148_textinput", :frame=>frame)
+    text_area(:feedback_for_incorrect, :id=>"itemForm:_id152_textinput", :frame=>frame)
+    select_list(:assign_to_part, :id=>"itemForm:assignToPart", :frame=>frame)
+    select_list(:assign_to_pool, :id=>"itemForm:assignToPool", :frame=>frame)
 
-    end
   end
 end
 
 #  The page for setting up a question that requires an audio response
 module AudioRecordingMethods
   include PageObject
-  include QuestionHelpers
 
-  # Encapsulates all the PageObject code into a module
-  # method that can be called from the necessary class.
-  # @private
-  def self.page_elements(identifier)
-    QuestionHelpers.menu_elements(identifier)
-    in_frame(identifier) do |frame|
-      button(:cancel, :id=>"itemForm:_id63", :frame=>frame)
-      text_field(:answer_point_value, :id=>"itemForm:answerptr", :frame=>frame)
-      text_area(:question_text, :id=>"itemForm:_id69_textinput", :frame=>frame)
-      button(:add_attachments, :id=>"itemForm:_id113", :frame=>frame)
-      text_field(:time_allowed, :id=>"itemForm:timeallowed", :frame=>frame)
-      select_list(:number_of_attempts, :id=>"itemForm:noattempts", :frame=>frame)
-      text_field(:feedback, :id=>"itemForm:_id146_textinput", :frame=>frame)
-      select_list(:assign_to_part, :id=>"itemForm:assignToPart", :frame=>frame)
-      select_list(:assign_to_pool, :id=>"itemForm:assignToPool", :frame=>frame)
+  in_frame(:class=>"portletMainIframe") do |frame|
+    button(:cancel, :id=>"itemForm:_id63", :frame=>frame)
+    text_field(:answer_point_value, :id=>"itemForm:answerptr", :frame=>frame)
+    text_area(:question_text, :id=>"itemForm:_id69_textinput", :frame=>frame)
+    button(:add_attachments, :id=>"itemForm:_id113", :frame=>frame)
+    text_field(:time_allowed, :id=>"itemForm:timeallowed", :frame=>frame)
+    select_list(:number_of_attempts, :id=>"itemForm:noattempts", :frame=>frame)
+    text_field(:feedback, :id=>"itemForm:_id146_textinput", :frame=>frame)
+    select_list(:assign_to_part, :id=>"itemForm:assignToPart", :frame=>frame)
+    select_list(:assign_to_pool, :id=>"itemForm:assignToPool", :frame=>frame)
 
-    end
   end
 end
 
@@ -795,38 +708,29 @@ end
 # attaching a file
 module FileUploadMethods
   include PageObject
-  include QuestionHelpers
 
-  # Encapsulates all the PageObject code into a module
-  # method that can be called from the necessary class.
-  # @private
-  def self.page_elements(identifier)
-    QuestionHelpers.menu_elements(identifier)
-    in_frame(identifier) do |frame|
-      button(:cancel, :id=>"itemForm:_id63", :frame=>frame)
-      text_field(:answer_point_value, :id=>"itemForm:answerptr", :frame=>frame)
-      text_area(:question_text, :id=>"itemForm:_id69_textinput", :frame=>frame)
-      button(:add_attachments, :id=>"itemForm:_id113", :frame=>frame)
-      text_field(:feedback, :id=>"itemForm:_id130_textinput", :frame=>frame)
-      select_list(:assign_to_part, :id=>"itemForm:assignToPart", :frame=>frame)
-      select_list(:assign_to_pool, :id=>"itemForm:assignToPool", :frame=>frame)
+  in_frame(:class=>"portletMainIframe") do |frame|
+    button(:cancel, :id=>"itemForm:_id63", :frame=>frame)
+    text_field(:answer_point_value, :id=>"itemForm:answerptr", :frame=>frame)
+    text_area(:question_text, :id=>"itemForm:_id69_textinput", :frame=>frame)
+    button(:add_attachments, :id=>"itemForm:_id113", :frame=>frame)
+    text_field(:feedback, :id=>"itemForm:_id130_textinput", :frame=>frame)
+    select_list(:assign_to_part, :id=>"itemForm:assignToPart", :frame=>frame)
+    select_list(:assign_to_pool, :id=>"itemForm:assignToPool", :frame=>frame)
 
-    end
   end
 end
 
 # The page that appears when you are editing a type of assessment
 module EditAssessmentTypeMethods
   include PageObject
-  def self.page_elements(identifier)
-    in_frame(identifier) do |frame|
-      #(:, :=>"", :frame=>frame)
-      #(:, :=>"", :frame=>frame)
-      #(:, :=>"", :frame=>frame)
-      #(:, :=>"", :frame=>frame)
-      #(:, :=>"", :frame=>frame)
+  in_frame(:class=>"portletMainIframe") do |frame|
+    #(:, :=>"", :frame=>frame)
+    #(:, :=>"", :frame=>frame)
+    #(:, :=>"", :frame=>frame)
+    #(:, :=>"", :frame=>frame)
+    #(:, :=>"", :frame=>frame)
 
-    end
   end
 end
 
@@ -848,18 +752,13 @@ module AddQuestionPoolMethods
     QuestionPoolsList.new @browser
   end
 
-  # Encapsulates all the PageObject code into a module
-  # method that can be called from the necessary class.
-  # @private
-  def self.page_elements(identifier)
-    in_frame(identifier) do |frame|
-      text_field(:pool_name, :id=>"questionpool:namefield", :frame=>frame)
-      text_field(:department_group, :id=>"questionpool:orgfield", :frame=>frame)
-      text_area(:description, :id=>"questionpool:descfield", :frame=>frame)
-      text_field(:objectives, :id=>"questionpool:objfield", :frame=>frame)
-      text_field(:keywords, :id=>"questionpool:keyfield", :frame=>frame)
+  in_frame(:class=>"portletMainIframe") do |frame|
+    text_field(:pool_name, :id=>"questionpool:namefield", :frame=>frame)
+    text_field(:department_group, :id=>"questionpool:orgfield", :frame=>frame)
+    text_area(:description, :id=>"questionpool:descfield", :frame=>frame)
+    text_field(:objectives, :id=>"questionpool:objfield", :frame=>frame)
+    text_field(:keywords, :id=>"questionpool:keyfield", :frame=>frame)
 
-    end
   end
 end
 
@@ -880,21 +779,16 @@ module EditQuestionPoolMethods
     QuestionPoolsList.new(@browser)
   end
 
-  # Encapsulates all the PageObject code into a module
-  # method that can be called from the necessary class.
-  # @private
-  def self.page_elements(identifier)
-    in_frame(identifier) do |frame|
-      text_field(:pool_name, :id=>"editform:namefield", :frame=>frame)
-      text_field(:department_group, :id=>"editform:orgfield", :frame=>frame)
-      text_area(:description, :id=>"editform:descfield", :frame=>frame)
-      text_field(:objectives, :id=>"editform:objfield", :frame=>frame)
-      text_field(:keywords, :id=>"editform:keyfield", :frame=>frame)
-      button(:update, :id=>"editform:Update", :frame=>frame)
-      button(:save, :id=>"questionpool:submit", :frame=>frame)
-      button(:cancel, :id=>"questionpool:_id11", :frame=>frame)
+  in_frame(:class=>"portletMainIframe") do |frame|
+    text_field(:pool_name, :id=>"editform:namefield", :frame=>frame)
+    text_field(:department_group, :id=>"editform:orgfield", :frame=>frame)
+    text_area(:description, :id=>"editform:descfield", :frame=>frame)
+    text_field(:objectives, :id=>"editform:objfield", :frame=>frame)
+    text_field(:keywords, :id=>"editform:keyfield", :frame=>frame)
+    button(:update, :id=>"editform:Update", :frame=>frame)
+    button(:save, :id=>"questionpool:submit", :frame=>frame)
+    button(:cancel, :id=>"questionpool:_id11", :frame=>frame)
 
-    end
   end
 end
 
@@ -946,13 +840,9 @@ module QuestionPoolsListMethods
     AssessmentsList.new(@browser)
   end
 
-  # Encapsulates all the PageObject code into a module
-  # method that can be called from the necessary class.
-  # @private
-  def self.page_elements(identifier)
-    in_frame(identifier) do |frame|
-      link(:assessment_types, :text=>"Assessment Types", :frame=>frame)
-    end
+  in_frame(:class=>"portletMainIframe") do |frame|
+    link(:assessment_types, :text=>"Assessment Types", :frame=>frame)
+
   end
 
 end
@@ -1007,13 +897,9 @@ module SelectQuestionTypeMethods
 
   end
 
-  # Encapsulates all the PageObject code into a module
-  # method that can be called from the necessary class.
-  # @private
-  def self.page_elements(identifier)
-    in_frame(identifier) do |frame|
-      button(:cancel, :value=>"Cancel", :frame=>frame)
-    end
+  in_frame(:class=>"portletMainIframe") do |frame|
+    button(:cancel, :value=>"Cancel", :frame=>frame)
+
   end
 end
 
@@ -1156,10 +1042,9 @@ module ConfirmSubmissionMethods
     SubmissionSummary.new(@browser)
   end
 
-  def self.page_elements(identifier)
-    in_frame(identifier) do |frame|
-      span(:validation, :class=>"validation", :frame=>frame)
-    end
+  in_frame(:class=>"portletMainIframe") do |frame|
+    span(:validation, :class=>"validation", :frame=>frame)
+
   end
 
 end
@@ -1174,10 +1059,9 @@ module SubmissionSummaryMethods
     TakeAssessmentList.new(@browser)
   end
 
-  def self.page_elements(identifier)
-    in_frame(identifier) do |frame|
-      div(:summary_info, :class=>"tier1", :frame=>frame)
-    end
+  in_frame(:class=>"portletMainIframe") do |frame|
+    div(:summary_info, :class=>"tier1", :frame=>frame)
+
   end
 
 end

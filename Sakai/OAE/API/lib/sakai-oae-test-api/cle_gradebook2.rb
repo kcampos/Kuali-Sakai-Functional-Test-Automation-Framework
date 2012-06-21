@@ -17,5 +17,5 @@ end
 class Gradebook2
   include PageObject
   include Gradebook2Frame
-  CLEElements.modularize(Gradebook2Methods, :index=>2)
+  include Gradebook2Methods, :index=>2)
 end

@@ -1,5 +1,5 @@
 #
 class BasicLTI
   include ToolsMenu
-  CLEElements.modularize(BasicLTIMethods, :class=>"portletMainIframe")
+  include BasicLTIMethods
 end

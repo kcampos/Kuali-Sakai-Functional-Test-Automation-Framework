@@ -16,14 +16,14 @@ end
 class Polls
   include PageObject
   include PollsFrame
-  CLEElements.modularize(PollsMethods, :class=>"portletMainIframe")
+  include PollsMethods
 end
 
 #
 class AddEditPoll
   include PageObject
   include PollsFrame
-  CLEElements.modularize(AddEditPollMethods, :class=>"portletMainIframe")
+  include AddEditPollMethods
 end
 
 #

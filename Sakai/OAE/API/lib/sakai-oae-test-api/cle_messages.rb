@@ -21,20 +21,20 @@ end
 class MessagesSentList
   include PageObject
   include MessagesFrame
-  CLEElements.modularize(MessagesSentListMethods, :class=>"portletMainIframe")
+  include MessagesSentListMethods
 end
 
 class MessagesReceivedList
   include PageObject
   include MessagesFrame
-  CLEElements.modularize(MessagesSentListMethods, :class=>"portletMainIframe")
+  include MessagesSentListMethods
 end
 
 # Page for the Contents of a Custom Folder for Messages
 class FolderList #FIXME
   include PageObject
   include MessagesFrame
-  CLEElements.modularize(FolderListMethods, :class=>"portletMainIframe")
+  include FolderListMethods
 end
 
 # Page that appears when you want to move a message
@@ -42,21 +42,21 @@ end
 class MoveMessageTo
   include PageObject
   include MessagesFrame
-  CLEElements.modularize(MoveMessageToMethods, :class=>"portletMainIframe")
+  include MoveMessageToMethods
 end
 
 # The page showing the list of deleted messages.
 class MessagesDeletedList
   include PageObject
   include MessagesFrame
-  CLEElements.modularize(MessagesDeletedListMethods, :class=>"portletMainIframe")
+  include MessagesDeletedListMethods
 end
 
 # The page showing the list of Draft messages.
 class MessagesDraftList
   include PageObject
   include MessagesFrame
-  CLEElements.modularize(MessagesDraftListMethods, :class=>"portletMainIframe")
+  include MessagesDraftListMethods
 end
 
 # The Page where you are reading a Message.
@@ -69,20 +69,20 @@ end
 class ComposeMessage
   include PageObject
   include MessagesFrame
-  CLEElements.modularize(ComposeMessageMethods, :class=>"portletMainIframe")
+  include ComposeMessageMethods
 end
 
 class ReplyToMessage
   include PageObject
   include MessagesFrame
-  CLEElements.modularize(ReplyToMessageMethods, :class=>"portletMainIframe")
+  include ReplyToMessageMethods
 end
 
 # The page for composing a message
 class ForwardMessage
   include PageObject
   include MessagesFrame
-  CLEElements.modularize(ForwardMessageMethods, :class=>"portletMainIframe")
+  include ForwardMessageMethods
 end
 
 # The page that appears when you select to
@@ -98,7 +98,7 @@ end
 class MessagesNewFolder
   include PageObject
   include MessagesFrame
-  CLEElements.modularize(MessagesNewFolderMethods, :class=>"portletMainIframe")
+  include MessagesNewFolderMethods
 end
 
 # The page for editing a Message Folder's settings

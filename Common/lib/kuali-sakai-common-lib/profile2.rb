@@ -136,33 +136,32 @@ module Profile2Methods
     end
   end
 
-  def self.page_elements(identifier)
-    in_frame(identifier) do |frame|
-      text_field(:say_something, :id=>"id1", :frame=>frame)
-      button(:say_it, :value=>"Say it", :frame=>frame)
-      # Basic Information
-      text_field(:nickname, :name=>"nicknameContainer:nickname", :frame=>frame)
-      # Contact Information
-      text_field(:email, :name=>"emailContainer:email", :frame=>frame)
-      text_field(:home_page, :name=>"homepageContainer:homepage", :frame=>frame)
-      text_field(:work_phone, :name=>"workphoneContainer:workphone", :frame=>frame)
-      text_field(:home_phone, :name=>"homephoneContainer:homephone", :frame=>frame)
-      text_field(:mobile_phone, :name=>"mobilephoneContainer:mobilephone", :frame=>frame)
-      text_field(:facsimile, :name=>"facsimileContainer:facsimile", :frame=>frame)
-      # Someday Staff Info fields should go here...
+  in_frame(:class=>"portletMainIframe") do |frame|
+    text_field(:say_something, :id=>"id1", :frame=>frame)
+    button(:say_it, :value=>"Say it", :frame=>frame)
+    # Basic Information
+    text_field(:nickname, :name=>"nicknameContainer:nickname", :frame=>frame)
+    # Contact Information
+    text_field(:email, :name=>"emailContainer:email", :frame=>frame)
+    text_field(:home_page, :name=>"homepageContainer:homepage", :frame=>frame)
+    text_field(:work_phone, :name=>"workphoneContainer:workphone", :frame=>frame)
+    text_field(:home_phone, :name=>"homephoneContainer:homephone", :frame=>frame)
+    text_field(:mobile_phone, :name=>"mobilephoneContainer:mobilephone", :frame=>frame)
+    text_field(:facsimile, :name=>"facsimileContainer:facsimile", :frame=>frame)
+    # Someday Staff Info fields should go here...
 
-      # Student Information
-      text_field(:degree_course, :name=>"courseContainer:course", :frame=>frame)
-      text_field(:subjects, :name=>"subjectsContainer:subjects", :frame=>frame)
-      # Social Networking
+    # Student Information
+    text_field(:degree_course, :name=>"courseContainer:course", :frame=>frame)
+    text_field(:subjects, :name=>"subjectsContainer:subjects", :frame=>frame)
+    # Social Networking
 
-      # Personal Information
-      text_area(:favorite_books, :name=>"booksContainer:favouriteBooks", :frame=>frame)
-      text_area(:favorite_tv_shows, :name=>"tvContainer:favouriteTvShows", :frame=>frame)
-      text_area(:favorite_movies, :name=>"moviesContainer:favouriteMovies", :frame=>frame)
-      text_area(:favorite_quotes, :name=>"quotesContainer:favouriteQuotes", :frame=>frame)
-    end
+    # Personal Information
+    text_area(:favorite_books, :name=>"booksContainer:favouriteBooks", :frame=>frame)
+    text_area(:favorite_tv_shows, :name=>"tvContainer:favouriteTvShows", :frame=>frame)
+    text_area(:favorite_movies, :name=>"moviesContainer:favouriteMovies", :frame=>frame)
+    text_area(:favorite_quotes, :name=>"quotesContainer:favouriteQuotes", :frame=>frame)
   end
+
 end
 
 module Profile2PreferencesMethods
@@ -172,32 +171,32 @@ module Profile2PreferencesMethods
     Profile2Preferences.new(@browser)
   end
 
-  def self.page_elements(identifier)
-    in_frame(identifier) do |frame|
-    end
+  in_frame(:class=>"portletMainIframe") do |frame|
+
   end
 end
 
 #
 module Profile2PrivacyMethods
   include PageObject
-  def self.page_elements(identifier)
-    in_frame(identifier) do |frame|
-      select_list(:profile_image, :name=>"profileImageContainer:profileImage", :frame=>frame)
-      select_list(:basic_info, :name=>"basicInfoContainer:basicInfo", :frame=>frame)
-      select_list(:contact_info, :name=>"contactInfoContainer:contactInfo", :frame=>frame)
-      select_list(:staff_info, :name=>"staffInfoContainer:staffInfo", :frame=>frame)
-      select_list(:student_info, :name=>"studentInfoContainer:studentInfo", :frame=>frame)
-      select_list(:social_info, :name=>"socialNetworkingInfoContainer:socialNetworkingInfo", :frame=>frame)
-      select_list(:personal_info, :name=>"personalInfoContainer:personalInfo", :frame=>frame)
-      select_list(:view_connections, :name=>"myFriendsContainer:myFriends", :frame=>frame)
-      select_list(:see_status, :name=>"myStatusContainer:myStatus", :frame=>frame)
-      select_list(:view_pictures, :name=>"myPicturesContainer:myPictures", :frame=>frame)
-      select_list(:send_messages, :name=>"messagesContainer:messages", :frame=>frame)
-      select_list(:see_kudos_rating, :name=>"myKudosContainer:myKudos", :frame=>frame)
-      checkbox(:show_birth_year, :name=>"birthYearContainer:birthYear", :frame=>frame)
-      button(:save_settings, :value=>"Save settings", :frame=>frame)
-    end
+
+  in_frame(:class=>"portletMainIframe") do |frame|
+
+    select_list(:profile_image, :name=>"profileImageContainer:profileImage", :frame=>frame)
+    select_list(:basic_info, :name=>"basicInfoContainer:basicInfo", :frame=>frame)
+    select_list(:contact_info, :name=>"contactInfoContainer:contactInfo", :frame=>frame)
+    select_list(:staff_info, :name=>"staffInfoContainer:staffInfo", :frame=>frame)
+    select_list(:student_info, :name=>"studentInfoContainer:studentInfo", :frame=>frame)
+    select_list(:social_info, :name=>"socialNetworkingInfoContainer:socialNetworkingInfo", :frame=>frame)
+    select_list(:personal_info, :name=>"personalInfoContainer:personalInfo", :frame=>frame)
+    select_list(:view_connections, :name=>"myFriendsContainer:myFriends", :frame=>frame)
+    select_list(:see_status, :name=>"myStatusContainer:myStatus", :frame=>frame)
+    select_list(:view_pictures, :name=>"myPicturesContainer:myPictures", :frame=>frame)
+    select_list(:send_messages, :name=>"messagesContainer:messages", :frame=>frame)
+    select_list(:see_kudos_rating, :name=>"myKudosContainer:myKudos", :frame=>frame)
+    checkbox(:show_birth_year, :name=>"birthYearContainer:birthYear", :frame=>frame)
+    button(:save_settings, :value=>"Save settings", :frame=>frame)
+
   end
 end
 
@@ -247,11 +246,10 @@ module Profile2SearchMethods
     Profile2Search.new(@browser)
   end
 
-  def self.page_elements(identifier)
-    in_frame(identifier) do |frame|
-      text_field(:persons_name_or_email, :name=>"searchName", :frame=>frame)
-      text_field(:common_interest, :name=>"searchInterest", :frame=>frame)
-    end
+  in_frame(:class=>"portletMainIframe") do |frame|
+    text_field(:persons_name_or_email, :name=>"searchName", :frame=>frame)
+    text_field(:common_interest, :name=>"searchInterest", :frame=>frame)
+
   end
 end
 
@@ -278,9 +276,8 @@ module Profile2ConnectionsMethods
     return results
   end
 
-  def self.page_elements(identifier)
-    in_frame(identifier) do |frame|
-    end
+  in_frame(:class=>"portletMainIframe") do |frame|
+
   end
 end
 

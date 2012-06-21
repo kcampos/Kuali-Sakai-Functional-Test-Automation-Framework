@@ -34,7 +34,7 @@ end
 class ComposeForumMessage
   include PageObject
   include ForumFrame
-  CLEElements.modularize(ComposeForumMessageMethods, :index=>2)
+  include ComposeForumMessageMethods, :index=>2)
 end
 
 class ForumTemplateSettings
@@ -52,11 +52,11 @@ end
 class EditForum
   include PageObject
   include ForumFrame
-  CLEElements.modularize(EditForumMethods, :index=>2)
+  include EditForumMethods, :index=>2)
 end
 
 class AddEditTopic
   include PageObject
   include ForumFrame
-  CLEElements.modularize(AddEditTopicMethods, :index=>2)
+  include AddEditTopicMethods, :index=>2)
 end

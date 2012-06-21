@@ -164,10 +164,9 @@ module ComposeForumMessageMethods
     end
   end
 
-  def self.page_elements(identifier)
-    in_frame(identifier) do |frame|
-      text_field(:title, :id=>"dfCompose:df_compose_title", :frame=>frame)
-    end
+  in_frame(:class=>"portletMainIframe") do |frame|
+    text_field(:title, :id=>"dfCompose:df_compose_title", :frame=>frame)
+
   end
 end
 
@@ -249,11 +248,10 @@ module EditForumMethods
     ForumsAddAttachments.new(@browser)
   end
 
-  def self.page_elements(identifier)
-    in_frame(identifier) do |frame|
-      text_field(:title, :id=>"revise:forum_title", :frame=>frame)
-      text_area(:short_description, :id=>"revise:forum_shortDescription", :frame=>frame)
-    end
+  in_frame(:class=>"portletMainIframe") do |frame|
+    text_field(:title, :id=>"revise:forum_title", :frame=>frame)
+    text_area(:short_description, :id=>"revise:forum_shortDescription", :frame=>frame)
+
   end
 end
 
@@ -302,11 +300,10 @@ module AddEditTopicMethods
     end
   end
 
-  def self.page_elements(identifier)
-    in_frame(identifier) do |frame|
-      text_field(:title, :id=>"revise:topic_title", :frame=>frame)
-      text_area(:short_description, :id=>"revise:topic_shortDescription", :frame=>frame)
-    end
+  in_frame(:class=>"portletMainIframe") do |frame|
+    text_field(:title, :id=>"revise:topic_title", :frame=>frame)
+    text_area(:short_description, :id=>"revise:topic_shortDescription", :frame=>frame)
+
   end
 end
 

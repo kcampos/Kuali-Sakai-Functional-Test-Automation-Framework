@@ -12,10 +12,14 @@ end
 # The same goes for adding days with different meeting times. This will hopefully
 # be supported in the future.
 class AddEditSections
+
+  identifier = {:class=>"portletMainIframe"}
+
   include PageObject
   include ToolsMenu
   include SectionsMenu
-  CLEElements.modularize(AddEditSectionsMethods, :class=>"portletMainIframe")
+  include AddEditSectionsMethods
+  #include AddEditSectionsMethods
 end
 
 #
@@ -23,7 +27,7 @@ class AssignTeachingAssistants
   include PageObject
   include ToolsMenu
   include SectionsMenu
-  CLEElements.modularize(AssignTeachingAssistantsMethods, :class=>"portletMainIframe")
+  include AssignTeachingAssistantsMethods
 end
 
 #
@@ -31,7 +35,7 @@ class AssignStudents
   include PageObject
   include ToolsMenu
   include SectionsMenu
-  CLEElements.modularize(AssignStudentsMethods, :class=>"portletMainIframe")
+  include AssignStudentsMethods
 end
 
 # The Options page for Sections.
@@ -39,5 +43,5 @@ class SectionsOptions
   include PageObject
   include ToolsMenu
   include SectionsMenu
-  CLEElements.modularize(AssignStudentsMethods, :class=>"portletMainIframe")
+  include AssignStudentsMethods
 end

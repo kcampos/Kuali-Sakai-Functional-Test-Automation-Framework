@@ -17,7 +17,7 @@ class Profile2
   include PageObject
   include Profile2Frame
   include Profile2Nav
-  CLEElements.modularize(Profile2Methods, :index=>2)
+  include Profile2Methods, :index=>2)
 end
 
 #
@@ -25,28 +25,28 @@ class Profile2Preferences
   include PageObject
   include Profile2Frame
   include Profile2Nav
-  CLEElements.modularize(Profile2PreferencesMethods, :index=>2)
+  include Profile2PreferencesMethods, :index=>2)
 end
 
 class Profile2Privacy
   include PageObject
   include Profile2Frame
   include Profile2Nav
-  CLEElements.modularize(Profile2PrivacyMethods, :index=>2)
+  include Profile2PrivacyMethods, :index=>2)
 end
 
 class Profile2Search
   include PageObject
   include Profile2Frame
   include Profile2Nav
-  CLEElements.modularize(Profile2SearchMethods, :index=>2)
+  include Profile2SearchMethods, :index=>2)
 end
 
 class Profile2Connections
   include PageObject
   include Profile2Frame
   include Profile2Nav
-  CLEElements.modularize(Profile2ConnectionsMethods, :index=>2)
+  include Profile2ConnectionsMethods, :index=>2)
 end
 
 class Profile2View

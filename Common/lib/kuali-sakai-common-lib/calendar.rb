@@ -298,24 +298,23 @@ module AddEditEventMethods
     frm.text_field(:name=>field).set(text)
   end
 
-  def self.page_elements(identifier)
-    in_frame(identifier) do |frame|
-      text_field(:title, :id=>"activitytitle", :frame=>frame)
-      select_list(:month, :id=>"month", :frame=>frame)
-      select_list(:day, :id=>"day", :frame=>frame)
-      select_list(:year, :id=>"yearSelect", :frame=>frame)
-      select_list(:start_hour, :id=>"startHour", :frame=>frame)
-      select_list(:start_minute, :id=>"startMinute", :frame=>frame)
-      select_list(:start_meridian, :id=>"startAmpm", :frame=>frame)
-      select_list(:hours, :id=>"duHour", :frame=>frame)
-      select_list(:minutes, :id=>"duMinute", :frame=>frame)
-      select_list(:end_hour, :id=>"endHour", :frame=>frame)
-      select_list(:end_minute, :id=>"endMinute", :frame=>frame)
-      select_list(:end_meridian, :id=>"endAmpm", :frame=>frame)
-      radio_button(:display_to_site, :id=>"site", :frame=>frame)
-      select_list(:event_type, :id=>"eventType", :frame=>frame)
-      text_area(:location, :name=>"location", :frame=>frame)
-    end
+  in_frame(:class=>"portletMainIframe") do |frame|
+    text_field(:title, :id=>"activitytitle", :frame=>frame)
+    select_list(:month, :id=>"month", :frame=>frame)
+    select_list(:day, :id=>"day", :frame=>frame)
+    select_list(:year, :id=>"yearSelect", :frame=>frame)
+    select_list(:start_hour, :id=>"startHour", :frame=>frame)
+    select_list(:start_minute, :id=>"startMinute", :frame=>frame)
+    select_list(:start_meridian, :id=>"startAmpm", :frame=>frame)
+    select_list(:hours, :id=>"duHour", :frame=>frame)
+    select_list(:minutes, :id=>"duMinute", :frame=>frame)
+    select_list(:end_hour, :id=>"endHour", :frame=>frame)
+    select_list(:end_minute, :id=>"endMinute", :frame=>frame)
+    select_list(:end_meridian, :id=>"endAmpm", :frame=>frame)
+    radio_button(:display_to_site, :id=>"site", :frame=>frame)
+    select_list(:event_type, :id=>"eventType", :frame=>frame)
+    text_area(:location, :name=>"location", :frame=>frame)
+
   end
 end
 
@@ -333,18 +332,17 @@ module EventFrequencyMethods
     AddEditEvent.new(@browser)
   end
 
-  def self.page_elements(identifier)
-    in_frame(identifier) do |frame|
-      select_list(:event_frequency, :id=>"frequencySelect", :frame=>frame)
-      select_list(:interval, :id=>"interval", :frame=>frame)
-      select_list(:ends_after, :name=>"count", :frame=>frame)
-      select_list(:ends_month, :id=>"endMonth", :frame=>frame)
-      select_list(:ends_day, :id=>"endDay", :frame=>frame)
-      select_list(:ends_year, :id=>"endYear", :frame=>frame)
-      radio_button(:after, :id=>"count", :frame=>frame)
-      radio_button(:on, :id=>"till", :frame=>frame)
-      radio_button(:never, :id=>"never", :frame=>frame)
-    end
+  in_frame(:class=>"portletMainIframe") do |frame|
+    select_list(:event_frequency, :id=>"frequencySelect", :frame=>frame)
+    select_list(:interval, :id=>"interval", :frame=>frame)
+    select_list(:ends_after, :name=>"count", :frame=>frame)
+    select_list(:ends_month, :id=>"endMonth", :frame=>frame)
+    select_list(:ends_day, :id=>"endDay", :frame=>frame)
+    select_list(:ends_year, :id=>"endYear", :frame=>frame)
+    radio_button(:after, :id=>"count", :frame=>frame)
+    radio_button(:on, :id=>"till", :frame=>frame)
+    radio_button(:never, :id=>"never", :frame=>frame)
+
   end
 end
 
@@ -380,10 +378,9 @@ module AddEditFieldsMethods
     frm.table(:class=>/listHier lines/).row(:text=>/#{Regexp.escape(field_name)}/).checkbox.set
   end
 
-  def self.page_elements(identifier)
-    in_frame(identifier) do |frame|
-      text_field(:field_name, :id=>"textfield", :frame=>frame)
-    end
+  in_frame(:class=>"portletMainIframe") do |frame|
+    text_field(:field_name, :id=>"textfield", :frame=>frame)
+
   end
 end
 
@@ -395,12 +392,11 @@ module ImportStepOneMethods
     ImportStepTwo.new(@browser)
   end
 
-  def self.page_elements(identifier)
-    in_frame(identifier) do |frame|
-      radio_button(:microsoft_outlook, :id=>"importType_Outlook", :frame=>frame)
-      radio_button(:meeting_maker, :id=>"importType_MeetingMaker", :frame=>frame)
-      radio_button(:generic_calendar_import, :id=>"importType_Generic", :frame=>frame)
-    end
+  in_frame(:class=>"portletMainIframe") do |frame|
+    radio_button(:microsoft_outlook, :id=>"importType_Outlook", :frame=>frame)
+    radio_button(:meeting_maker, :id=>"importType_MeetingMaker", :frame=>frame)
+    radio_button(:generic_calendar_import, :id=>"importType_Generic", :frame=>frame)
+
   end
 end
 
@@ -457,10 +453,9 @@ module ImportStepThreeMethods
     frm.table(:class=>/listHier lines/).row(:text=>/#{Regexp.escape(event_name)}/)
   end
 
-  def self.page_elements(identifier)
-    in_frame(identifier) do |frame|
-      radio_button(:import_events_for_site, :id=>"site", :frame=>frame)
-      radio_button(:import_events_for_selected_groups, :id=>"groups", :frame=>frame)
-    end
+  in_frame(:class=>"portletMainIframe") do |frame|
+    radio_button(:import_events_for_site, :id=>"site", :frame=>frame)
+    radio_button(:import_events_for_selected_groups, :id=>"groups", :frame=>frame)
+
   end
 end

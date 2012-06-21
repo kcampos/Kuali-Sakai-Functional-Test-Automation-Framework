@@ -5,5 +5,5 @@
 class News
   include PageObject
   include ToolsMenu
-  CLEElements.modularize(NewsMethods, :class=>"portletMainIframe")
+  include NewsMethods
 end

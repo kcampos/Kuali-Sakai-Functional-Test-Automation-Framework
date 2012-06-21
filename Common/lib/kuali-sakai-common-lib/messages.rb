@@ -128,10 +128,8 @@ module MessagesSentListMethods
     frm.span(:class=>"success").text
   end
 
-  def self.page_elements(identifier)
-    in_frame(identifier) do |frame|
-      link(:check_all, :text=>"Check All", :frame=>frame)
-    end
+  in_frame(:class=>"portletMainIframe") do |frame|
+    link(:check_all, :text=>"Check All", :frame=>frame)
   end
 end
 
@@ -217,12 +215,11 @@ module MessagesReceivedListMethods
     MoveMessageTo.new(@browser)
   end
 
-  def self.page_elements(identifier)
-    in_frame(identifier) do |frame|
-      select_list(:view, :id=>"prefs_pvt_form:viewlist", :frame=>frame)
-      link(:check_all, :text=>"Check All", :frame=>frame)
-      link(:delete, :text=>"Delete", :frame=>frame)
-    end
+  in_frame(:class=>"portletMainIframe") do |frame|
+    select_list(:view, :id=>"prefs_pvt_form:viewlist", :frame=>frame)
+    link(:check_all, :text=>"Check All", :frame=>frame)
+    link(:delete, :text=>"Delete", :frame=>frame)
+
   end
 end
 
@@ -297,12 +294,11 @@ module FolderListMethods
     MoveMessageTo.new(@browser)
   end
 
-  def self.page_elements(identifier)
-    in_frame(identifier) do |frame|
-      select_list(:view, :id=>"prefs_pvt_form:viewlist", :frame=>frame)
-      link(:check_all, :text=>"Check All", :frame=>frame)
-      link(:delete, :text=>"Delete", :frame=>frame)
-    end
+  in_frame(:class=>"portletMainIframe") do |frame|
+    select_list(:view, :id=>"prefs_pvt_form:viewlist", :frame=>frame)
+    link(:check_all, :text=>"Check All", :frame=>frame)
+    link(:delete, :text=>"Delete", :frame=>frame)
+
   end
 end
 
@@ -321,13 +317,12 @@ module MoveMessageToMethods
     frm.radio(:index=>num.to_i+3).set
   end
 
-  def self.page_elements(identifier)
-    in_frame(identifier) do |frame|
-      radio_button(:received, :name=>"pvtMsgMove:_id16:0:privateForums:0:_id19", :frame=>frame)
-      radio_button(:sent, :name=>"pvtMsgMove:_id16:0:privateForums:1:_id19", :frame=>frame)
-      radio_button(:deleted, :name=>"pvtMsgMove:_id16:0:privateForums:2:_id19", :frame=>frame)
-      radio_button(:draft, :name=>"pvtMsgMove:_id16:0:privateForums:3:_id19", :frame=>frame)
-    end
+  in_frame(:class=>"portletMainIframe") do |frame|
+    radio_button(:received, :name=>"pvtMsgMove:_id16:0:privateForums:0:_id19", :frame=>frame)
+    radio_button(:sent, :name=>"pvtMsgMove:_id16:0:privateForums:1:_id19", :frame=>frame)
+    radio_button(:deleted, :name=>"pvtMsgMove:_id16:0:privateForums:2:_id19", :frame=>frame)
+    radio_button(:draft, :name=>"pvtMsgMove:_id16:0:privateForums:3:_id19", :frame=>frame)
+
   end
 end
 
@@ -393,10 +388,9 @@ module MessagesDeletedListMethods
     MessageDeleteConfirmation.new(@browser)
   end
 
-  def self.page_elements(identifier)
-    in_frame(identifier) do |frame|
-      link(:check_all, :text=>"Check All", :frame=>frame)
-    end
+  in_frame(:class=>"portletMainIframe") do |frame|
+    link(:check_all, :text=>"Check All", :frame=>frame)
+
   end
 end
 
@@ -418,10 +412,9 @@ module MessagesDraftListMethods
     frm.span(:class=>"success").text
   end
 
-  def self.page_elements(identifier)
-    in_frame(identifier) do |frame|
-      link(:check_all, :text=>"Check All", :frame=>frame)
-    end
+  in_frame(:class=>"portletMainIframe") do |frame|
+    link(:check_all, :text=>"Check All", :frame=>frame)
+
   end
 end
 
@@ -487,12 +480,11 @@ module ComposeMessageMethods
     xxxxxxxxx.new(@browser) #FIXME
   end
 
-  def self.page_elements(identifier)
-    in_frame(identifier) do |frame|
-      select_list(:send_to, :id=>"compose:list1", :frame=>frame)
-      checkbox(:send_cc, :id=>"compose:send_email_out", :frame=>frame)
-      text_field(:subject, :id=>"compose:subject", :frame=>frame)
-    end
+  in_frame(:class=>"portletMainIframe") do |frame|
+    select_list(:send_to, :id=>"compose:list1", :frame=>frame)
+    checkbox(:send_cc, :id=>"compose:send_email_out", :frame=>frame)
+    text_field(:subject, :id=>"compose:subject", :frame=>frame)
+
   end
 end
 
@@ -530,12 +522,11 @@ module ReplyToMessageMethods
     xxxxxxxxx.new(@browser) #FIXME
   end
 
-  def self.page_elements(identifier)
-    in_frame(identifier) do |frame|
-      select_list(:select_additional_recipients, :id=>"compose:list1", :frame=>frame)
-      checkbox(:send_cc, :id=>"compose:send_email_out", :frame=>frame)
-      text_field(:subject, :id=>"compose:subject", :frame=>frame)
-    end
+  in_frame(:class=>"portletMainIframe") do |frame|
+    select_list(:select_additional_recipients, :id=>"compose:list1", :frame=>frame)
+    checkbox(:send_cc, :id=>"compose:send_email_out", :frame=>frame)
+    text_field(:subject, :id=>"compose:subject", :frame=>frame)
+
   end
 end
 
@@ -569,12 +560,11 @@ module ForwardMessageMethods
     xxxxxxxxx.new(@browser) #FIXME
   end
 
-  def self.page_elements(identifier)
-    in_frame(identifier) do |frame|
-      select_list(:select_forward_recipients, :id=>"pvtMsgForward:list1", :frame=>frame)
-      checkbox(:send_cc, :id=>"compose:send_email_out", :frame=>frame)
-      text_field(:subject, :id=>"compose:subject", :frame=>frame)
-    end
+  in_frame(:class=>"portletMainIframe") do |frame|
+    select_list(:select_forward_recipients, :id=>"pvtMsgForward:list1", :frame=>frame)
+    checkbox(:send_cc, :id=>"compose:send_email_out", :frame=>frame)
+    text_field(:subject, :id=>"compose:subject", :frame=>frame)
+
   end
 end
 
@@ -603,10 +593,9 @@ module MessagesNewFolderMethods
     Messages.new(@browser)
   end
 
-  def self.page_elements(identifier)
-    in_frame(identifier) do |frame|
-      text_field(:title, :id=>"pvtMsgFolderAdd:title", :frame=>frame)
-    end
+  in_frame(:class=>"portletMainIframe") do |frame|
+    text_field(:title, :id=>"pvtMsgFolderAdd:title", :frame=>frame)
+
   end
 end
 

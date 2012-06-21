@@ -2,5 +2,5 @@
 class Gradebook2
   include PageObject
   include ToolsMenu
-  CLEElements.modularize(Gradebook2Methods, :class=>"portletMainIframe")
+  include Gradebook2Methods
 end

@@ -15,7 +15,7 @@ end
 
 class ComposeForumMessage
   include ToolsMenu
-  CLEElements.modularize(ComposeForumMessageMethods, :class=>"portletMainIframe")
+  include ComposeForumMessageMethods
 end
 
 class ForumTemplateSettings
@@ -30,10 +30,10 @@ end
 
 class EditForum
   include ToolsMenu
-  CLEElements.modularize(EditForumMethods, :class=>"portletMainIframe")
+  include EditForumMethods
 end
 
 class AddEditTopic
   include ToolsMenu
-  CLEElements.modularize(AddEditTopicMethods, :class=>"portletMainIframe")
+  include AddEditTopicMethods
 end

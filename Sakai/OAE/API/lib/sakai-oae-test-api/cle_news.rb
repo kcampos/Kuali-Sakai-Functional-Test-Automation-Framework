@@ -15,5 +15,5 @@ end
 class News
   include PageObject
   include NewsFrame
-  CLEElements.modularize(NewsMethods, :index=>2)
+  include NewsMethods, :index=>2)
 end

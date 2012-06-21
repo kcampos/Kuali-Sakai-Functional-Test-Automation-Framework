@@ -16,8 +16,6 @@ module BlogsMethods
     return bloggers
   end
 
-  def self.page_elements(identifier)
-    in_frame(identifier) do |frame|
-    end
+  in_frame(:class=>"portletMainIframe") do |frame|
   end
 end

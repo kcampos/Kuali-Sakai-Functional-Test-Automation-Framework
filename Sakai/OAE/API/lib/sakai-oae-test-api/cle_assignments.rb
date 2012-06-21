@@ -17,37 +17,37 @@ end
 #
 class AssignmentsList
   include AssignmentsFrame
-  CLEElements.modularize( AssignmentsListMethods, :index=>2)
+  include  AssignmentsListMethods, :index=>2)
 end
 
 #
 class AssignmentAdd
   include AssignmentsFrame
-  CLEElements.modularize( AssignmentAddMethods, :index=>2)
+  include  AssignmentAddMethods, :index=>2)
 end
 
 #
 class AssignmentsPermissions
   include AssignmentsFrame
-  CLEElements.modularize( AssignmentsPermissionsMethods, :index=>2)
+  include  AssignmentsPermissionsMethods, :index=>2)
 end
 
 #
 class AssignmentsPreview
   include AssignmentsFrame
-  CLEElements.modularize( AssignmentsPreviewMethods, :index=>2)
+  include  AssignmentsPreviewMethods, :index=>2)
 end
 
 #
 class AssignmentsReorder
   include AssignmentsFrame
-  CLEElements.modularize( AssignmentsReorderMethods, :index=>2)
+  include  AssignmentsReorderMethods, :index=>2)
 end
 
 #
 class AssignmentStudent
   include AssignmentsFrame
-  CLEElements.modularize( AssignmentStudentMethods, :index=>2)
+  include  AssignmentStudentMethods, :index=>2)
 end
 
 #
@@ -65,13 +65,13 @@ end
 #
 class AssignmentSubmissionList
   include AssignmentsFrame
-  CLEElements.modularize( AssignmentSubmissionListMethods, :index=>2)
+  include  AssignmentSubmissionListMethods, :index=>2)
 end
 
 #
 class AssignmentSubmission
   include AssignmentsFrame
-  CLEElements.modularize( AssignmentSubmissionMethods, :index=>2)
+  include  AssignmentSubmissionMethods, :index=>2)
 end
 
 #
@@ -83,5 +83,5 @@ end
 #
 class StudentView
   include AssignmentsFrame
-  CLEElements.modularize( StudentViewMethods, :index=>2)
+  include  StudentViewMethods, :index=>2)
 end

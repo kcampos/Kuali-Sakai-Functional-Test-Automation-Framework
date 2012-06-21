@@ -34,24 +34,24 @@ end
 #
 class AddEditEvent
   include CalendarFrame
-  CLEElements.modularize(AddEditEventMethods, :class=>"portletMainIframe")
+  include AddEditEventMethods
 end
 
 # The page that appears when the Frequency button is clicked on the Add/Edit
 # Event page.
 class EventFrequency
   include CalendarFrame
-  CLEElements.modularize(EventFrequencyMethods, :class=>"portletMainIframe")
+  include EventFrequencyMethods
 end
 
 class AddEditFields
   include CalendarFrame
-  CLEElements.modularize(AddEditFieldsMethods, :class=>"portletMainIframe")
+  include AddEditFieldsMethods
 end
 
 class ImportStepOne
   include CalendarFrame
-  CLEElements.modularize(ImportStepOneMethods, :class=>"portletMainIframe")
+  include ImportStepOneMethods
 end
 
 class ImportStepTwo
@@ -61,5 +61,5 @@ end
 
 class ImportStepThree
   include CalendarFrame
-  CLEElements.modularize(ImportStepThreeMethods, :class=>"portletMainIframe")
+  include ImportStepThreeMethods
 end

@@ -23,5 +23,5 @@ end
 class EditProfile
   include PageObject
   include ProfileFrame
-  CLEElements.modularize(EditProfileMethods, :index=>2)
+  include EditProfileMethods, :index=>2)
 end
