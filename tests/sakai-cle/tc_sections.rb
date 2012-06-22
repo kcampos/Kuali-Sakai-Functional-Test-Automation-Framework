@@ -127,7 +127,7 @@ class TestSectionCreation < Test::Unit::TestCase
     assign_students.unassign
     
     sections = assign_students.assign_students
-    
+sleep 15
     # TEST CASE: Verify TA assigned
     assert_equal @ta, sections.tas_for(@sections[0][:name])
     
